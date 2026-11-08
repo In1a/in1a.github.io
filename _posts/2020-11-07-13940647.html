@@ -18,7 +18,7 @@ j} = g_{i - 1} - (g_{i - a_{j} - 1} - f_{i - a_{j} - 1 , j})\)</span>。</p>
 <p>但事实上可以不用数据结构 ， 因为插入排序的时间复杂度是 <span class="math inline">\(O(逆序对个数)\)</span> ， 所以可以直接运行插入排序 ， 如果超过 <span class="math inline">\(K\)</span> 次交换操作就直接返回。</p>
 <p>这样的时间复杂度是 <span class="math inline">\(O(NlogN)\)</span> 的。</p>
 <p>附核心代码 ：</p>
-<p><img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202011/1424311-20201107123555999-175144819.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202011/1424311-20201107123555999-175144819.png"></p>
+<p><img alt="" loading="lazy" data-src="/assets/images/432fb80b0670ad198e5791e0.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202011/1424311-20201107123555999-175144819.png"></p>
 <p><span class="math inline">\(C.\)</span></p>
 <p>记 <span class="math inline">\(dp_{i , j}\)</span> 表示考虑了前 <span class="math inline">\(i\)</span> 个字符串 ， 一个拼合串的后缀为 <span class="math inline">\(s_{i}\)</span> , 另一个为 <span class="math inline">\(s_{j}\)</span> 的最短长度。</p>
 <p>考虑优化 ， 不妨将字符串记进状态 ， 记 <span class="math inline">\(dp_{i , s}\)</span> 表示前 <span class="math inline">\(i\)</span> 个字符串 ， 有一个串后缀为 <span class="math inline">\(s_{i}\)</span> ， 另一个有一个后缀是 <span class="math inline">\(s\)</span> 的最短长度。</p>

@@ -15,7 +15,7 @@ cnblogs_id: 14318668
 <p>     考虑容斥 ， 首先没有限制的方案数显然是 <span class="math inline">\({2n \choose n}\)</span>。 对于不合法的情况 ，将第一次到达 <span class="math inline">\(-1\)</span> 及其后面部分沿直线 <span class="math inline">\(y = -1\)</span> 翻折。 那么就相当于将终点对应到了 <span class="math inline">\((2N , -2)\)</span> ， 进一步地 ， 发现不合法方</p>
 <p>     案数和从原点到 <span class="math inline">\((2N , -2)\)</span> 的方案数构成双射。 方案数为 <span class="math inline">\({2n \choose n + 1}\)</span>。所以总方案数 <span class="math inline">\({2n \choose n} - {2n \choose n + 1}\)</span> , 进一步化简得到答案是 <span class="math inline">\(\frac{{2n \choose n}}{n + 1}\)</span>。</p>
 <p>     如图 (有一个 "线" 字打错了)</p>
-<p><img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210109090354001-1370381322.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210109090354001-1370381322.png"></p>
+<p><img alt="" loading="lazy" data-src="/assets/images/817391e2b126524487dd7e96.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210109090354001-1370381322.png"></p>
 <p>     注意也可以通过范德蒙德卷积公式把 <span class="math inline">\({2n \choose n}\)</span> 展开。 为 <span class="math inline">\(\sum{{n \choose i}^2}\)</span>。</p>
 <p>     另外还存在两个递推式 ：</p>
 <p>     <span class="math inline">\(Cat_{n + 1} = \frac{4n - 2}{n + 2}Cat_{n}\)</span></p>
@@ -28,7 +28,7 @@ cnblogs_id: 14318668
 <p>      <span class="math inline">\(n\)</span> 个数入栈后出栈的排列总数</p>
 <p><span style="font-size: 20px">例题</span> ：</p>
 <p><span class="math inline">\(AGC021E\)</span></p>
-<p><img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210109091435981-1726300692.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210109091435981-1726300692.png"></p>
+<p><img alt="" loading="lazy" data-src="/assets/images/b993d0daa629eb89ca3873f6.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210109091435981-1726300692.png"></p>
 <p>题解 ：</p>
 <p>      首先对于一条蛇而言 ， 符合要求当且仅当满足两个条件之一 ：</p>
 <p>      <span class="math inline">\(1.\)</span> 得到的最后一个求是蓝色的且它在整个过程中得到的红蓝球个数相等。 <span class="math inline">\(2.\)</span> 得到的红球比蓝球多。</p>
@@ -42,12 +42,12 @@ cnblogs_id: 14318668
 <p>      考虑容斥 ， 总数显然是 <span class="math inline">\({R + B \choose R}\)</span> , 而对于不合法的情况可以用近似于卡特兰数证明的方法 ， 翻转直线 ， 因为所有不合法的折线与任意的走到 <span class="math inline">\((B − R + n − 1 , 2R − N + 1)\)</span> 的折线之间建立了双</p>
 <p>      射。方案数为 <span class="math inline">\({R + B \choose 2R - N - 1}\)</span>。 故方案数是 <span class="math inline">\({R + B \choose R} - {R + B \choose 2R - N - 1}\)</span>。 时间复杂度 : <span class="math inline">\(O(NlogN)\)</span> (瓶颈在于求组合数)</p>
 <p><span class="math inline">\(P3974\)</span></p>
-<p><img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210109105704798-1652423841.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210109105704798-1652423841.png"></p>
+<p><img alt="" loading="lazy" data-src="/assets/images/43fb8f9c717bf6ae705f6bc4.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210109105704798-1652423841.png"></p>
 <p>题解 ：</p>
 <p>      首先总数是卡特兰数 <span class="math inline">\(Cat_{N}\)</span></p>
 <p>      对于一棵 <span class="math inline">\(N\)</span> 个节点的树 ， 其删去一个叶子节点会对应一棵 <span class="math inline">\((N - 1)\)</span> 个点的树 ， 而对于一棵 <span class="math inline">\((N - 1)\)</span> 个点的无根树 ， 其加上一个点又对应着 <span class="math inline">\(N\)</span> 个点的无根树。 这两者是一一对应关系。 故方案数 <span class="math inline">\(NCat_{N - 1}\)</span>。 化简得到答案为 <span class="math inline">\(\frac{N(N + 1)}{4N - 2}\)</span>。 时间复杂度 <span class="math inline">\(O(1)\)</span></p>
 <p>      其实还有生成函数的推导方法</p>
-<p><img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210109111030788-1069021922.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210109111030788-1069021922.png"></p>
+<p><img alt="" loading="lazy" data-src="/assets/images/a2f6a0eaea35bafed4216469.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210109111030788-1069021922.png"></p>
 
 
 

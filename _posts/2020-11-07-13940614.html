@@ -11,7 +11,7 @@ cnblogs_id: 13940614
 <p><a href="" rel="noopener nofollow">https://codeforces.com/contest/1214/problem/H</a></p>
 <p>[题解] ：</p>
 <p>首先判断不合法的情况 ：</p>
-<p><img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202011/1424311-20201107121033712-1102840133.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202011/1424311-20201107121033712-1102840133.png"></p>
+<p><img alt="" loading="lazy" data-src="/assets/images/6a7cda9acc89828165d5dcf5.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202011/1424311-20201107121033712-1102840133.png"></p>
 <p>如图 ， 若 <span class="math inline">\(a + b \geq k - 1 , b + c \geq k - 1 , a + c \geq k - 1\)</span> , 显然没有任何一种方案可以满足条件。</p>
 <p>这种情况可以通过动态规划判断。</p>
 <p>可以证明 ， 除了这种情况 ， 其它情况都是合法的。 下面给出一种具体的构造方案。</p>
@@ -20,14 +20,14 @@ cnblogs_id: 13940614
 <p><span class="math inline">\(3.\)</span> 将直径上的点用 <span class="math inline">\(1 , 2 , 3 , ... k , 1 , 2 , 3 , ... k\)</span> 交替染色。 不在直径上的点 ， 如果在直径的左侧部分 ， 那</p>
 <p>么就用 <span class="math inline">\(k , k - 1 , ... 1\)</span> 递减染色 ， 否则用 <span class="math inline">\(2 , 3 , ... k\)</span> 递增染色。</p>
 <p>如图 ：</p>
-<p><img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202011/1424311-20201107121845048-990687858.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202011/1424311-20201107121845048-990687858.png"></p>
+<p><img alt="" loading="lazy" data-src="/assets/images/75e6f69b948471ceac33c741.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202011/1424311-20201107121845048-990687858.png"></p>
 <p>下面证明这个构造的正确性 ， 考虑反证 ， 设有一条路径不合法。</p>
-<p><img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202011/1424311-20201107121539066-1748755112.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202011/1424311-20201107121539066-1748755112.png"></p>
+<p><img alt="" loading="lazy" data-src="/assets/images/1d56d65792ee7af992763f02.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202011/1424311-20201107121539066-1748755112.png"></p>
 <p>情况 <span class="math inline">\(1\)</span> : 不合法的路径与直径不交 ， 如图 ， 由直径的性质 ， 蓝色部分的长度比 <span class="math inline">\(v\)</span> 左右两侧的路径都要长。 因此这样的情况</p>
 <p>根本不存在。</p>
-<p><img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202011/1424311-20201107121953569-1950197562.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202011/1424311-20201107121953569-1950197562.png"></p>
+<p><img alt="" loading="lazy" data-src="/assets/images/0a7a2216b4f24072b1e38075.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202011/1424311-20201107121953569-1950197562.png"></p>
 <p>情况 <span class="math inline">\(2\)</span> : 不合法的路径与直径一侧有交。 这样的情况也不存在 ， 和情况 <span class="math inline">\(1\)</span> 类似。</p>
-<p><img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202011/1424311-20201107122112402-1944317855.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202011/1424311-20201107122112402-1944317855.png"></p>
+<p><img alt="" loading="lazy" data-src="/assets/images/593cf3d1b0e8c5db7e6003bb.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202011/1424311-20201107122112402-1944317855.png"></p>
 <p>情况 <span class="math inline">\(3\)</span> ： 不合法的路径跨过直径的两部分 ， 那么根据刚才的染色方案 ， 这样的情况不可能发生。</p>
 <p>时间复杂度 : <span class="math inline">\(O(N)\)</span></p>
 <p>[代码]</p>

@@ -14,13 +14,13 @@ cnblogs_id: 14321600
 <p>考虑朴素动态规划 ， 令 <span class="math inline">\(dp_{i , l , r}\)</span> 表示用了 <span class="math inline">\(i\)</span> 个字符 ， 字符串 <span class="math inline">\(S\)</span> 还剩 <span class="math inline">\([l , r]\)</span> 这段区间的方案数 ， <span class="math inline">\(g_{i}\)</span> 表示用了 <span class="math inline">\(i\)</span> 个字符匹配了 <span class="math inline">\(S\)</span> 的方案数。 转移不赘述了。</p>
 <p>用矩阵乘法优化 ， 可以得到一个 <span class="math inline">\(O(|S| ^ 6log|S|)\)</span> 的做法。</p>
 <p>注意到这个 <span class="math inline">\(DP\)</span> 实质上实在一个有限状态自动机 (<span class="math inline">\(DFA\)</span>) 上匹配的过程。 如图 ：</p>
-<p><img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210124172120394-592082499.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210124172120394-592082499.png"></p>
+<p><img alt="" loading="lazy" data-src="/assets/images/c65054ccf4336d486ef2f615.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210124172120394-592082499.png"></p>
 <p>考虑压缩自动机 ， 注意到一条有 <span class="math inline">\(k\)</span> 个红点的路径必然对应着 <span class="math inline">\(\rfloor \frac{|s| - k}{2} \rfloor\)</span> 个绿点 ， 同时最终连接终点的点一定是绿点。</p>
 <p>对于两条红点个数相同的链 ， 它们对答案的贡献与红点的具体位置无关 ， 因为其自环数及点数都相同。 因此只有 <span class="math inline">\(O(|S|)\)</span> 条本质不同的链。</p>
 <p>令 <span class="math inline">\(h_{i , l , r}\)</span> 表示从起点走到 <span class="math inline">\((l , r)\)</span> 对应的节点的路径中 ，有多少条经过了 <span class="math inline">\(i\)</span> 个红点 ， 可以用记忆化搜索的方式求得 ， 时间复杂度 <span class="math inline">\(O(|S| ^ 3)\)</span>。</p>
 <p>现在我们只有了 <span class="math inline">\(O(|S|)\)</span> 条本质不同的链 ， 同时知道了每种链的条数 ， 可以对每条链进行矩阵乘法 ， 时间复杂度降为 <span class="math inline">\(O(|S| ^ 4log|S|)\)</span>。</p>
 <p>但这样仍然是不行的 ， 考虑建出一个 <span class="math inline">\(O(|S|)\)</span> 个节点的自动机 (如图) ：</p>
-<p><img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210124173137429-478676857.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210124173137429-478676857.png"></p>
+<p><img alt="" loading="lazy" data-src="/assets/images/7a0e14aac14f6e1b79f08931.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210124173137429-478676857.png"></p>
 <p>这样就可以做到 <span class="math inline">\(O(|S| ^ 3log|S|)\)</span> 了！</p>
 <p>最后考虑奇数的情况 ， 相比起偶数的情况 ， 奇数的情况相当于限制了最后一步不能从一个 <span class="math inline">\(2\)</span> 个字符的绿色节点转移而来 ， 那么去除自动机终点的自环 ， 求出这样的方案数减去即可。</p>
 <p>但我们仍然不能通过此题。 考虑将节点编号 ， 每条边都从编号小的节点连向编号大的。 那么这样转移矩阵就是一个上三角矩阵。 不用全部清零 ， 复杂度被乘了一个 <span class="math inline">\(\frac{1}{6}\)</span> 的常数。</p>

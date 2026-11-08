@@ -32,9 +32,9 @@ cnblogs_id: 14401204
 <p>接着考虑如何通过交换一对括号使得最小值个数尽可能多。</p>
 <p>将左括号换成右括号 ， 相当于将一段区间的 <span class="math inline">\(h\)</span> 值 <span class="math inline">\(-2\)</span>。 否则相当于 <span class="math inline">\(+2\)</span>。</p>
 <p>显然 <span class="math inline">\(+2\)</span> 是不优的。只需考虑 <span class="math inline">\(-2\)</span> 的情况。</p>
-<p><img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202102/1424311-20210213213200394-1312323491.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202102/1424311-20210213213200394-1312323491.png"></p>
+<p><img alt="" loading="lazy" data-src="/assets/images/4f46b68dda4f6798c6cd9947.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202102/1424311-20210213213200394-1312323491.png"></p>
 <p>如图 ， 对这段区间进行 <span class="math inline">\(-2\)</span> ， 最小值仍然为 <span class="math inline">\(0\)</span>。</p>
-<p><img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202102/1424311-20210213213318015-2041017835.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202102/1424311-20210213213318015-2041017835.png"></p>
+<p><img alt="" loading="lazy" data-src="/assets/images/8a8c81616734199fe31e4051.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202102/1424311-20210213213318015-2041017835.png"></p>
 <p>如图 ， 此时最小值变为 <span class="math inline">\(-1\)</span>。</p>
 <p>对这两类情况分开讨论即可。</p>
 <p>时间复杂度 : <span class="math inline">\(O(N)\)</span> 或 <span class="math inline">\(O(NlogN)\)</span></p>
@@ -57,7 +57,7 @@ cnblogs_id: 14401204
 <p>那么在 <span class="math inline">\(i\)</span> 处向下所获得的值为 <span class="math inline">\(pre_{i , 1} + suf_{i , 2}\)</span>。</p>
 <p>考虑将 <span class="math inline">\(i\)</span> 变为 <span class="math inline">\(i + 1\)</span> 时所获得的 "收益" 是 <span class="math inline">\(a_{i + 1} - b_{i}\)</span>。</p>
 <p>由于 <span class="math inline">\(a\)</span> 单调增 ， <span class="math inline">\(b\)</span> 单调减 ， 故收益函数的导数是单调增的 ， 如图 ：</p>
-<p><img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202102/1424311-20210213220738639-1639821629.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202102/1424311-20210213220738639-1639821629.png"></p>
+<p><img alt="" loading="lazy" data-src="/assets/images/a3abf9cc7017b708690d8984.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202102/1424311-20210213220738639-1639821629.png"></p>
 <p>因此最小值必然在端点取到。 也就是说答案为 <span class="math inline">\(max\{\sum{a} + b_{n} , \sum{b} + a_{n}\}\)</span>。</p>
 <p>不妨将 <span class="math inline">\(a_{1} + b_{n}\)</span> 提出 ， 也就是说我们需要将 <span class="math inline">\(2(n - 1)\)</span> 个数分为两个序列 ， 使得 <span class="math inline">\(max\{\sum{a} , \sum{b}\}\)</span> 尽可能小。</p>
 <p>注意到 <span class="math inline">\(s = \sum{a} + \sum{b}\)</span> 是固定的 ， 也就是说只需找到一种方案使得选出的 <span class="math inline">\((n - 1)\)</span> 个数恰好比 <span class="math inline">\(\frac{s}{2}\)</span> 大 ， 第一个满足的变为条件。</p>

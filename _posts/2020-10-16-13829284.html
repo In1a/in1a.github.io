@@ -28,11 +28,11 @@ cnblogs_id: 13829284
 <p><span class="math inline">\(Fluery\)</span> 算法</p>
 <p>算法大意 ： 每次选出一条不是桥的边 ， 深度优先搜索。 该算法可以在存在欧拉回路时构造出一组方案 ， 否则构造一条欧拉路径。时间复杂度 <span class="math inline">\(O(N + M)\)</span></p>
 <p>具体实现 ， 这里给出我的一段代码 ：</p>
-<p><img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202010/1424311-20201016224148507-962595271.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202010/1424311-20201016224148507-962595271.png"></p>
+<p><img alt="" loading="lazy" data-src="/assets/images/a6176d1448d9b06994db785a.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202010/1424311-20201016224148507-962595271.png"></p>
 <p><span class="math inline">\(Hierholzer\)</span> 算法 ：</p>
 <p>算法大意 ： 与定理 <span class="math inline">\(1.1\)</span> 的证明是相同的 ， 任选一点深度优先搜索找圈 ， 然后递归地求解子问题合并。时间复杂度 <span class="math inline">\(O(N + M)\)</span>。</p>
 <p>具体实现 ： 一段伪代码如下 ：</p>
-<p><img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202010/1424311-20201016224536012-49571045.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202010/1424311-20201016224536012-49571045.png"></p>
+<p><img alt="" loading="lazy" data-src="/assets/images/81a2e5f427bcb7e38345b949.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202010/1424311-20201016224536012-49571045.png"></p>
 <p><span class="math inline">\(4.\)</span> 欧拉图与相关性质 ：</p>
 <p>定理 <span class="math inline">\(4.1\)</span> ： 对于任意无向连通图 <span class="math inline">\(G\)</span> ，一定存在回路使得每条边经过恰好两次。进一步地，存在回路使得每条边的两个方向各经过一次。</p>
 <p>证明 ： 将每条边重复 <span class="math inline">\(2\)</span> 次 ， 得到了无向图 <span class="math inline">\(G1\)</span> ， <span class="math inline">\(G1\)</span> 是联通图且每个点度数必然是偶数 ， 因此 <span class="math inline">\(G1\)</span> 是欧拉图 ， 存在欧拉回路。<br>
@@ -83,25 +83,25 @@ cnblogs_id: 13829284
 <p><span class="math inline">\(7.\)</span> 论文中出现的例题和题解 ：</p>
 <p><span class="math inline">\(7.1\)</span></p>
 <p>题目描述 ：</p>
-<p><img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202010/1424311-20201017135124232-1944407967.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202010/1424311-20201017135124232-1944407967.png"></p>
+<p><img alt="" loading="lazy" data-src="/assets/images/2c3036558673e5f386377a2b.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202010/1424311-20201017135124232-1944407967.png"></p>
 <p>题解：<br>
 首先将每条边重复两遍得到 <span class="math inline">\(G'\)</span> , 那么现在要做的就是在 <span class="math inline">\(G'\)</span> 中删去两条边 ， 使其存在欧拉路径（奇顶点数为 <span class="math inline">\(0\)</span> 或 <span class="math inline">\(2\)</span>） 。 那么只有 <span class="math inline">\(3\)</span> 种可能的情况 ：<span class="math inline">\((1).\)</span> 删去的两条边都是自环 <span class="math inline">\((2).\)</span> 删去两条边恰有一条是自环 <span class="math inline">\((3).\)</span> 删去两条边都不是自环 ， 但有公共点。 分别讨论即可。 时间复杂度 <span class="math inline">\(O(N + M)\)</span></p>
 <p><span class="math inline">\(7.2\)</span></p>
 <p>题目描述 ：<br>
-<img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202010/1424311-20201017140734085-879649796.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202010/1424311-20201017140734085-879649796.png"></p>
+<img alt="" loading="lazy" data-src="/assets/images/735d1aa94f295d109a46c684.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202010/1424311-20201017140734085-879649796.png"></p>
 <p>题解 ：<br>
 根据定理 <span class="math inline">\(4.2\)</span> , 首先需要满足的条件是黑边构成的联通子图中每个点的度数是偶数。 否则必然无解。<br>
 一个结论是 ： 答案为这张图包含黑边的联通分量个数 ， 其理由在于对于每个包含黑边的联通块 ， 让黑边经过 <span class="math inline">\(1\)</span> 次 ， 白边经过 <span class="math inline">\(2\)</span> 次 ， 用欧拉回路构造即可。<br>
 时间复杂度 : <span class="math inline">\(O(N + M)\)</span></p>
 <p><span class="math inline">\(7.3\)</span></p>
 <p>题目描述：<br>
-<img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202010/1424311-20201017141753950-839113103.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202010/1424311-20201017141753950-839113103.png"></p>
+<img alt="" loading="lazy" data-src="/assets/images/e544baa0b49aaa33506d0482.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202010/1424311-20201017141753950-839113103.png"></p>
 <p>题解：</p>
 <p>首先直接做是困难的 ， 不妨转化问题 ， <strong>考虑这个图需要几条路径才能使每一条边经过一次</strong>。<br>
 不包含奇顶点的联通分量存在欧拉回路 ， 只需 <span class="math inline">\(1\)</span> 条即可。 而包含奇顶点的则需要 <span class="math inline">\(\frac{奇顶点个数}{2}\)</span> 条路径。 故对每个联通分量分别讨论即可 ， 注意 <span class="math inline">\(1\)</span> 为孤立点要单独考虑。 时间复杂度 <span class="math inline">\(O(N + M)\)</span>。</p>
 <p><span class="math inline">\(8.\)</span> 补充例题 ：</p>
 <p><span class="math inline">\(8.1\)</span> :</p>
-<p><img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202010/1424311-20201017143826540-1968386317.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202010/1424311-20201017143826540-1968386317.png"></p>
+<p><img alt="" loading="lazy" data-src="/assets/images/adf02b36b7f725776fae268c.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202010/1424311-20201017143826540-1968386317.png"></p>
 <p>题解 ：</p>
 <p>来自 <span class="math inline">\(2020\)</span> 年国家集训队作业。</p>
 <p>首先给出结论 ： 一张无向图能够给边定向且出入度都是偶数当且仅当 <span class="math inline">\(M\)</span> 为偶数且存在欧拉回路。</p>
@@ -110,7 +110,7 @@ cnblogs_id: 13829284
 <p>那么考虑这道题的解法 ， 不妨将度数为奇数的点两两配对 ， 如果还有剩余就加上一个自环 ， 再求一遍欧拉回路 ， 就构造出了方案。</p>
 <p>时间复杂度 : <span class="math inline">\(O(N + M)\)</span>。</p>
 <p><span class="math inline">\(8.2\)</span> :</p>
-<p><img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202010/1424311-20201017163150982-234555968.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202010/1424311-20201017163150982-234555968.png"></p>
+<p><img alt="" loading="lazy" data-src="/assets/images/4378e4378a57f65b7d336e67.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202010/1424311-20201017163150982-234555968.png"></p>
 <p>题解 ：</p>
 <p>来自 <span class="math inline">\(2020\)</span> 年国家集训队作业。</p>
 <p>首先建一张二分图 ， 将 左侧的 <span class="math inline">\(X\)</span> 和 右侧的 <span class="math inline">\(Y\)</span> 连边。 这样只要交错染色即可。</p>
@@ -118,7 +118,7 @@ cnblogs_id: 13829284
 <p>时间复杂度 : <span class="math inline">\(O(N + M)\)</span></p>
 <p><span class="math inline">\(8.3.1\)</span></p>
 <p>引入 ：</p>
-<p><img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202010/1424311-20201018135436421-1857105390.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202010/1424311-20201018135436421-1857105390.png"></p>
+<p><img alt="" loading="lazy" data-src="/assets/images/92aed9eefac3574dc6ed0df9.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202010/1424311-20201018135436421-1857105390.png"></p>
 <p>题解 ：</p>
 <p>首先有 <span class="math inline">\(Burnside\)</span> 引理 ：</p>
 <p><span class="math inline">\(L = \frac{1}{|G|}\sum_{g \in G}{M(g)}\)</span></p>
@@ -133,7 +133,7 @@ cnblogs_id: 13829284
 <p>化简后 ， 求得答案为 <span class="math inline">\(\sum{\frac{1}{\prod{b_{i}!c_{i}!}}m^{\sum{\lfloor \frac{b_{i}}{2} \rfloor} + \sum_{i &lt; j}{gcd(b_{i} , b_{j})}}}\)</span></p>
 <p>时间复杂度 : <span class="math inline">\(O(log N \sum_{p \in Partition(n)}{len(p) ^ 2})\)</span>。</p>
 <p><span class="math inline">\(8.3.2\)</span></p>
-<p><img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202010/1424311-20201018142132184-57952416.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202010/1424311-20201018142132184-57952416.png"></p>
+<p><img alt="" loading="lazy" data-src="/assets/images/fd2c984ef1a291b0a344c118.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202010/1424311-20201018142132184-57952416.png"></p>
 <p>题解 ：</p>
 <p>前面的推导是一模一样的。</p>
 <p>考虑方案数如何计算 ， 对于在相同置换中的边 ， 当且仅当 <span class="math inline">\(l_{i}\)</span> 为偶数 ， 且边的距离为 <span class="math inline">\(\frac{l_{i}}{2}\)</span>。</p>
