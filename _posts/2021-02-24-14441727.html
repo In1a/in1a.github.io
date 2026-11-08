@@ -11,7 +11,7 @@ cnblogs_id: 14441727
 <p><a href="" rel="noopener nofollow">https://loj.ac/p/3463</a></p>
 <p>[题解]</p>
 <p>首先让我们解决一个简单的问题 :</p>
-<p><img alt="" loading="lazy" data-src="/assets/images/9fed14636fc0696e6b725718.png" class="lazyload" src="/assets/images/9fed14636fc0696e6b725718.png"></p>
+<p><img alt="" src="/assets/images/9fed14636fc0696e6b725718.png?v=2"></p>
 <p>注意到 <span class="math inline">\(K\)</span> 很小 ， 那么不妨维护 <span class="math inline">\(f_{i , S}\)</span> 表示 <span class="math inline">\(i\)</span> 号生物的每个位置是否都比 <span class="math inline">\(S\)</span> 中每个元素的值大。</p>
 <p>用 <span class="math inline">\(bitset\)</span> 维护 <span class="math inline">\(f\)</span> ， 查询时 ， 从大到小枚举值即可。</p>
 <p>时间复杂度 : <span class="math inline">\(O(\frac{Q2 ^ {K}}{w})\)</span></p>

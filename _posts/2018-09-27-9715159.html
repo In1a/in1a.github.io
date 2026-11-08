@@ -10,7 +10,7 @@ cnblogs_id: 9715159
 <p>[题目链接]</p>
 <p>       <a href="https://codeforces.com/problemset/problem/650/A" target="_blank" rel="noopener nofollow"> https://codeforces.com/problemset/problem/650/A</a></p>
 <p>[算法]</p>
-<p>        显然 ， 只有横坐标 / 纵坐标相等的点 ， 才会满足 : <img class="tex-formula lazyload" alt="" align="middle" data-src="/assets/images/828084825fdf20c5e65cfbf7.png" src="/assets/images/828084825fdf20c5e65cfbf7.png" loading="lazy">.    = | xi - xj | + | yi - yj |<span class="lower-index"><span class="lower-index"><span class="lower-index"><span class="lower-index"><em><br></em></span></span></span></span></p>
+<p>        显然 ， 只有横坐标 / 纵坐标相等的点 ， 才会满足 : <img class="tex-formula lazyload" alt="" align="middle" src="/assets/images/828084825fdf20c5e65cfbf7.png?v=2">.    = | xi - xj | + | yi - yj |<span class="lower-index"><span class="lower-index"><span class="lower-index"><span class="lower-index"><em><br></em></span></span></span></span></p>
 <p>        如果有n个点的横 / 纵坐标相等 ， 那么它们将会对答案产生n(n - 1) / 2的贡献</p>
 <p>        不妨维护三个std :: map ， 分别记录横坐标相同 ， 纵坐标相同和重点的个数 </p>
 <p>        时间复杂度 ： O(NlogN)</p>
