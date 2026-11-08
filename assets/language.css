@@ -1,3 +1,4 @@
 nav .language{color:#1b7b72;border:1px solid #d7e7e4;border-radius:6px;padding:3px 9px;font-weight:650;white-space:nowrap}
 nav .language:hover{background:#edf7f5}
 @media(max-width:600px){.headrow{gap:12px}nav{gap:9px;flex-wrap:wrap;justify-content:flex-end}nav .language{padding:2px 6px}}
+.filters{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.filters select{border:1px solid #dfe6eb;border-radius:7px;background:#fff;padding:10px;font:inherit;font-size:13px;max-width:220px}.post-categories{color:#1b7b72;font-size:12px;margin-top:1px}@media(max-width:600px){.filters input{min-width:0;flex:1}.filters select{flex:1}}
