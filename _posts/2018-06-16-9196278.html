@@ -1,0 +1,162 @@
+---
+layout: post
+title: '【POJ 1275】 Cashier Employment'
+date: 2018-06-16 10:51:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9196278.html
+cnblogs_id: 9196278
+---
+{% raw %}
+
+<p>【题目链接】</p>
+<p>          <a href="http://poj.org/problem?id=1275" rel="noopener nofollow">点击打开链接</a></p>
+<p>【算法】</p>
+<p>          设Ti为第i小时有多少个出纳员开始工作，Vi表示第i小时有多少个来应聘的出纳员</p>
+<p>          那么，有 :</p>
+<p>          1. 0 &lt;= Ti &lt;= Vi</p>
+<p>          2. Ti + Ti-1 + Ti-2 + Ti-3 + Ti-4 + Ti-5 + Ti-6 + Ti-7 &gt;= Ri</p>
+<p>          令Si = T1 + T2 + T3 + ... Ti</p>
+<p>          则 :</p>
+<p>          1. Si &gt;= Si-1</p>
+<p>          2. Si - Si-1 &lt;= Vi</p>
+<p>          3. Si &gt;= Si-8 + Ri( 8 &lt;= i &lt;= 24)</p>
+<p>          4. Si&gt;= Si+16 - S24 +Ri (1 &lt;= i &lt;= 7)</p>
+<p>          所以，我们可以枚举S24,用差分约束系统判断是否可行，枚举可以二分</p>
+<p>【代码】</p>
+<p>          </p>
+<div class="cnblogs_code">
+<pre>#include &lt;algorithm&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;bitset&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cctype&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cerrno&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;clocale&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cmath&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;complex&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cstdio&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cstdlib&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cstring&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;ctime&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;deque&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;exception&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;fstream&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;functional&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;limits&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;list&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;map&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;iomanip&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;ios&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;iosfwd&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;iostream&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;istream&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;ostream&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;queue&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;<span style="color: rgba(0, 0, 255, 1)">set</span>&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;sstream&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;stdexcept&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;streambuf&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;<span style="color: rgba(0, 0, 255, 1)">string</span>&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;utility&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;vector&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cwchar&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cwctype&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;stack&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;limits.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+
+</span><span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> Edge
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> to,w,nxt;
+} e[</span><span style="color: rgba(128, 0, 128, 1)">1010</span><span style="color: rgba(0, 0, 0, 1)">];
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,n,k,t,l,r,mid,ans,tot,T;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span> v[<span style="color: rgba(128, 0, 128, 1)">30</span>],R[<span style="color: rgba(128, 0, 128, 1)">30</span>],dis[<span style="color: rgba(128, 0, 128, 1)">30</span>],head[<span style="color: rgba(128, 0, 128, 1)">30</span><span style="color: rgba(0, 0, 0, 1)">];
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> add(<span style="color: rgba(0, 0, 255, 1)">int</span> u,<span style="color: rgba(0, 0, 255, 1)">int</span> v,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> w)
+{
+        tot</span>++<span style="color: rgba(0, 0, 0, 1)">;
+        e[tot] </span>=<span style="color: rgba(0, 0, 0, 1)"> (Edge){v,w,head[u]};
+        head[u] </span>=<span style="color: rgba(0, 0, 0, 1)"> tot;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">bool</span> spfa(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,cur,to,w;
+        queue</span>&lt;<span style="color: rgba(0, 0, 255, 1)">int</span>&gt;<span style="color: rgba(0, 0, 0, 1)"> q;
+        </span><span style="color: rgba(0, 0, 255, 1)">static</span> <span style="color: rgba(0, 0, 255, 1)">bool</span> inq[<span style="color: rgba(128, 0, 128, 1)">30</span><span style="color: rgba(0, 0, 0, 1)">];
+        </span><span style="color: rgba(0, 0, 255, 1)">static</span> <span style="color: rgba(0, 0, 255, 1)">int</span> cnt[<span style="color: rgba(128, 0, 128, 1)">30</span><span style="color: rgba(0, 0, 0, 1)">];
+        tot </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        memset(head,</span><span style="color: rgba(128, 0, 128, 1)">0</span>,<span style="color: rgba(0, 0, 255, 1)">sizeof</span><span style="color: rgba(0, 0, 0, 1)">(head));
+        memset(inq,</span><span style="color: rgba(0, 0, 255, 1)">false</span>,<span style="color: rgba(0, 0, 255, 1)">sizeof</span><span style="color: rgba(0, 0, 0, 1)">(inq));
+        memset(cnt,</span><span style="color: rgba(128, 0, 128, 1)">0</span>,<span style="color: rgba(0, 0, 255, 1)">sizeof</span><span style="color: rgba(0, 0, 0, 1)">(cnt));
+        memset(dis,</span><span style="color: rgba(128, 0, 128, 1)">255</span>,<span style="color: rgba(0, 0, 255, 1)">sizeof</span><span style="color: rgba(0, 0, 0, 1)">(dis));
+        add(</span><span style="color: rgba(128, 0, 128, 1)">0</span>,<span style="color: rgba(128, 0, 128, 1)">24</span><span style="color: rgba(0, 0, 0, 1)">,x);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= <span style="color: rgba(128, 0, 128, 1)">24</span>; i++) add(i,i-<span style="color: rgba(128, 0, 128, 1)">1</span>,-<span style="color: rgba(0, 0, 0, 1)">v[i]);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= <span style="color: rgba(128, 0, 128, 1)">24</span>; i++) add(i-<span style="color: rgba(128, 0, 128, 1)">1</span>,i,<span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">8</span>; i &lt;= <span style="color: rgba(128, 0, 128, 1)">24</span>; i++) add(i-<span style="color: rgba(128, 0, 128, 1)">8</span><span style="color: rgba(0, 0, 0, 1)">,i,R[i]);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= <span style="color: rgba(128, 0, 128, 1)">7</span>; i++) add(i+<span style="color: rgba(128, 0, 128, 1)">16</span>,i,R[i]-<span style="color: rgba(0, 0, 0, 1)">x);
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (!<span style="color: rgba(0, 0, 0, 1)">q.empty()) q.pop();
+        q.push(</span><span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">);
+        dis[</span><span style="color: rgba(128, 0, 128, 1)">0</span>] = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        inq[</span><span style="color: rgba(128, 0, 128, 1)">0</span>] = <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+        cnt[</span><span style="color: rgba(128, 0, 128, 1)">0</span>] = <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (!<span style="color: rgba(0, 0, 0, 1)">q.empty())
+        {
+                cur </span>=<span style="color: rgba(0, 0, 0, 1)"> q.front();
+                q.pop();
+                inq[cur] </span>= <span style="color: rgba(0, 0, 255, 1)">false</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = head[cur]; i; i =<span style="color: rgba(0, 0, 0, 1)"> e[i].nxt)
+                {
+                        to </span>=<span style="color: rgba(0, 0, 0, 1)"> e[i].to;
+                        w </span>=<span style="color: rgba(0, 0, 0, 1)"> e[i].w;
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (dis[cur] + w &gt;<span style="color: rgba(0, 0, 0, 1)"> dis[to])
+                        {
+                                dis[to] </span>= dis[cur] +<span style="color: rgba(0, 0, 0, 1)"> w;
+                                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!<span style="color: rgba(0, 0, 0, 1)">inq[to])
+                                {
+                                        inq[to] </span>= <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+                                        q.push(to);
+                                        cnt[to]</span>++<span style="color: rgba(0, 0, 0, 1)">;
+                                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (cnt[to] &gt; <span style="color: rgba(128, 0, 128, 1)">24</span>) <span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(0, 0, 255, 1)">false</span><span style="color: rgba(0, 0, 0, 1)">;
+                                }
+                        }
+                }
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> dis[<span style="color: rgba(128, 0, 128, 1)">24</span>] ==<span style="color: rgba(0, 0, 0, 1)"> x;
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() 
+{
+        
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">T);
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (T--<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                memset(v,</span><span style="color: rgba(128, 0, 128, 1)">0</span>,<span style="color: rgba(0, 0, 255, 1)">sizeof</span><span style="color: rgba(0, 0, 0, 1)">(v));
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= <span style="color: rgba(128, 0, 128, 1)">24</span>; i++) scanf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">R[i]);
+                scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">k);
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= k; i++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">t);
+                        v[t</span>+<span style="color: rgba(128, 0, 128, 1)">1</span>]++<span style="color: rgba(0, 0, 0, 1)">;        
+                }        
+                l </span>= <span style="color: rgba(128, 0, 128, 1)">1</span>; r =<span style="color: rgba(0, 0, 0, 1)"> k; 
+                ans </span>= -<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">while</span> (l &lt;=<span style="color: rgba(0, 0, 0, 1)"> r)
+                {
+                        mid </span>= (l + r) &gt;&gt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span><span style="color: rgba(0, 0, 0, 1)"> (spfa(mid)) 
+                        {
+                                r </span>= mid - <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                                ans </span>=<span style="color: rgba(0, 0, 0, 1)"> mid;
+                        } </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)">
+                                l </span>= mid + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                }
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (ans == -<span style="color: rgba(128, 0, 128, 1)">1</span>) printf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">No Solution\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">);
+                </span><span style="color: rgba(0, 0, 255, 1)">else</span> printf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,ans);
+        }
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+<p><br>            </p>
+
+
+{% endraw %}

@@ -1,0 +1,74 @@
+---
+layout: post
+title: '[NOIP 2014] 解方程'
+date: 2018-11-01 19:48:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9891429.html
+cnblogs_id: 9891429
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p>        <a href="https://www.lydsy.com/JudgeOnline/problem.php?id=3751" target="_blank" rel="noopener nofollow"> https://www.lydsy.com/JudgeOnline/problem.php?id=3751</a></p>
+<p>[算法]</p>
+<p>        对于每个x ， 将方程左边对一个质数取模</p>
+<p>        时间复杂度 ： O(NM)</p>
+<p>[代码]</p>
+<p>         </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 300010
+<span style="color: rgba(0, 0, 255, 1)">#define</span> RG register
+<span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">int</span> P = <span style="color: rgba(128, 0, 128, 1)">998244353</span><span style="color: rgba(0, 0, 0, 1)">;
+typedef </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> LL;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> n , m , ans , cnt;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> a[MAXN] , res[MAXN];
+
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> chkmax(T &amp;x , T y) { x =<span style="color: rgba(0, 0, 0, 1)"> max(x , y); }
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> chkmin(T &amp;x , T y) { x =<span style="color: rgba(0, 0, 0, 1)"> min(x , y); }
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> read(T &amp;<span style="color: rgba(0, 0, 0, 1)">x)
+{
+    T f </span>= <span style="color: rgba(128, 0, 128, 1)">1</span>; x = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">char</span> c =<span style="color: rgba(0, 0, 0, 1)"> getchar();
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; !isdigit(c); c = getchar()) <span style="color: rgba(0, 0, 255, 1)">if</span> (c == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>) f = -<span style="color: rgba(0, 0, 0, 1)">f;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; isdigit(c); c = getchar()) x = (1LL * x * <span style="color: rgba(128, 0, 128, 1)">10</span> + c - <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span>) %<span style="color: rgba(0, 0, 0, 1)"> P;
+    x </span>*=<span style="color: rgba(0, 0, 0, 1)"> f;
+    x </span>= (x + P) %<span style="color: rgba(0, 0, 0, 1)"> P;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">bool</span> ok(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x)
+{
+    </span><span style="color: rgba(0, 0, 255, 1)">int</span> ret = <span style="color: rgba(128, 0, 128, 1)">0</span> , tmp = <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (RG <span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+    {
+        ret </span>= (ret + 1LL * a[i] * tmp) %<span style="color: rgba(0, 0, 0, 1)"> P;
+        tmp </span>= 1LL * tmp * x %<span style="color: rgba(0, 0, 0, 1)"> P;    
+    }    
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!ret) <span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">else</span> <span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(0, 0, 255, 1)">false</span><span style="color: rgba(0, 0, 0, 1)">;
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main()
+{
+
+    read(n); read(m);
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (RG <span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">) read(a[i]);
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (RG <span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= m; i++<span style="color: rgba(0, 0, 0, 1)">)
+    {
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span><span style="color: rgba(0, 0, 0, 1)"> (ok(i))
+        {
+            </span>++<span style="color: rgba(0, 0, 0, 1)">ans;
+            res[</span>++cnt] =<span style="color: rgba(0, 0, 0, 1)"> i;
+        }        
+    }
+    printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)"> , ans);
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (RG <span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= cnt; i++) printf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)"> , res[i]);
+    
+    </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

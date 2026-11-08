@@ -1,0 +1,72 @@
+---
+layout: post
+title: '[CF1442D] Sum'
+date: 2020-11-22 18:57:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/14020446.html
+cnblogs_id: 14020446
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p><a href="" rel="noopener nofollow">https://codeforces.com/contest/1442/problem/D</a></p>
+<p>[题解]</p>
+<p>首先一个结论是 ： 必然存在一种最优解 ， 使得至多有一个数组没有被全取。</p>
+<p>证明 ： 考虑有两个数组没有被全取 ， 最后一个被取的元素分别是 <span class="math inline">\(t1\)</span> 和 <span class="math inline">\(t2\)</span> ， 若 <span class="math inline">\(a_{t1} \leq b_{t2}\)</span> ， 那么把 <span class="math inline">\(a\)</span> 换成 <span class="math inline">\(b\)</span> 必然更优。</p>
+<p>因此问题转化为了一个 "缺一背包" 模型 ， 不妨用 <span class="math inline">\(solve(l , r)\)</span> 这个函数表示除了 <span class="math inline">\([l , r]\)</span> 这段区间的背包 ， 那么分治即可。</p>
+<p>时间复杂度 : <span class="math inline">\(O(NMlogN)\)</span></p>
+<p>[代码]</p>
+<pre><code class="language-cpp">
+#include&lt;bits/stdc++.h&gt;
+ 
+using namespace std;
+ 
+typedef long long LL;
+ 
+#define rep(i , l , r) for (int i = (l); i &lt; (r); ++i)
+ 
+const int MN = 3005;
+ 
+int N , K;
+LL ans = 0 , f[MN];
+vector &lt; LL &gt; a[MN];
+ 
+inline void chkmax(LL &amp;x , LL y) {
+	x = max(x , y); 
+}
+inline void upd(int v , LL w) {
+	for (int j = K; j &gt;= v; --j) chkmax(f[j] , f[j - v] + w);
+}
+inline void solve(int l , int r) {
+	if (l == r) { 
+		for (int i = 0; i &lt; a[l].size() &amp;&amp; i &lt;= K; ++i) chkmax(ans , f[K - i] + a[l][i]);
+		return;
+	}
+	int mid = l + r &gt;&gt; 1; vector &lt; LL &gt; tmp;
+	for (int i = 0; i &lt;= K; ++i) tmp.emplace_back(f[i]);
+	for (int i = mid + 1; i &lt;= r; ++i) upd(a[i].size() - 1 , a[i][a[i].size() - 1]);
+	solve(l , mid);
+	for (int i = 0; i &lt;= K; ++i) f[i] = tmp[i];
+	for (int i = l; i &lt;= mid; ++i) upd(a[i].size() - 1 , a[i][a[i].size() - 1]);
+	solve(mid + 1 , r);
+	for (int i = 0; i &lt;= K; ++i) f[i] = tmp[i];
+}
+int main() {
+	 
+	 scanf("%d%d" , &amp;N , &amp;K);
+	 for (int i = 1; i &lt;= N; ++i) {
+	 	 int m; scanf("%d" , &amp;m);
+	 	 a[i].emplace_back(0LL);
+	 	 for (int j = 1; j &lt;= m; ++j) {
+	 	 	 int x; scanf("%d" , &amp;x);
+			 a[i].emplace_back(a[i][j - 1] + (LL) x);	
+		 }
+	 }
+	 solve(1 , N);
+	 printf("%lld\n" , ans);
+     return 0;
+}
+</code></pre>
+
+
+
+{% endraw %}

@@ -1,0 +1,121 @@
+---
+layout: post
+title: '[BZOJ 3387] Fence Obstacle Course'
+date: 2018-07-24 10:52:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9358749.html
+cnblogs_id: 9358749
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p>          <a href="https://www.lydsy.com/JudgeOnline/problem.php?id=3387" target="_blank" rel="noopener nofollow">https://www.lydsy.com/JudgeOnline/problem.php?id=3387</a></p>
+<p>[算法]</p>
+<p>          f[i][0]表示从第i个栅栏的左端点走到原点的最少移动步数</p>
+<p>          f[i][1]表示从第i个栅栏的右端点走到原点的最少移动步数</p>
+<p>          我们可以用线段树优化转移</p>
+<p>[代码]</p>
+<p>        </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 50010
+<span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">int</span> V = <span style="color: rgba(128, 0, 128, 1)">100010</span><span style="color: rgba(0, 0, 0, 1)">;
+
+</span><span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> info
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x,y;
+} a[MAXN];
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,N,S,x,y;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span> f[MAXN][<span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">];
+
+</span><span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> SegmentTree
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> Node
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> l,r;
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> mx,tag;
+        }    Tree[V </span>&lt;&lt; <span style="color: rgba(128, 0, 128, 1)">4</span><span style="color: rgba(0, 0, 0, 1)">];
+        inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> build(<span style="color: rgba(0, 0, 255, 1)">int</span> index,<span style="color: rgba(0, 0, 255, 1)">int</span> l,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> r)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> mid;
+                Tree[index].l </span>=<span style="color: rgba(0, 0, 0, 1)"> l;
+                Tree[index].r </span>=<span style="color: rgba(0, 0, 0, 1)"> r;
+                Tree[index].mx </span>= Tree[index].tag = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (l == r) <span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)">;
+                mid </span>= (l + r) &gt;&gt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                build(index </span>&lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">,l,mid);
+                build(index </span>&lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span> | <span style="color: rgba(128, 0, 128, 1)">1</span>,mid + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">,r);
+        }
+        inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> pushdown(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> index)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span><span style="color: rgba(0, 0, 0, 1)"> (Tree[index].tag)
+                {
+                        Tree[index </span>&lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>].mx = max(Tree[index &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">].mx,Tree[index].tag);
+                        Tree[index </span>&lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span> | <span style="color: rgba(128, 0, 128, 1)">1</span>].mx = max(Tree[index &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span> | <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">].mx,Tree[index].tag);
+                        Tree[index </span>&lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>].tag = max(Tree[index &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">].tag,Tree[index].tag);
+                        Tree[index </span>&lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span> | <span style="color: rgba(128, 0, 128, 1)">1</span>].tag = max(Tree[index &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span> | <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">].tag,Tree[index].tag);
+                        Tree[index].tag </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                }
+        }
+        inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> modify(<span style="color: rgba(0, 0, 255, 1)">int</span> index,<span style="color: rgba(0, 0, 255, 1)">int</span> l,<span style="color: rgba(0, 0, 255, 1)">int</span> r,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> val)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> mid;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (Tree[index].l == l &amp;&amp; Tree[index].r ==<span style="color: rgba(0, 0, 0, 1)"> r)
+                {
+                        Tree[index].mx </span>= Tree[index].tag =<span style="color: rgba(0, 0, 0, 1)"> val;
+                        </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)">;
+                }
+                pushdown(index);
+                mid </span>= (Tree[index].l + Tree[index].r) &gt;&gt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (mid &gt;= r) modify(index &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">,l,r,val);
+                </span><span style="color: rgba(0, 0, 255, 1)">else</span> <span style="color: rgba(0, 0, 255, 1)">if</span> (mid + <span style="color: rgba(128, 0, 128, 1)">1</span> &lt;= l) modify(index &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span> | <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">,l,r,val);
+                </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)">
+                {
+                        modify(index </span>&lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">,l,mid,val);
+                        modify(index </span>&lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span> | <span style="color: rgba(128, 0, 128, 1)">1</span>,mid + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">,r,val);
+                }
+        }
+        inline </span><span style="color: rgba(0, 0, 255, 1)">int</span> query(<span style="color: rgba(0, 0, 255, 1)">int</span> index,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> pos)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> mid;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (Tree[index].l == Tree[index].r) <span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> Tree[index].mx;
+                pushdown(index);
+                mid </span>= (Tree[index].l + Tree[index].r) &gt;&gt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (mid &gt;= pos) <span style="color: rgba(0, 0, 255, 1)">return</span> query(index &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">,pos);
+                </span><span style="color: rgba(0, 0, 255, 1)">else</span> <span style="color: rgba(0, 0, 255, 1)">return</span> query(index &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span> | <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">,pos);
+        }
+} T;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() 
+{
+        
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;N,&amp;<span style="color: rgba(0, 0, 0, 1)">S);
+        S </span>+=<span style="color: rgba(0, 0, 0, 1)"> V;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= N; i++<span style="color: rgba(0, 0, 0, 1)">) 
+        {
+                scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;a[i].x,&amp;<span style="color: rgba(0, 0, 0, 1)">a[i].y);        
+                a[i].x </span>+=<span style="color: rgba(0, 0, 0, 1)"> V; 
+                a[i].y </span>+=<span style="color: rgba(0, 0, 0, 1)"> V;
+        }
+        T.build(</span><span style="color: rgba(128, 0, 128, 1)">1</span>,<span style="color: rgba(128, 0, 128, 1)">1</span>,V &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+        f[</span><span style="color: rgba(128, 0, 128, 1)">0</span>][<span style="color: rgba(128, 0, 128, 1)">0</span>] = f[<span style="color: rgba(128, 0, 128, 1)">0</span>][<span style="color: rgba(128, 0, 128, 1)">1</span>] = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        a[</span><span style="color: rgba(128, 0, 128, 1)">0</span>].x = a[<span style="color: rgba(128, 0, 128, 1)">0</span>].y =<span style="color: rgba(0, 0, 0, 1)"> V;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= N; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                x </span>= T.query(<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">,a[i].x);
+                y </span>= T.query(<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">,a[i].y);
+                f[i][</span><span style="color: rgba(128, 0, 128, 1)">0</span>] = min(f[x][<span style="color: rgba(128, 0, 128, 1)">0</span>] + abs(a[i].x - a[x].x),f[x][<span style="color: rgba(128, 0, 128, 1)">1</span>] + abs(a[i].x -<span style="color: rgba(0, 0, 0, 1)"> a[x].y));
+                f[i][</span><span style="color: rgba(128, 0, 128, 1)">1</span>] = min(f[y][<span style="color: rgba(128, 0, 128, 1)">0</span>] + abs(a[i].y - a[y].x),f[y][<span style="color: rgba(128, 0, 128, 1)">1</span>] + abs(a[i].y -<span style="color: rgba(0, 0, 0, 1)"> a[y].y));    
+                T.modify(</span><span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">,a[i].x,a[i].y,i);
+        }
+        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span>,min(abs(S - a[N].x) + f[N][<span style="color: rgba(128, 0, 128, 1)">0</span>],abs(S - a[N].y) + f[N][<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">]));
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

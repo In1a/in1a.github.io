@@ -1,0 +1,168 @@
+---
+layout: post
+title: '[Codeforces 877E] Danil and a Part-time Job'
+date: 2018-12-10 21:45:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/10099373.html
+cnblogs_id: 10099373
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p>        <a href="https://codeforces.com/contest/877/problem/E" target="_blank" rel="noopener nofollow">https://codeforces.com/contest/877/problem/E</a></p>
+<p>[算法]</p>
+<p>        首先求出这棵树的DFS序</p>
+<p>        一棵子树的DFS序为连续的一段 ， 根据这个性质 ， 用线段树维护区间中1的个数即可</p>
+<p>        时间复杂度 : O(NlogN)</p>
+<p>[代码]</p>
+<p>         </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">int</span> MAXN = 2e5 + <span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">;
+typedef </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> ll;
+typedef </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">double</span><span style="color: rgba(0, 0, 0, 1)"> ld;
+
+</span><span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> edge
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> to , nxt;
+} e[MAXN </span>&lt;&lt; <span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">];
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> n , q , timer , tot;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> val[MAXN] , l[MAXN] , r[MAXN] , dfn[MAXN] , size[MAXN] , head[MAXN] , loc[MAXN] , par[MAXN];
+
+</span><span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> Segment_Tree
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> Node
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> l , r , cnt;
+                </span><span style="color: rgba(0, 0, 255, 1)">bool</span><span style="color: rgba(0, 0, 0, 1)"> tag;        
+        }    a[MAXN </span>&lt;&lt; <span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">];
+        inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> update(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> index)
+        {
+                a[index].cnt </span>= a[index &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>].cnt + a[index &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span> | <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">].cnt;
+        }
+        inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> build(<span style="color: rgba(0, 0, 255, 1)">int</span> index , <span style="color: rgba(0, 0, 255, 1)">int</span> l , <span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> r)
+        {
+                a[index].l </span>= l , a[index].r =<span style="color: rgba(0, 0, 0, 1)"> r;
+                a[index].tag </span>= <span style="color: rgba(0, 0, 255, 1)">false</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (l ==<span style="color: rgba(0, 0, 0, 1)"> r)
+                {
+                        a[index].cnt </span>= (val[loc[l]] == <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+                        </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)">;
+                }
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span> mid = (l + r) &gt;&gt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                build(index </span>&lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)"> , l , mid);
+                build(index </span>&lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span> | <span style="color: rgba(128, 0, 128, 1)">1</span> , mid + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)"> , r);
+                update(index);
+        }
+        inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> pushdown(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> index)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span> l = a[index].l , r =<span style="color: rgba(0, 0, 0, 1)"> a[index].r;
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span> mid = (l + r) &gt;&gt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span><span style="color: rgba(0, 0, 0, 1)"> (a[index].tag)
+                {
+                        a[index </span>&lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>].cnt = (mid - l + <span style="color: rgba(128, 0, 128, 1)">1</span>) - a[index &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">].cnt;
+                        a[index </span>&lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span> | <span style="color: rgba(128, 0, 128, 1)">1</span>].cnt = (r - mid) - a[index &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span> | <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">].cnt;
+                        a[index </span>&lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>].tag ^= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">; 
+                        a[index </span>&lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span> | <span style="color: rgba(128, 0, 128, 1)">1</span>].tag ^= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                        a[index].tag </span>= <span style="color: rgba(0, 0, 255, 1)">false</span><span style="color: rgba(0, 0, 0, 1)">; 
+                }
+        }
+        inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> modify(<span style="color: rgba(0, 0, 255, 1)">int</span> index , <span style="color: rgba(0, 0, 255, 1)">int</span> l , <span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> r)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (a[index].l == l &amp;&amp; a[index].r ==<span style="color: rgba(0, 0, 0, 1)"> r)
+                {
+                        a[index].cnt </span>= (r - l + <span style="color: rgba(128, 0, 128, 1)">1</span>) -<span style="color: rgba(0, 0, 0, 1)"> a[index].cnt;
+                        a[index].tag </span>^= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                        </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)">;
+                }
+                pushdown(index);
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span> mid = (a[index].l + a[index].r) &gt;&gt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (mid &gt;= r) modify(index &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)"> , l , r);
+                </span><span style="color: rgba(0, 0, 255, 1)">else</span> <span style="color: rgba(0, 0, 255, 1)">if</span> (mid + <span style="color: rgba(128, 0, 128, 1)">1</span> &lt;= l) modify(index &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span> | <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)"> , l , r);
+                </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)">
+                {
+                        modify(index </span>&lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)"> , l , mid);
+                        modify(index </span>&lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span> | <span style="color: rgba(128, 0, 128, 1)">1</span> , mid + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)"> , r);
+                }
+                update(index);
+        }
+        inline </span><span style="color: rgba(0, 0, 255, 1)">int</span> query(<span style="color: rgba(0, 0, 255, 1)">int</span> index , <span style="color: rgba(0, 0, 255, 1)">int</span> l , <span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> r)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (a[index].l == l &amp;&amp; a[index].r ==<span style="color: rgba(0, 0, 0, 1)"> r)
+                        </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> a[index].cnt;
+                pushdown(index);
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span> mid = (a[index].l + a[index].r) &gt;&gt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (mid &gt;= r) <span style="color: rgba(0, 0, 255, 1)">return</span> query(index &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)"> , l , r);
+                </span><span style="color: rgba(0, 0, 255, 1)">else</span> <span style="color: rgba(0, 0, 255, 1)">if</span> (mid + <span style="color: rgba(128, 0, 128, 1)">1</span> &lt;= l) <span style="color: rgba(0, 0, 255, 1)">return</span> query(index &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span> | <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)"> , l , r);
+                </span><span style="color: rgba(0, 0, 255, 1)">else</span> <span style="color: rgba(0, 0, 255, 1)">return</span> query(index &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span> , l , mid) + query(index &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span> | <span style="color: rgba(128, 0, 128, 1)">1</span> , mid + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)"> , r);
+        }
+} SGT;
+
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> chkmax(T &amp;x,T y) { x =<span style="color: rgba(0, 0, 0, 1)"> max(x,y); }
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> chkmin(T &amp;x,T y) { x =<span style="color: rgba(0, 0, 0, 1)"> min(x,y); }
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> read(T &amp;<span style="color: rgba(0, 0, 0, 1)">x)
+{
+    T f </span>= <span style="color: rgba(128, 0, 128, 1)">1</span>; x = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">char</span> c =<span style="color: rgba(0, 0, 0, 1)"> getchar();
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; !isdigit(c); c = getchar()) <span style="color: rgba(0, 0, 255, 1)">if</span> (c == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>) f = -<span style="color: rgba(0, 0, 0, 1)">f;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; isdigit(c); c = getchar()) x = (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">3</span>) + (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>) + c - <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">;
+    x </span>*=<span style="color: rgba(0, 0, 0, 1)"> f;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> addedge(<span style="color: rgba(0, 0, 255, 1)">int</span> u , <span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> v)
+{
+        </span>++<span style="color: rgba(0, 0, 0, 1)">tot;
+        e[tot] </span>=<span style="color: rgba(0, 0, 0, 1)"> (edge){v , head[u]};
+        head[u] </span>=<span style="color: rgba(0, 0, 0, 1)"> tot;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> dfs(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> u)
+{
+        l[u] </span>= dfn[u] = ++<span style="color: rgba(0, 0, 0, 1)">timer;
+        loc[timer] </span>=<span style="color: rgba(0, 0, 0, 1)"> u;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = head[u]; i; i =<span style="color: rgba(0, 0, 0, 1)"> e[i].nxt)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span> v =<span style="color: rgba(0, 0, 0, 1)"> e[i].to;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (v == par[u]) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                dfs(v);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+        }        
+        r[u] </span>=<span style="color: rgba(0, 0, 0, 1)"> timer;
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main()
+{
+        
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span> , &amp;<span style="color: rgba(0, 0, 0, 1)">n);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">2</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span> , &amp;<span style="color: rgba(0, 0, 0, 1)">par[i]);
+                addedge(par[i] , i);        
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++) scanf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span> , &amp;<span style="color: rgba(0, 0, 0, 1)">val[i]);
+        dfs(</span><span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+        SGT.build(</span><span style="color: rgba(128, 0, 128, 1)">1</span> , <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)"> , n);
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span> , &amp;<span style="color: rgba(0, 0, 0, 1)">q);
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (q--<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">char</span> type[<span style="color: rgba(128, 0, 128, 1)">5</span><span style="color: rgba(0, 0, 0, 1)">];
+                scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%s</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)"> , type);
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (type[<span style="color: rgba(128, 0, 128, 1)">0</span>] == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">p</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> u;
+                        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span> , &amp;<span style="color: rgba(0, 0, 0, 1)">u);
+                        SGT.modify(</span><span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)"> , l[u] , r[u]);
+                } </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)">
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> u;
+                        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span> , &amp;<span style="color: rgba(0, 0, 0, 1)">u);
+                        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span> , SGT.query(<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)"> , l[u] , r[u]));
+                }
+        }
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

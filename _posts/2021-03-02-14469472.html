@@ -1,0 +1,117 @@
+---
+layout: post
+title: '[CF603E] Pastoral Oddities'
+date: 2021-03-02 16:06:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/14469472.html
+cnblogs_id: 14469472
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p><a href="" rel="noopener nofollow">http://codeforces.com/contest/603/problem/E</a></p>
+<p>[题解]</p>
+<p>观察 : 存在一个边集满足每个点度数都是奇数的充要条件是不存在奇数个数个点的联通块。</p>
+<p>考虑证明奇数个点的联通块一定不合法。刚开始所有点度数均为偶数。 加入 <span class="math inline">\((u , v)\)</span> 后 :</p>
+<p><span class="math inline">\(u , v\)</span> 度数均为偶数 ， 加入 <span class="math inline">\((u , v)\)</span> 后 ， 奇度点数量 <span class="math inline">\(+2\)</span>。</p>
+<p><span class="math inline">\(u , v\)</span> 度数一奇一偶 ， 加入 <span class="math inline">\((u , v)\)</span> 后 ， 奇度点数量不变。</p>
+<p><span class="math inline">\(u , v\)</span> 度数均为奇数 ， 加入 <span class="math inline">\((u , v)\)</span> 后 ， 奇度点数量 <span class="math inline">\(-2\)</span>。</p>
+<p>对于偶数个点的联通块 ， 直接找出一棵生成树 ， 从下到上确定每条 <span class="math inline">\((u , fa(u))\)</span> 取或不取即可。</p>
+<p>注意到每次加入一条边 ， 偶数个点的联通块只增不减。</p>
+<p>因此一个 <span class="math inline">\(O(N ^ 2logN)\)</span> 的做法是 : 对于每个询问将边集排序 ， 用并查集维护联通块奇偶性 ， 依次加边加到满足条件即可。</p>
+<p>不妨考虑整体二分。 假设我们当前处理的是 <span class="math inline">\([l , r]\)</span> 内的边 ， 且答案在 <span class="math inline">\([l , r]\)</span> 中 ， 加入时间在 <span class="math inline">\([1 , l)\)</span> 且权值小于 <span class="math inline">\(x\)</span> 的已经全部被加入了。 尝试求出 <span class="math inline">\(ans_{mid}\)</span> ， 这样就可以分治到两个子区间中了。</p>
+<p>首先加入 <span class="math inline">\([l , mid]\)</span> 内比 <span class="math inline">\(x\)</span> 小的边 ， 从小到大加入权值在 <span class="math inline">\([x , y]\)</span> 的边 ，加到满足条件时 ， 我们就求出了 <span class="math inline">\(ans_{mid}\)</span>。</p>
+<p>时间复杂度 : <span class="math inline">\(O(MlogMlogN)\)</span></p>
+<p>[代码]</p>
+<pre><code class="language-cpp">#include&lt;bits/stdc++.h&gt;
+ 
+using namespace std;
+ 
+typedef long long LL;
+ 
+#define rep(i , l , r) for (int i = (l); i &lt; (r); ++i)
+ 
+const int MN = 5e5 + 5;
+ 
+struct node {
+	int u , v , w , home;
+} E[MN] , e[MN];
+ 
+int N , M , ans[MN] , home[MN];
+ 
+inline bool cmp(node a , node b) {
+	return a.w &lt; b.w;
+}
+ 
+struct DSU {
+	int fa[MN] , sz[MN] , tot , top , st[MN];
+	inline void build() {
+		tot = N;
+		for (int i = 1; i &lt;= N; ++i) fa[i] = i , sz[i] = 1;
+	}
+	inline int find(int x) {
+		while (x != fa[x]) x = fa[x];
+		return x;
+	}
+	inline void link(int u , int v) {
+		u = find(u) , v = find(v); if (u == v) return;
+		if (sz[u] &lt; sz[v]) swap(u , v);
+		fa[v] = u , tot -= (sz[u] &amp; 1) , tot -= (sz[v] &amp; 1);
+		sz[u] += sz[v]; tot += (sz[u] &amp; 1); st[++top] = v;
+	} 
+	inline void undo() {
+		int v = st[top--] , u = fa[v];
+		tot -= (sz[u] &amp; 1); sz[u] -= sz[v]; fa[v] = v;
+		tot += (sz[u] &amp; 1); tot += (sz[v] &amp; 1);
+		return;
+	} 
+} S;
+ 
+inline void CDQ(int l , int r , int ql , int qr) {
+	if (l &gt; r) return;
+	int mid = l + r &gt;&gt; 1; int lst = S.top;
+	for (int i = l; i &lt;= mid; ++i)
+		if (home[i] &lt; ql) S.link(E[i].u , E[i].v);
+	for (int i = ql; i &lt;= qr; ++i) {
+		if (e[i].home &lt;= mid) S.link(e[i].u , e[i].v);
+		if (!S.tot) { ans[mid] = i; break; }
+	}
+	while (S.top &gt; lst) S.undo();
+	if (!ans[mid]) {
+		for (int i = l; i &lt;= mid; ++i)
+			if (home[i] &lt; ql) S.link(E[i].u , E[i].v);
+		CDQ(mid + 1 , r , ql , qr);
+		while (S.top &gt; lst) S.undo();
+		return;
+	}
+	for (int i = l; i &lt;= mid; ++i)
+		if (home[i] &lt; ql) S.link(E[i].u , E[i].v);
+	CDQ(mid + 1 , r , ql , ans[mid]);
+	while (S.top &gt; lst) S.undo();
+	for (int i = ql; i &lt; ans[mid]; ++i)
+		if (e[i].home &lt; l) S.link(e[i].u , e[i].v);
+	CDQ(l , mid - 1 , ans[mid] , qr);
+	while (S.top &gt; lst) S.undo();
+}
+ 
+int main() {
+	
+	 scanf("%d%d" , &amp;N , &amp;M); S.build();
+	 for (int i = 1; i &lt;= M; ++i) {
+	 	 scanf("%d%d%d" , &amp;e[i].u , &amp;e[i].v , &amp;e[i].w);
+	 	 e[i].home = i;
+	 }
+	 for (int i = 1; i &lt;= M; ++i) E[i] = e[i];
+     sort(e + 1 , e + 1 + M , cmp);
+	 for (int i = 1; i &lt;= M; ++i)
+	 	 home[e[i].home] = i;
+	 CDQ(1 , M , 1 , M);
+	 for (int i = 1; i &lt;= M; ++i)
+	 	 if (!ans[i]) printf("-1\n");
+	 	 else printf("%d\n" , e[ans[i]].w);
+     return 0;
+}
+</code></pre>
+
+
+
+{% endraw %}

@@ -1,0 +1,117 @@
+---
+layout: post
+title: '【POJ 1733】 Parity Game'
+date: 2018-07-13 14:56:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9304959.html
+cnblogs_id: 9304959
+---
+{% raw %}
+
+<p>【题目链接】</p>
+<p>           <a href="http://poj.org/problem?id=1733" target="_blank" rel="noopener nofollow"> http://poj.org/problem?id=1</a></p>
+<p>【算法】</p>
+<p>            并查集</p>
+<p>【代码】</p>
+<p>             </p>
+<div class="cnblogs_code">
+<pre>#include &lt;algorithm&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;bitset&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cctype&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cerrno&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;clocale&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cmath&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;complex&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cstdio&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cstdlib&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cstring&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;ctime&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;deque&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;exception&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;fstream&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;functional&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;limits&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;list&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;map&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;iomanip&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;ios&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;iosfwd&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;iostream&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;istream&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;ostream&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;queue&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;<span style="color: rgba(0, 0, 255, 1)">set</span>&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;sstream&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;stdexcept&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;streambuf&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;<span style="color: rgba(0, 0, 255, 1)">string</span>&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;utility&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;vector&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cwchar&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cwctype&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;stack&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;limits.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+
+</span><span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> Query
+{    
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> l,r,op; 
+} q[</span><span style="color: rgba(128, 0, 128, 1)">100010</span><span style="color: rgba(0, 0, 0, 1)">];
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> k,n,i,x,y,len;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span> l[<span style="color: rgba(128, 0, 128, 1)">100010</span>],r[<span style="color: rgba(128, 0, 128, 1)">100010</span>],fa[<span style="color: rgba(128, 0, 128, 1)">100010</span>],d[<span style="color: rgba(128, 0, 128, 1)">100010</span>],a[<span style="color: rgba(128, 0, 128, 1)">100010</span><span style="color: rgba(0, 0, 0, 1)">];
+</span><span style="color: rgba(0, 0, 255, 1)">char</span> s[<span style="color: rgba(128, 0, 128, 1)">100010</span>][<span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">];
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">int</span> get_root(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (fa[x] == x) <span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> x;
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> f =<span style="color: rgba(0, 0, 0, 1)"> get_root(fa[x]);
+        d[x] </span>^=<span style="color: rgba(0, 0, 0, 1)"> d[fa[x]];
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> fa[x] =<span style="color: rgba(0, 0, 0, 1)"> f;        
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() 
+{
+        
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;k,&amp;<span style="color: rgba(0, 0, 0, 1)">n);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d%s</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;l[i],&amp;r[i],&amp;<span style="color: rgba(0, 0, 0, 1)">s[i]);
+                a[</span>++len] = l[i] - <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                a[</span>++len] =<span style="color: rgba(0, 0, 0, 1)"> r[i];        
+        }
+        sort(a</span>+<span style="color: rgba(128, 0, 128, 1)">1</span>,a+len+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+        len </span>= unique(a+<span style="color: rgba(128, 0, 128, 1)">1</span>,a+len+<span style="color: rgba(128, 0, 128, 1)">1</span>) - a - <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                q[i].l </span>= lower_bound(a+<span style="color: rgba(128, 0, 128, 1)">1</span>,a+len+<span style="color: rgba(128, 0, 128, 1)">1</span>,l[i]-<span style="color: rgba(128, 0, 128, 1)">1</span>) -<span style="color: rgba(0, 0, 0, 1)"> a;
+                q[i].r </span>= lower_bound(a+<span style="color: rgba(128, 0, 128, 1)">1</span>,a+len+<span style="color: rgba(128, 0, 128, 1)">1</span>,r[i]) -<span style="color: rgba(0, 0, 0, 1)"> a;
+                q[i].op </span>= strcmp(s[i],<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">odd</span><span style="color: rgba(128, 0, 0, 1)">"</span>) == <span style="color: rgba(128, 0, 128, 1)">0</span> ? <span style="color: rgba(128, 0, 128, 1)">1</span> : <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;    
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= <span style="color: rgba(128, 0, 128, 1)">2</span> * n; i++) fa[i] =<span style="color: rgba(0, 0, 0, 1)"> i;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                x </span>=<span style="color: rgba(0, 0, 0, 1)"> get_root(q[i].l);
+                y </span>=<span style="color: rgba(0, 0, 0, 1)"> get_root(q[i].r);
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (x ==<span style="color: rgba(0, 0, 0, 1)"> y)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> ((d[q[i].l] ^ d[q[i].r]) !=<span style="color: rgba(0, 0, 0, 1)"> q[i].op)
+                        {
+                                printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span>,i-<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+                                exit(</span><span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">);
+                        }
+                  }    </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)">
+                 {
+                         fa[x] </span>=<span style="color: rgba(0, 0, 0, 1)"> y;
+                         d[x] </span>= d[q[i].l] ^ d[q[i].r] ^<span style="color: rgba(0, 0, 0, 1)"> q[i].op;
+                 }    
+        }
+        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,n);
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

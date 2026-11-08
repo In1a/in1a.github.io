@@ -1,0 +1,81 @@
+---
+layout: post
+title: '【SDOI 2016】 排列计数'
+date: 2018-07-12 20:45:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9301822.html
+cnblogs_id: 9301822
+---
+{% raw %}
+
+<p>【题目链接】</p>
+<p>            <a href="https://www.lydsy.com/JudgeOnline/problem.php?id=4517" target="_blank" rel="noopener nofollow">https://www.lydsy.com/JudgeOnline/problem.php?id=4517</a></p>
+<p>【算法】</p>
+<p>          有m个数在原来的位置上，说明有(n-m)个数不再原来的位置上</p>
+<p>          那么，我们可以选出(n-m)个数，使这(n-m)个数都不在原来的位置上，再让剩下的m个数都在原来的位置上</p>
+<p>          <strong>错位排列递推公式 ：</strong></p>
+<p><strong>          f(1) = 0 </strong></p>
+<p><strong>          f(2) = 1 </strong></p>
+<p><strong>          f(n) = (n - 1)(f(n-1) + f(n-2)) (n &gt;= 2)</strong></p>
+<p><strong>          </strong>因此，答案为C(n,n-m)f(n-m)</p>
+<p>          预处理错位排列数，阶乘和阶乘逆元，即可</p>
+<p>【代码】</p>
+<p>           </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 1000010
+<span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">int</span> P = 1e9 + <span style="color: rgba(128, 0, 128, 1)">7</span><span style="color: rgba(0, 0, 0, 1)">;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> T,n,m,ans;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> f[MAXN],fac[MAXN],inv[MAXN];
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">int</span> power(<span style="color: rgba(0, 0, 255, 1)">int</span> a,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> n)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> res = <span style="color: rgba(128, 0, 128, 1)">1</span>,b =<span style="color: rgba(0, 0, 0, 1)"> a;
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span><span style="color: rgba(0, 0, 0, 1)"> (n)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (n &amp; <span style="color: rgba(128, 0, 128, 1)">1</span>) res = 1ll * res * b %<span style="color: rgba(0, 0, 0, 1)"> P;
+                b </span>= 1ll * b * b %<span style="color: rgba(0, 0, 0, 1)"> P;
+                n </span>&gt;&gt;= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> res;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> init()
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i;
+        f[</span><span style="color: rgba(128, 0, 128, 1)">0</span>] = <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        f[</span><span style="color: rgba(128, 0, 128, 1)">1</span>] = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        f[</span><span style="color: rgba(128, 0, 128, 1)">2</span>] = <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">3</span>; i &lt; MAXN; i++) f[i] = 1ll * (i - <span style="color: rgba(128, 0, 128, 1)">1</span>) * (f[i-<span style="color: rgba(128, 0, 128, 1)">1</span>] + f[i-<span style="color: rgba(128, 0, 128, 1)">2</span>]) %<span style="color: rgba(0, 0, 0, 1)"> P;
+        fac[</span><span style="color: rgba(128, 0, 128, 1)">0</span>] = <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt; MAXN; i++) fac[i] = 1ll * fac[i-<span style="color: rgba(128, 0, 128, 1)">1</span>] * i %<span style="color: rgba(0, 0, 0, 1)"> P;
+        inv[MAXN</span>-<span style="color: rgba(128, 0, 128, 1)">1</span>] = power(fac[MAXN-<span style="color: rgba(128, 0, 128, 1)">1</span>],P-<span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = MAXN - <span style="color: rgba(128, 0, 128, 1)">2</span>; i &gt;= <span style="color: rgba(128, 0, 128, 1)">0</span>; i--) inv[i] = 1ll * inv[i+<span style="color: rgba(128, 0, 128, 1)">1</span>] * (i + <span style="color: rgba(128, 0, 128, 1)">1</span>) %<span style="color: rgba(0, 0, 0, 1)"> P;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">int</span> C(<span style="color: rgba(0, 0, 255, 1)">int</span> n,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> m)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (n &lt; m) <span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (m == <span style="color: rgba(128, 0, 128, 1)">0</span>) <span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> 1ll * fac[n] * inv[m] % P * inv[n-m] %<span style="color: rgba(0, 0, 0, 1)"> P;        
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() 
+{
+        
+        init();
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">T);
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (T--<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;n,&amp;<span style="color: rgba(0, 0, 0, 1)">m);
+                ans </span>= 1ll * C(n,n-m) * f[n-m] %<span style="color: rgba(0, 0, 0, 1)"> P;
+                printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,ans);                        
+        }
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

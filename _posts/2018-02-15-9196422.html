@@ -1,0 +1,75 @@
+---
+layout: post
+title: '【2017省中集训DAY1T1】 小X的质数'
+date: 2018-02-15 15:53:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9196422.html
+cnblogs_id: 9196422
+---
+{% raw %}
+
+<p>【题目链接】</p>
+<p>          <a href="http://oj.jzxx.net/problem.php?id=3115" rel="noopener nofollow">点击打开链接</a></p>
+<p>【算法】</p>
+<p>         如果一个数是小X喜欢的数，那么有两种可能：</p>
+<p>         1.这个数是质数</p>
+<p>         2.这个数除以它的最小质因子是一个质数</p>
+<p>         所以我们可以用线性筛+前缀和的方式预处理，询问的时候O（1）计算就可以了</p>
+<p>【代码】</p>
+<p>        </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+
+</span><span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">int</span> MAXN = 1e7 + <span style="color: rgba(128, 0, 128, 1)">5</span><span style="color: rgba(0, 0, 0, 1)">;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> Q,l,r,i,j,tmp,tot;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> f[MAXN],sum[MAXN],prime[MAXN];
+</span><span style="color: rgba(0, 0, 255, 1)">bool</span><span style="color: rgba(0, 0, 0, 1)"> mark[MAXN];
+
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> read(T &amp;<span style="color: rgba(0, 0, 0, 1)">x) {
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> f=<span style="color: rgba(128, 0, 128, 1)">1</span>; x=<span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">char</span> c =<span style="color: rgba(0, 0, 0, 1)"> getchar();
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; !isdigit(c); c = getchar()) { <span style="color: rgba(0, 0, 255, 1)">if</span> (c == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>) f = -<span style="color: rgba(0, 0, 0, 1)">f; }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; isdigit(c); c = getchar()) x = x * <span style="color: rgba(128, 0, 128, 1)">10</span> + c - <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">;
+        x </span>*=<span style="color: rgba(0, 0, 0, 1)"> f;
+}
+
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> write(T x) {
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (x &lt; <span style="color: rgba(128, 0, 128, 1)">0</span>) { putchar(<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>); x = -<span style="color: rgba(0, 0, 0, 1)">x; }
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (x &gt; <span style="color: rgba(128, 0, 128, 1)">9</span>) write(x/<span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">);
+    putchar(x</span>%<span style="color: rgba(128, 0, 128, 1)">10</span>+<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">);
+}
+
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> writeln(T x) {
+    write(x);
+    puts(</span><span style="color: rgba(128, 0, 0, 1)">""</span><span style="color: rgba(0, 0, 0, 1)">);
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() {
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">2</span>; i &lt;= MAXN; i++<span style="color: rgba(0, 0, 0, 1)">) {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!f[i]) prime[++tot] =<span style="color: rgba(0, 0, 0, 1)"> i;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> ((!f[i]) || (!mark[i/f[i]])) ++<span style="color: rgba(0, 0, 0, 1)">sum[i];
+                sum[i] </span>+= sum[i-<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= tot &amp;&amp; prime[j] &lt;= i; j++<span style="color: rgba(0, 0, 0, 1)">) {
+                        tmp </span>= i *<span style="color: rgba(0, 0, 0, 1)"> prime[j];
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (tmp &gt;= MAXN) <span style="color: rgba(0, 0, 255, 1)">break</span><span style="color: rgba(0, 0, 0, 1)">;
+                        f[tmp] </span>=<span style="color: rgba(0, 0, 0, 1)"> prime[j];
+                        mark[tmp] </span>= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                }    
+        }    
+        
+        read(Q);
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (Q--<span style="color: rgba(0, 0, 0, 1)">) {
+                read(l); read(r);
+                writeln(sum[r]</span>-sum[l-<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">]);
+        }
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

@@ -1,0 +1,255 @@
+---
+layout: post
+title: '[ZJOI 2006] 书架'
+date: 2018-09-22 11:15:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9689711.html
+cnblogs_id: 9689711
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p>         <a href="https://www.lydsy.com/JudgeOnline/problem.php?id=1861" target="_blank" rel="noopener nofollow">https://www.lydsy.com/JudgeOnline/problem.php?id=1861</a></p>
+<p>[算法]</p>
+<p>        平衡树</p>
+<p>        时间复杂度 ： O(M log N)</p>
+<p>[代码]</p>
+<p>             </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 800010
+
+<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> n,m;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> a[MAXN];
+
+</span><span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> Splay
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> root , total;
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> pos[MAXN];
+        Splay()
+        {
+                root </span>= total = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                memset(pos,</span><span style="color: rgba(128, 0, 128, 1)">0</span>,<span style="color: rgba(0, 0, 255, 1)">sizeof</span><span style="color: rgba(0, 0, 0, 1)">(pos));
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> Node
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> fa;
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> value,size;
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span> son[<span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">];    
+        }    Tree[MAXN];
+        inline </span><span style="color: rgba(0, 0, 255, 1)">bool</span> <span style="color: rgba(0, 0, 255, 1)">get</span>(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">return</span> Tree[Tree[x].fa].son[<span style="color: rgba(128, 0, 128, 1)">1</span>] ==<span style="color: rgba(0, 0, 0, 1)"> x; 
+        }
+            inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> splay(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> fa = Tree[x].fa; (fa =<span style="color: rgba(0, 0, 0, 1)"> Tree[x].fa); rotate(x))
+                        rotate(</span><span style="color: rgba(0, 0, 255, 1)">get</span>(x) == <span style="color: rgba(0, 0, 255, 1)">get</span>(fa) ?<span style="color: rgba(0, 0, 0, 1)"> fa : x);
+                root </span>=<span style="color: rgba(0, 0, 0, 1)"> x;
+        }
+        inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> push_back(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!<span style="color: rgba(0, 0, 0, 1)">root)
+                {
+                        root </span>= pos[x] = ++<span style="color: rgba(0, 0, 0, 1)">total;
+                        Tree[root].fa </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                        Tree[root].son[</span><span style="color: rgba(128, 0, 128, 1)">0</span>] = Tree[root].son[<span style="color: rgba(128, 0, 128, 1)">1</span>] = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                        Tree[root].value </span>=<span style="color: rgba(0, 0, 0, 1)"> x;
+                        Tree[root].size </span>= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                        </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)">;
+                }
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span> now =<span style="color: rgba(0, 0, 0, 1)"> root;
+                </span><span style="color: rgba(0, 0, 255, 1)">while</span> (Tree[now].son[<span style="color: rgba(128, 0, 128, 1)">1</span>]) now = Tree[now].son[<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+                Tree[now].son[</span><span style="color: rgba(128, 0, 128, 1)">1</span>] = pos[x] = ++<span style="color: rgba(0, 0, 0, 1)">total;
+                Tree[total].fa </span>=<span style="color: rgba(0, 0, 0, 1)"> now;
+                Tree[total].son[</span><span style="color: rgba(128, 0, 128, 1)">0</span>] = Tree[total].son[<span style="color: rgba(128, 0, 128, 1)">1</span>] = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                Tree[total].value </span>=<span style="color: rgba(0, 0, 0, 1)"> x;
+                Tree[total].size </span>= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                splay(total);
+        }
+        inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> update(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x)
+        {
+                Tree[x].size </span>= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                Tree[x].size </span>+= Tree[Tree[x].son[<span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">]].size;
+                Tree[x].size </span>+= Tree[Tree[x].son[<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">]].size;
+        }
+        inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> rotate(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span> f = Tree[x].fa , g =<span style="color: rgba(0, 0, 0, 1)"> Tree[f].fa;
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span> tmpx = <span style="color: rgba(0, 0, 255, 1)">get</span>(x) , tmpf = <span style="color: rgba(0, 0, 255, 1)">get</span><span style="color: rgba(0, 0, 0, 1)">(f);
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!f) <span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)">;
+                Tree[f].son[tmpx] </span>= Tree[x].son[tmpx ^ <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (Tree[x].son[tmpx ^ <span style="color: rgba(128, 0, 128, 1)">1</span>]) Tree[Tree[x].son[tmpx ^ <span style="color: rgba(128, 0, 128, 1)">1</span>]].fa =<span style="color: rgba(0, 0, 0, 1)"> f;
+                Tree[x].son[tmpx </span>^ <span style="color: rgba(128, 0, 128, 1)">1</span>] =<span style="color: rgba(0, 0, 0, 1)"> f;
+                Tree[f].fa </span>=<span style="color: rgba(0, 0, 0, 1)"> x;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (g) Tree[g].son[tmpf] =<span style="color: rgba(0, 0, 0, 1)"> x;
+                Tree[x].fa </span>=<span style="color: rgba(0, 0, 0, 1)"> g;
+                update(f);
+                update(x);
+        }    
+        inline </span><span style="color: rgba(0, 0, 255, 1)">int</span> find(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span> now =<span style="color: rgba(0, 0, 0, 1)"> root;
+                </span><span style="color: rgba(0, 0, 255, 1)">while</span><span style="color: rgba(0, 0, 0, 1)"> (now)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (Tree[now].son[<span style="color: rgba(128, 0, 128, 1)">0</span>] &amp;&amp; x &lt;= Tree[Tree[now].son[<span style="color: rgba(128, 0, 128, 1)">0</span>]].size) now = Tree[now].son[<span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">];
+                        </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)">
+                        {
+                                </span><span style="color: rgba(0, 0, 255, 1)">int</span> sz = <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (Tree[now].son[<span style="color: rgba(128, 0, 128, 1)">0</span>]) sz += Tree[Tree[now].son[<span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">]].size;
+                                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (x == sz) <span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> now;
+                                x </span>-=<span style="color: rgba(0, 0, 0, 1)"> sz;
+                                now </span>= Tree[now].son[<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+                        }
+                }
+        }
+        inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> erase(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span> id =<span style="color: rgba(0, 0, 0, 1)"> pos[x];
+                splay(id);
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!Tree[root].son[<span style="color: rgba(128, 0, 128, 1)">0</span>] &amp;&amp; !Tree[root].son[<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">])
+                {
+                        Tree[root].size </span>= Tree[root].value = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                        Tree[root].fa </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                        Tree[root].son[</span><span style="color: rgba(128, 0, 128, 1)">0</span>] = Tree[root].son[<span style="color: rgba(128, 0, 128, 1)">1</span>] = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                        root </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                        </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)">;
+                }
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!Tree[root].son[<span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">])
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">int</span> tmp =<span style="color: rgba(0, 0, 0, 1)"> root;
+                        root </span>= Tree[root].son[<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+                        Tree[root].fa </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                        Tree[tmp].size </span>= Tree[tmp].value = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                        Tree[tmp].son[</span><span style="color: rgba(128, 0, 128, 1)">0</span>] = Tree[tmp].son[<span style="color: rgba(128, 0, 128, 1)">1</span>] = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                        </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)">;
+                }
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!Tree[root].son[<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">])
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">int</span> tmp =<span style="color: rgba(0, 0, 0, 1)"> root;
+                        root </span>= Tree[root].son[<span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">];
+                        Tree[root].fa </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                        Tree[tmp].size </span>= Tree[tmp].value = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                        Tree[tmp].son[</span><span style="color: rgba(128, 0, 128, 1)">0</span>] = Tree[tmp].son[<span style="color: rgba(128, 0, 128, 1)">1</span>] = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                        </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)">;
+                }
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span> now = Tree[root].son[<span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">];
+                </span><span style="color: rgba(0, 0, 255, 1)">while</span> (Tree[now].son[<span style="color: rgba(128, 0, 128, 1)">1</span>]) now = Tree[now].son[<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+                splay(now);
+                Tree[now].son[</span><span style="color: rgba(128, 0, 128, 1)">1</span>] = Tree[id].son[<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+                Tree[Tree[id].son[</span><span style="color: rgba(128, 0, 128, 1)">1</span>]].fa =<span style="color: rgba(0, 0, 0, 1)"> now;
+                Tree[id].fa </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                pos[Tree[id].value] </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                Tree[id].size </span>= Tree[id].value = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                Tree[id].son[</span><span style="color: rgba(128, 0, 128, 1)">0</span>] = Tree[id].son[<span style="color: rgba(128, 0, 128, 1)">1</span>] = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                update(root);
+        }
+        inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> insert_left(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x)
+        {
+                Tree[root].son[</span><span style="color: rgba(128, 0, 128, 1)">0</span>] = ++<span style="color: rgba(0, 0, 0, 1)">total;
+                Tree[total].fa </span>=<span style="color: rgba(0, 0, 0, 1)"> root;
+                Tree[total].son[</span><span style="color: rgba(128, 0, 128, 1)">0</span>] = Tree[total].son[<span style="color: rgba(128, 0, 128, 1)">1</span>] = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                Tree[total].value </span>=<span style="color: rgba(0, 0, 0, 1)"> x;
+                Tree[total].size </span>= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                pos[x] </span>=<span style="color: rgba(0, 0, 0, 1)"> total;
+                update(root);        
+        }
+        inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> insert_right(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x)
+        {
+                Tree[root].son[</span><span style="color: rgba(128, 0, 128, 1)">1</span>] = ++<span style="color: rgba(0, 0, 0, 1)">total;
+                Tree[total].fa </span>=<span style="color: rgba(0, 0, 0, 1)"> root;
+                Tree[total].son[</span><span style="color: rgba(128, 0, 128, 1)">0</span>] = Tree[total].son[<span style="color: rgba(128, 0, 128, 1)">1</span>] = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                Tree[total].value </span>=<span style="color: rgba(0, 0, 0, 1)"> x;
+                Tree[total].size </span>= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                pos[x] </span>=<span style="color: rgba(0, 0, 0, 1)"> total;
+                update(root);    
+        }
+        inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> Swap(<span style="color: rgba(0, 0, 255, 1)">int</span> x,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> y)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span> posx =<span style="color: rgba(0, 0, 0, 1)"> pos[x];
+                splay(posx);
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> posy;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (y == -<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!Tree[posx].son[<span style="color: rgba(128, 0, 128, 1)">0</span>]) <span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)">;
+                        posy </span>= Tree[posx].son[<span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">];
+                        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (Tree[posy].son[<span style="color: rgba(128, 0, 128, 1)">1</span>]) posy = Tree[posy].son[<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+                } </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)">
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!Tree[posx].son[<span style="color: rgba(128, 0, 128, 1)">1</span>]) <span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)">;
+                        posy </span>= Tree[posx].son[<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+                        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (Tree[posy].son[<span style="color: rgba(128, 0, 128, 1)">0</span>]) posy = Tree[posy].son[<span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">];
+                }
+                swap(pos[Tree[posx].value],pos[Tree[posy].value]);
+                swap(Tree[posx].value,Tree[posy].value);    
+        }
+        inline </span><span style="color: rgba(0, 0, 255, 1)">int</span> ask(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x)
+        {
+                splay(pos[x]);
+                </span><span style="color: rgba(0, 0, 255, 1)">return</span> Tree[Tree[root].son[<span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">]].size;
+        }
+        inline </span><span style="color: rgba(0, 0, 255, 1)">int</span> query(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span> ret =<span style="color: rgba(0, 0, 0, 1)"> find(x);
+                </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> Tree[ret].value;
+        }
+} T;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main()
+{
+        
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;n,&amp;<span style="color: rgba(0, 0, 0, 1)">m);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">) 
+        {
+                scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">a[i]);
+                T.push_back(a[i]);
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= m; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">char</span> op[<span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">];
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> s,t;
+                scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%s</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,op);
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (op[<span style="color: rgba(128, 0, 128, 1)">0</span>] == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">T</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">s);
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (n == <span style="color: rgba(128, 0, 128, 1)">1</span>) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                        T.erase(s);
+                        </span><span style="color: rgba(0, 0, 255, 1)">int</span> x = T.find(<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+                        T.splay(x);
+                        T.insert_left(s);
+                }
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (op[<span style="color: rgba(128, 0, 128, 1)">0</span>] == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">B</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">s);
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (n == <span style="color: rgba(128, 0, 128, 1)">1</span>) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                        T.erase(s);
+                        </span><span style="color: rgba(0, 0, 255, 1)">int</span> x = T.find(n - <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+                        T.splay(x);
+                        T.insert_right(s);
+                }
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (op[<span style="color: rgba(128, 0, 128, 1)">0</span>] == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">I</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;s,&amp;<span style="color: rgba(0, 0, 0, 1)">t);
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (t == <span style="color: rgba(128, 0, 128, 1)">0</span>) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                        T.Swap(s,t);
+                }
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (op[<span style="color: rgba(128, 0, 128, 1)">0</span>] == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">A</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">s);
+                        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,T.ask(s));
+                }
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (op[<span style="color: rgba(128, 0, 128, 1)">0</span>] == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">Q</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">s);
+                        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,T.query(s));
+                }
+        }
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

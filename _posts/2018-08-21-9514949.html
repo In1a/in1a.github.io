@@ -1,0 +1,148 @@
+---
+layout: post
+title: '[JSOI 2012] 玄武密码'
+date: 2018-08-21 22:44:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9514949.html
+cnblogs_id: 9514949
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p>         <a href="https://www.lydsy.com/JudgeOnline/problem.php?id=4327" target="_blank" rel="noopener nofollow"> https://www.lydsy.com/JudgeOnline/problem.php?id=4327</a></p>
+<p>[算法]</p>
+<p>        AC自动机<br>[代码]</p>
+<p>        </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">int</span> MAXN = 1e7 + <span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">;
+</span><span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">int</span> MAXM = 1e5 + <span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">;
+</span><span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">int</span> MAXLEN = <span style="color: rgba(128, 0, 128, 1)">110</span><span style="color: rgba(0, 0, 0, 1)">;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> n,m;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> ans[MAXM];
+</span><span style="color: rgba(0, 0, 255, 1)">char</span><span style="color: rgba(0, 0, 0, 1)"> P[MAXN];
+</span><span style="color: rgba(0, 0, 255, 1)">char</span><span style="color: rgba(0, 0, 0, 1)"> s[MAXM][MAXLEN];
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">int</span> get_value(<span style="color: rgba(0, 0, 255, 1)">char</span><span style="color: rgba(0, 0, 0, 1)"> a)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (a == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">E</span><span style="color: rgba(128, 0, 0, 1)">'</span>) <span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (a == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">S</span><span style="color: rgba(128, 0, 0, 1)">'</span>) <span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (a == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">W</span><span style="color: rgba(128, 0, 0, 1)">'</span>) <span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (a == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">N</span><span style="color: rgba(128, 0, 0, 1)">'</span>) <span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">3</span><span style="color: rgba(0, 0, 0, 1)">;
+} 
+</span><span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> AC_Automation
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> tot;
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> root;
+        </span><span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> Node
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span> child[<span style="color: rgba(128, 0, 128, 1)">4</span><span style="color: rgba(0, 0, 0, 1)">];
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> fail;
+                </span><span style="color: rgba(0, 0, 255, 1)">bool</span><span style="color: rgba(0, 0, 0, 1)"> visited;
+        } trie[MAXN];
+        inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> insert(<span style="color: rgba(0, 0, 255, 1)">char</span> *<span style="color: rgba(0, 0, 0, 1)">s)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span> now =<span style="color: rgba(0, 0, 0, 1)"> root;
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span> len = strlen(s + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);    
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= len; i++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">int</span> val =<span style="color: rgba(0, 0, 0, 1)"> get_value(s[i]);
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!trie[now].child[val]) trie[now].child[val] = ++<span style="color: rgba(0, 0, 0, 1)">tot;
+                        now </span>=<span style="color: rgba(0, 0, 0, 1)"> trie[now].child[val];    
+                }    
+        }        
+        inline </span><span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> rebuild()
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> l,r;
+                </span><span style="color: rgba(0, 0, 255, 1)">static</span> <span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> q[MAXN];
+                q[l </span>= r = <span style="color: rgba(128, 0, 128, 1)">1</span>] =<span style="color: rgba(0, 0, 0, 1)"> root;
+                trie[root].fail </span>= -<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">while</span> (l &lt;=<span style="color: rgba(0, 0, 0, 1)"> r)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">int</span> cur =<span style="color: rgba(0, 0, 0, 1)"> q[l];
+                        l</span>++<span style="color: rgba(0, 0, 0, 1)">;
+                        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i &lt; <span style="color: rgba(128, 0, 128, 1)">4</span>; i++<span style="color: rgba(0, 0, 0, 1)">)
+                        {
+                                </span><span style="color: rgba(0, 0, 255, 1)">if</span><span style="color: rgba(0, 0, 0, 1)"> (trie[cur].child[i])
+                                {
+                                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (cur ==<span style="color: rgba(0, 0, 0, 1)"> root)
+                                                trie[trie[cur].child[i]].fail </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                                        </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)">
+                                        {
+                                                </span><span style="color: rgba(0, 0, 255, 1)">int</span> p =<span style="color: rgba(0, 0, 0, 1)"> trie[cur].fail;
+                                                </span><span style="color: rgba(0, 0, 255, 1)">while</span> (p != -<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">)
+                                                {
+                                                        </span><span style="color: rgba(0, 0, 255, 1)">if</span><span style="color: rgba(0, 0, 0, 1)"> (trie[p].child[i]) 
+                                                        {
+                                                                trie[trie[cur].child[i]].fail </span>=<span style="color: rgba(0, 0, 0, 1)"> trie[p].child[i];
+                                                                </span><span style="color: rgba(0, 0, 255, 1)">break</span><span style="color: rgba(0, 0, 0, 1)">;
+                                                        } </span><span style="color: rgba(0, 0, 255, 1)">else</span> p =<span style="color: rgba(0, 0, 0, 1)"> trie[p].fail;
+                                                }
+                                        }
+                                        q[</span>++r] =<span style="color: rgba(0, 0, 0, 1)"> trie[cur].child[i];
+                                 }
+                        }
+                }
+        }
+        inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> getans(<span style="color: rgba(0, 0, 255, 1)">char</span> *<span style="color: rgba(0, 0, 0, 1)">s)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span> now =<span style="color: rgba(0, 0, 0, 1)"> root;
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span> len = strlen(s + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= len; i++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">int</span> val =<span style="color: rgba(0, 0, 0, 1)"> get_value(s[i]);
+                        </span><span style="color: rgba(0, 0, 255, 1)">int</span> p =<span style="color: rgba(0, 0, 0, 1)"> now;
+                        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (p != -<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">)
+                        {
+                                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (trie[p].child[val]) <span style="color: rgba(0, 0, 255, 1)">break</span><span style="color: rgba(0, 0, 0, 1)">;
+                                </span><span style="color: rgba(0, 0, 255, 1)">else</span> p =<span style="color: rgba(0, 0, 0, 1)"> trie[p].fail;
+                        }
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (p == -<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">) 
+                        {
+                                now </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                                </span><span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                        } </span><span style="color: rgba(0, 0, 255, 1)">else</span> now = p =<span style="color: rgba(0, 0, 0, 1)"> trie[p].child[val];
+                        </span><span style="color: rgba(0, 0, 255, 1)">while</span><span style="color: rgba(0, 0, 0, 1)"> (p)
+                        {
+                                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!<span style="color: rgba(0, 0, 0, 1)">trie[p].visited)
+                                {
+                                        trie[p].visited </span>= <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+                                        p </span>=<span style="color: rgba(0, 0, 0, 1)"> trie[p].fail;
+                                } </span><span style="color: rgba(0, 0, 255, 1)">else</span> <span style="color: rgba(0, 0, 255, 1)">break</span><span style="color: rgba(0, 0, 0, 1)">;
+                        }
+                }
+        }
+        inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> calc(<span style="color: rgba(0, 0, 255, 1)">int</span> pos,<span style="color: rgba(0, 0, 255, 1)">char</span> *<span style="color: rgba(0, 0, 0, 1)">s)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span> now =<span style="color: rgba(0, 0, 0, 1)"> root;
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span> len = strlen(s + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= len; i++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">int</span> val =<span style="color: rgba(0, 0, 0, 1)"> get_value(s[i]);
+                        now </span>=<span style="color: rgba(0, 0, 0, 1)"> trie[now].child[val];
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (trie[now].visited) ans[pos] =<span style="color: rgba(0, 0, 0, 1)"> i;
+                }
+        }
+} ACAM;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() 
+{
+        
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;n,&amp;<span style="color: rgba(0, 0, 0, 1)">m);
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%s</span><span style="color: rgba(128, 0, 0, 1)">"</span>,P + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= m; i++) scanf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%s</span><span style="color: rgba(128, 0, 0, 1)">"</span>,s[i] + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= m; i++<span style="color: rgba(0, 0, 0, 1)">) ACAM.insert(s[i]);
+        ACAM.rebuild();
+        ACAM.getans(P);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= m; i++<span style="color: rgba(0, 0, 0, 1)">) ACAM.calc(i,s[i]);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= m; i++) printf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,ans[i]);
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

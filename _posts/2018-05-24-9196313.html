@@ -1,0 +1,98 @@
+---
+layout: post
+title: '【HDU 2157】 How Many Ways??'
+date: 2018-05-24 22:10:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9196313.html
+cnblogs_id: 9196313
+---
+{% raw %}
+
+<p>【题目链接】</p>
+<p>            <a href="http://acm.hdu.edu.cn/showproblem.php?pid=2157" rel="noopener nofollow">点击打开链接</a></p>
+<p>【算法】</p>
+<p>           设A[i][j]为走一条边，从i走到j的方案数</p>
+<p>           C[i][j]为走两条边，从i走到j的方案数，显然有 : C = A * A = A^2</p>
+<p>           C'[i][j]为走三条边，从i走到j的方案数，那么 : C' = C * A = (A * A) * A = A^3</p>
+<p>           .......</p>
+<p>          因此，要求走n条边的方案数，只需通过矩阵乘法快速幂，计算A^n就可以了</p>
+<p> 【代码】</p>
+<p>            注意，一个n阶矩阵的零次幂是n阶单位阵（对角线上的都是1，其余都是0）</p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 25
+<span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">int</span> MOD = <span style="color: rgba(128, 0, 128, 1)">1000</span><span style="color: rgba(0, 0, 0, 1)">;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> n,m,s,t,a,b,k;
+</span><span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> Matrix
+{
+    </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> mat[MAXN][MAXN];
+} c,ans;
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> multipy(Matrix &amp;<span style="color: rgba(0, 0, 0, 1)">a,Matrix b)
+{
+    </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,j,k;
+    Matrix ans;
+    memset(ans.mat,</span><span style="color: rgba(128, 0, 128, 1)">0</span>,<span style="color: rgba(0, 0, 255, 1)">sizeof</span><span style="color: rgba(0, 0, 0, 1)">(ans.mat));
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i &lt; n; i++<span style="color: rgba(0, 0, 0, 1)">)
+    {
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">0</span>; j &lt; n; j++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+            </span><span style="color: rgba(0, 0, 255, 1)">for</span> (k = <span style="color: rgba(128, 0, 128, 1)">0</span>; k &lt; n; k++<span style="color: rgba(0, 0, 0, 1)">)
+            {
+                ans.mat[i][j] </span>= (ans.mat[i][j] + a.mat[i][k] * b.mat[k][j]) %<span style="color: rgba(0, 0, 0, 1)"> MOD;
+            }
+        }
+    }
+    a </span>=<span style="color: rgba(0, 0, 0, 1)"> ans;
+}
+
+inline Matrix power(Matrix a,</span><span style="color: rgba(0, 0, 255, 1)">int</span> n,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> s)
+{
+    </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,j;
+    Matrix ans,p </span>=<span style="color: rgba(0, 0, 0, 1)"> a;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i &lt; s; i++<span style="color: rgba(0, 0, 0, 1)">)
+    {
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">0</span>; j &lt; s; j++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+            ans.mat[i][j] </span>= (i ==<span style="color: rgba(0, 0, 0, 1)"> j);
+        }
+    }
+    </span><span style="color: rgba(0, 0, 255, 1)">while</span> (n &gt; <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">)
+    {
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (n &amp; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">) multipy(ans,p);
+        multipy(p,p);
+        n </span>&gt;&gt;= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+    }
+    </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> ans;
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main()
+{
+    
+    </span><span style="color: rgba(0, 0, 255, 1)">while</span> (scanf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;n,&amp;m) !=<span style="color: rgba(0, 0, 0, 1)"> EOF)
+    {
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!n &amp;&amp; !m) <span style="color: rgba(0, 0, 255, 1)">break</span><span style="color: rgba(0, 0, 0, 1)">;
+        memset(c.mat,</span><span style="color: rgba(128, 0, 128, 1)">0</span>,<span style="color: rgba(0, 0, 255, 1)">sizeof</span><span style="color: rgba(0, 0, 0, 1)">(c.mat));
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (m--<span style="color: rgba(0, 0, 0, 1)">)
+        {
+            scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;s,&amp;<span style="color: rgba(0, 0, 0, 1)">t);
+            c.mat[s][t] </span>= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;    
+        }    
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">t);
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (t--<span style="color: rgba(0, 0, 0, 1)">)
+        {
+            scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;a,&amp;b,&amp;<span style="color: rgba(0, 0, 0, 1)">k);
+            ans </span>=<span style="color: rgba(0, 0, 0, 1)"> power(c,k,n);
+            printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,ans.mat[a][b]);
+        }
+    }
+    
+    </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+}</span></pre>
+</div>
+<p> </p>
+<p><br>            </p>
+
+
+{% endraw %}

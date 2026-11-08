@@ -1,0 +1,93 @@
+---
+layout: post
+title: '【Codeforces 915E】 Physical Education Lessons'
+date: 2018-05-05 18:35:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9196351.html
+cnblogs_id: 9196351
+---
+{% raw %}
+
+<p>【题目链接】</p>
+<p>          <a href="http://codeforces.com/contest/915/problem/E" rel="noopener nofollow">点击打开链接</a></p>
+<p>【算法】</p>
+<p>           线段树，注意数据量大，要动态开点</p>
+<p>【代码】</p>
+<p>          </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">int</span> MAXN = <span style="color: rgba(128, 0, 128, 1)">10000005</span><span style="color: rgba(0, 0, 0, 1)">;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span> n,q,l,r,opt,size = <span style="color: rgba(128, 0, 128, 1)">1</span>,root = <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+</span><span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> Node {
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> lc,rc,tag,sum;
+} Tree[MAXN];
+
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> read(T &amp;<span style="color: rgba(0, 0, 0, 1)">x) {
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> f = <span style="color: rgba(128, 0, 128, 1)">1</span>; x = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">char</span> c =<span style="color: rgba(0, 0, 0, 1)"> getchar();
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; !isdigit(c); c = getchar()) { <span style="color: rgba(0, 0, 255, 1)">if</span> (c == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>) f = -<span style="color: rgba(0, 0, 0, 1)">f; }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; isdigit(c); c = getchar()) x = (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">3</span>) + (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>) + c - <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">;
+        x </span>*=<span style="color: rgba(0, 0, 0, 1)"> f;
+}
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> write(T x) {
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (x &lt; <span style="color: rgba(128, 0, 128, 1)">0</span>) { putchar(<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>); x = -<span style="color: rgba(0, 0, 0, 1)">x; }
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (x &gt; <span style="color: rgba(128, 0, 128, 1)">9</span>) write(x/<span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">);
+    putchar(x</span>%<span style="color: rgba(128, 0, 128, 1)">10</span>+<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">);
+}
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> writeln(T x) {
+    write(x);
+    puts(</span><span style="color: rgba(128, 0, 0, 1)">""</span><span style="color: rgba(0, 0, 0, 1)">);
+}
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> push_up(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> root) {
+        Tree[root].sum </span>= Tree[Tree[root].lc].sum +<span style="color: rgba(0, 0, 0, 1)"> Tree[Tree[root].rc].sum; 
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> push_down(<span style="color: rgba(0, 0, 255, 1)">int</span> l,<span style="color: rgba(0, 0, 255, 1)">int</span> r,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> root) {
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> mid = (l + r) &gt;&gt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (Tree[root].tag != -<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">) {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!Tree[root].lc) Tree[root].lc = ++<span style="color: rgba(0, 0, 0, 1)">size;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!Tree[root].rc) Tree[root].rc = ++<span style="color: rgba(0, 0, 0, 1)">size;
+                Tree[Tree[root].lc].tag </span>= Tree[Tree[root].rc].tag =<span style="color: rgba(0, 0, 0, 1)"> Tree[root].tag;
+                Tree[Tree[root].lc].sum </span>= Tree[root].tag * (mid - l + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+                Tree[Tree[root].rc].sum </span>= Tree[root].tag * (r -<span style="color: rgba(0, 0, 0, 1)"> mid); 
+                Tree[root].tag </span>= -<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        }
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> modify(<span style="color: rgba(0, 0, 255, 1)">int</span> &amp;root,<span style="color: rgba(0, 0, 255, 1)">int</span> l,<span style="color: rgba(0, 0, 255, 1)">int</span> r,<span style="color: rgba(0, 0, 255, 1)">int</span> ql,<span style="color: rgba(0, 0, 255, 1)">int</span> qr,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> val) {
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> mid;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!root) root = ++<span style="color: rgba(0, 0, 0, 1)">size;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (l == ql &amp;&amp; r ==<span style="color: rgba(0, 0, 0, 1)"> qr) {
+                Tree[root].sum </span>= val * (r - l + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+                Tree[root].tag </span>=<span style="color: rgba(0, 0, 0, 1)"> val;
+                </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)">;
+        }
+        push_down(l,r,root);
+        mid </span>= (l + r) &gt;&gt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (mid &gt;=<span style="color: rgba(0, 0, 0, 1)"> qr) modify(Tree[root].lc,l,mid,ql,qr,val);
+        </span><span style="color: rgba(0, 0, 255, 1)">else</span> <span style="color: rgba(0, 0, 255, 1)">if</span> (mid + <span style="color: rgba(128, 0, 128, 1)">1</span> &lt;= ql) modify(Tree[root].rc,mid+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">,r,ql,qr,val);
+        </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)"> {
+                modify(Tree[root].lc,l,mid,ql,mid,val);
+                modify(Tree[root].rc,mid</span>+<span style="color: rgba(128, 0, 128, 1)">1</span>,r,mid+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">,qr,val);
+        }
+        push_up(root);
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() {
+        
+        read(n); read(q);
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (q--<span style="color: rgba(0, 0, 0, 1)">) {
+                read(l); read(r); read(opt);
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (opt == <span style="color: rgba(128, 0, 128, 1)">1</span>) modify(root,<span style="color: rgba(128, 0, 128, 1)">1</span>,n,l,r,<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+                </span><span style="color: rgba(0, 0, 255, 1)">else</span> modify(root,<span style="color: rgba(128, 0, 128, 1)">1</span>,n,l,r,<span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">);    
+                writeln(n </span>- Tree[<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">].sum);
+        } 
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

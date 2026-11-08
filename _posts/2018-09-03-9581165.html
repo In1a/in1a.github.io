@@ -1,0 +1,85 @@
+---
+layout: post
+title: '[HAOI 2011] Problem b'
+date: 2018-09-03 21:32:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9581165.html
+cnblogs_id: 9581165
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p>       <a href="https://www.lydsy.com/JudgeOnline/problem.php?id=2301" target="_blank" rel="noopener nofollow"> https://www.lydsy.com/JudgeOnline/problem.php?id=2301</a></p>
+<p>[算法]</p>
+<p>         首先，满足a &lt;= x &lt;= b , c &lt;= y &lt;= d , GCD(x,y) = k的二元组对数可以转化为求 ：</p>
+<p>         1 &lt;= x &lt;= b , 1 &lt;= y &lt;= d , GCD(x,y) = k的二元组对数 </p>
+<p>         -  1 &lt;= x &lt;= (a - 1) , 1 &lt;= y &lt;= d , GCD(x,y) = k的二元组对数</p>
+<p>         - 1 &lt;= x &lt;= b , 1 &lt;= y &lt;= (c - 1) , GCD(x,y) = k的二元组对数</p>
+<p>         + 1 &lt;= x &lt;= (a - 1) , 1 &lt;= y &lt;= (c - 1) , GCD(x,y) = k的二元组对数</p>
+<p>         可以通过莫比乌斯函数 + 容斥原理解决 ， 并用数论分块加速</p>
+<p>         时间复杂度 : O(T ( sqrt(A) + sqrt(B) ) ( 其中，sqrt表示开根号）</p>
+<p>[代码]</p>
+<p>        </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 50010
+
+<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> T,a,b,c,d,k;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> miu[MAXN],sum[MAXN];
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> sieve()
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">static</span> <span style="color: rgba(0, 0, 255, 1)">bool</span><span style="color: rgba(0, 0, 0, 1)"> visited[MAXN];
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt; MAXN; i++<span style="color: rgba(0, 0, 0, 1)">) 
+        {
+                visited[i] </span>= <span style="color: rgba(0, 0, 255, 1)">false</span><span style="color: rgba(0, 0, 0, 1)">;
+                miu[i] </span>= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">2</span>; i &lt; MAXN; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (visited[i]) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                miu[i] </span>= -<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> j = <span style="color: rgba(128, 0, 128, 1)">2</span> * i; j &lt; MAXN; j +=<span style="color: rgba(0, 0, 0, 1)"> i)
+                {
+                        visited[j] </span>= <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> ((j / i) % i == <span style="color: rgba(128, 0, 128, 1)">0</span>) miu[j] = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                        </span><span style="color: rgba(0, 0, 255, 1)">else</span> miu[j] *= -<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                }        
+        }    
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt; MAXN; i++) sum[i] = sum[i - <span style="color: rgba(128, 0, 128, 1)">1</span>] +<span style="color: rgba(0, 0, 0, 1)"> miu[i];
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">int</span> getsum(<span style="color: rgba(0, 0, 255, 1)">int</span> l,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> r)
+{
+    </span><span style="color: rgba(0, 0, 255, 1)">return</span> sum[r] - sum[l - <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">int</span> solve(<span style="color: rgba(0, 0, 255, 1)">int</span> x,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> y)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> gi;
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> ret = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= min(x,y); i = gi + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">)
+        {
+                gi </span>= min((x / (x / i)),(y / (y /<span style="color: rgba(0, 0, 0, 1)"> i)));
+                ret </span>+= (x / i) * (y / i) *<span style="color: rgba(0, 0, 0, 1)"> getsum(i,gi);        
+        }    
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> ret;
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() 
+{
+        
+        sieve();
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">T);
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (T--<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d%d%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;a,&amp;b,&amp;c,&amp;d,&amp;<span style="color: rgba(0, 0, 0, 1)">k);
+                printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span>,solve(b / k,d / k) - solve((a - <span style="color: rgba(128, 0, 128, 1)">1</span>) / k,d / k) - solve(b / k,(c - <span style="color: rgba(128, 0, 128, 1)">1</span>) / k) + solve((a - <span style="color: rgba(128, 0, 128, 1)">1</span>) / k,(c - <span style="color: rgba(128, 0, 128, 1)">1</span>) /<span style="color: rgba(0, 0, 0, 1)"> k));
+        }
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

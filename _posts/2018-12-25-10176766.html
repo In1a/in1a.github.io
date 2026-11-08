@@ -1,0 +1,93 @@
+---
+layout: post
+title: '[模板] 拉格朗日插值'
+date: 2018-12-25 22:09:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/10176766.html
+cnblogs_id: 10176766
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p>        <a href="https://www.luogu.org/problemnew/show/P4781" target="_blank" rel="noopener nofollow">https://www.luogu.org/problemnew/show/P4781</a></p>
+<p>[算法]</p>
+<p>       拉格朗日插值即可</p>
+<p>       时间复杂度 : O(N ^ 2)</p>
+<p>[代码]</p>
+<p>        </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 2010
+<span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">int</span> P = <span style="color: rgba(128, 0, 128, 1)">998244353</span><span style="color: rgba(0, 0, 0, 1)">;
+typedef </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> ll;
+typedef </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">double</span><span style="color: rgba(0, 0, 0, 1)"> ld;
+typedef unsigned </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> ull;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> n , k;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> X[MAXN] , Y[MAXN];
+
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> chkmax(T &amp;x,T y) { x =<span style="color: rgba(0, 0, 0, 1)"> max(x,y); }
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> chkmin(T &amp;x,T y) { x =<span style="color: rgba(0, 0, 0, 1)"> min(x,y); }
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> read(T &amp;<span style="color: rgba(0, 0, 0, 1)">x)
+{
+    T f </span>= <span style="color: rgba(128, 0, 128, 1)">1</span>; x = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">char</span> c =<span style="color: rgba(0, 0, 0, 1)"> getchar();
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; !isdigit(c); c = getchar()) <span style="color: rgba(0, 0, 255, 1)">if</span> (c == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>) f = -<span style="color: rgba(0, 0, 0, 1)">f;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; isdigit(c); c = getchar()) x = (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">3</span>) + (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>) + c - <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">;
+    x </span>*=<span style="color: rgba(0, 0, 0, 1)"> f;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">int</span> exp_mod(<span style="color: rgba(0, 0, 255, 1)">int</span> a , <span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> n)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> res = <span style="color: rgba(128, 0, 128, 1)">1</span> , b =<span style="color: rgba(0, 0, 0, 1)"> a;
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (n &gt; <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (n &amp; <span style="color: rgba(128, 0, 128, 1)">1</span>) res = 1ll * res * b %<span style="color: rgba(0, 0, 0, 1)"> P;
+                b </span>= 1ll * b * b %<span style="color: rgba(0, 0, 0, 1)"> P;
+                n </span>&gt;&gt;= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> res;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">int</span> inv(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> exp_mod(x , P - <span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">);
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> update(<span style="color: rgba(0, 0, 255, 1)">int</span> &amp;x , <span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> y)
+{
+        x </span>= (x + y) %<span style="color: rgba(0, 0, 0, 1)"> P;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (x &lt; <span style="color: rgba(128, 0, 128, 1)">0</span>) x +=<span style="color: rgba(0, 0, 0, 1)"> P;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">int</span> Lagrange(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> ret = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span> value =<span style="color: rgba(0, 0, 0, 1)"> Y[i];        
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= n; j++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (i !=<span style="color: rgba(0, 0, 0, 1)"> j)
+                                value </span>= 1ll * value * (x - X[j]) % P * inv(((X[i] - X[j]) % P + P) % P) %<span style="color: rgba(0, 0, 0, 1)"> P;
+                }
+                update(ret , value);
+        }        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> ret;
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main()
+{
+        
+        read(n); read(k);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                read(X[i]);
+                read(Y[i]);
+        }
+        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)"> , Lagrange(k));
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

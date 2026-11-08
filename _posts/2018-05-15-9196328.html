@@ -1,0 +1,132 @@
+---
+layout: post
+title: '【SCOI 2003】 严格n元树'
+date: 2018-05-15 21:20:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9196328.html
+cnblogs_id: 9196328
+---
+{% raw %}
+
+<p>【题目链接】</p>
+<p>           <a href="https://www.lydsy.com/JudgeOnline/problem.php?id=1089" rel="noopener nofollow">点击打开链接</a></p>
+<p>【算法】</p>
+<p>          f[i]表示深度小于等于i的严格n元树</p>
+<p>          显然，一棵深度小于等于i的严格n元树，就是一个根节点，下面有n棵子树，这n棵子树都是深度小于等于i-1的严格n元树，每棵子树有f[i-1]种形态，根据乘法原理，</p>
+<p>          可知f[i] = f[i-1] ^ n + 1</p>
+<p>          那么最后f[d] - f[d-1]就是答案</p>
+<p>          注意要用高精度计算</p>
+<p>【代码】</p>
+<p>          </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 35
+<span style="color: rgba(0, 0, 255, 1)">#define</span> MAXL 400
+ 
+<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,n,d;
+</span><span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> INT
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> len;
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> num[MAXL];
+} ans,f[MAXN];
+ 
+inline INT add(INT x)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i;
+        reverse(x.num,x.num</span>+<span style="color: rgba(0, 0, 0, 1)">x.len); 
+        x.num[</span><span style="color: rgba(128, 0, 128, 1)">0</span>]++<span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i &lt; x.len; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (x.num[i] &gt;= <span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        x.num[i</span>+<span style="color: rgba(128, 0, 128, 1)">1</span>]++<span style="color: rgba(0, 0, 0, 1)">;
+                        x.num[i] </span>%= <span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">;
+                }
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (x.num[x.len]) x.len++<span style="color: rgba(0, 0, 0, 1)">;
+        reverse(x.num,x.num</span>+<span style="color: rgba(0, 0, 0, 1)">x.len);
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> x;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> multipy(INT &amp;<span style="color: rgba(0, 0, 0, 1)">a,INT b)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,j;
+        </span><span style="color: rgba(0, 0, 255, 1)">static</span><span style="color: rgba(0, 0, 0, 1)"> INT res;
+        memset(res.num,</span><span style="color: rgba(128, 0, 128, 1)">0</span>,<span style="color: rgba(0, 0, 255, 1)">sizeof</span><span style="color: rgba(0, 0, 0, 1)">(res.num));
+        reverse(a.num,a.num</span>+<span style="color: rgba(0, 0, 0, 1)">a.len);
+        reverse(b.num,b.num</span>+<span style="color: rgba(0, 0, 0, 1)">b.len);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i &lt; a.len; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">0</span>; j &lt; b.len; j++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        res.num[i</span>+j] += a.num[i] *<span style="color: rgba(0, 0, 0, 1)"> b.num[j];     
+                }    
+        }    
+        res.len </span>= a.len + b.len - <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (!res.num[res.len-<span style="color: rgba(128, 0, 128, 1)">1</span>]) res.len--<span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i &lt; res.len; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (res.num[i] &gt;= <span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">) 
+                {
+                        res.num[i</span>+<span style="color: rgba(128, 0, 128, 1)">1</span>] += res.num[i] / <span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">;
+                        res.num[i] </span>%= <span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">; 
+                }
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (res.num[res.len]) res.len++<span style="color: rgba(0, 0, 0, 1)">;
+        reverse(res.num,res.num</span>+<span style="color: rgba(0, 0, 0, 1)">res.len);
+        a </span>=<span style="color: rgba(0, 0, 0, 1)"> res;
+}
+inline INT _minus(INT a,INT b)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">static</span><span style="color: rgba(0, 0, 0, 1)"> INT res;
+        memset(res.num,</span><span style="color: rgba(128, 0, 128, 1)">0</span>,<span style="color: rgba(0, 0, 255, 1)">sizeof</span><span style="color: rgba(0, 0, 0, 1)">(res.num));
+        reverse(a.num,a.num</span>+<span style="color: rgba(0, 0, 0, 1)">a.len);
+        reverse(b.num,b.num</span>+<span style="color: rgba(0, 0, 0, 1)">b.len);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i &lt; a.len; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (a.num[i] &gt;= b.num[i]) res.num[i] = a.num[i] -<span style="color: rgba(0, 0, 0, 1)"> b.num[i];
+                </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)">
+                {
+                        a.num[i</span>+<span style="color: rgba(128, 0, 128, 1)">1</span>]--<span style="color: rgba(0, 0, 0, 1)">;
+                        res.num[i] </span>= a.num[i] + <span style="color: rgba(128, 0, 128, 1)">10</span> -<span style="color: rgba(0, 0, 0, 1)"> b.num[i];    
+                } 
+        }
+        res.len </span>=<span style="color: rgba(0, 0, 0, 1)"> a.len;
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (!res.num[res.len-<span style="color: rgba(128, 0, 128, 1)">1</span>]) res.len--<span style="color: rgba(0, 0, 0, 1)">;
+        reverse(res.num,res.num</span>+<span style="color: rgba(0, 0, 0, 1)">res.len);
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> res;
+}
+inline INT power(INT a,</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> n)
+{
+        INT res;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!n) <span style="color: rgba(0, 0, 255, 1)">return</span> (INT){<span style="color: rgba(128, 0, 128, 1)">1</span>,{<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">}};
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (n == <span style="color: rgba(128, 0, 128, 1)">1</span>) <span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> a;
+        res </span>= power(a,n&gt;&gt;<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+        multipy(res,res);
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (n &amp; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">) multipy(res,a);
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> res;    
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> output(INT x)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i &lt; x.len; i++) printf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,x.num[i]);
+        puts(</span><span style="color: rgba(128, 0, 0, 1)">""</span><span style="color: rgba(0, 0, 0, 1)">);    
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main()
+{
+        
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;n,&amp;<span style="color: rgba(0, 0, 0, 1)">d);
+        f[</span><span style="color: rgba(128, 0, 128, 1)">0</span>] = (INT){<span style="color: rgba(128, 0, 128, 1)">1</span>,{<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">}};
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= d; i++) f[i] = add(power(f[i-<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">],n));
+        ans </span>= _minus(f[d],f[d-<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">]);
+        output(ans);
+    
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+}
+    </span></pre>
+</div>
+<p> </p>
+<p><br>            </p>
+
+
+{% endraw %}

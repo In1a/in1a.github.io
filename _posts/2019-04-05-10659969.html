@@ -1,0 +1,130 @@
+---
+layout: post
+title: '[BZOJ 1853] 幸运数字'
+date: 2019-04-05 21:19:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/10659969.html
+cnblogs_id: 10659969
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p>         <a href="https://www.lydsy.com/JudgeOnline/problem.php?id=1853" target="_blank" rel="noopener nofollow">https://www.lydsy.com/JudgeOnline/problem.php?id=1853</a></p>
+<p>[算法]</p>
+<p>        首先 , [L , R]区间的答案 = [1 , R]区间答案 - [1 , L - 1]区间答案</p>
+<p>        考虑可以预处理[1 , R]中的“幸运数字”和[1 , L - 1]中的幸运数字 ， 然后用容斥原理分别计算</p>
+<p>        然而直接搜索是会超时的 ， 我们需要进行一些剪枝 ：</p>
+<p>        1. 当最小公倍数 &gt; R时退出</p>
+<p>        2. 当存在二元组(i , j) ， 满足Ai(mod Aj) = 0时 ， Ai无用</p>
+<p>        时间复杂度 : O(2 ^ CNT log V)(CNT为“幸运数字”个数 ， 实际运行远远达不到这个上界）</p>
+<p>[代码]</p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+typedef </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> ll;
+typedef </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">double</span><span style="color: rgba(0, 0, 0, 1)"> ld;
+typedef unsigned </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> ull;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> N 100010
+
+<span style="color: rgba(0, 0, 255, 1)">#define</span> rint register int
+
+<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> len , L;
+ll a , b , l , r , ret , nowlcm;
+ll A[N] , B[N];
+</span><span style="color: rgba(0, 0, 255, 1)">bool</span><span style="color: rgba(0, 0, 0, 1)"> tag[N];
+
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> chkmax(T &amp;x , T y) { x =<span style="color: rgba(0, 0, 0, 1)"> max(x , y); }
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> chkmin(T &amp;x , T y) { x =<span style="color: rgba(0, 0, 0, 1)"> min(x , y); }
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> read(T &amp;<span style="color: rgba(0, 0, 0, 1)">x)
+{
+    T f </span>= <span style="color: rgba(128, 0, 128, 1)">1</span>; x = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">char</span> c =<span style="color: rgba(0, 0, 0, 1)"> getchar();
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; !isdigit(c); c = getchar()) <span style="color: rgba(0, 0, 255, 1)">if</span> (c == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>) f = -<span style="color: rgba(0, 0, 0, 1)">f;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; isdigit(c); c = getchar()) x = (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">3</span>) + (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>) + c - <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">;
+    x </span>*=<span style="color: rgba(0, 0, 0, 1)"> f;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> dfs(ll now)
+{
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (now &gt; r) <span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (now &gt; <span style="color: rgba(128, 0, 128, 1)">0</span>) A[++len] =<span style="color: rgba(0, 0, 0, 1)"> now;
+    dfs(now </span>* <span style="color: rgba(128, 0, 128, 1)">10</span> + <span style="color: rgba(128, 0, 128, 1)">6</span><span style="color: rgba(0, 0, 0, 1)">);
+    dfs(now </span>* <span style="color: rgba(128, 0, 128, 1)">10</span> + <span style="color: rgba(128, 0, 128, 1)">8</span><span style="color: rgba(0, 0, 0, 1)">);
+}
+inline ll gcd(ll x , ll y)
+{
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (y == <span style="color: rgba(128, 0, 128, 1)">0</span>) <span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> x;
+    </span><span style="color: rgba(0, 0, 255, 1)">else</span> <span style="color: rgba(0, 0, 255, 1)">return</span> gcd(y , x %<span style="color: rgba(0, 0, 0, 1)"> y);
+}
+inline ll lcm(ll x , ll y)
+{
+    </span><span style="color: rgba(0, 0, 255, 1)">return</span> x / gcd(x , y) *<span style="color: rgba(0, 0, 0, 1)"> y;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">bool</span><span style="color: rgba(0, 0, 0, 1)"> check(ll x , ll y)
+{
+    ll X </span>= x /<span style="color: rgba(0, 0, 0, 1)"> (ll)1e9 ,
+       Y </span>= y /<span style="color: rgba(0, 0, 0, 1)"> (ll)1e9;
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (X * Y) <span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(0, 0, 255, 1)">false</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (x * y / gcd(x , y) &gt; r) <span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(0, 0, 255, 1)">false</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> work(<span style="color: rgba(0, 0, 255, 1)">int</span> depth , <span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> cnt)
+{
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (depth &gt;<span style="color: rgba(0, 0, 0, 1)"> L)
+    {
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!cnt) <span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (cnt &amp; <span style="color: rgba(128, 0, 128, 1)">1</span>) ret += r / nowlcm - (l - <span style="color: rgba(128, 0, 128, 1)">1</span>) /<span style="color: rgba(0, 0, 0, 1)"> nowlcm;
+        </span><span style="color: rgba(0, 0, 255, 1)">else</span> ret -= r / nowlcm - (l - <span style="color: rgba(128, 0, 128, 1)">1</span>) /<span style="color: rgba(0, 0, 0, 1)"> nowlcm;
+    } </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)">
+    {
+        work(depth </span>+ <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)"> , cnt);
+        ll tmp </span>=<span style="color: rgba(0, 0, 0, 1)"> nowlcm;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span><span style="color: rgba(0, 0, 0, 1)"> (check(nowlcm , B[depth])) 
+        {
+            nowlcm </span>=<span style="color: rgba(0, 0, 0, 1)"> lcm(nowlcm , B[depth]);
+            work(depth </span>+ <span style="color: rgba(128, 0, 128, 1)">1</span> , cnt + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+            nowlcm </span>=<span style="color: rgba(0, 0, 0, 1)"> tmp;
+        }
+    }
+}
+inline ll calc(ll x)
+{
+    len </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    l </span>= a; r =<span style="color: rgba(0, 0, 0, 1)"> b;
+    dfs(</span><span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">);
+    sort(A </span>+ <span style="color: rgba(128, 0, 128, 1)">1</span> , A + len + <span style="color: rgba(128, 0, 128, 1)">1</span> , greater&lt; <span style="color: rgba(0, 0, 255, 1)">int</span> &gt;<span style="color: rgba(0, 0, 0, 1)">());
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (rint i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= len; ++i) tag[i] = <span style="color: rgba(0, 0, 255, 1)">false</span><span style="color: rgba(0, 0, 0, 1)">;
+    L </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (rint i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= len; ++<span style="color: rgba(0, 0, 0, 1)">i)
+    {
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (rint j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= len; ++<span style="color: rgba(0, 0, 0, 1)">j)
+        {
+            </span><span style="color: rgba(0, 0, 255, 1)">if</span> (i != j &amp;&amp; A[j] % A[i] == <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">)
+                tag[j] </span>= <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+        }
+    }
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= len; ++<span style="color: rgba(0, 0, 0, 1)">i)
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!tag[i]) B[++L] =<span style="color: rgba(0, 0, 0, 1)"> A[i];
+    </span><span style="color: rgba(0, 0, 255, 1)">int</span> tmp =<span style="color: rgba(0, 0, 0, 1)"> L;
+    L </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (rint i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= tmp; ++<span style="color: rgba(0, 0, 0, 1)">i)
+    {
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (B[i] &gt;= r / <span style="color: rgba(128, 0, 128, 1)">3</span>) ret += r / B[i] - (l - <span style="color: rgba(128, 0, 128, 1)">1</span>) /<span style="color: rgba(0, 0, 0, 1)"> B[i];
+        </span><span style="color: rgba(0, 0, 255, 1)">else</span> B[++L] =<span style="color: rgba(0, 0, 0, 1)"> B[i];
+    }
+    nowlcm </span>= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+    work(</span><span style="color: rgba(128, 0, 128, 1)">1</span> , <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">);
+    </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> ret;
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main()
+{
+    
+    read(a); read(b);
+    printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%lld\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)"> , calc(b));
+    
+    </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

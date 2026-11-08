@@ -1,0 +1,123 @@
+---
+layout: post
+title: '[BZOJ 2199] 奶牛议会'
+date: 2018-08-29 19:12:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9556352.html
+cnblogs_id: 9556352
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p>        <a href="https://www.lydsy.com/JudgeOnline/problem.php?id=2199" target="_blank" rel="noopener nofollow"> https://www.lydsy.com/JudgeOnline/problem.php?id=2199</a></p>
+<p>[算法]</p>
+<p>       2-SAT</p>
+<p>[代码]</p>
+<p>        </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 1010
+<span style="color: rgba(0, 0, 255, 1)">#define</span> MAXM 4010
+
+<span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> edge
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> to,nxt;
+} e[MAXM </span>&lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> n,m,tot;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span> head[MAXN &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+</span><span style="color: rgba(0, 0, 255, 1)">bool</span> visited[MAXN &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> addedge(<span style="color: rgba(0, 0, 255, 1)">int</span> u,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> v)
+{
+        tot</span>++<span style="color: rgba(0, 0, 0, 1)">;
+        e[tot] </span>=<span style="color: rgba(0, 0, 0, 1)"> (edge){v,head[u]};
+        head[u] </span>=<span style="color: rgba(0, 0, 0, 1)"> tot;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> dfs(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = head[x]; i; i =<span style="color: rgba(0, 0, 0, 1)"> e[i].nxt)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!<span style="color: rgba(0, 0, 0, 1)">visited[e[i].to])
+                {
+                        visited[e[i].to] </span>= <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+                        dfs(e[i].to);
+                }
+        }
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">bool</span> ok(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= <span style="color: rgba(128, 0, 128, 1)">2</span> * n; i++) visited[i] = <span style="color: rgba(0, 0, 255, 1)">false</span><span style="color: rgba(0, 0, 0, 1)">;
+        visited[x] </span>= <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+        dfs(x);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (visited[i] &amp;&amp; visited[i +<span style="color: rgba(0, 0, 0, 1)"> n])
+                        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(0, 0, 255, 1)">false</span><span style="color: rgba(0, 0, 0, 1)">;
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() 
+{
+        
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;n,&amp;<span style="color: rgba(0, 0, 0, 1)">m);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= m; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> b,c;
+                </span><span style="color: rgba(0, 0, 255, 1)">char</span> vb[<span style="color: rgba(128, 0, 128, 1)">2</span>],vc[<span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">];
+                scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%s%d%s</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;b,&amp;vb,&amp;c,&amp;<span style="color: rgba(0, 0, 0, 1)">vc);
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (vb[<span style="color: rgba(128, 0, 128, 1)">0</span>] == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">Y</span><span style="color: rgba(128, 0, 0, 1)">'</span> &amp;&amp; vc[<span style="color: rgba(128, 0, 128, 1)">0</span>] == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">Y</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        addedge(b </span>+<span style="color: rgba(0, 0, 0, 1)"> n,c);
+                        addedge(c </span>+<span style="color: rgba(0, 0, 0, 1)"> n,b);
+                }
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (vb[<span style="color: rgba(128, 0, 128, 1)">0</span>] == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">Y</span><span style="color: rgba(128, 0, 0, 1)">'</span> &amp;&amp; vc[<span style="color: rgba(128, 0, 128, 1)">0</span>] == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">N</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        addedge(b </span>+ n,c +<span style="color: rgba(0, 0, 0, 1)"> n);
+                        addedge(c,b);
+                }
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (vb[<span style="color: rgba(128, 0, 128, 1)">0</span>] == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">N</span><span style="color: rgba(128, 0, 0, 1)">'</span> &amp;&amp; vc[<span style="color: rgba(128, 0, 128, 1)">0</span>] == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">Y</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        addedge(b,c);
+                        addedge(c </span>+ n,b +<span style="color: rgba(0, 0, 0, 1)"> n);
+                }
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (vb[<span style="color: rgba(128, 0, 128, 1)">0</span>] == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">N</span><span style="color: rgba(128, 0, 0, 1)">'</span> &amp;&amp; vc[<span style="color: rgba(128, 0, 128, 1)">0</span>] == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">N</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        addedge(b,c </span>+<span style="color: rgba(0, 0, 0, 1)"> n);
+                        addedge(c,b </span>+<span style="color: rgba(0, 0, 0, 1)"> n);
+                }
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">bool</span> x = ok(i) , y = ok(i +<span style="color: rgba(0, 0, 0, 1)"> n);
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!x &amp;&amp; !<span style="color: rgba(0, 0, 0, 1)">y)
+                {
+                        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">IMPOSSIBLE\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">);
+                        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;        
+                } 
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (x &amp;&amp; !<span style="color: rgba(0, 0, 0, 1)">y)
+                {
+                        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">Y</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">);
+                        </span><span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                }
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!x &amp;&amp;<span style="color: rgba(0, 0, 0, 1)"> y)
+                {
+                        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">N</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">);
+                        </span><span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">; 
+                }
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (x &amp;&amp;<span style="color: rgba(0, 0, 0, 1)"> y)
+                {
+                        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">?</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">);
+                        </span><span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                }
+        }
+        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">);
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

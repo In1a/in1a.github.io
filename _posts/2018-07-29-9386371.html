@@ -1,0 +1,189 @@
+---
+layout: post
+title: '[NOIP 2012] 疫情控制'
+date: 2018-07-29 18:36:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9386371.html
+cnblogs_id: 9386371
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p>        <a href="https://www.luogu.org/problemnew/show/P1084" target="_blank" rel="noopener nofollow"> https://www.luogu.org/problemnew/show/P1084</a></p>
+<p>[算法]</p>
+<p>        细心观察发现 ： 此题的答案具有单调性，也就是说，如果p小时能控制疫情，那么q小时也能控制疫情(q &gt; p),因此我们可以二分答案，这是此题的突破口</p>
+<p>        问题就转化为了检验”Mid小时是否可以控制住疫情“</p>
+<p>        我们发现，既然要求所有叶子节点得到管辖，那么，军队所在的节点深度越浅，所能管辖的节点数就越多，我们不妨让每支军队都先移动到所能移动的最顶端（不能移动到根节点），具体实现时，我们可以通过倍增预处理每个节点向上2^j条边的边权总和。</p>
+<p>        此时，我们可以将军队分为两类 ：</p>
+<p>        第一类 ： 位于根节点的儿子节点</p>
+<p>        第二类 ： 位于非根节点的儿子节点</p>
+<p>        对于第二类军队，我们让它保持不动即可，对于第一类军队，我们可以让它管辖自己所在子树的叶子节点，当然，我们也可以让它跨过根节点，管辖其所能到达的（不超过时间限制的），其它子树的叶子节点</p>
+<p>        这里有一条结论 ： 对于一支第一类军队，如果这支军队不能跨过根节点并回到该节点，那么该节点必然由目前停留在这个节点上，且不能跨过根节点并回到该节点的，剩余时间最少的军队所管辖</p>
+<p>        根据这条结论，我们对于每个尚未被管辖的，根节点的子节点，查找是否有目前在该节点上并不能跨过根节点回到该节点的第一类军队，在这些军队中找剩余时间最少的管辖该节点，并将这支军队删除</p>
+<p>        对于剩余的第一类军队，我们可以先求出尚未被管辖的，根节点的子节点，然后，将军队按剩余时间 - 到达根节点的时间升序排列，将节点按到根节点的距离升序排列，贪心扫描一遍即可   </p>
+<p>[代码]</p>
+<p>        </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 50010
+<span style="color: rgba(0, 0, 255, 1)">#define</span> MAXLOG 20
+<span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span> INF =<span style="color: rgba(0, 0, 0, 1)"> 1e15;
+
+</span><span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> edge
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> to,w,nxt;
+} e[MAXN </span>&lt;&lt; <span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">];
+</span><span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> info
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> s;
+        </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> rest;
+        </span><span style="color: rgba(0, 0, 255, 1)">bool</span><span style="color: rgba(0, 0, 0, 1)"> used;
+} a[MAXN],b[MAXN];
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,n,m,u,v,w,tot;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> head[MAXN],pos[MAXN],depth[MAXN];
+</span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> min_rest[MAXN];
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> f[MAXN][MAXLOG];
+</span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> dist[MAXN][MAXLOG];
+</span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> sum,l,r,mid,ans;
+</span><span style="color: rgba(0, 0, 255, 1)">bool</span><span style="color: rgba(0, 0, 0, 1)"> managed[MAXN];
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">bool</span><span style="color: rgba(0, 0, 0, 1)"> cmp(info a,info b)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> a.rest &lt;<span style="color: rgba(0, 0, 0, 1)"> b.rest;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> addedge(<span style="color: rgba(0, 0, 255, 1)">int</span> u,<span style="color: rgba(0, 0, 255, 1)">int</span> v,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> w)
+{
+        tot</span>++<span style="color: rgba(0, 0, 0, 1)">;
+        e[tot] </span>=<span style="color: rgba(0, 0, 0, 1)"> (edge){v,w,head[u]};
+        head[u] </span>=<span style="color: rgba(0, 0, 0, 1)"> tot;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> dfs(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> u)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,v,w;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt; MAXLOG; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                f[u][i] </span>= f[f[u][i - <span style="color: rgba(128, 0, 128, 1)">1</span>]][i - <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+                dist[u][i] </span>= dist[u][i - <span style="color: rgba(128, 0, 128, 1)">1</span>] + dist[f[u][i - <span style="color: rgba(128, 0, 128, 1)">1</span>]][i - <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = head[u]; i; i =<span style="color: rgba(0, 0, 0, 1)"> e[i].nxt)
+        {
+                v </span>=<span style="color: rgba(0, 0, 0, 1)"> e[i].to;
+                w </span>=<span style="color: rgba(0, 0, 0, 1)"> e[i].w;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (v == f[u][<span style="color: rgba(128, 0, 128, 1)">0</span>]) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                f[v][</span><span style="color: rgba(128, 0, 128, 1)">0</span>] =<span style="color: rgba(0, 0, 0, 1)"> u;
+                dist[v][</span><span style="color: rgba(128, 0, 128, 1)">0</span>] =<span style="color: rgba(0, 0, 0, 1)"> w;
+                depth[v] </span>= depth[u] + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                dfs(v);    
+        }
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">bool</span> ok(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> u)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> i,v,size = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">bool</span> res = <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (managed[u]) <span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = head[u]; i; i =<span style="color: rgba(0, 0, 0, 1)"> e[i].nxt)
+        {
+                v </span>=<span style="color: rgba(0, 0, 0, 1)"> e[i].to;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (v == f[u][<span style="color: rgba(128, 0, 128, 1)">0</span>]) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                size</span>++<span style="color: rgba(0, 0, 0, 1)">;
+                res </span>&amp;=<span style="color: rgba(0, 0, 0, 1)"> ok(v);
+        }
+        res </span>&amp;=<span style="color: rgba(0, 0, 0, 1)"> size;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (depth[u] == <span style="color: rgba(128, 0, 128, 1)">1</span> &amp;&amp; !res) b[++tot] = (info){u,dist[u][<span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">]};
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> managed[u] =<span style="color: rgba(0, 0, 0, 1)"> res;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">bool</span> check(<span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> mid)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> i,k,rest,len = <span style="color: rgba(128, 0, 128, 1)">0</span>,cnt = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">,now;
+        </span><span style="color: rgba(0, 0, 255, 1)">static</span> <span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> tmp[MAXN],p[MAXN];
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">) 
+        {
+                managed[i] </span>= <span style="color: rgba(0, 0, 255, 1)">false</span><span style="color: rgba(0, 0, 0, 1)">;
+                min_rest[i] </span>=<span style="color: rgba(0, 0, 0, 1)"> INF;
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= m; i++) tmp[i] =<span style="color: rgba(0, 0, 0, 1)"> pos[i];
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= m; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                rest </span>=<span style="color: rgba(0, 0, 0, 1)"> mid;
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (k = MAXLOG - <span style="color: rgba(128, 0, 128, 1)">1</span>; k &gt;= <span style="color: rgba(128, 0, 128, 1)">0</span>; k--<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (f[tmp[i]][k] == <span style="color: rgba(128, 0, 128, 1)">0</span> || f[tmp[i]][k] == <span style="color: rgba(128, 0, 128, 1)">1</span>) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (rest &lt; dist[tmp[i]][k]) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                        rest </span>-=<span style="color: rgba(0, 0, 0, 1)"> dist[tmp[i]][k];
+                        tmp[i] </span>=<span style="color: rgba(0, 0, 0, 1)"> f[tmp[i]][k]; 
+                }    
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (depth[tmp[i]] == <span style="color: rgba(128, 0, 128, 1)">1</span> &amp;&amp; rest - dist[tmp[i]][<span style="color: rgba(128, 0, 128, 1)">0</span>] &gt; <span style="color: rgba(128, 0, 128, 1)">0</span>) a[++len] = (info){tmp[i],rest - dist[tmp[i]][<span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">]};
+                </span><span style="color: rgba(0, 0, 255, 1)">else</span> managed[tmp[i]] = <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+        }        
+        tot </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (ok(<span style="color: rgba(128, 0, 128, 1)">1</span>)) <span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= len; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!managed[a[i].s] &amp;&amp; a[i].rest &lt; dist[a[i].s][<span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">]) 
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (a[i].rest &lt;<span style="color: rgba(0, 0, 0, 1)"> min_rest[a[i].s])
+                        {
+                                min_rest[a[i].s] </span>=<span style="color: rgba(0, 0, 0, 1)"> a[i].rest;
+                                p[a[i].s] </span>=<span style="color: rgba(0, 0, 0, 1)"> i;
+                        }
+                }
+        } 
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">) 
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (min_rest[i] !=<span style="color: rgba(0, 0, 0, 1)"> INF)
+                {
+                        managed[i] </span>= <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+                        a[p[i]].used </span>= <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+                        cnt</span>++<span style="color: rgba(0, 0, 0, 1)">;
+                }
+        }
+        tot </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (ok(<span style="color: rgba(128, 0, 128, 1)">1</span>)) <span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+        sort(a </span>+ <span style="color: rgba(128, 0, 128, 1)">1</span>,a + len + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">,cmp);
+        sort(b </span>+ <span style="color: rgba(128, 0, 128, 1)">1</span>,b + tot + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">,cmp);
+        now </span>= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= tot; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">while</span> (now &lt;= len &amp;&amp; (a[now].rest &lt; b[i].rest || a[now].used)) now++<span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (now &gt; len || a[now].rest &lt; b[i].rest || a[now].used) <span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(0, 0, 255, 1)">false</span><span style="color: rgba(0, 0, 0, 1)">;
+                now</span>++<span style="color: rgba(0, 0, 0, 1)">;
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() 
+{
+        
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">n);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt; n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;u,&amp;v,&amp;<span style="color: rgba(0, 0, 0, 1)">w);
+                addedge(u,v,w);
+                addedge(v,u,w);
+                sum </span>+= (<span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)">)w;
+        }
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">m);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= m; i++) scanf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">pos[i]);
+        dfs(</span><span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+        l </span>= <span style="color: rgba(128, 0, 128, 1)">0</span>; r =<span style="color: rgba(0, 0, 0, 1)"> sum;
+        ans </span>= -<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (l &lt;=<span style="color: rgba(0, 0, 0, 1)"> r)
+        {
+                mid </span>= (l + r) &gt;&gt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span><span style="color: rgba(0, 0, 0, 1)"> (check(mid))
+                {
+                        r </span>= mid - <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                        ans </span>=<span style="color: rgba(0, 0, 0, 1)"> mid;
+                } </span><span style="color: rgba(0, 0, 255, 1)">else</span> l = mid + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        }
+        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%lld\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,ans);
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+<p>  </p>
+
+
+{% endraw %}

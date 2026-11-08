@@ -1,0 +1,104 @@
+---
+layout: post
+title: '【USACO06NOV】路障'
+date: 2018-03-24 09:58:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9196395.html
+cnblogs_id: 9196395
+---
+{% raw %}
+
+<p>【题目链接】</p>
+<p>          <a href="https://www.luogu.org/problemnew/show/P2865" rel="noopener nofollow">点击打开链接</a></p>
+<p>【算法】</p>
+<p>         最短路</p>
+<p>【代码】</p>
+<p>           </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 5000
+<span style="color: rgba(0, 0, 255, 1)">#define</span> MAXM 100000
+
+<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,N,M,shortest,ans;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span> dista[MAXN+<span style="color: rgba(128, 0, 128, 1)">10</span>],distb[MAXN+<span style="color: rgba(128, 0, 128, 1)">10</span>],x[MAXM+<span style="color: rgba(128, 0, 128, 1)">10</span>],y[MAXM+<span style="color: rgba(128, 0, 128, 1)">10</span>],d[MAXM+<span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">],
+        visa[MAXN</span>+<span style="color: rgba(128, 0, 128, 1)">10</span>],visb[MAXN+<span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">];
+vector</span>&lt;pair&lt;<span style="color: rgba(0, 0, 255, 1)">int</span>,<span style="color: rgba(0, 0, 255, 1)">int</span>&gt; &gt; E[MAXN+<span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">];
+ 
+template </span>&lt;typename T&gt; <span style="color: rgba(0, 0, 255, 1)">void</span> read(T &amp;<span style="color: rgba(0, 0, 0, 1)">x) {
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> f=<span style="color: rgba(128, 0, 128, 1)">1</span>; <span style="color: rgba(0, 0, 255, 1)">char</span> c = getchar(); x=<span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; !isdigit(c); c = getchar()) { <span style="color: rgba(0, 0, 255, 1)">if</span> (c==<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>) f=-<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">; }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; isdigit(c); c = getchar()) x=x*<span style="color: rgba(128, 0, 128, 1)">10</span>+c-<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">;
+        x</span>*=<span style="color: rgba(0, 0, 0, 1)">f;
+}
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> dijkstra1() {
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,x,to;
+        priority_queue</span>&lt;pair&lt;<span style="color: rgba(0, 0, 255, 1)">int</span>,<span style="color: rgba(0, 0, 255, 1)">int</span>&gt; &gt;<span style="color: rgba(0, 0, 0, 1)"> q;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">2</span>; i &lt;= N; i++) dista[i] =<span style="color: rgba(0, 0, 0, 1)"> 2e9;
+        q.push(make_pair(</span>-<span style="color: rgba(128, 0, 128, 1)">0</span>,<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">));
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (!<span style="color: rgba(0, 0, 0, 1)">q.empty()) {
+                x </span>=<span style="color: rgba(0, 0, 0, 1)"> q.top().second; q.pop();
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (visa[x]) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                visa[x] </span>= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i &lt; E[x].size(); i++<span style="color: rgba(0, 0, 0, 1)">) {
+                        to </span>=<span style="color: rgba(0, 0, 0, 1)"> E[x][i].first;
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (dista[x] + E[x][i].second &lt;<span style="color: rgba(0, 0, 0, 1)"> dista[to]) {
+                                dista[to] </span>= dista[x] +<span style="color: rgba(0, 0, 0, 1)"> E[x][i].second;
+                                q.push(make_pair(</span>-<span style="color: rgba(0, 0, 0, 1)">dista[to],to));
+                        }
+                }
+        }
+}
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> dijkstra2() {
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,x,to;
+        priority_queue</span>&lt;pair&lt;<span style="color: rgba(0, 0, 255, 1)">int</span>,<span style="color: rgba(0, 0, 255, 1)">int</span>&gt; &gt;<span style="color: rgba(0, 0, 0, 1)"> q;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt; N; i++) distb[i] =<span style="color: rgba(0, 0, 0, 1)"> 2e9;
+        q.push(make_pair(</span>-<span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">,N));
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (!<span style="color: rgba(0, 0, 0, 1)">q.empty()) {
+                x </span>=<span style="color: rgba(0, 0, 0, 1)"> q.top().second; q.pop();
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (visb[x]) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                visb[x] </span>= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i &lt; E[x].size(); i++<span style="color: rgba(0, 0, 0, 1)">) {
+                        to </span>=<span style="color: rgba(0, 0, 0, 1)"> E[x][i].first;
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (distb[x] + E[x][i].second &lt;<span style="color: rgba(0, 0, 0, 1)"> distb[to]) {
+                                distb[to] </span>= distb[x] +<span style="color: rgba(0, 0, 0, 1)"> E[x][i].second;
+                                q.push(make_pair(</span>-<span style="color: rgba(0, 0, 0, 1)">distb[to],to));
+                        }
+                }
+        }
+} 
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() {
+        
+        read(N); read(M);
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= M; i++<span style="color: rgba(0, 0, 0, 1)">) {
+                read(x[i]); read(y[i]); read(d[i]);
+                E[x[i]].push_back(make_pair(y[i],d[i]));
+                E[y[i]].push_back(make_pair(x[i],d[i]));    
+        }
+        
+        dijkstra1();
+        dijkstra2();
+        
+        shortest </span>=<span style="color: rgba(0, 0, 0, 1)"> dista[N];
+        ans </span>=<span style="color: rgba(0, 0, 0, 1)"> 2e9;
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= M; i++<span style="color: rgba(0, 0, 0, 1)">) {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (dista[x[i]] + d[i] + distb[y[i]] &gt;<span style="color: rgba(0, 0, 0, 1)"> shortest)
+                        ans </span>= min(ans,dista[x[i]]+d[i]+<span style="color: rgba(0, 0, 0, 1)">distb[y[i]]);    
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (dista[y[i]] + d[i] + distb[x[i]] &gt;<span style="color: rgba(0, 0, 0, 1)"> shortest)
+                        ans </span>= min(ans,dista[y[i]]+d[i]+<span style="color: rgba(0, 0, 0, 1)">distb[x[i]]);    
+        }
+        
+        cout</span>&lt;&lt; ans &lt;&lt;<span style="color: rgba(0, 0, 0, 1)"> endl;
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

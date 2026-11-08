@@ -1,0 +1,97 @@
+---
+layout: post
+title: '[Codeforces 960F] Pathwalks'
+date: 2018-12-19 22:07:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/10146453.html
+cnblogs_id: 10146453
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p>         <a href="https://codeforces.com/contest/960/problem/F" target="_blank" rel="noopener nofollow"> https://codeforces.com/contest/960/problem/F</a></p>
+<p>[算法]</p>
+<p>        记fi表示以第i条边结束最长的路径</p>
+<p>        可以用线段树优化该dp ， 注意动态开点</p>
+<p>         时间复杂度 : O(MlogN)</p>
+<p>[代码]</p>
+<p>        </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">int</span> MAXN = 1e5 + <span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">;
+</span><span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">int</span> MAXP = <span style="color: rgba(128, 0, 128, 1)">5000010</span><span style="color: rgba(0, 0, 0, 1)">;
+
+typedef </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> ll;
+typedef </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">double</span><span style="color: rgba(0, 0, 0, 1)"> ld;
+typedef unsigned </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> ull;
+
+</span><span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> node
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> value , lc , rc;
+} a[MAXP];
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> n , m , tot;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> rt[MAXN];
+
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> chkmax(T &amp;x,T y) { x =<span style="color: rgba(0, 0, 0, 1)"> max(x,y); }
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> chkmin(T &amp;x,T y) { x =<span style="color: rgba(0, 0, 0, 1)"> min(x,y); }
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> read(T &amp;<span style="color: rgba(0, 0, 0, 1)">x)
+{
+    T f </span>= <span style="color: rgba(128, 0, 128, 1)">1</span>; x = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">char</span> c =<span style="color: rgba(0, 0, 0, 1)"> getchar();
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; !isdigit(c); c = getchar()) <span style="color: rgba(0, 0, 255, 1)">if</span> (c == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>) f = -<span style="color: rgba(0, 0, 0, 1)">f;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; isdigit(c); c = getchar()) x = (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">3</span>) + (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>) + c - <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">;
+    x </span>*=<span style="color: rgba(0, 0, 0, 1)"> f;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> update(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x)
+{
+        a[x].value </span>=<span style="color: rgba(0, 0, 0, 1)"> max(a[a[x].lc].value , a[a[x].rc].value);
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> modify(<span style="color: rgba(0, 0, 255, 1)">int</span> &amp;root , <span style="color: rgba(0, 0, 255, 1)">int</span> l , <span style="color: rgba(0, 0, 255, 1)">int</span> r , <span style="color: rgba(0, 0, 255, 1)">int</span> x , <span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> y)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!root) root = ++<span style="color: rgba(0, 0, 0, 1)">tot;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (l ==<span style="color: rgba(0, 0, 0, 1)"> r)
+        {
+                a[root].value </span>=<span style="color: rgba(0, 0, 0, 1)"> y;
+                </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)">;
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> mid = (l + r) &gt;&gt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (mid &gt;=<span style="color: rgba(0, 0, 0, 1)"> x) modify(a[root].lc , l , mid , x , y);
+        </span><span style="color: rgba(0, 0, 255, 1)">else</span> modify(a[root].rc , mid + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)"> , r , x , y);
+        update(root);
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">int</span> query(<span style="color: rgba(0, 0, 255, 1)">int</span> root , <span style="color: rgba(0, 0, 255, 1)">int</span> l , <span style="color: rgba(0, 0, 255, 1)">int</span> r , <span style="color: rgba(0, 0, 255, 1)">int</span> ql , <span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> qr)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!root) <span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (l == ql &amp;&amp; r ==<span style="color: rgba(0, 0, 0, 1)"> qr)
+                </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> a[root].value;
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> mid = (l + r) &gt;&gt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (mid &gt;= qr) <span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> query(a[root].lc , l , mid , ql , qr);
+        </span><span style="color: rgba(0, 0, 255, 1)">else</span> <span style="color: rgba(0, 0, 255, 1)">if</span> (mid + <span style="color: rgba(128, 0, 128, 1)">1</span> &lt;= ql) <span style="color: rgba(0, 0, 255, 1)">return</span> query(a[root].rc , mid + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)"> , r , ql , qr);
+        </span><span style="color: rgba(0, 0, 255, 1)">else</span> <span style="color: rgba(0, 0, 255, 1)">return</span> max(query(a[root].lc , l , mid , ql , mid) , query(a[root].rc , mid + <span style="color: rgba(128, 0, 128, 1)">1</span> , r , mid + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)"> , qr));
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main()
+{
+        
+        read(n); read(m);
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> ans = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= m; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> u , v , w;
+                read(u); read(v); read(w);
+                </span>++<span style="color: rgba(0, 0, 0, 1)">w;
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span> value = query(rt[u] , <span style="color: rgba(128, 0, 128, 1)">0</span> , <span style="color: rgba(128, 0, 128, 1)">100000</span> , <span style="color: rgba(128, 0, 128, 1)">0</span> , w - <span style="color: rgba(128, 0, 128, 1)">1</span>) + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                chkmax(ans , value);
+                modify(rt[v] , </span><span style="color: rgba(128, 0, 128, 1)">0</span> , <span style="color: rgba(128, 0, 128, 1)">100000</span><span style="color: rgba(0, 0, 0, 1)"> , w , value);        
+        }
+        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)"> , ans);
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

@@ -1,0 +1,98 @@
+---
+layout: post
+title: '【AMPPZ 2014】 The Captain'
+date: 2018-03-24 22:25:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9196394.html
+cnblogs_id: 9196394
+---
+{% raw %}
+
+<p>【题目链接】</p>
+<p>           <a href="http://www.lydsy.com/JudgeOnline/problem.php?id=4152" rel="noopener nofollow">点击打开链接</a></p>
+<p>【算法】</p>
+<p>          按x轴排序，将相邻点连边</p>
+<p>          按y轴排序，将相邻点连边</p>
+<p>          然后对这个图跑最短路就可以了，笔者用的是dijkstra算法</p>
+<p>【代码】</p>
+<p>           </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 200000
+
+<span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> info { 
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> id,x,y; 
+} a[MAXN</span>+<span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">];
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> N,i;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span> dist[MAXN+<span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">];
+vector</span>&lt; pair&lt;<span style="color: rgba(0, 0, 255, 1)">int</span>,<span style="color: rgba(0, 0, 255, 1)">int</span>&gt; &gt; E[MAXN+<span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">];
+
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> read(T &amp;<span style="color: rgba(0, 0, 0, 1)">x) {
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> f = <span style="color: rgba(128, 0, 128, 1)">1</span>; x = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">char</span> c =<span style="color: rgba(0, 0, 0, 1)"> getchar();
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; !isdigit(c); c = getchar()) { <span style="color: rgba(0, 0, 255, 1)">if</span> (c == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>) f = -<span style="color: rgba(0, 0, 0, 1)">f; }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; isdigit(c);  c = getchar()) x = (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">3</span>) + (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>) + c - <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">;
+        x </span>*=<span style="color: rgba(0, 0, 0, 1)"> f;    
+}
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> write(T x) {
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (x &lt; <span style="color: rgba(128, 0, 128, 1)">0</span>) { putchar(<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>); x = -<span style="color: rgba(0, 0, 0, 1)">x; }
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (x &gt; <span style="color: rgba(128, 0, 128, 1)">9</span>) write(x/<span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">);
+        putchar(x</span>%<span style="color: rgba(128, 0, 128, 1)">10</span>+<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">);    
+}
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> writeln(T x) {
+        write(x);
+        puts(</span><span style="color: rgba(128, 0, 0, 1)">""</span><span style="color: rgba(0, 0, 0, 1)">);    
+}
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">bool</span> cmp1(info a,info b) { <span style="color: rgba(0, 0, 255, 1)">return</span> a.x &lt;<span style="color: rgba(0, 0, 0, 1)"> b.x; }
+inline </span><span style="color: rgba(0, 0, 255, 1)">bool</span> cmp2(info a,info b) { <span style="color: rgba(0, 0, 255, 1)">return</span> a.y &lt;<span style="color: rgba(0, 0, 0, 1)"> b.y; }
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> add_edge(<span style="color: rgba(0, 0, 255, 1)">int</span> x,<span style="color: rgba(0, 0, 255, 1)">int</span> y,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> d) {
+        E[x].push_back(make_pair(y,d));
+        E[y].push_back(make_pair(x,d));    
+}
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> dijkstra() {
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,x,to,cost;
+        </span><span style="color: rgba(0, 0, 255, 1)">static</span> <span style="color: rgba(0, 0, 255, 1)">int</span> vis[MAXN+<span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">];
+        priority_queue</span>&lt; pair&lt;<span style="color: rgba(0, 0, 255, 1)">int</span>,<span style="color: rgba(0, 0, 255, 1)">int</span>&gt; &gt;<span style="color: rgba(0, 0, 0, 1)"> q;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">2</span>; i &lt;= N; i++) dist[i] =<span style="color: rgba(0, 0, 0, 1)"> INT_MAX;
+        q.push(make_pair(</span><span style="color: rgba(128, 0, 128, 1)">0</span>,<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">));
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (!<span style="color: rgba(0, 0, 0, 1)">q.empty()) {
+                x </span>=<span style="color: rgba(0, 0, 0, 1)"> q.top().second; q.pop();
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (vis[x]) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i &lt; E[x].size(); i++<span style="color: rgba(0, 0, 0, 1)">) {
+                        to </span>=<span style="color: rgba(0, 0, 0, 1)"> E[x][i].first;
+                        cost </span>=<span style="color: rgba(0, 0, 0, 1)"> E[x][i].second;
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (dist[x] + cost &lt;<span style="color: rgba(0, 0, 0, 1)"> dist[to]) {
+                                dist[to] </span>= dist[x] +<span style="color: rgba(0, 0, 0, 1)"> cost;
+                                q.push(make_pair(</span>-<span style="color: rgba(0, 0, 0, 1)">dist[to],to));
+                        }
+                }
+        }
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() {
+        
+        read(N);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= N; i++<span style="color: rgba(0, 0, 0, 1)">) {
+                read(a[i].x); read(a[i].y);
+                a[i].id </span>=<span style="color: rgba(0, 0, 0, 1)"> i;
+        }
+        sort(a</span>+<span style="color: rgba(128, 0, 128, 1)">1</span>,a+N+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">,cmp1);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">2</span>; i &lt;= N; i++) add_edge(a[i-<span style="color: rgba(128, 0, 128, 1)">1</span>].id,a[i].id,a[i].x-a[i-<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">].x);
+        sort(a</span>+<span style="color: rgba(128, 0, 128, 1)">1</span>,a+N+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">,cmp2);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">2</span>; i &lt;= N; i++) add_edge(a[i-<span style="color: rgba(128, 0, 128, 1)">1</span>].id,a[i].id,a[i].y-a[i-<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">].y);
+        
+        dijkstra();
+        writeln(dist[N]);
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

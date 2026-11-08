@@ -1,0 +1,112 @@
+---
+layout: post
+title: '[BZOJ 2100] Apple Delivery'
+date: 2018-07-26 15:23:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9372015.html
+cnblogs_id: 9372015
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p>         <a href="https://www.lydsy.com/JudgeOnline/problem.php?id=2100" target="_blank" rel="noopener nofollow"> https://www.lydsy.com/JudgeOnline/problem.php?id=2100</a></p>
+<p>[算法]</p>
+<p>        Answer = min{ dist(PB,PA1) + dist(PA1,PA2) , dist(PB,PA2) + dist(PA1,PA2) } （其中，dist表示最短路)</p>
+<p>        对PB和PA1分别求两次最短路即可，注意要使用dijkstra算法（堆优化） </p>
+<p>[代码]</p>
+<p>       </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXP 100010
+<span style="color: rgba(0, 0, 255, 1)">#define</span> MAXC 200010
+
+<span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> edge
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> to,w,nxt;
+} e[MAXC </span>&lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,C,P,PA1,PA2,PB,u,v,w,tot;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> head[MAXP],dist1[MAXP],dist2[MAXP];
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> addedge(<span style="color: rgba(0, 0, 255, 1)">int</span> u,<span style="color: rgba(0, 0, 255, 1)">int</span> v,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> w)
+{
+        tot</span>++<span style="color: rgba(0, 0, 0, 1)">;
+        e[tot] </span>=<span style="color: rgba(0, 0, 0, 1)"> (edge){v,w,head[u]};
+        head[u] </span>=<span style="color: rgba(0, 0, 0, 1)"> tot;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> dijkstra1()
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,cur,v,w;
+        </span><span style="color: rgba(0, 0, 255, 1)">static</span> <span style="color: rgba(0, 0, 255, 1)">bool</span><span style="color: rgba(0, 0, 0, 1)"> visited[MAXP];
+        priority_queue</span>&lt; pair&lt;<span style="color: rgba(0, 0, 255, 1)">int</span>,<span style="color: rgba(0, 0, 255, 1)">int</span>&gt; &gt;<span style="color: rgba(0, 0, 0, 1)"> q;
+        memset(visited,</span><span style="color: rgba(0, 0, 255, 1)">false</span>,<span style="color: rgba(0, 0, 255, 1)">sizeof</span><span style="color: rgba(0, 0, 0, 1)">(visited));
+        memset(dist1,</span><span style="color: rgba(128, 0, 128, 1)">0x3f</span>,<span style="color: rgba(0, 0, 255, 1)">sizeof</span><span style="color: rgba(0, 0, 0, 1)">(dist1));
+        dist1[PB] </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        q.push(make_pair(</span><span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">,PB));
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (!<span style="color: rgba(0, 0, 0, 1)">q.empty())
+        {
+                cur </span>=<span style="color: rgba(0, 0, 0, 1)"> q.top().second;
+                q.pop();
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (visited[cur]) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                visited[cur] </span>= <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = head[cur]; i; i =<span style="color: rgba(0, 0, 0, 1)"> e[i].nxt)
+                {
+                        v </span>=<span style="color: rgba(0, 0, 0, 1)"> e[i].to;
+                        w </span>=<span style="color: rgba(0, 0, 0, 1)"> e[i].w;
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (dist1[cur] + w &lt;<span style="color: rgba(0, 0, 0, 1)"> dist1[v])
+                        {
+                                dist1[v] </span>= dist1[cur] +<span style="color: rgba(0, 0, 0, 1)"> w;
+                                q.push(make_pair(</span>-<span style="color: rgba(0, 0, 0, 1)">dist1[v],v));
+                        }
+                }
+        }
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> dijkstra2()
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,cur,v,w;
+        </span><span style="color: rgba(0, 0, 255, 1)">static</span> <span style="color: rgba(0, 0, 255, 1)">bool</span><span style="color: rgba(0, 0, 0, 1)"> visited[MAXP];
+        priority_queue</span>&lt; pair&lt;<span style="color: rgba(0, 0, 255, 1)">int</span>,<span style="color: rgba(0, 0, 255, 1)">int</span>&gt; &gt;<span style="color: rgba(0, 0, 0, 1)"> q;
+        memset(visited,</span><span style="color: rgba(0, 0, 255, 1)">false</span>,<span style="color: rgba(0, 0, 255, 1)">sizeof</span><span style="color: rgba(0, 0, 0, 1)">(visited));
+        memset(dist2,</span><span style="color: rgba(128, 0, 128, 1)">0x3f</span>,<span style="color: rgba(0, 0, 255, 1)">sizeof</span><span style="color: rgba(0, 0, 0, 1)">(dist1));
+        dist2[PA1] </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        q.push(make_pair(</span><span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">,PA1));
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (!<span style="color: rgba(0, 0, 0, 1)">q.empty())
+        {
+                cur </span>=<span style="color: rgba(0, 0, 0, 1)"> q.top().second;
+                q.pop();
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (visited[cur]) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                visited[cur] </span>= <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = head[cur]; i; i =<span style="color: rgba(0, 0, 0, 1)"> e[i].nxt)
+                {
+                        v </span>=<span style="color: rgba(0, 0, 0, 1)"> e[i].to;
+                        w </span>=<span style="color: rgba(0, 0, 0, 1)"> e[i].w;
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (dist2[cur] + w &lt;<span style="color: rgba(0, 0, 0, 1)"> dist2[v])
+                        {
+                                dist2[v] </span>= dist2[cur] +<span style="color: rgba(0, 0, 0, 1)"> w;
+                                q.push(make_pair(</span>-<span style="color: rgba(0, 0, 0, 1)">dist2[v],v));
+                        }
+                }
+        }
+}
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() 
+{
+        
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d%d%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;C,&amp;P,&amp;PB,&amp;PA1,&amp;<span style="color: rgba(0, 0, 0, 1)">PA2);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= C; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;u,&amp;v,&amp;<span style="color: rgba(0, 0, 0, 1)">w);
+                addedge(u,v,w);
+                addedge(v,u,w);        
+        }
+        dijkstra1();
+        dijkstra2();
+        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span>,min(dist1[PA1] + dist2[PA2],dist1[PA2] +<span style="color: rgba(0, 0, 0, 1)"> dist2[PA2]));
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

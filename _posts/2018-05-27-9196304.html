@@ -1,0 +1,88 @@
+---
+layout: post
+title: '【HDU 5698】 瞬间移动'
+date: 2018-05-27 22:40:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9196304.html
+cnblogs_id: 9196304
+---
+{% raw %}
+
+<p>【题目链接】</p>
+<p>           <a href="http://acm.hdu.edu.cn/showproblem.php?pid=5698" rel="noopener nofollow">点击打开链接</a></p>
+<p>【算法】</p>
+<p>          用f[i][j]表示走到(i,j)这个位置有多少种方案，因为走到(i,j)这个位置，上一步一定在它左上角的矩形中，所以，</p>
+<p>          f(i,j) = sigma( f(x,y) ) ( (x,y)在左上角的矩形中） </p>
+<p>          我们尝试将它画出来，发现是斜着的杨辉三角</p>
+<p>          然后，通过找规律，我们发现 : f(n,m) = C(n+m-4,n-2) </p>
+<p>          求C函数的值，这里有一种方法 ：</p>
+<p>           C(n,r) mod P = (n! / (n - r)! / r!) mod P</p>
+<p>                                = (n!) mod P * inv( (n - r)! ) mod P * inv( r! ) mod P（ 其中,inv表示乘法逆元 ）</p>
+<p>           考虑预处理阶乘和阶乘逆元</p>
+<p>           阶乘很容易求，那么，阶乘逆元怎么求呢？</p>
+<p>           这里有一种线性求阶乘逆元的方法 ( 如果我们要求 inv( n! ) ) ：</p>
+<p>           inv(n ! ) = inv( (n - 1)! n )</p>
+<p>                        = inv( (n - 1)! ) inv( n )</p>
+<p>           所以 inv( (n - 1)! ) = inv( n ! ) * inv( inv( n ) )</p>
+<p>                                        = inv( n! ) * n</p>
+<p>           有了这个式子，我们便可以在线性时间内求出所有的阶乘逆元</p>
+<p>           这一题，我们只要预处理阶乘和阶乘逆元，然后，O(1)回答询问，即可</p>
+<p>【代码】</p>
+<p>           </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 200010
+<span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span> P = <span style="color: rgba(128, 0, 128, 1)">1000000007</span><span style="color: rgba(0, 0, 0, 1)">;
+
+</span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> n,m;
+</span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> fac[MAXN],inv[MAXN];
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span> power(<span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span> a,<span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> n)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span> ans = <span style="color: rgba(128, 0, 128, 1)">1</span>,b =<span style="color: rgba(0, 0, 0, 1)"> a;
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (n &gt; <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (n &amp; <span style="color: rgba(128, 0, 128, 1)">1</span>) ans = (ans * b) %<span style="color: rgba(0, 0, 0, 1)"> P;
+                b </span>= (b * b) %<span style="color: rgba(0, 0, 0, 1)"> P;
+                n </span>&gt;&gt;= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> ans;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> init()
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i;
+        fac[</span><span style="color: rgba(128, 0, 128, 1)">0</span>] = <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt; MAXN; i++) fac[i] = fac[i-<span style="color: rgba(128, 0, 128, 1)">1</span>] * i %<span style="color: rgba(0, 0, 0, 1)"> P;
+        inv[MAXN</span>-<span style="color: rgba(128, 0, 128, 1)">1</span>] = power(fac[MAXN-<span style="color: rgba(128, 0, 128, 1)">1</span>],P-<span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = MAXN - <span style="color: rgba(128, 0, 128, 1)">2</span>; i &gt;= <span style="color: rgba(128, 0, 128, 1)">1</span>; i--) inv[i] = inv[i+<span style="color: rgba(128, 0, 128, 1)">1</span>] * (i + <span style="color: rgba(128, 0, 128, 1)">1</span>) %<span style="color: rgba(0, 0, 0, 1)"> P;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span> C(<span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span> n,<span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> m)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!m) <span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">else</span> <span style="color: rgba(0, 0, 255, 1)">if</span> (n == m) <span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">else</span> <span style="color: rgba(0, 0, 255, 1)">return</span> fac[n] * inv[n-m] % P * inv[m] %<span style="color: rgba(0, 0, 0, 1)"> P;    
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() {
+        
+        init();
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (scanf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;n,&amp;m) !=<span style="color: rgba(0, 0, 0, 1)"> EOF)
+        {
+                printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%lld\n</span><span style="color: rgba(128, 0, 0, 1)">"</span>,C(n+m-<span style="color: rgba(128, 0, 128, 1)">4</span>,n-<span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">));    
+        }
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}
+
+</span><span style="color: rgba(0, 128, 0, 1)">/*</span><span style="color: rgba(0, 128, 0, 1)">
+  f( n! ) = f( (n-1)! n) = f( (n - 1)! ) f(n)
+  f( n! ) * f( f(n) ) = f( (n - 1)! )
+    f( n! ) * n = f( (n - 1)! )
+    f( n! ) = f ( (n + 1)! ) * (n + 1)
+</span><span style="color: rgba(0, 128, 0, 1)">*/</span> </pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

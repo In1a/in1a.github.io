@@ -1,0 +1,114 @@
+---
+layout: post
+title: '【HDU 1520】 Anniversary Party'
+date: 2018-05-15 20:44:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9196331.html
+cnblogs_id: 9196331
+---
+{% raw %}
+
+<p>【题目链接】</p>
+<p>          <a href="http://acm.hdu.edu.cn/showproblem.php?pid=1520" rel="noopener nofollow">点击打开链接</a></p>
+<p>【算法】</p>
+<p>         树形DP</p>
+<p>         令f[i][0]表示 ： 以i为根的子树中，若i不参加宴会，所能获得的最大愉悦值</p>
+<p>            f[i][1]表示 ： 以i为根的子树中，若i参加宴会，所能获得的最大愉悦值</p>
+<p>         那么，如果i不参加宴会，它的下属就可以参加宴会，也可以不参加宴会，因此 :</p>
+<p>         f[i][0] = sigma( max(f[j][0],f[j][1]) ) （j为i的子节点）</p>
+<p>         如果i参加宴会，它的下属必然不能参加宴会，因此 :</p>
+<p>         f[i][1] = Ri + sigma( f[j][0] ) (j为i的子节点）</p>
+<p>         最后，答案为max(f[root][0],f[root][1])（root为根节点）</p>
+<p>  【代码】</p>
+<p>            </p>
+<div class="cnblogs_code">
+<pre>#include &lt;algorithm&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;bitset&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cctype&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cerrno&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;clocale&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cmath&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;complex&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cstdio&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cstdlib&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cstring&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;ctime&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;deque&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;exception&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;fstream&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;functional&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;limits&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;list&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;map&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;iomanip&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;ios&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;iosfwd&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;iostream&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;istream&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;ostream&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;queue&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;<span style="color: rgba(0, 0, 255, 1)">set</span>&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;sstream&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;stdexcept&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;streambuf&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;<span style="color: rgba(0, 0, 255, 1)">string</span>&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;utility&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;vector&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cwchar&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cwctype&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;stack&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;limits.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 6010
+ 
+<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,n,u,v,root;
+vector</span>&lt;<span style="color: rgba(0, 0, 255, 1)">int</span>&gt;<span style="color: rgba(0, 0, 0, 1)"> e[MAXN];
+</span><span style="color: rgba(0, 0, 255, 1)">int</span> val[MAXN],fa[MAXN],f[MAXN][<span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">];
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> dfs(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,y;
+        f[x][</span><span style="color: rgba(128, 0, 128, 1)">1</span>] =<span style="color: rgba(0, 0, 0, 1)"> val[x];
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i &lt; e[x].size(); i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                y </span>=<span style="color: rgba(0, 0, 0, 1)"> e[x][i];
+                dfs(y);
+                f[x][</span><span style="color: rgba(128, 0, 128, 1)">0</span>] += max(f[y][<span style="color: rgba(128, 0, 128, 1)">0</span>],f[y][<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">]);
+                f[x][</span><span style="color: rgba(128, 0, 128, 1)">1</span>] += f[y][<span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">];
+        }
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() 
+{
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (scanf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;n) !=<span style="color: rgba(0, 0, 0, 1)"> EOF)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">) 
+                {
+                        e[i].clear();
+                        f[i][</span><span style="color: rgba(128, 0, 128, 1)">0</span>] = f[i][<span style="color: rgba(128, 0, 128, 1)">1</span>] = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                }
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++) scanf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">val[i]);
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt; n; i++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;u,&amp;<span style="color: rgba(0, 0, 0, 1)">v);
+                        e[v].push_back(u);
+                        fa[u] </span>=<span style="color: rgba(0, 0, 0, 1)"> v;    
+                }    
+                scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;u,&amp;<span style="color: rgba(0, 0, 0, 1)">v);
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!<span style="color: rgba(0, 0, 0, 1)">fa[i])
+                                root </span>=<span style="color: rgba(0, 0, 0, 1)"> i;
+                }
+                dfs(root);
+                printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span>,max(f[root][<span style="color: rgba(128, 0, 128, 1)">0</span>],f[root][<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">]));
+        }
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

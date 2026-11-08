@@ -1,0 +1,144 @@
+---
+layout: post
+title: '【POJ 2152】 Fire'
+date: 2018-05-15 21:05:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9196330.html
+cnblogs_id: 9196330
+---
+{% raw %}
+
+<p>【题目链接】</p>
+<p>             <a href="http://poj.org/problem?id=2152" rel="noopener nofollow">点击打开链接</a></p>
+<p>【算法】</p>
+<p>           同样是树形DP，但是比较难，笔者做这题看了题解</p>
+<p>           令f[i][j]表示在以i为根的子树中</p>
+<p>           1.在以i为根的子树中建一些消防站</p>
+<p>           2.在节点j必须建一个消防站</p>
+<p>           3.以i为根的子树中，每个节点在满足距离不超过D的前提下，选一个子树内的节点或节点j作为“负责站”</p>
+<p>           4.节点i的负责站必须是节点j</p>
+<p>           的最小代价</p>
+<p>           考虑转移，为了转移方便，我们用一个辅助状态best[i]表示以i为根的子树中，每个节点在满足距离不超过D的前提下，</p>
+<p>           选一个子树内的节点作为“负责站”的最小代价,显然 : best[i] = min{f[i][j]}（j在以i为根的子树中）</p>
+<p>           当dis(i,j) &gt; Di时，f[i][j] = +oo(正无穷，表示不存在这种状态</p>
+<p>           当dis(i,j) &lt;= Di时，它的每个子节点k有两种选择 :</p>
+<p>           1.选择子树内的节点为“负责站”，代价为best[k]</p>
+<p>           2.选择j为它的“负责站”，代价为f[k][j]</p>
+<p>           因此f[i][j] = w[j] + sigma(min{best[k],f[k][j]}) (k为i的孩子）</p>
+<p>           最后，best[1]就是答案 </p>
+<p>【代码】</p>
+<p>            </p>
+<div class="cnblogs_code">
+<pre>#include &lt;algorithm&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;bitset&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cctype&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cerrno&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;clocale&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cmath&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;complex&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cstdio&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cstdlib&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cstring&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;ctime&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;deque&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;exception&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;fstream&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;functional&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;limits&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;list&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;map&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;iomanip&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;ios&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;iosfwd&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;iostream&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;istream&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;ostream&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;queue&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;<span style="color: rgba(0, 0, 255, 1)">set</span>&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;sstream&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;stdexcept&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;streambuf&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;<span style="color: rgba(0, 0, 255, 1)">string</span>&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;utility&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;vector&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cwchar&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cwctype&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;stack&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;limits.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 1010
+<span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">int</span> INF =<span style="color: rgba(0, 0, 0, 1)"> 2e9;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,T,n,u,v,l;
+vector</span>&lt; pair&lt;<span style="color: rgba(0, 0, 255, 1)">int</span>,<span style="color: rgba(0, 0, 255, 1)">int</span>&gt; &gt;<span style="color: rgba(0, 0, 0, 1)"> e[MAXN];
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> dis[MAXN],best[MAXN],w[MAXN],d[MAXN],f[MAXN][MAXN];
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> getdist(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,y;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i &lt; e[x].size(); i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                y </span>=<span style="color: rgba(0, 0, 0, 1)"> e[x][i].first;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (dis[y] == -<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        dis[y] </span>= dis[x] +<span style="color: rgba(0, 0, 0, 1)"> e[x][i].second;
+                        getdist(y);    
+                }    
+        }    
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> dfs(<span style="color: rgba(0, 0, 255, 1)">int</span> x,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> fa)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,j,y;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i &lt; e[x].size(); i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                y </span>=<span style="color: rgba(0, 0, 0, 1)"> e[x][i].first;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (fa !=<span style="color: rgba(0, 0, 0, 1)"> y) dfs(y,x);
+        }    
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++) dis[i] = -<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        dis[x] </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        getdist(x);
+        best[x] </span>=<span style="color: rgba(0, 0, 0, 1)"> INF;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++) f[x][i] =<span style="color: rgba(0, 0, 0, 1)"> INF;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (dis[i] &lt;=<span style="color: rgba(0, 0, 0, 1)"> d[x])
+                {
+                        f[x][i] </span>=<span style="color: rgba(0, 0, 0, 1)"> w[i];
+                        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">0</span>; j &lt; e[x].size(); j++<span style="color: rgba(0, 0, 0, 1)">)
+                        {
+                                y </span>=<span style="color: rgba(0, 0, 0, 1)"> e[x][j].first;
+                                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (fa != y) f[x][i] += min(best[y],f[y][i]-<span style="color: rgba(0, 0, 0, 1)">w[i]);    
+                        }    
+                        best[x] </span>=<span style="color: rgba(0, 0, 0, 1)"> min(best[x],f[x][i]);
+                }
+        }
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() 
+{
+        
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">T);
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (T--<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">n);
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">) e[i].clear();
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++) scanf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">w[i]);
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++) scanf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">d[i]);
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt; n; i++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;u,&amp;v,&amp;<span style="color: rgba(0, 0, 0, 1)">l);
+                        e[u].push_back(make_pair(v,l));
+                        e[v].push_back(make_pair(u,l));
+                }    
+                dfs(</span><span style="color: rgba(128, 0, 128, 1)">1</span>,<span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">);
+                printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span>,best[<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">]);
+        }
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

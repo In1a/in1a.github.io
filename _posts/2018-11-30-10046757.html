@@ -1,0 +1,158 @@
+---
+layout: post
+title: '[BZOJ 2588] Count on a tree'
+date: 2018-11-30 22:00:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/10046757.html
+cnblogs_id: 10046757
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p>           <a href="https://www.lydsy.com/JudgeOnline/problem.php?id=2588" target="_blank" rel="noopener nofollow">https://www.lydsy.com/JudgeOnline/problem.php?id=2588</a></p>
+<p>[算法]</p>
+<p>         如果我们能知道“u到v这条路径上权值&lt;= k的数的个数” ,  那么就可以通过二分的方式求出答案</p>
+<p>         进一步地 ， u到v路径上权值&lt;= k的数的个数 = u到根节点路径上权值&lt;= k的数的个数 + v到根节点路径上权值&lt;= k的数的个数 - u和v的最近公共祖先到根节点路径上权值&lt;= k的数的个数 - u和v的最近公共祖先的父节点到根节点路径上权值&lt;= k的数的个数 </p>
+<p>         建立可持久化线段树 ， 查询时在线段树上二分即可</p>
+<p>         时间复杂度 : O(NlogN)</p>
+<p>[代码]</p>
+<p>        </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 100010
+<span style="color: rgba(0, 0, 255, 1)">#define</span> MAXLOG 20<span style="color: rgba(0, 0, 0, 1)">
+typedef </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> ll;
+typedef </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">double</span><span style="color: rgba(0, 0, 0, 1)"> ld;
+
+</span><span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> edge
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> to , nxt;
+} e[MAXN </span>&lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> n , q , len , idx , tot;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span> lson[MAXN * <span style="color: rgba(128, 0, 128, 1)">20</span>] , rson[MAXN * <span style="color: rgba(128, 0, 128, 1)">20</span>] , sum[MAXN * <span style="color: rgba(128, 0, 128, 1)">20</span><span style="color: rgba(0, 0, 0, 1)">] , depth[MAXN] , head[MAXN] , root[MAXN] , son[MAXN] , size[MAXN] , fa[MAXN] , top[MAXN];
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> a[MAXN] , tmp[MAXN];
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> up[MAXN][MAXLOG];
+
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> chkmax(T &amp;x,T y) { x =<span style="color: rgba(0, 0, 0, 1)"> max(x,y); }
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> chkmin(T &amp;x,T y) { x =<span style="color: rgba(0, 0, 0, 1)"> min(x,y); }
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> read(T &amp;<span style="color: rgba(0, 0, 0, 1)">x)
+{
+    T f </span>= <span style="color: rgba(128, 0, 128, 1)">1</span>; x = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">char</span> c =<span style="color: rgba(0, 0, 0, 1)"> getchar();
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; !isdigit(c); c = getchar()) <span style="color: rgba(0, 0, 255, 1)">if</span> (c == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>) f = -<span style="color: rgba(0, 0, 0, 1)">f;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; isdigit(c); c = getchar()) x = (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">3</span>) + (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>) + c - <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">;
+    x </span>*=<span style="color: rgba(0, 0, 0, 1)"> f;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> addedge(<span style="color: rgba(0, 0, 255, 1)">int</span> u , <span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> v)
+{
+        </span>++<span style="color: rgba(0, 0, 0, 1)">tot;
+        e[tot] </span>=<span style="color: rgba(0, 0, 0, 1)"> (edge){v , head[u]};
+        head[u] </span>=<span style="color: rgba(0, 0, 0, 1)"> tot;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> build(<span style="color: rgba(0, 0, 255, 1)">int</span> &amp;k , <span style="color: rgba(0, 0, 255, 1)">int</span> l , <span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> r)
+{
+    k </span>= ++<span style="color: rgba(0, 0, 0, 1)">idx;
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (l == r) <span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">int</span> mid = (l + r) &gt;&gt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+    build(lson[k] , l , mid);
+    build(rson[k] , mid </span>+ <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)"> , r);
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> modify(<span style="color: rgba(0, 0, 255, 1)">int</span> &amp;k , <span style="color: rgba(0, 0, 255, 1)">int</span> old , <span style="color: rgba(0, 0, 255, 1)">int</span> l , <span style="color: rgba(0, 0, 255, 1)">int</span> r , <span style="color: rgba(0, 0, 255, 1)">int</span> pos , <span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> value)
+{
+    k </span>= ++<span style="color: rgba(0, 0, 0, 1)">idx;
+    lson[k] </span>= lson[old] , rson[k] =<span style="color: rgba(0, 0, 0, 1)"> rson[old];
+    sum[k] </span>= sum[old] +<span style="color: rgba(0, 0, 0, 1)"> value;
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (l == r) <span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">int</span> mid = (l + r) &gt;&gt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (mid &gt;=<span style="color: rgba(0, 0, 0, 1)"> pos) modify(lson[k] , lson[k] , l , mid , pos , value);
+    </span><span style="color: rgba(0, 0, 255, 1)">else</span> modify(rson[k] , rson[k] , mid + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)"> , r , pos , value);        
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">int</span> query(<span style="color: rgba(0, 0, 255, 1)">int</span> rt1 , <span style="color: rgba(0, 0, 255, 1)">int</span> rt2 , <span style="color: rgba(0, 0, 255, 1)">int</span> rt3 , <span style="color: rgba(0, 0, 255, 1)">int</span> rt4 , <span style="color: rgba(0, 0, 255, 1)">int</span> l , <span style="color: rgba(0, 0, 255, 1)">int</span> r , <span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> k)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (l == r) <span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> l;
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> value = sum[lson[rt1]] + sum[lson[rt2]] - sum[lson[rt3]] -<span style="color: rgba(0, 0, 0, 1)"> sum[lson[rt4]];
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> mid = (l + r) &gt;&gt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (value &gt;= k) <span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> query(lson[rt1] , lson[rt2] , lson[rt3] , lson[rt4] , l , mid , k);
+        </span><span style="color: rgba(0, 0, 255, 1)">else</span> <span style="color: rgba(0, 0, 255, 1)">return</span> query(rson[rt1] , rson[rt2] , rson[rt3] , rson[rt4] , mid + <span style="color: rgba(128, 0, 128, 1)">1</span> , r , k -<span style="color: rgba(0, 0, 0, 1)"> value);
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> dfs1(<span style="color: rgba(0, 0, 255, 1)">int</span> u , <span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> father)
+{
+        size[u] </span>= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        depth[u] </span>= depth[father] + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        modify(root[u] , root[father] , </span><span style="color: rgba(128, 0, 128, 1)">1</span> , len , a[u] , <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = head[u]; i; i =<span style="color: rgba(0, 0, 0, 1)"> e[i].nxt)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span> v =<span style="color: rgba(0, 0, 0, 1)"> e[i].to;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (v == father) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                dfs1(v , u);
+                fa[v] </span>=<span style="color: rgba(0, 0, 0, 1)"> u;
+                size[u] </span>+=<span style="color: rgba(0, 0, 0, 1)"> size[v];
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (son[u] == <span style="color: rgba(128, 0, 128, 1)">0</span> || size[v] &gt; size[son[u]]) son[u] =<span style="color: rgba(0, 0, 0, 1)"> v; 
+        }
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> dfs2(<span style="color: rgba(0, 0, 255, 1)">int</span> u , <span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> tp)
+{
+        top[u] </span>=<span style="color: rgba(0, 0, 0, 1)"> tp;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span><span style="color: rgba(0, 0, 0, 1)"> (son[u]) dfs2(son[u] , tp);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = head[u]; i; i =<span style="color: rgba(0, 0, 0, 1)"> e[i].nxt)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span> v =<span style="color: rgba(0, 0, 0, 1)"> e[i].to;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (v != son[u] &amp;&amp; v !=<span style="color: rgba(0, 0, 0, 1)"> fa[u]) dfs2(v , v);
+        }
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">int</span> lca(<span style="color: rgba(0, 0, 255, 1)">int</span> x , <span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> y)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (top[x] !=<span style="color: rgba(0, 0, 0, 1)"> top[y])
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (depth[top[x]] &gt;<span style="color: rgba(0, 0, 0, 1)"> depth[top[y]]) swap(x , y);
+                y </span>=<span style="color: rgba(0, 0, 0, 1)"> fa[top[y]];
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (depth[x] &lt; depth[y]) <span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> x;
+        </span><span style="color: rgba(0, 0, 255, 1)">else</span> <span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> y;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">int</span> getans(<span style="color: rgba(0, 0, 255, 1)">int</span> u , <span style="color: rgba(0, 0, 255, 1)">int</span> v , <span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> k)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> t1 = lca(u , v) , t2 =<span style="color: rgba(0, 0, 0, 1)"> fa[t1];
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> query(root[u] , root[v] , root[t1] , root[t2] , <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)"> , len , k);
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main()
+{
+        
+        read(n); read(q);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">) 
+        {
+                read(a[i]);
+                tmp[i] </span>=<span style="color: rgba(0, 0, 0, 1)"> a[i];
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt; n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x , y;
+                read(x); read(y);
+                addedge(x , y);
+                addedge(y , x);
+        }
+        sort(tmp </span>+ <span style="color: rgba(128, 0, 128, 1)">1</span> , tmp + n + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+        len </span>= unique(tmp + <span style="color: rgba(128, 0, 128, 1)">1</span> , tmp + n + <span style="color: rgba(128, 0, 128, 1)">1</span>) - tmp - <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++) a[i] = lower_bound(tmp + <span style="color: rgba(128, 0, 128, 1)">1</span> , tmp + len + <span style="color: rgba(128, 0, 128, 1)">1</span> , a[i]) -<span style="color: rgba(0, 0, 0, 1)"> tmp;
+        build(root[</span><span style="color: rgba(128, 0, 128, 1)">0</span>] , <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)"> , len);
+        dfs1(</span><span style="color: rgba(128, 0, 128, 1)">1</span> , <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">);
+        dfs2(</span><span style="color: rgba(128, 0, 128, 1)">1</span> , <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> lastans = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (q--<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> u , v , k;
+                read(u); read(v); read(k);
+                u </span>^=<span style="color: rgba(0, 0, 0, 1)"> lastans;
+                printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span> , lastans =<span style="color: rgba(0, 0, 0, 1)"> tmp[getans(u , v , k)]);
+        }
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

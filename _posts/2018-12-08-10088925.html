@@ -1,0 +1,179 @@
+---
+layout: post
+title: '[BZOJ 3282] Tree'
+date: 2018-12-08 20:20:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/10088925.html
+cnblogs_id: 10088925
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p>         <a href="https://www.lydsy.com/JudgeOnline/problem.php?id=3282" target="_blank" rel="noopener nofollow"> https://www.lydsy.com/JudgeOnline/problem.php?id=3282</a></p>
+<p>[算法]</p>
+<p>        LCT模板题</p>
+<p>        时间复杂度 : O(NlogN ^ 2)</p>
+<p>[代码]</p>
+<p>        </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 300010
+
+<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> n , m;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> val[MAXN];
+
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> chkmax(T &amp;x , T y) { x =<span style="color: rgba(0, 0, 0, 1)"> max(x , y); }
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> chkmin(T &amp;x , T y) { x =<span style="color: rgba(0, 0, 0, 1)"> min(x , y); }
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> read(T &amp;<span style="color: rgba(0, 0, 0, 1)">x)
+{
+    T f </span>= <span style="color: rgba(128, 0, 128, 1)">1</span>; x = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">char</span> c =<span style="color: rgba(0, 0, 0, 1)"> getchar();
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; !isdigit(c); c = getchar()) <span style="color: rgba(0, 0, 255, 1)">if</span> (c == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>) f = -<span style="color: rgba(0, 0, 0, 1)">f;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; isdigit(c); c = getchar()) x = (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">3</span>) + (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>) + c - <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">;
+    x </span>*=<span style="color: rgba(0, 0, 0, 1)"> f;
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> Link_Cut_Tree
+{
+    </span><span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> Node
+    {
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> father , son[<span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">];
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> v , value;    
+        </span><span style="color: rgba(0, 0, 255, 1)">bool</span><span style="color: rgba(0, 0, 0, 1)"> tag;
+    } a[MAXN];
+    inline </span><span style="color: rgba(0, 0, 255, 1)">bool</span> nroot(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x)
+    {
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> a[a[x].father].son[<span style="color: rgba(128, 0, 128, 1)">0</span>] == x | a[a[x].father].son[<span style="color: rgba(128, 0, 128, 1)">1</span>] ==<span style="color: rgba(0, 0, 0, 1)"> x;
+    }
+    inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> update(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x)
+    {
+        a[x].value </span>= a[x].v ^ a[a[x].son[<span style="color: rgba(128, 0, 128, 1)">0</span>]].value ^ a[a[x].son[<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">]].value;
+    }
+    inline </span><span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> init()
+    {
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+            a[i].v </span>=<span style="color: rgba(0, 0, 0, 1)"> val[i];    
+    } 
+    inline </span><span style="color: rgba(0, 0, 255, 1)">bool</span> <span style="color: rgba(0, 0, 255, 1)">get</span>(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x)
+    {
+        pushdown(a[x].father);
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> a[a[x].father].son[<span style="color: rgba(128, 0, 128, 1)">1</span>] ==<span style="color: rgba(0, 0, 0, 1)"> x;
+    }
+    inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> pushdown(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x)
+    {
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span><span style="color: rgba(0, 0, 0, 1)"> (a[x].tag)
+        {
+            swap(a[x].son[</span><span style="color: rgba(128, 0, 128, 1)">0</span>] , a[x].son[<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">]);
+            a[a[x].son[</span><span style="color: rgba(128, 0, 128, 1)">0</span>]].tag ^= <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+            a[a[x].son[</span><span style="color: rgba(128, 0, 128, 1)">1</span>]].tag ^= <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+            a[x].tag </span>= <span style="color: rgba(0, 0, 255, 1)">false</span><span style="color: rgba(0, 0, 0, 1)">;
+        }
+    }
+    inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> rotate(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x)
+    {
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> f = a[x].father , g =<span style="color: rgba(0, 0, 0, 1)"> a[f].father;                        
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> tmpx = <span style="color: rgba(0, 0, 255, 1)">get</span>(x) , tmpf = <span style="color: rgba(0, 0, 255, 1)">get</span><span style="color: rgba(0, 0, 0, 1)">(f);
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> w = a[x].son[tmpx ^ <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (nroot(f)) a[g].son[tmpf] =<span style="color: rgba(0, 0, 0, 1)"> x;
+        a[x].son[tmpx </span>^ <span style="color: rgba(128, 0, 128, 1)">1</span>] =<span style="color: rgba(0, 0, 0, 1)"> f;
+        a[f].son[tmpx] </span>=<span style="color: rgba(0, 0, 0, 1)"> w;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (w) a[w].father =<span style="color: rgba(0, 0, 0, 1)"> f;
+        a[f].father </span>=<span style="color: rgba(0, 0, 0, 1)"> x;
+        a[x].father </span>=<span style="color: rgba(0, 0, 0, 1)"> g;
+        update(f);
+    }
+    inline </span><span style="color: rgba(0, 0, 255, 1)">int</span> find_root(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x)
+    {
+        access(x);
+        splay(x);
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (a[x].son[<span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">])
+        {
+            pushdown(x);
+            x </span>= a[x].son[<span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">];
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> x;
+    }
+    inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> access(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x)
+    {
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> y = <span style="color: rgba(128, 0, 128, 1)">0</span>; x; x = a[y =<span style="color: rgba(0, 0, 0, 1)"> x].father)
+        {
+            splay(x);
+            a[x].son[</span><span style="color: rgba(128, 0, 128, 1)">1</span>] =<span style="color: rgba(0, 0, 0, 1)"> y;
+            update(x);
+        }
+    }
+    inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> splay(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x)
+    {
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> y = x , z = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">static</span> <span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> st[MAXN];
+        st[</span>++z] =<span style="color: rgba(0, 0, 0, 1)"> y;
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (nroot(y)) st[++z] = y =<span style="color: rgba(0, 0, 0, 1)"> a[y].father;
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (z) pushdown(st[z--<span style="color: rgba(0, 0, 0, 1)">]);
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span><span style="color: rgba(0, 0, 0, 1)"> (nroot(x))
+        {
+            </span><span style="color: rgba(0, 0, 255, 1)">int</span> y = a[x].father , z =<span style="color: rgba(0, 0, 0, 1)"> a[y].father;
+            </span><span style="color: rgba(0, 0, 255, 1)">if</span><span style="color: rgba(0, 0, 0, 1)"> (nroot(y))
+                rotate((a[y].son[</span><span style="color: rgba(128, 0, 128, 1)">0</span>] == x) ^ (a[z].son[<span style="color: rgba(128, 0, 128, 1)">0</span>] == y) ?<span style="color: rgba(0, 0, 0, 1)"> x : y);
+            rotate(x);
+        }
+        update(x);
+    }
+    inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> split(<span style="color: rgba(0, 0, 255, 1)">int</span> x , <span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> y)
+    {
+        make_root(x);
+        access(y);
+        splay(y);    
+    } 
+    inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> make_root(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x)
+    {
+        access(x);
+        splay(x);
+        a[x].tag </span>^= <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+        pushdown(x);
+    }
+    inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> link(<span style="color: rgba(0, 0, 255, 1)">int</span> x , <span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> y)
+    {
+        make_root(x);
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (find_root(y) != x) a[x].father =<span style="color: rgba(0, 0, 0, 1)"> y;
+    }
+    inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> cut(<span style="color: rgba(0, 0, 255, 1)">int</span> x , <span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> y)
+    {
+        make_root(x);
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (find_root(y) == x &amp;&amp; a[x].father == y &amp;&amp; !a[x].son[<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">])
+        {
+            a[x].father </span>= a[y].son[<span style="color: rgba(128, 0, 128, 1)">0</span>] = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+            update(y);
+        }
+    }
+} LCT;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main()
+{
+    
+    read(n); read(m);
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">) read(val[i]);
+    LCT.init();
+    </span><span style="color: rgba(0, 0, 255, 1)">while</span> (m--<span style="color: rgba(0, 0, 0, 1)">)
+    {
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> type , x , y;
+        read(type); read(x); read(y);
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (type == <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">)
+        {
+            LCT.split(x , y);
+            printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)"> , LCT.a[y].value);    
+        } </span><span style="color: rgba(0, 0, 255, 1)">else</span> <span style="color: rgba(0, 0, 255, 1)">if</span> (type == <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">) LCT.link(x , y);
+        </span><span style="color: rgba(0, 0, 255, 1)">else</span> <span style="color: rgba(0, 0, 255, 1)">if</span> (type == <span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">) LCT.cut(x , y);
+        </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)">
+        {
+            LCT.splay(x);
+            LCT.a[x].v </span>=<span style="color: rgba(0, 0, 0, 1)"> y;
+        }
+    }
+    
+    </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

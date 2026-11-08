@@ -1,0 +1,78 @@
+---
+layout: post
+title: '[CF1349D] Slime and Biscuits'
+date: 2021-01-24 19:26:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/14321968.html
+cnblogs_id: 14321968
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p><a href="" rel="noopener nofollow">https://codeforces.com/contest/1349/problem/D</a></p>
+<p>[题解]</p>
+<p>首先设 <span class="math inline">\(E_{x}\)</span> 表示所有饼干在 <span class="math inline">\(x\)</span> 手里的情况 ， 概率乘期望的和 ， 则答案为 <span class="math inline">\(\sum_{x}{E_{x}}\)</span>。</p>
+<p>设 <span class="math inline">\(E'_{x}\)</span> 表示如果游戏只在所有饼干都在 <span class="math inline">\(x\)</span> 手里才会结束的期望步数。</p>
+<p>设 <span class="math inline">\(P_{x}\)</span> 为最终游戏结束时所有饼干在 <span class="math inline">\(x\)</span> 手里的概率 ， 则 <span class="math inline">\(\sum_{x}{P_{x}} = 1\)</span>。</p>
+<p>再设常数 <span class="math inline">\(C\)</span> 表示将所有饼干从一个人手里转移到另一个人手里的期望步数。</p>
+<p>考虑容斥 ， 不难发现存在恒等式 : <span class="math inline">\(E(x) = E'(x) - \sum_{x}{[i \neq x](P_{i} * C + E_{i})}\)</span></p>
+<p>这个等式相当于枚举了在 <span class="math inline">\(x\)</span> 之前谁先得到了所有饼干。</p>
+<p>一共有 <span class="math inline">\(N\)</span> 个这样的等式 ， 将它们求和 ， 得到 : <span class="math inline">\(N\sum_{i}{E_{i}} = \sum_{i}{E'_{i}} - C(N - 1)\sum{P_{i}}\)</span> 。</p>
+<p>用 <span class="math inline">\(ans\)</span> 替换 <span class="math inline">\(\sum{E_{i}}\)</span> , 用 <span class="math inline">\(1\)</span> 替换 <span class="math inline">\(\sum{P_{i}}\)</span>。</p>
+<p>得到 <span class="math inline">\(n \cdot ans = \sum_{i}{E'_{i} - C(N - 1)}\)</span>。</p>
+<p>注意到对于 <span class="math inline">\(E'_{x}\)</span> 和 <span class="math inline">\(C\)</span> 而言 ， 只需关心饼干是否到了指定的某个人 ， 不妨设 <span class="math inline">\(f_{m}\)</span> 为剩余 <span class="math inline">\(m\)</span> 个小饼干在目标人手中 ， 最后全部转移到其手中的期望时间。 则不难得到</p>
+<p><span class="math inline">\(f_i=\begin{cases}\frac{s-i}{s}\left(\frac{1}{n-1}f_{i+1}+\frac{n-2}{n-1}f_i\right)+\frac{i}{s}f_{i-1}+1,&amp;0&lt;i&lt;s\\\frac{n-2}{n-1}f_i+\frac{1}{n-1}f_{i+1}+1,&amp;i=0\\0,&amp;i=s\end{cases}\)</span></p>
+<p>首先解第二个方程 ， 得到 <span class="math inline">\(f_{0} = f_{1} + n - 1\)</span>。</p>
+<p>直接通过消元求 <span class="math inline">\(f_{2} ... f_{n}\)</span> 是不稳妥的 ， 因为可能出现除以 <span class="math inline">\(0\)</span> 的情况。</p>
+<p>那么不妨定义 <span class="math inline">\(g_{i} = f_{i} - f_{i + 1}\)</span> ， 则 <span class="math inline">\(f_i=\sum_{j=i}^sg_j\)</span>。 将 <span class="math inline">\(f\)</span> 代换为 <span class="math inline">\(g\)</span> 得到 <span class="math inline">\(\sum_{j=i}^sg_j=\frac{s-i}{s}\left(\frac{1}{n-1}\sum_{j=i+1}^sg_j+\frac{n-2}{n-1}\sum_{j=i}^sg_j\right)+\frac{i}{s}\sum_{j=i-1}^sf_j+1\)</span>。</p>
+<p><span class="math inline">\(j &gt; i\)</span> 的项直接抵消了 , 因此可以得到 :</p>
+<p><span class="math inline">\(g_i=\frac{s(n-1)+i(n-1)g_{i-1}}{s-i}\)</span></p>
+<p>又因为 <span class="math inline">\(g_{0} = f_{0} - f_{1} = n - 1\)</span> , 所以可以直接递推求 <span class="math inline">\(g\)</span> , 而 <span class="math inline">\(f\)</span> 就是 <span class="math inline">\(g\)</span> 的后缀和。</p>
+<p>时间复杂度 : <span class="math inline">\(O(NlogN)\)</span></p>
+<p>[代码]</p>
+<pre><code class="language-cpp">#include&lt;bits/stdc++.h&gt;
+
+using namespace std;
+
+#define rep(i , l , r) for (int i = (l); i &lt; (r); ++i)
+
+typedef long long LL;
+
+const int MN = 3e6 + 5 , mod = 998244353;
+
+int N , s , f[MN] , g[MN] , a[MN];
+
+inline void inc(int &amp;x , int y) {
+		x = x + y &lt; mod ? x + y : x + y - mod;
+} 
+inline void dec(int &amp;x , int y) {
+		x = x - y &gt;= 0 ? x - y : x - y + mod;
+}
+inline int qPow(int a , int b) {
+		int c = 1;
+		for (; b; b &gt;&gt;= 1 , a = 1ll * a * a % mod) if (b &amp; 1) c = 1ll * c * a % mod;
+		return c;
+}
+
+int main() {
+		
+		scanf("%d" , &amp;N);
+		for (int i = 1; i &lt;= N; ++i) {
+				scanf("%d" , &amp;a[i]);
+				s += a[i]; 
+		}
+		g[0] = N - 1;
+		for (int i = 1; i &lt; s; ++i)
+				g[i] = (1ll * s * (N - 1) % mod + 1ll * i * (N - 1) % mod * g[i - 1] % mod) % mod * qPow(s - i , mod - 2) % mod;
+		for (int i = s; ~i; --i) f[i] = (f[i + 1] + g[i]) % mod;
+		int ans = 0;
+		for (int i = 1; i &lt;= N; ++i) inc(ans , f[a[i]]);
+		dec(ans , 1ll * f[0] * (N - 1) % mod);
+		ans = 1ll * ans * qPow(N , mod - 2) % mod;
+		printf("%d\n" , ans); 
+	  return 0;
+}
+</code></pre>
+
+
+
+{% endraw %}

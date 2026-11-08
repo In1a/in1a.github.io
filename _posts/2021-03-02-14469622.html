@@ -1,0 +1,84 @@
+---
+layout: post
+title: '[CF1404E] Bricks'
+date: 2021-03-02 16:28:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/14469622.html
+cnblogs_id: 14469622
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p><a href="" rel="noopener nofollow">http://codeforces.com/contest/1404/problem/E</a></p>
+<p>[题解]</p>
+<p>首先将每个 <span class="math inline">\(1 * 2\)</span> 和 <span class="math inline">\(2 * 1\)</span> 的格子编号。</p>
+<p>对于每个位置相当于限制了不能有一个 <span class="math inline">\(1 * 2\)</span> 和 <span class="math inline">\(2 * 1\)</span> 相交于此点。将其连边。</p>
+<p>于是只需求二分图最大独立集即可。</p>
+<p>二分图最大独立集 = 点数 - 最大匹配。</p>
+<p>时间复杂度 : <span class="math inline">\(O(N ^ 3)\)</span></p>
+<p>[代码]</p>
+<pre><code class="language-cpp">#include&lt;bits/stdc++.h&gt;
+ 
+using namespace std;
+ 
+typedef long long LL;
+ 
+#define rep(i , l , r) for (int i = (l); i &lt; (r); ++i)
+ 
+const int MN = 205;
+ 
+int N , M , cnt = 0 , tot = 0 , le = 0 , ri = 0 , mat[MN * MN] , chk[MN * MN];
+char s[MN][MN];
+vector &lt; int &gt; adj[MN * MN] , hor[MN][MN] , ver[MN][MN];
+ 
+inline bool DFS(int u) {
+	chk[u] = tot + 1;
+	for (int v : adj[u])
+		if (mat[v] == 0) {
+			mat[v] = u;
+			return true;
+		}
+	for (int v : adj[u])
+		if (chk[mat[v]] &lt;= tot &amp;&amp; DFS(mat[v])) {
+			mat[v] = u;
+			return true;
+		}
+	return false;		
+}
+ 
+int main() {
+	 
+	 scanf("%d%d" , &amp;N , &amp;M);
+	 for (int i = 1; i &lt;= N; ++i) {
+	 	 scanf("%s" , s[i] + 1);
+	 	 for (int j = 1; j &lt;= M; ++j)
+		  	 cnt += (s[i][j] == '#'); 
+	 }
+	 for (int i = 1; i &lt;= N; ++i) 
+	 for (int j = 1; j &lt; M; ++j) 
+	 	 if (s[i][j] == '#' &amp;&amp; s[i][j + 1] == '#') {
+	 	 	 ++le;
+			 hor[i][j].emplace_back(le);
+			 hor[i][j + 1].emplace_back(le);	
+		 }	
+	 for (int i = 1; i &lt; N; ++i)
+	 for (int j = 1; j &lt;= M; ++j)
+	 	 if (s[i][j] == '#' &amp;&amp; s[i + 1][j] == '#') {
+	 	 	 ++ri;
+			 ver[i][j].emplace_back(ri);
+			 ver[i + 1][j].emplace_back(ri);  	
+		 }
+	 for (int i = 1; i &lt;= N; ++i)
+	 for (int j = 1; j &lt;= M; ++j)
+	 for (int u : hor[i][j])
+	 for (int v : ver[i][j])
+	 	 adj[u].emplace_back(v);
+	 for (int i = 1; i &lt;= le; ++i)
+	 	 tot += DFS(i);
+	 printf("%d\n" , cnt - (le + ri - tot));
+     return 0;
+}
+</code></pre>
+
+
+
+{% endraw %}

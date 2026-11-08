@@ -1,0 +1,222 @@
+---
+layout: post
+title: '[Codeforces 986E] Prince''s Problem'
+date: 2018-10-03 11:53:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9739488.html
+cnblogs_id: 9739488
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p>        <a href="https://codeforces.com/contest/986/problem/E" target="_blank" rel="noopener nofollow">  https://codeforces.com/contest/986/problem/E</a></p>
+<p>[算法]</p>
+<p>        X到Y的路径积 ， 可以转化为X到根的路径积乘Y到根的路径积 ， 除以LCA到根的路径积 ， 再除以LCA父节点到根的路径积</p>
+<p>        考虑如何计算根到X路径上每个点与Value的GCD之积</p>
+<p>        不妨对于每个质数P开一个数组cnt[] , 表示根到当前节点P^i有多少个 ， 我们可以在DFS的过程中维护这个数组</p>
+<p>        将询问离线即可</p>
+<p>        时间复杂度 ： O(V + NlogN + QlogV^2)</p>
+<p>[代码]</p>
+<p>       </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXLOG 30
+<span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">int</span> P = 1e9 + <span style="color: rgba(128, 0, 128, 1)">7</span><span style="color: rgba(0, 0, 0, 1)">;
+</span><span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">int</span> MAXN = 1e5 + <span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">;
+</span><span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">int</span> MAXP = 1e6 + <span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">;
+</span><span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">int</span> MAXV = 1e7 + <span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">;
+
+</span><span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> edge
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> to , nxt; 
+} e[MAXN </span>&lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+</span><span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> info
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> value , home;
+        </span><span style="color: rgba(0, 0, 255, 1)">bool</span><span style="color: rgba(0, 0, 0, 1)"> type;
+} ;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> tot , n , t;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> a[MAXN],depth[MAXN],prime[MAXP],head[MAXN],ans[MAXN],f[MAXV];
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> cnt[MAXP][MAXLOG],anc[MAXN][MAXLOG];
+vector</span>&lt; info &gt;<span style="color: rgba(0, 0, 0, 1)"> q[MAXN];
+
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> chkmax(T &amp;x,T y) { x =<span style="color: rgba(0, 0, 0, 1)"> max(x,y); }
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> chkmin(T &amp;x,T y) { x =<span style="color: rgba(0, 0, 0, 1)"> min(x,y); }
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> read(T &amp;<span style="color: rgba(0, 0, 0, 1)">x)
+{
+    T f </span>= <span style="color: rgba(128, 0, 128, 1)">1</span>; x = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">char</span> c =<span style="color: rgba(0, 0, 0, 1)"> getchar();
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; !isdigit(c); c = getchar()) <span style="color: rgba(0, 0, 255, 1)">if</span> (c == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>) f = -<span style="color: rgba(0, 0, 0, 1)">f;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; isdigit(c); c = getchar()) x = (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">3</span>) + (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>) + c - <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">;
+    x </span>*=<span style="color: rgba(0, 0, 0, 1)"> f;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> addedge(<span style="color: rgba(0, 0, 255, 1)">int</span> u,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> v)
+{
+        t</span>++<span style="color: rgba(0, 0, 0, 1)">;
+        e[t] </span>=<span style="color: rgba(0, 0, 0, 1)"> (edge){v,head[u]};
+        head[u] </span>=<span style="color: rgba(0, 0, 0, 1)"> t;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">int</span> exp_mod(<span style="color: rgba(0, 0, 255, 1)">int</span> a,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> n)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> res = <span style="color: rgba(128, 0, 128, 1)">1</span> , b =<span style="color: rgba(0, 0, 0, 1)"> a;
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (n &gt; <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (n &amp; <span style="color: rgba(128, 0, 128, 1)">1</span>) res = 1ll * res * b %<span style="color: rgba(0, 0, 0, 1)"> P;
+                b </span>= 1ll * b * b %<span style="color: rgba(0, 0, 0, 1)"> P;
+                n </span>&gt;&gt;= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> res;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">int</span> inv(<span style="color: rgba(0, 0, 255, 1)">int</span> x) { <span style="color: rgba(0, 0, 255, 1)">return</span> exp_mod(x,P - <span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">); }
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> dfs(<span style="color: rgba(0, 0, 255, 1)">int</span> u,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> fa)
+{
+        depth[u] </span>= depth[fa] + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt; MAXLOG; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (depth[u] &lt;= (<span style="color: rgba(128, 0, 128, 1)">1</span> &lt;&lt; i)) <span style="color: rgba(0, 0, 255, 1)">break</span><span style="color: rgba(0, 0, 0, 1)">;
+                anc[u][i] </span>= anc[anc[u][i - <span style="color: rgba(128, 0, 128, 1)">1</span>]][i - <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];    
+        }    
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = head[u]; i; i =<span style="color: rgba(0, 0, 0, 1)"> e[i].nxt)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span> v =<span style="color: rgba(0, 0, 0, 1)"> e[i].to;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (v == fa) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                anc[v][</span><span style="color: rgba(128, 0, 128, 1)">0</span>] =<span style="color: rgba(0, 0, 0, 1)"> u;
+                depth[v] </span>= depth[u] + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                dfs(v,u);
+        }
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">int</span> lca(<span style="color: rgba(0, 0, 255, 1)">int</span> u,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> v)
+{
+      </span><span style="color: rgba(0, 0, 255, 1)">if</span> (depth[u] &gt;<span style="color: rgba(0, 0, 0, 1)"> depth[v]) swap(u,v);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = MAXLOG - <span style="color: rgba(128, 0, 128, 1)">1</span>; i &gt;= <span style="color: rgba(128, 0, 128, 1)">0</span>; i--<span style="color: rgba(0, 0, 0, 1)">)        
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (depth[anc[v][i]] &gt;=<span style="color: rgba(0, 0, 0, 1)"> depth[u])
+                        v </span>=<span style="color: rgba(0, 0, 0, 1)"> anc[v][i];
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (u == v) <span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> u;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = MAXLOG - <span style="color: rgba(128, 0, 128, 1)">1</span>; i &gt;= <span style="color: rgba(128, 0, 128, 1)">0</span>; i--<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (anc[u][i] !=<span style="color: rgba(0, 0, 0, 1)"> anc[v][i])
+                        u </span>= anc[u][i] , v =<span style="color: rgba(0, 0, 0, 1)"> anc[v][i];
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> anc[u][<span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">];
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> modify(<span style="color: rgba(0, 0, 255, 1)">int</span> x,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> delta)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; 1ll * prime[i] * prime[i] &lt;= x; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (x % prime[i] == <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">int</span> p = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (x % prime[i] == <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">)
+                        {
+                                x </span>/=<span style="color: rgba(0, 0, 0, 1)"> prime[i];
+                                p</span>++<span style="color: rgba(0, 0, 0, 1)">;
+                        }
+                        cnt[i][p] </span>+=<span style="color: rgba(0, 0, 0, 1)"> delta;
+                }
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (x != <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span> pos = lower_bound(prime + <span style="color: rgba(128, 0, 128, 1)">1</span>,prime + tot + <span style="color: rgba(128, 0, 128, 1)">1</span>,x) -<span style="color: rgba(0, 0, 0, 1)"> prime;
+                cnt[pos][</span><span style="color: rgba(128, 0, 128, 1)">1</span>] +=<span style="color: rgba(0, 0, 0, 1)"> delta;
+        }
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">int</span> query(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> ret = <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; 1ll * prime[i] * prime[i] &lt;= x; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (x % prime[i] == <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">int</span> p = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (x % prime[i] == <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">)
+                        {
+                                p</span>++<span style="color: rgba(0, 0, 0, 1)">;
+                                x </span>/=<span style="color: rgba(0, 0, 0, 1)"> prime[i];
+                        }
+                        </span><span style="color: rgba(0, 0, 255, 1)">int</span> s = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= p; j++) s += cnt[i][j] *<span style="color: rgba(0, 0, 0, 1)"> j;
+                        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> j = p + <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt; MAXLOG; j++) s += cnt[i][j] *<span style="color: rgba(0, 0, 0, 1)"> p;
+                        ret </span>= 1ll * ret * exp_mod(prime[i],s) %<span style="color: rgba(0, 0, 0, 1)"> P;
+                }
+         }
+         </span><span style="color: rgba(0, 0, 255, 1)">if</span> (x != <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">)
+         {
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span> pos = lower_bound(prime + <span style="color: rgba(128, 0, 128, 1)">1</span>,prime + tot + <span style="color: rgba(128, 0, 128, 1)">1</span>,x) -<span style="color: rgba(0, 0, 0, 1)"> prime;
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span> s = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt; MAXLOG; i++) s +=<span style="color: rgba(0, 0, 0, 1)"> cnt[pos][i];
+                ret </span>= 1ll * ret * exp_mod(x,s) %<span style="color: rgba(0, 0, 0, 1)"> P;                
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> ret;
+}
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> solve(<span style="color: rgba(0, 0, 255, 1)">int</span> u,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> fa)
+{
+        modify(a[u],</span><span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (unsigned i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i &lt; q[u].size(); i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (q[u][i].type)    ans[q[u][i].home] = 1ll * ans[q[u][i].home] * query(q[u][i].value) %<span style="color: rgba(0, 0, 0, 1)"> P;
+                </span><span style="color: rgba(0, 0, 255, 1)">else</span> ans[q[u][i].home] = 1ll * ans[q[u][i].home] * inv(query(q[u][i].value)) %<span style="color: rgba(0, 0, 0, 1)"> P; 
+        }        
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = head[u]; i; i =<span style="color: rgba(0, 0, 0, 1)"> e[i].nxt)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span> v =<span style="color: rgba(0, 0, 0, 1)"> e[i].to;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (v == fa) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                solve(v,u);
+        }
+        modify(a[u],</span>-<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main()
+{
+        
+        read(n);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">2</span>; i &lt; MAXV; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!<span style="color: rgba(0, 0, 0, 1)">f[i]) 
+                {
+                        f[i] </span>=<span style="color: rgba(0, 0, 0, 1)"> i;
+                        prime[</span>++tot] =<span style="color: rgba(0, 0, 0, 1)"> i;
+                }
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= tot; j++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">int</span> tmp = i *<span style="color: rgba(0, 0, 0, 1)"> prime[j];
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (tmp &gt;= MAXV) <span style="color: rgba(0, 0, 255, 1)">break</span><span style="color: rgba(0, 0, 0, 1)">;
+                        f[tmp] </span>=<span style="color: rgba(0, 0, 0, 1)"> prime[j];
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (prime[j] == f[i]) <span style="color: rgba(0, 0, 255, 1)">break</span><span style="color: rgba(0, 0, 0, 1)">;
+                }
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt; n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> u , v;
+                read(u); read(v);
+                addedge(u,v);
+                addedge(v,u);
+        }
+        dfs(</span><span style="color: rgba(128, 0, 128, 1)">1</span>,<span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">) read(a[i]);
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> Q;
+        read(Q);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= Q; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> u , v , x;
+                read(u); read(v); read(x);
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span> Lca =<span style="color: rgba(0, 0, 0, 1)"> lca(u,v);
+                q[u].push_back((info){x,i,</span><span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">});
+                q[v].push_back((info){x,i,</span><span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">});
+                q[Lca].push_back((info){x,i,</span><span style="color: rgba(0, 0, 255, 1)">false</span><span style="color: rgba(0, 0, 0, 1)">}); 
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (Lca != <span style="color: rgba(128, 0, 128, 1)">1</span>) q[anc[Lca][<span style="color: rgba(128, 0, 128, 1)">0</span>]].push_back((info){x,i,<span style="color: rgba(0, 0, 255, 1)">false</span><span style="color: rgba(0, 0, 0, 1)">});
+                ans[i] </span>= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        }
+        solve(</span><span style="color: rgba(128, 0, 128, 1)">1</span>,<span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= Q; i++) printf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,ans[i]);
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

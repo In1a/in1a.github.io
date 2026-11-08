@@ -1,0 +1,150 @@
+---
+layout: post
+title: '【POJ 3696】 The Luckiest number'
+date: 2018-07-09 16:42:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9284531.html
+cnblogs_id: 9284531
+---
+{% raw %}
+
+<p>【题目链接】</p>
+<p>            <a href="http://poj.org/problem?id=3696" target="_blank" rel="noopener nofollow">http://poj.org/problem?id=3696</a></p>
+<p>【算法】</p>
+<p>           设需要x个8</p>
+<p>           那么，这个数可以表示为 ： 8(10^x - 1) / 9, 由题， L | 8(10^x - 1) / 9</p>
+<p>           令d = gcd(L,8)，则 ：</p>
+<p>           L | 8（10^x - 1) / 9</p>
+<p>           9L | 8 (10^x - 1)  -&gt;  9L/d | 10^x-1 -&gt; 10^x(mod (9L/d)) = 1</p>
+<p>          易证a^x(mod n) = 1的最小正整数解是phi(n)的一个约数</p>
+<p>          那么，求出欧拉函数phi(9L/d),枚举约数，即可</p>
+<p>【代码】</p>
+<p>            </p>
+<div class="cnblogs_code">
+<pre>#include &lt;algorithm&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;bitset&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cctype&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cerrno&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;clocale&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cmath&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;complex&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cstdio&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cstdlib&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cstring&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;ctime&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;deque&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;exception&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;fstream&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;functional&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;limits&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;list&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;map&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;iomanip&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;ios&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;iosfwd&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;iostream&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;istream&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;ostream&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;queue&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;<span style="color: rgba(0, 0, 255, 1)">set</span>&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;sstream&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;stdexcept&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;streambuf&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;<span style="color: rgba(0, 0, 255, 1)">string</span>&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;utility&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;vector&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cwchar&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cwctype&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;stack&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;limits.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+typedef </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> ll;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,cnt,TC;
+ll factor[</span><span style="color: rgba(128, 0, 128, 1)">100010</span><span style="color: rgba(0, 0, 0, 1)">];
+ll d,l,p;
+
+inline ll gcd(ll x,ll y)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (y == <span style="color: rgba(128, 0, 128, 1)">0</span>) <span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> x;
+        </span><span style="color: rgba(0, 0, 255, 1)">else</span> <span style="color: rgba(0, 0, 255, 1)">return</span> gcd(y,x%<span style="color: rgba(0, 0, 0, 1)">y);        
+}
+inline ll phi(ll n)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i;
+        ll ret </span>=<span style="color: rgba(0, 0, 0, 1)"> n;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">2</span>; i &lt;= sqrt(n); i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (n % i == <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        ret </span>= ret / i * (i - <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+                        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (n % i == <span style="color: rgba(128, 0, 128, 1)">0</span>) n /=<span style="color: rgba(0, 0, 0, 1)"> i;
+                }
+        }        
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (n &gt; <span style="color: rgba(128, 0, 128, 1)">1</span>) ret = ret / n * (n - <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> ret;
+}
+inline ll mul(ll a,ll b,ll p)
+{
+        ll ans </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span><span style="color: rgba(0, 0, 0, 1)"> (b)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (b &amp; <span style="color: rgba(128, 0, 128, 1)">1</span>) ans = (ans + a) %<span style="color: rgba(0, 0, 0, 1)"> p;
+                a </span>= a * <span style="color: rgba(128, 0, 128, 1)">2</span> %<span style="color: rgba(0, 0, 0, 1)"> p;
+                b </span>&gt;&gt;= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> ans;
+}
+inline ll power(ll a,ll n)
+{
+        ll b </span>= a,ret = <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (n &gt; <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (n &amp; <span style="color: rgba(128, 0, 128, 1)">1</span>) ret =<span style="color: rgba(0, 0, 0, 1)"> mul(ret,b,d);
+                b </span>=<span style="color: rgba(0, 0, 0, 1)"> mul(b,b,d);
+                n </span>&gt;&gt;= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;    
+        }        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> ret;
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() 
+{
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (scanf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%lld</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;l) != EOF &amp;&amp;<span style="color: rgba(0, 0, 0, 1)"> l)
+        {
+                d </span>= <span style="color: rgba(128, 0, 128, 1)">9</span> * l / gcd(<span style="color: rgba(128, 0, 128, 1)">8</span><span style="color: rgba(0, 0, 0, 1)">,l);
+                printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">Case %d: </span><span style="color: rgba(128, 0, 0, 1)">"</span>,++<span style="color: rgba(0, 0, 0, 1)">TC);
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (gcd(<span style="color: rgba(128, 0, 128, 1)">10</span>,d) != <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">0\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">);
+                        </span><span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;        
+                }    </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)">
+                {
+                        cnt </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                        p </span>=<span style="color: rgba(0, 0, 0, 1)"> phi(d);
+                        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= sqrt(p); i++<span style="color: rgba(0, 0, 0, 1)">)
+                        {
+                                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (p % i == <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">)
+                                {
+                                        factor[</span>++cnt] =<span style="color: rgba(0, 0, 0, 1)"> i;
+                                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (i * i != p) factor[++cnt] = p /<span style="color: rgba(0, 0, 0, 1)"> i;
+                                }
+                        }
+                        sort(factor</span>+<span style="color: rgba(128, 0, 128, 1)">1</span>,factor+cnt+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);</span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= cnt; i++<span style="color: rgba(0, 0, 0, 1)">)
+                        {
+                                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (power(<span style="color: rgba(128, 0, 128, 1)">10</span>,factor[i]) == <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">)
+                                {
+                                        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%lld\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,factor[i]);
+                                        </span><span style="color: rgba(0, 0, 255, 1)">break</span><span style="color: rgba(0, 0, 0, 1)">;
+                                }
+                        }
+                }
+        }
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

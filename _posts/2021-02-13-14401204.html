@@ -1,0 +1,490 @@
+---
+layout: post
+title: 'Codeforces Round 594 题解'
+date: 2021-02-13 22:33:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/14401204.html
+cnblogs_id: 14401204
+---
+{% raw %}
+
+<p>[比赛链接]</p>
+<p><a href="" rel="noopener nofollow">https://codeforces.com/contest/1239</a></p>
+<p>[题解]</p>
+<p><span class="math inline">\(A\)</span></p>
+<p>首先考虑 <span class="math inline">\(N = 1\)</span> 的情况 ， 设 <span class="math inline">\(f_{i , 0 / 1}\)</span> 表示前 <span class="math inline">\(i\)</span> 块瓷砖 ， 第 <span class="math inline">\(i\)</span> 块为黑 / 白的方案数。</p>
+<p>黑和白显然是一一对应的 ， 不难得到 <span class="math inline">\(f_{i , 0} = f_{i , 1}\)</span>。</p>
+<p>考虑如何计算 <span class="math inline">\(f_{i , 0}\)</span> :</p>
+<p>若 <span class="math inline">\((i - 1)\)</span> 块瓷砖为白色 ， 则对应了 <span class="math inline">\(f_{i - 2 , 1} = f_{i - 2 , 0}\)</span> 种方案。否则 ， 对应了 <span class="math inline">\(f_{i - 1 , 1} = f_{i - 1 , 0}\)</span> 种方案。</p>
+<p>故 <span class="math inline">\(f_{i , 0} = f_{i - 2 , 1} + f_{i - 1 , 1} = f_{i - 1 , 0} + f_{i - 2 , 0} = fib_{i}\)</span></p>
+<p>故答案为 <span class="math inline">\(f_{M , 0} + f_{M , 1} = 2fib_{M}\)</span>。</p>
+<p>接着考虑 <span class="math inline">\(N \neq 1\)</span>。 分为两类考虑 ：</p>
+<p><span class="math inline">\(1.\)</span> 第一行有相邻的格子相同 ， 方案数为 <span class="math inline">\(2fib_{M} - 2\)</span>。</p>
+<p><span class="math inline">\(2.\)</span> 第一行黑白交错 ， 与 <span class="math inline">\(N = 1\)</span> 类似 ， 不难得到有 <span class="math inline">\(2fib_{N}\)</span> 种方案。</p>
+<p>综上 ， 方案数 <span class="math inline">\(2fib_{N} + 2fib_{M} - 2\)</span>。</p>
+<p>时间复杂度 : <span class="math inline">\(O(N)\)</span></p>
+<p><span class="math inline">\(B\)</span></p>
+<p>考虑一个合法的括号序列 ， 将左括号看作向上走 , 右括号看作向下走 , 那么对于一个合法的括号序列 ， 必然满足 :</p>
+<p><span class="math inline">\(1.\)</span> 在坐标轴上方移动</p>
+<p><span class="math inline">\(2.\)</span> 最后到达 <span class="math inline">\((2N , 0)\)</span></p>
+<p>记 <span class="math inline">\(h_{i}\)</span> 表示给定序列前 <span class="math inline">\(i\)</span> 步的前缀和 ， 不难发现答案为 <span class="math inline">\(min\{h_{i}\}\)</span> 出现的次数。</p>
+<p>注意到将一个序列循环位移后答案不会产生变化 ， 不妨找到任意一个位置使得 <span class="math inline">\(min\{h_{i}\}\)</span> 最小并将其做为起始位</p>
+<p>置。 这样便能保证对于任意 <span class="math inline">\(h_{i}\)</span> , <span class="math inline">\(h_{i} \geq 0\)</span> ， 且最小值为 <span class="math inline">\(0\)</span>。</p>
+<p>接着考虑如何通过交换一对括号使得最小值个数尽可能多。</p>
+<p>将左括号换成右括号 ， 相当于将一段区间的 <span class="math inline">\(h\)</span> 值 <span class="math inline">\(-2\)</span>。 否则相当于 <span class="math inline">\(+2\)</span>。</p>
+<p>显然 <span class="math inline">\(+2\)</span> 是不优的。只需考虑 <span class="math inline">\(-2\)</span> 的情况。</p>
+<p><img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202102/1424311-20210213213200394-1312323491.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202102/1424311-20210213213200394-1312323491.png"></p>
+<p>如图 ， 对这段区间进行 <span class="math inline">\(-2\)</span> ， 最小值仍然为 <span class="math inline">\(0\)</span>。</p>
+<p><img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202102/1424311-20210213213318015-2041017835.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202102/1424311-20210213213318015-2041017835.png"></p>
+<p>如图 ， 此时最小值变为 <span class="math inline">\(-1\)</span>。</p>
+<p>对这两类情况分开讨论即可。</p>
+<p>时间复杂度 : <span class="math inline">\(O(N)\)</span> 或 <span class="math inline">\(O(NlogN)\)</span></p>
+<p><span class="math inline">\(C\)</span></p>
+<p>首先将需求按时间为第一关键字 ， 位置为第二关键字排序。</p>
+<p>将当前在等候的人存入队列中。</p>
+<p>此外 ， 还需将未能加入队列的人放入一个小根堆。</p>
+<p>当队列为空时 ， 将堆顶作为队头。</p>
+<p>详见 [代码]。</p>
+<p>时间复杂度 : <span class="math inline">\(O(NlogN)\)</span></p>
+<p><span class="math inline">\(D\)</span></p>
+<p>不难发现对于编号 <span class="math inline">\(i\)</span> , 要么取人 ， 要么取猫。</p>
+<p>因此这本质上是一个 <span class="math inline">\(2-SAT\)</span> 问题。</p>
+<p>建图 ， 运行 <span class="math inline">\(Tarjan\)</span> 算法。 不难发现只需将任意一个出度为 <span class="math inline">\(0\)</span> 的连通分量全部定义为 "猫" 即可。</p>
+<p>时间复杂度 : <span class="math inline">\(O(N + M)\)</span></p>
+<p><span class="math inline">\(E\)</span></p>
+<p>首先一个观察是 ： 假设放在上面那一层的数和下面的数固定那么最优的方案实际上确定了。下面来说明这一点 ：</p>
+<p>显然第一行是按照从小到大顺序排列 ， 第二行是按照从大到小的顺序排列的。</p>
+<p>令 <span class="math inline">\(pre_{i , 1}\)</span> 表示第一行前 <span class="math inline">\(i\)</span> 个数的和 ， <span class="math inline">\(suf_{i , 2}\)</span> 表示第二行后 <span class="math inline">\(i\)</span> 个数的和。</p>
+<p>那么在 <span class="math inline">\(i\)</span> 处向下所获得的值为 <span class="math inline">\(pre_{i , 1} + suf_{i , 2}\)</span>。</p>
+<p>考虑将 <span class="math inline">\(i\)</span> 变为 <span class="math inline">\(i + 1\)</span> 时所获得的 "收益" 是 <span class="math inline">\(a_{i + 1} - b_{i}\)</span>。</p>
+<p>由于 <span class="math inline">\(a\)</span> 单调增 ， <span class="math inline">\(b\)</span> 单调减 ， 故收益函数的导数是单调增的 ， 如图 ：</p>
+<p><img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202102/1424311-20210213220738639-1639821629.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202102/1424311-20210213220738639-1639821629.png"></p>
+<p>因此最小值必然在端点取到。 也就是说答案为 <span class="math inline">\(max\{\sum{a} + b_{n} , \sum{b} + a_{n}\}\)</span>。</p>
+<p>不妨将 <span class="math inline">\(a_{1} + b_{n}\)</span> 提出 ， 也就是说我们需要将 <span class="math inline">\(2(n - 1)\)</span> 个数分为两个序列 ， 使得 <span class="math inline">\(max\{\sum{a} , \sum{b}\}\)</span> 尽可能小。</p>
+<p>注意到 <span class="math inline">\(s = \sum{a} + \sum{b}\)</span> 是固定的 ， 也就是说只需找到一种方案使得选出的 <span class="math inline">\((n - 1)\)</span> 个数恰好比 <span class="math inline">\(\frac{s}{2}\)</span> 大 ， 第一个满足的变为条件。</p>
+<p>这是个经典的背包问题 ， 动态规划即可 ， 注意转移时记录前驱便于输出方案。</p>
+<p>时间复杂度 : <span class="math inline">\(O(N ^ 2\sum{a})\)</span></p>
+<p><span class="math inline">\(F\)</span></p>
+<p>首先如果有模 <span class="math inline">\(3\)</span> 余 <span class="math inline">\(0\)</span> 的节点 , 直接保留该节点即可。</p>
+<p>这样每个节点的度数在模三意义下同余 <span class="math inline">\(1\)</span> 或 <span class="math inline">\(2\)</span>。</p>
+<p>接着 ， 如果图不连通 ， 那么保留任意一个联通块将会是一组合法解。</p>
+<p>这样图必然是联通的。</p>
+<p>如果有一条不能压缩的路径 ， 且起点和终点模 <span class="math inline">\(3\)</span> 一一下均同余 <span class="math inline">\(1\)</span> ， 那么直接保留这条路径即可。</p>
+<p>故最多只会有一个模 <span class="math inline">\(3\)</span> 余 <span class="math inline">\(1\)</span> 的节点。</p>
+<p>考虑如果存在一个不能压缩的环 ， 使得环上节点模 <span class="math inline">\(3\)</span> 均同余 <span class="math inline">\(2\)</span> ， 直接保留这个环即可。</p>
+<p>这样 ， 模 <span class="math inline">\(3\)</span> 余 <span class="math inline">\(2\)</span> 的节点只会构成若干森林。</p>
+<p>因为叶子节点度数为 <span class="math inline">\(1\)</span> , 故其必然有一条连向模 <span class="math inline">\(3\)</span> 余 <span class="math inline">\(1\)</span> 的点的边 ， 这也说明了模 <span class="math inline">\(3\)</span> 余 <span class="math inline">\(1\)</span> 的点必然存在。</p>
+<p>考虑令 <span class="math inline">\(k\)</span> 为模 <span class="math inline">\(3\)</span> 同余 <span class="math inline">\(2\)</span> 的节点的个数 ，那么 <span class="math inline">\(1\)</span> 号节点的度数模 <span class="math inline">\(2\)</span> 同余 <span class="math inline">\(2k - 2(k - 1) = 2\)</span> ， 故 <span class="math inline">\(1\)</span> 号节点度数至少为 <span class="math inline">\(2\)</span>。</p>
+<p>不妨在 <span class="math inline">\(1\)</span> 号节点的两棵子树中分别取一条路径 ， 此外保留 <span class="math inline">\(1\)</span> 号节点 ， 这将构成一组合法解。</p>
+<p>详见 [代码]。</p>
+<p>时间复杂度 : <span class="math inline">\(O(N + M)\)</span></p>
+<p>[代码]</p>
+<p><span class="math inline">\(A\)</span></p>
+<pre><code class="language-cpp">#include&lt;bits/stdc++.h&gt;
+using namespace std;
+ 
+#ifndef LOCAL
+		#define eprintf(...) fprintf(stderr, _VA_ARGS_)
+#else
+		#define eprintf(...) 42
+#endif
+ 
+typedef long long LL;
+ 
+const int N = 1e5 + 10;
+const int mod = 1e9 + 7;
+ 
+int n , m;
+int f[N];
+ 
+template &lt;typename T&gt; inline void chkmax(T &amp;x , T y) { x = max(x , y); }
+template &lt;typename T&gt; inline void chkmin(T &amp;x , T y) { x = min(x , y); }
+template &lt;typename T&gt; inline void read(T &amp;x) {
+    T f = 1; x = 0;
+    char c = getchar();
+    for (; !isdigit(c); c = getchar()) if (c == '-') f = -f;
+    for (; isdigit(c); c = getchar()) x = (x &lt;&lt; 3) + (x &lt;&lt; 1) + c - '0';
+    x *= f;
+}
+ 
+int main() {
+		
+	read(n); read(m);
+	f[1] = 2; f[2] = 4;
+	for (int i = 3; i &lt;= max(n , m); ++i)
+	      f[i] = (f[i - 1] + f[i - 2]) % mod;
+	printf("%d\n" , ((f[n] + f[m] - 2) % mod + mod) % mod); 		
+	return 0;
+}
+</code></pre>
+<p><span class="math inline">\(B\)</span></p>
+<pre><code class="language-cpp">#include&lt;bits/stdc++.h&gt;
+
+using namespace std;
+
+typedef long long LL;
+
+#define rep(i , l , r) for (int i = (l); i &lt; (r); ++i)
+
+const int MN = 5e5 + 5;
+
+int N , A[MN] , initial;
+char S[MN];
+
+int main() {
+	 
+	 scanf("%d%s" , &amp;N , S + 1);
+	 for (int i = 1; i &lt;= N; ++i)
+	 	 A[i] = A[i - 1] + (S[i] == '(' ? 1 : -1);
+	 if (A[N]) {
+	 	printf("0\n1 1\n");
+	 	return 0;
+	 }
+	 int ps = min_element(A , A + N) - A;
+	 rotate(A , A + ps , A + N);
+	 for (int i = N - 1; i &gt;= 0; --i) A[i] -= A[0];
+	 assert(*min_element(A , A + N) == 0);
+	 int initial = 0 , l = 1 , r = 1;
+	 for (int i = 0; i &lt; N; ++i) if (A[i] == 0) ++initial;
+	 int ans = initial;
+	 for (int i = 0; i &lt; N; ) {
+	 	 assert(A[i] == 0);
+	 	 int j = i + 1;
+	 	 while (A[j]) ++j;
+	 	 int now = 0;
+	 	 for (int k = i + 1; k &lt; j; ++k) if (A[k] == 1) ++now;
+	 	 if (now &gt; ans) {
+	 	 	 ans = now;
+			 l = i + 1 , r = j;	
+		 }
+		 i = j;
+	 }
+	 for (int i = 0; i &lt; N; ) {
+	 	 assert(A[i] &lt;= 1);
+	 	 int j = i + 1;
+	 	 while (A[j] &gt; 1) ++j;
+	 	 if (j - 1 &gt;= i + 1) {
+	 	 	 int now = initial;
+			 for (int k = i + 1; k &lt; j; ++k) if (A[k] == 2) ++now;
+			 if (now &gt; ans) {
+			 	ans = now;
+			 	l = i + 1 , r = j;
+			 }	 
+		 }
+		 i = j;
+	 }
+	 l += ps , r += ps;
+	 if (l &gt; N) l -= N;
+	 if (r &gt; N) r -= N;
+	 printf("%d\n%d %d\n" , ans , l , r);
+     return 0;
+}
+</code></pre>
+<p><span class="math inline">\(C\)</span></p>
+<pre><code class="language-cpp">#include&lt;bits/stdc++.h&gt;
+
+using namespace std;
+
+typedef long long LL;
+
+#define rep(i , l , r) for (int i = (l); i &lt; (r); ++i)
+
+const int MN = 1e5 + 5;
+
+int N , que[MN];
+priority_queue &lt; int , vector &lt; int &gt; , greater &lt; int &gt; &gt; q;
+LL T , ans[MN];
+vector &lt; pair &lt; int , int &gt; &gt; V;
+
+int main() {
+	 
+	 scanf("%d%lld" , &amp;N , &amp;T);
+	 for (int i = 1 , t; i &lt;= N; ++i)
+	 	 scanf("%d" , &amp;t) , V.emplace_back(t , i);
+	 sort(V.begin() , V.end());
+	 LL now = -1;
+	 int cur = 0 , b = 1 , e = 0;
+	 for (int Q = 1; Q &lt;= N; ) {
+	 	 if (b &lt;= e) {
+	 	 	 int t = que[b];
+			 ans[t] += now += T;
+			 while (cur &lt; N &amp;&amp; now &gt;= V[cur].first) {
+			 	 q.push(V[cur++].second);
+			 	 while (q.top() &lt; que[e])
+			 	 	que[++e] = q.top() , q.pop();
+			 }
+			 if (++b &gt; e &amp;&amp; !q.empty())
+			 	que[b = e = 1] = q.top() , q.pop();
+			 ++Q;	 
+		 } else {
+		 	 now = V[cur].first;
+		 	 que[b = e = 1] = V[cur++].second;
+		 }
+	 }
+	 for (int i = 1; i &lt;= N; ++i)
+	 	 printf("%lld " , ans[i]);
+	 printf("\n");
+     return 0;
+}
+</code></pre>
+<p><span class="math inline">\(D\)</span></p>
+<pre><code class="language-cpp">#include&lt;bits/stdc++.h&gt;
+using namespace std;
+ 
+#ifndef LOCAL
+		#define eprintf(...) fprintf(stderr, _VA_ARGS_)
+#else
+		#define eprintf(...) 42
+#endif
+ 
+typedef long long LL;
+ 
+const int N = 2e6 + 10;
+ 
+struct Edge {
+		int to , nxt;
+} E[N &lt;&lt; 1];
+ 
+int n , m , tim , tot , scc , no;
+stack&lt; int &gt; s;
+int head[N] , ans[N] , dfn[N] , low[N] , ins[N] , col[N];
+ 
+template &lt;typename T&gt; inline void chkmax(T &amp;x , T y) { x = max(x , y); }
+template &lt;typename T&gt; inline void chkmin(T &amp;x , T y) { x = min(x , y); }
+template &lt;typename T&gt; inline void read(T &amp;x) {
+    T f = 1; x = 0;
+    char c = getchar();
+    for (; !isdigit(c); c = getchar()) if (c == '-') f = -f;
+    for (; isdigit(c); c = getchar()) x = (x &lt;&lt; 3) + (x &lt;&lt; 1) + c - '0';
+    x *= f;
+}
+ 
+inline void addedge(int u , int v) {
+		E[++tot] = (Edge){v , head[u]};
+		head[u] = tot;
+}
+inline void tarjan(int u) {
+		dfn[u] = low[u] = ++tim;
+		ins[u] = 1;
+		s.push(u);
+		for (int i = head[u]; i; i = E[i].nxt) {
+				int v = E[i].to;
+				if (!dfn[v]) {
+						tarjan(v);
+						chkmin(low[u] , low[v]);
+				} else if (ins[v]) chkmin(low[u] , dfn[v]);
+		}
+		if (dfn[u] == low[u]) {
+				int v = 0 , cnt = 0; ++scc; 
+				do {
+						v = s.top(); s.pop(); ++cnt;
+						col[v] = scc; ins[v] = 0;
+				} while (v != u);
+				if (cnt == n) no = 1;
+		}
+} 
+ 
+inline int ID(int x , int f) {
+		return x + f * n;
+}
+ 
+int main() {
+		
+		int T;
+		read(T);
+		while (T--) {
+				read(n); read(m); no = 0; int lim = n &lt;&lt; 1;
+				for (int i = 1; i &lt;= lim; ++i) dfn[i] = head[i] = 0;
+				tot = scc = tim = 0;
+				for (int i = 1; i &lt;= m; ++i) {
+						int x , y;
+						read(x); read(y);
+						addedge(ID(x , 0) , ID(y , 0));
+						if (x ^ y) addedge(ID(y , 1) , ID(x , 1));
+				}		
+				int c[2] , co = 1; c[0] = c[1] = 0;
+				for (int i = 1; i &lt;= lim; ++i) if (!dfn[i]) tarjan(i);
+				if (no) { puts("NO"); continue; }
+				for (int i = 1; i &lt;= n; ++i) if (col[i] == 1) co = 0;
+				for (int i = 1; i &lt;= n; ++i) {
+						if (col[ID(i , 0)] == col[ID(i , 1)]) { puts("NO"); no = 1; break; }
+						if (col[ID(i , co)] == 1) ans[i] = co , ++c[co];
+						else ans[i] = co ^ 1 , ++c[co ^ 1];
+				}
+				if (no) continue;
+				printf("YES\n");
+				printf("%d %d\n" , c[0] , c[1]);
+				for (int i = 1; i &lt;= n; ++i) if (!ans[i]) printf("%d " , i); printf("\n");
+				for (int i = 1; i &lt;= n; ++i) if (ans[i]) printf("%d " , i); printf("\n");
+		}
+		
+	  return 0;
+	
+}
+</code></pre>
+<p><span class="math inline">\(E\)</span></p>
+<pre><code class="language-cpp">#include&lt;bits/stdc++.h&gt;
+
+using namespace std;
+
+typedef long long LL;
+
+#define rep(i , l , r) for (int i = (l); i &lt; (r); ++i)
+
+const int MN = 55 , MM = 1e6 + 5 , ME = 5e4 + 5;
+
+int N , Mx , A[MN] , ans[MN][3] , dp[MN][MM] , Sum , 
+	pre[MN][MM] , book[MN];
+
+inline void chkmax(int &amp;x , int y) {
+	x = max(x , y);
+}
+inline void go(int x) {
+	int tp = N;
+	for (int i = 1; i &lt;= N; ++i)
+		ans[i][2] = pre[tp][x] , --book[pre[tp][x]] , x -= pre[tp][x] , --tp;
+	int cnt = 1;
+	for (int i = 0; i &lt;= Mx; ++i) {
+		while (book[i] &gt; 0) ans[++cnt][1] = i , --book[i];
+	}
+	for (int i = 1; i &lt;= N + 1; ++i) printf("%d " , ans[i][1]); printf("\n");
+	for (int i = 1; i &lt;= N + 1; ++i) printf("%d " , ans[i][2]); printf("\n");
+}
+int main() {
+	 
+	 scanf("%d" , &amp;N);
+	 for (int i = 1; i &lt;= N; ++i) {
+	 	 scanf("%d" , &amp;A[i]);
+	 	 Sum += (LL) A[i];
+	 	 chkmax(Mx , A[i]);
+	 }
+	 for (int i = 1; i &lt;= N; ++i) {
+	 	 scanf("%d" , &amp;A[N + i]);
+	 	 Sum += A[N + i];
+		 chkmax(Mx , A[N + i]); 
+	 }
+	 sort(A + 1 , A + 1 + 2 * N);
+	 ans[1][1] = A[1] , ans[N][2] = A[2];
+	 Sum = (Sum - A[1] - A[2]) / 2;
+	 dp[0][0] = 1; int M = 2 * N; --N;
+	 for (int i = 3; i &lt;= M; ++i) ++book[A[i]];
+   	 for (int i = 3; i &lt;= M; ++i) for (int j = min(N , i); j &gt;= 1; --j)
+   	 for (int k = Sum; k &gt;= A[i]; --k) {
+   	 	  if (dp[j][k]) continue;
+		  if (dp[j - 1][k - A[i]])
+		  	  pre[j][k] = A[i] , dp[j][k] = 1;	
+	 }
+	 for (int i = Sum; i &gt;= 0; --i)
+	 	 if (dp[N][i]) {
+	 	 	 go(i);
+			 return 0;	
+		 }
+     return 0;
+}
+</code></pre>
+<p><span class="math inline">\(F\)</span></p>
+<pre><code class="language-cpp">#include&lt;bits/stdc++.h&gt;
+
+using namespace std;
+
+typedef long long LL;
+
+#define rep(i , l , r) for (int i = (l); i &lt; (r); ++i)
+
+const int MN = 5e5 + 5;
+
+int N , M , root , d[MN] , p[MN] , h[MN] , mark[MN] , good[MN];
+vector &lt; int &gt; adj[MN];
+queue &lt; int &gt; q;
+
+inline bool have_3k_vertex() {
+	for (int u = 0; u &lt; N; ++u) 
+		if (d[u] % 3 &lt; 1 &amp;&amp; N &gt; 1)
+			return good[u] = true;
+	return false;
+}
+inline bool dfs1(int u) {
+	int mx = -1; mark[u] = true;
+	for (int v : adj[u])
+		if (mark[v] &amp;&amp; h[v] &lt; h[u] - 1 &amp;&amp; (!~mx || h[v] &gt; h[mx]))
+			mx = v;
+	if (~mx &amp;&amp; h[u] - h[mx] + 1 &lt; N &amp;&amp; d[mx] % 3 &gt; 1) {
+		for (; u ^ p[mx]; u = p[u])
+			good[u] = true;
+		return true;
+	}
+	for (int v : adj[u])
+		if (!mark[v]) {
+			h[v] = h[p[v] = u] + 1;
+			if (dfs1(v))
+				return true;
+		}
+	return false;
+} 
+inline bool have_121_path() {
+	for (p[root] = -1 , mark[root] = true , q.push(root); !q.empty(); q.pop()) {
+		int u = q.front();
+		if (u ^ root &amp;&amp; d[u] % 3 == 1 &amp;&amp; h[u] &lt; N - 1) {
+			for (; ~u; good[u] = true , u = p[u]);
+			for (; !q.empty(); q.pop());
+			return true;
+		}
+		for (int v : adj[u])
+			if (!mark[v])
+				q.push(v) , mark[v] = true , h[v] = h[p[v] = u] + 1;
+	}
+	return false;
+}
+inline void dfs2(int u) {
+	mark[u] = true;
+	for (int v : adj[u])
+		if (!mark[v]) dfs2(v);
+	return;
+}
+inline bool have_2_cycle() {
+	return p[root &lt; N ? root : 0] = -1 , fill(mark , mark + N , false) , dfs1(root &lt; N ? root : 0);
+}
+inline bool have_122_components() {
+	bool flag = false;
+	fill(mark , mark + N , false) , mark[root] = good[root] = true , sort(adj[root].begin() , adj[root].end() , [] (int u , int v) {
+		return h[u] &lt; h[v]; });
+	for (int u : adj[root])
+		if (!mark[u] &amp;&amp; h[u] &gt; 1) {
+			int v = u;
+			for (good[u] = true; p[v] ^ root; good[v = p[v]] = true);
+			if (flag)
+				break;
+			dfs2(v) , flag = true;
+		}
+	return true;
+}
+int main() {
+	 
+	 int T; scanf("%d" , &amp;T);
+	 while (T--) {
+	 	 scanf("%d%d" , &amp;N , &amp;M);
+	 	 for (int i = 1; i &lt;= M; ++i) {
+	 	 	 int u , v; scanf("%d%d" , &amp;u , &amp;v); --u , --v;
+			 adj[u].emplace_back(v) , adj[v].emplace_back(u);	
+			 ++d[u] , ++d[v];
+		 }
+		 for (root = 0; root &lt; N &amp;&amp; d[root] % 3 ^ 1; ++root);
+		 if (have_3k_vertex() || (root &lt; N &amp;&amp; have_121_path()) || have_2_cycle() || (root &lt; N &amp;&amp; d[root] &gt; 4 &amp;&amp; have_122_components())) {
+		 	 vector &lt; int &gt; vec;
+		 	 for (int i = 0; i &lt; N; ++i)
+		 	 	 if (!good[i]) 
+		 	 	 	 vec.emplace_back(i);
+		 	 printf("Yes\n%d\n" , vec.size());
+		 	 for (auto x : vec) printf("%d " , x + 1);
+		 	 printf("\n");
+		 } else
+		 	printf("No\n");
+		 for (int u = 0; u &lt; N; ++u)
+		 	 d[u] = h[u] = 0 , adj[u].clear() , mark[u] = good[u] = false;
+	 }
+     return 0;
+}
+</code></pre>
+
+
+
+{% endraw %}

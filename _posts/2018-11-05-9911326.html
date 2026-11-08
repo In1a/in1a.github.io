@@ -1,0 +1,132 @@
+---
+layout: post
+title: '[POI 2015] Kinoman'
+date: 2018-11-05 20:27:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9911326.html
+cnblogs_id: 9911326
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p>          <a href="https://www.lydsy.com/JudgeOnline/problem.php?id=3747" target="_blank" rel="noopener nofollow">https://www.lydsy.com/JudgeOnline/problem.php?id=3747</a></p>
+<p>[算法]</p>
+<p>        首先 ， 预处理nxt[i]表示下一个和第i天放映同样电影的是哪一天</p>
+<p>        枚举左端点 ， 不妨计算以每个点为右端点所能获得“好看值”的总和 ， 当左端点右移一位时 ， [i , nxt[i] - 1]的答案减少了w[f[i]] ， [nxt[i] , nxt[nxt[i]] - 1]的答案增加了w[f[i]]</p>
+<p>        维护一棵支持区间修改 ， 维护最值的线段树即可</p>
+<p>        时间复杂度 : O(NlogN)</p>
+<p>[代码]</p>
+<p>       </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 1000010<span style="color: rgba(0, 0, 0, 1)">
+typedef </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> LL;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> n , m;
+LL f[MAXN] , w[MAXN];
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> last[MAXN] , nxt[MAXN];
+
+</span><span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> Segment_Tree
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> Node
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> l , r;
+                LL mx , tag;
+        } Tree[MAXN </span>&lt;&lt; <span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">];
+        inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> build(<span style="color: rgba(0, 0, 255, 1)">int</span> index , <span style="color: rgba(0, 0, 255, 1)">int</span> l , <span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> r)
+        {
+                Tree[index] </span>= (Node){l , r , <span style="color: rgba(128, 0, 128, 1)">0</span> , <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">};
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (l == r) <span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span> mid = (l + r) &gt;&gt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                build(index </span>&lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)"> , l , mid);
+                build(index </span>&lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span> | <span style="color: rgba(128, 0, 128, 1)">1</span> , mid + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)"> , r);
+        }
+        inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> pushdown(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> index)
+        {
+                Tree[index </span>&lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>].mx +=<span style="color: rgba(0, 0, 0, 1)"> Tree[index].tag;
+                Tree[index </span>&lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span> | <span style="color: rgba(128, 0, 128, 1)">1</span>].mx +=<span style="color: rgba(0, 0, 0, 1)"> Tree[index].tag;
+                Tree[index </span>&lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>].tag +=<span style="color: rgba(0, 0, 0, 1)"> Tree[index].tag;
+                Tree[index </span>&lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span> | <span style="color: rgba(128, 0, 128, 1)">1</span>].tag +=<span style="color: rgba(0, 0, 0, 1)"> Tree[index].tag;
+                Tree[index].tag </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        }
+        inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> update(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> index)
+        {
+                Tree[index].mx </span>= max(Tree[index &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>].mx , Tree[index &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span> | <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">].mx);
+        }
+        inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> modify(<span style="color: rgba(0, 0, 255, 1)">int</span> index , <span style="color: rgba(0, 0, 255, 1)">int</span> l , <span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> r , LL value)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (Tree[index].l == l &amp;&amp; Tree[index].r ==<span style="color: rgba(0, 0, 0, 1)"> r)
+                {
+                        Tree[index].mx </span>+=<span style="color: rgba(0, 0, 0, 1)"> value;
+                        Tree[index].tag </span>+=<span style="color: rgba(0, 0, 0, 1)"> value;
+                        </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)">;
+                }
+                pushdown(index);
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span> mid = (Tree[index].l + Tree[index].r) &gt;&gt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (mid &gt;= r) modify(index &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)"> , l , r , value);
+                </span><span style="color: rgba(0, 0, 255, 1)">else</span> <span style="color: rgba(0, 0, 255, 1)">if</span> (mid + <span style="color: rgba(128, 0, 128, 1)">1</span> &lt;= l) modify(index &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span> | <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)"> , l , r , value);
+                </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)">
+                {
+                        modify(index </span>&lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)"> , l , mid , value);
+                        modify(index </span>&lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span> | <span style="color: rgba(128, 0, 128, 1)">1</span> , mid + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)"> , r , value);
+                }
+                update(index);
+        }
+        inline LL query()
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">return</span> Tree[<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">].mx;
+        }
+} SGT;
+
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> chkmax(T &amp;x,T y) { x =<span style="color: rgba(0, 0, 0, 1)"> max(x,y); }
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> chkmin(T &amp;x,T y) { x =<span style="color: rgba(0, 0, 0, 1)"> min(x,y); }
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> read(T &amp;<span style="color: rgba(0, 0, 0, 1)">x)
+{
+    T f </span>= <span style="color: rgba(128, 0, 128, 1)">1</span>; x = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">char</span> c =<span style="color: rgba(0, 0, 0, 1)"> getchar();
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; !isdigit(c); c = getchar()) <span style="color: rgba(0, 0, 255, 1)">if</span> (c == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>) f = -<span style="color: rgba(0, 0, 0, 1)">f;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; isdigit(c); c = getchar()) x = (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">3</span>) + (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>) + c - <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">;
+    x </span>*=<span style="color: rgba(0, 0, 0, 1)"> f;
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main()
+{
+        
+        read(n); read(m);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">) read(f[i]);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= m; i++<span style="color: rgba(0, 0, 0, 1)">) read(w[i]);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = n; i &gt;= <span style="color: rgba(128, 0, 128, 1)">1</span>; i--<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                nxt[i] </span>=<span style="color: rgba(0, 0, 0, 1)"> last[f[i]];
+                last[f[i]] </span>=<span style="color: rgba(0, 0, 0, 1)"> i;        
+        }
+        SGT.build(</span><span style="color: rgba(128, 0, 128, 1)">1</span> , <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)"> , n);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= m; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span><span style="color: rgba(0, 0, 0, 1)"> (last[i])
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!nxt[last[i]]) SGT.modify(<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)"> , last[i] , n , w[i]);
+                        </span><span style="color: rgba(0, 0, 255, 1)">else</span> SGT.modify(<span style="color: rgba(128, 0, 128, 1)">1</span> , last[i] , nxt[last[i]] - <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)"> , w[i]);
+                }
+        }
+        LL ans </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                chkmax(ans , SGT.query());
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span><span style="color: rgba(0, 0, 0, 1)"> (nxt[i])
+                {
+                        SGT.modify(</span><span style="color: rgba(128, 0, 128, 1)">1</span> , i , nxt[i] - <span style="color: rgba(128, 0, 128, 1)">1</span> , -<span style="color: rgba(0, 0, 0, 1)">w[f[i]]);
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (nxt[nxt[i]]) SGT.modify(<span style="color: rgba(128, 0, 128, 1)">1</span> , nxt[i] , nxt[nxt[i]] - <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)"> , w[f[i]]);
+                        </span><span style="color: rgba(0, 0, 255, 1)">else</span> SGT.modify(<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)"> , nxt[i] , n , w[f[i]]);
+                } </span><span style="color: rgba(0, 0, 255, 1)">else</span> SGT.modify(<span style="color: rgba(128, 0, 128, 1)">1</span> , i , n , -<span style="color: rgba(0, 0, 0, 1)">w[f[i]]);
+        }
+        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%lld\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)"> , ans);
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

@@ -1,0 +1,91 @@
+---
+layout: post
+title: '[BZOJ 1579] Revamping Trails'
+date: 2018-07-26 15:56:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9372278.html
+cnblogs_id: 9372278
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p>         <a href="https://www.lydsy.com/JudgeOnline/problem.php?id=1579" target="_blank" rel="noopener nofollow">https://www.lydsy.com/JudgeOnline/problem.php?id=1579</a></p>
+<p>[算法]</p>
+<p>        dist[u][k]表示当前在点u，升级了k条道路，最短路径的长度</p>
+<p>        dijkstra即可</p>
+<p>[代码]</p>
+<p>        </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 100010
+<span style="color: rgba(0, 0, 255, 1)">#define</span> MAXM 50010
+<span style="color: rgba(0, 0, 255, 1)">#define</span> MAXK 25
+
+<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,n,m,k,u,v,w,tot;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> dist[MAXN][MAXK];
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> head[MAXN];
+
+</span><span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> edge
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> to,w,nxt;
+} e[MAXM </span>&lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> addedge(<span style="color: rgba(0, 0, 255, 1)">int</span> u,<span style="color: rgba(0, 0, 255, 1)">int</span> v,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> w)
+{
+        tot</span>++<span style="color: rgba(0, 0, 0, 1)">;
+        e[tot] </span>=<span style="color: rgba(0, 0, 0, 1)"> (edge){v,w,head[u]};
+        head[u] </span>=<span style="color: rgba(0, 0, 0, 1)"> tot;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> dijkstra()
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,v,w;
+        </span><span style="color: rgba(0, 0, 255, 1)">static</span> <span style="color: rgba(0, 0, 255, 1)">bool</span><span style="color: rgba(0, 0, 0, 1)"> visited[MAXN][MAXK];
+        pair</span>&lt;<span style="color: rgba(0, 0, 255, 1)">int</span>,<span style="color: rgba(0, 0, 255, 1)">int</span>&gt;<span style="color: rgba(0, 0, 0, 1)"> cur;
+        priority_queue</span>&lt; pair&lt;<span style="color: rgba(0, 0, 255, 1)">int</span>,pair&lt;<span style="color: rgba(0, 0, 255, 1)">int</span>,<span style="color: rgba(0, 0, 255, 1)">int</span>&gt; &gt; &gt;<span style="color: rgba(0, 0, 0, 1)"> q;
+        memset(visited,</span><span style="color: rgba(0, 0, 255, 1)">false</span>,<span style="color: rgba(0, 0, 255, 1)">sizeof</span><span style="color: rgba(0, 0, 0, 1)">(visited));
+        memset(dist,</span><span style="color: rgba(128, 0, 128, 1)">0x3f</span>,<span style="color: rgba(0, 0, 255, 1)">sizeof</span><span style="color: rgba(0, 0, 0, 1)">(dist));
+        dist[</span><span style="color: rgba(128, 0, 128, 1)">1</span>][<span style="color: rgba(128, 0, 128, 1)">0</span>] = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        q.push(make_pair(</span><span style="color: rgba(128, 0, 128, 1)">0</span>,make_pair(<span style="color: rgba(128, 0, 128, 1)">1</span>,<span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">)));
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (!<span style="color: rgba(0, 0, 0, 1)">q.empty())
+        {
+                cur </span>=<span style="color: rgba(0, 0, 0, 1)"> q.top().second;
+                q.pop();
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (visited[cur.first][cur.second]) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                visited[cur.first][cur.second] </span>= <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = head[cur.first]; i; i =<span style="color: rgba(0, 0, 0, 1)"> e[i].nxt)
+                {
+                        v </span>=<span style="color: rgba(0, 0, 0, 1)"> e[i].to;
+                        w </span>=<span style="color: rgba(0, 0, 0, 1)"> e[i].w;
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (dist[cur.first][cur.second] + w &lt;<span style="color: rgba(0, 0, 0, 1)"> dist[v][cur.second])
+                        {
+                                dist[v][cur.second] </span>= dist[cur.first][cur.second] +<span style="color: rgba(0, 0, 0, 1)"> w;
+                                q.push(make_pair(</span>-<span style="color: rgba(0, 0, 0, 1)">dist[v][cur.second],make_pair(v,cur.second))); 
+                        }
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (cur.second &lt; k &amp;&amp; dist[cur.first][cur.second] &lt; dist[v][cur.second + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">]) 
+                        {
+                                dist[v][cur.second </span>+ <span style="color: rgba(128, 0, 128, 1)">1</span>] =<span style="color: rgba(0, 0, 0, 1)"> dist[cur.first][cur.second];
+                                q.push(make_pair(</span>-dist[v][cur.second + <span style="color: rgba(128, 0, 128, 1)">1</span>],make_pair(v,cur.second + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">)));
+                        }
+                }
+        }
+}
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() 
+{
+        
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;n,&amp;m,&amp;<span style="color: rgba(0, 0, 0, 1)">k);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= m; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;u,&amp;v,&amp;<span style="color: rgba(0, 0, 0, 1)">w);
+                addedge(u,v,w);
+                addedge(v,u,w);
+        }
+        dijkstra();
+        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,dist[n][k]);
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

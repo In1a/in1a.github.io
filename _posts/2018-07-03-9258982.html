@@ -1,0 +1,114 @@
+---
+layout: post
+title: '【POJ 1011】 Sticks'
+date: 2018-07-03 15:46:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9258982.html
+cnblogs_id: 9258982
+---
+{% raw %}
+
+<p>【题目链接】</p>
+<p>            <a href="http://poj.org/problem?id=1011" target="_blank" rel="noopener nofollow">http://poj.org/problem?id=1011</a></p>
+<p>【算法】</p>
+<p>           深搜剪枝</p>
+<p>           首先我们枚举木棍的长度i，那么就有s/i根木棍，其中s为木棍长度的总和，朴素的做法就是对每种长度进行搜索，然而这样是会超时的，考虑优化 ：</p>
+<p>           优化1 ： 优化搜索顺序，将这些木棍的长度从大到小排序，搜索时按递减的顺序选取木棍（优先选择长的木棍）</p>
+<p>           优化2 ： 排除等效亢余，对于每根木棒，记录最近一次尝试的木棒，如果有与最近一次同样长度的木棒，则不尝试，因为这必定也是失败的</p>
+<p>           优化3 ： 排除等效亢余,   如果一根木棒尝试的第一根木棍就失败了，那么直接返回失败，因为其它木棒如果选这根木棍同样是失败的</p>
+<p>【代码】</p>
+<p>           </p>
+<div class="cnblogs_code">
+<pre>#include &lt;algorithm&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;bitset&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cctype&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cerrno&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;clocale&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cmath&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;complex&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cstdio&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cstdlib&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cstring&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;ctime&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;deque&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;exception&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;fstream&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;functional&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;limits&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;list&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;map&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;iomanip&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;ios&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;iosfwd&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;iostream&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;istream&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;ostream&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;queue&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;<span style="color: rgba(0, 0, 255, 1)">set</span>&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;sstream&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;stdexcept&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;streambuf&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;<span style="color: rgba(0, 0, 255, 1)">string</span>&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;utility&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;vector&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cwchar&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cwctype&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;stack&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;limits.h&gt; 
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 110
+
+<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,s,mx,n,cnt,tmp;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> a[MAXN];
+</span><span style="color: rgba(0, 0, 255, 1)">bool</span><span style="color: rgba(0, 0, 0, 1)"> used[MAXN];
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">bool</span> dfs(<span style="color: rgba(0, 0, 255, 1)">int</span> dep,<span style="color: rgba(0, 0, 255, 1)">int</span> now,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> last)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> i,fail = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (dep &gt; cnt) <span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;    
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (now == tmp) <span style="color: rgba(0, 0, 255, 1)">return</span> dfs(dep+<span style="color: rgba(128, 0, 128, 1)">1</span>,<span style="color: rgba(128, 0, 128, 1)">0</span>,<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = last; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!used[i] &amp;&amp; now + a[i] &lt;= tmp &amp;&amp; fail !=<span style="color: rgba(0, 0, 0, 1)"> a[i])
+                {
+                        used[i] </span>= <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (dfs(dep,now+a[i],i+<span style="color: rgba(128, 0, 128, 1)">1</span>)) <span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+                        fail </span>=<span style="color: rgba(0, 0, 0, 1)"> a[i];
+                        used[i] </span>= <span style="color: rgba(0, 0, 255, 1)">false</span><span style="color: rgba(0, 0, 0, 1)">;
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!now) <span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(0, 0, 255, 1)">false</span><span style="color: rgba(0, 0, 0, 1)">;        
+                }
+        }    
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(0, 0, 255, 1)">false</span><span style="color: rgba(0, 0, 0, 1)">;
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() 
+{
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (scanf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;n) &amp;&amp;<span style="color: rgba(0, 0, 0, 1)"> n)
+        {
+                s </span>= <span style="color: rgba(128, 0, 128, 1)">0</span>; mx = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">a[i]);
+                        s </span>+=<span style="color: rgba(0, 0, 0, 1)"> a[i]; 
+                        mx </span>=<span style="color: rgba(0, 0, 0, 1)"> max(mx,a[i]);        
+                }        
+                sort(a</span>+<span style="color: rgba(128, 0, 128, 1)">1</span>,a+n+<span style="color: rgba(128, 0, 128, 1)">1</span>,greater&lt;<span style="color: rgba(0, 0, 255, 1)">int</span>&gt;<span style="color: rgba(0, 0, 0, 1)">());
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = mx; i &lt;= s; i++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        tmp </span>=<span style="color: rgba(0, 0, 0, 1)"> i;
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (s % i) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                        cnt </span>= s /<span style="color: rgba(0, 0, 0, 1)"> i;
+                        memset(used,</span><span style="color: rgba(0, 0, 255, 1)">false</span>,<span style="color: rgba(0, 0, 255, 1)">sizeof</span><span style="color: rgba(0, 0, 0, 1)">(used));
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (dfs(<span style="color: rgba(128, 0, 128, 1)">1</span>,<span style="color: rgba(128, 0, 128, 1)">0</span>,<span style="color: rgba(128, 0, 128, 1)">1</span>)) <span style="color: rgba(0, 0, 255, 1)">break</span><span style="color: rgba(0, 0, 0, 1)">;
+                }
+                printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,tmp);
+        }
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

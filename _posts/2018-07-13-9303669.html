@@ -1,0 +1,96 @@
+---
+layout: post
+title: '【NOI 2015】 程序自动分析'
+date: 2018-07-13 10:40:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9303669.html
+cnblogs_id: 9303669
+---
+{% raw %}
+
+<p>【题目链接】</p>
+<p>           <a href="https://www.lydsy.com/JudgeOnline/problem.php?id=4195" target="_blank" rel="noopener nofollow">https://www.lydsy.com/JudgeOnline/problem.php?id=4195</a></p>
+<p>【算法】</p>
+<p>            并查集</p>
+<p>【代码】</p>
+<p>           </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 1000010
+
+<span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> info
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> u,v,w;
+} a[MAXN];
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,n,len,T;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span> l[MAXN],r[MAXN],c[MAXN],fa[MAXN&lt;&lt;<span style="color: rgba(128, 0, 128, 1)">1</span>],t[MAXN&lt;&lt;<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+</span><span style="color: rgba(0, 0, 255, 1)">bool</span><span style="color: rgba(0, 0, 0, 1)"> flag;
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">int</span> get_root(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (fa[x] == x) <span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> x;
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> fa[x] =<span style="color: rgba(0, 0, 0, 1)"> get_root(fa[x]);
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> merge(<span style="color: rgba(0, 0, 255, 1)">int</span> u,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> v)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> sx =<span style="color: rgba(0, 0, 0, 1)"> get_root(u),
+                sy </span>=<span style="color: rgba(0, 0, 0, 1)"> get_root(v);
+        fa[sx] </span>=<span style="color: rgba(0, 0, 0, 1)"> sy;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">bool</span><span style="color: rgba(0, 0, 0, 1)"> cmp(info a,info b)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> a.w &gt;<span style="color: rgba(0, 0, 0, 1)"> b.w;        
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() 
+{
+        
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">T);
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (T--<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">n);
+                len </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">) 
+                {
+                        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;l[i],&amp;r[i],&amp;<span style="color: rgba(0, 0, 0, 1)">c[i]);
+                        t[</span>++len] =<span style="color: rgba(0, 0, 0, 1)"> l[i];
+                        t[</span>++len] =<span style="color: rgba(0, 0, 0, 1)"> r[i];
+                }
+                sort(t</span>+<span style="color: rgba(128, 0, 128, 1)">1</span>,t+len+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+                len </span>= unique(t+<span style="color: rgba(128, 0, 128, 1)">1</span>,t+len+<span style="color: rgba(128, 0, 128, 1)">1</span>) - t - <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        a[i].u </span>= lower_bound(t+<span style="color: rgba(128, 0, 128, 1)">1</span>,t+len+<span style="color: rgba(128, 0, 128, 1)">1</span>,l[i]) -<span style="color: rgba(0, 0, 0, 1)"> t;
+                        a[i].v </span>= lower_bound(t+<span style="color: rgba(128, 0, 128, 1)">1</span>,t+len+<span style="color: rgba(128, 0, 128, 1)">1</span>,r[i]) -<span style="color: rgba(0, 0, 0, 1)"> t;
+                        a[i].w </span>=<span style="color: rgba(0, 0, 0, 1)"> c[i];
+                }
+                sort(a</span>+<span style="color: rgba(128, 0, 128, 1)">1</span>,a+n+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">,cmp);
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= len; i++) fa[i] =<span style="color: rgba(0, 0, 0, 1)"> i;
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i; i++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (a[i].w == <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">)
+                                merge(a[i].u,a[i].v);
+                        </span><span style="color: rgba(0, 0, 255, 1)">else</span> <span style="color: rgba(0, 0, 255, 1)">break</span><span style="color: rgba(0, 0, 0, 1)">;
+                }
+                flag </span>= <span style="color: rgba(0, 0, 255, 1)">false</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (get_root(a[i].u) ==<span style="color: rgba(0, 0, 0, 1)"> get_root(a[i].v))
+                        {
+                                flag </span>= <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+                                </span><span style="color: rgba(0, 0, 255, 1)">break</span><span style="color: rgba(0, 0, 0, 1)">;
+                        }
+                }
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (flag) printf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">NO\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">);
+                </span><span style="color: rgba(0, 0, 255, 1)">else</span> printf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">YES\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">);
+        }
+         
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

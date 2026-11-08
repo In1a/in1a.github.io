@@ -1,0 +1,140 @@
+---
+layout: post
+title: '[POJ 1316] 树上的询问'
+date: 2018-07-18 11:58:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9328402.html
+cnblogs_id: 9328402
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p>        <a href="https://www.lydsy.com/JudgeOnline/problem.php?id=1316" target="_blank" rel="noopener nofollow">https://www.lydsy.com/JudgeOnline/problem.php?id=1316</a></p>
+<p>[算法]</p>
+<p>          点分治 </p>
+<p>          由于边权较大，笔者在计算时使用了STL-set</p>
+<p>          注意当询问为0时，要输出"Yes"</p>
+<p>[代码]</p>
+<p>      </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 10010
+<span style="color: rgba(0, 0, 255, 1)">#define</span> MAXQ 110
+
+<span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> Edge
+{
+    </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> to,w,nxt;
+} e[MAXN</span>&lt;&lt;<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,n,q,tot,root,u,v,w,len;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> size[MAXN],head[MAXN],weight[MAXN],sum[MAXN],val[MAXN],a[MAXQ];
+</span><span style="color: rgba(0, 0, 255, 1)">bool</span><span style="color: rgba(0, 0, 0, 1)"> visited[MAXN],ans[MAXQ];
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> addedge(<span style="color: rgba(0, 0, 255, 1)">int</span> u,<span style="color: rgba(0, 0, 255, 1)">int</span> v,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> w)
+{
+    tot</span>++<span style="color: rgba(0, 0, 0, 1)">;
+    e[tot] </span>=<span style="color: rgba(0, 0, 0, 1)"> (Edge){v,w,head[u]};
+    head[u] </span>=<span style="color: rgba(0, 0, 0, 1)"> tot;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> getroot(<span style="color: rgba(0, 0, 255, 1)">int</span> u,<span style="color: rgba(0, 0, 255, 1)">int</span> fa,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> total)
+{
+    </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,v;
+    size[u] </span>= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+    weight[u] </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = head[u]; i; i =<span style="color: rgba(0, 0, 0, 1)"> e[i].nxt)
+    {
+        v </span>=<span style="color: rgba(0, 0, 0, 1)"> e[i].to;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (fa != v &amp;&amp; !<span style="color: rgba(0, 0, 0, 1)">visited[v])
+        {
+            getroot(v,u,total);
+            size[u] </span>+=<span style="color: rgba(0, 0, 0, 1)"> size[v];
+            weight[u] </span>=<span style="color: rgba(0, 0, 0, 1)"> max(weight[u],size[v]);
+        }
+    }
+    weight[u] </span>= max(weight[u],total -<span style="color: rgba(0, 0, 0, 1)"> size[u]);
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (weight[u] &lt; weight[root]) root =<span style="color: rgba(0, 0, 0, 1)"> u;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> dfs(<span style="color: rgba(0, 0, 255, 1)">int</span> u,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> fa)
+{
+    </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,v,w;
+    val[</span>++len] =<span style="color: rgba(0, 0, 0, 1)"> sum[u]; 
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = head[u]; i; i =<span style="color: rgba(0, 0, 0, 1)"> e[i].nxt)
+    {
+        v </span>=<span style="color: rgba(0, 0, 0, 1)"> e[i].to;
+        w </span>=<span style="color: rgba(0, 0, 0, 1)"> e[i].w;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (v != fa &amp;&amp; !<span style="color: rgba(0, 0, 0, 1)">visited[v]) 
+        {
+            sum[v] </span>= sum[u] +<span style="color: rgba(0, 0, 0, 1)"> w;
+            dfs(v,u); 
+        }
+    }
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> calc(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> u)
+{
+    </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,j,k,v,w;
+    </span><span style="color: rgba(0, 0, 255, 1)">set</span>&lt; <span style="color: rgba(0, 0, 255, 1)">int</span> &gt;<span style="color: rgba(0, 0, 0, 1)"> s;
+    s.clear();
+    s.insert(</span><span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">);
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = head[u]; i; i =<span style="color: rgba(0, 0, 0, 1)"> e[i].nxt)
+    {
+        v </span>=<span style="color: rgba(0, 0, 0, 1)"> e[i].to;
+        w </span>=<span style="color: rgba(0, 0, 0, 1)"> e[i].w;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!<span style="color: rgba(0, 0, 0, 1)">visited[v])
+        {
+            sum[v] </span>=<span style="color: rgba(0, 0, 0, 1)"> w;
+            len </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+            dfs(v,u);
+            </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= len; j++<span style="color: rgba(0, 0, 0, 1)">)
+            {
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (k = <span style="color: rgba(128, 0, 128, 1)">1</span>; k &lt;= q; k++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (s.find(a[k] - val[j]) !=<span style="color: rgba(0, 0, 0, 1)"> s.end())
+                        ans[k] </span>= <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+                }
+            }
+            </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= len; j++<span style="color: rgba(0, 0, 0, 1)">) s.insert(val[j]);
+        }
+    }
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> work(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> u)
+{
+    </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,v;
+    visited[u] </span>= <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+    calc(u);    
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = head[u]; i; i =<span style="color: rgba(0, 0, 0, 1)"> e[i].nxt)
+    {
+        v </span>=<span style="color: rgba(0, 0, 0, 1)"> e[i].to;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!<span style="color: rgba(0, 0, 0, 1)">visited[v])
+        {
+            root </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+            getroot(v,</span><span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">,size[v]);
+            work(root);
+        }
+    }
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main()
+{
+    
+    
+    scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;n,&amp;<span style="color: rgba(0, 0, 0, 1)">q);
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt; n; i++<span style="color: rgba(0, 0, 0, 1)">)
+    {
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;u,&amp;v,&amp;<span style="color: rgba(0, 0, 0, 1)">w);
+        addedge(u,v,w);
+        addedge(v,u,w);        
+    }
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= q; i++) scanf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">a[i]);
+    root </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    size[</span><span style="color: rgba(128, 0, 128, 1)">0</span>] = weight[<span style="color: rgba(128, 0, 128, 1)">0</span>] =<span style="color: rgba(0, 0, 0, 1)"> n;
+    getroot(</span><span style="color: rgba(128, 0, 128, 1)">1</span>,<span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">,n);
+    work(root);
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= q; i++) printf((ans[i] || a[i] == <span style="color: rgba(128, 0, 128, 1)">0</span>) ? <span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">Yes\n</span><span style="color: rgba(128, 0, 0, 1)">"</span> : <span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">No\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">);
+
+    </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

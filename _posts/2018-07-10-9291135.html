@@ -1,0 +1,62 @@
+---
+layout: post
+title: '【NOIP 2011】 计算系数'
+date: 2018-07-10 19:50:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9291135.html
+cnblogs_id: 9291135
+---
+{% raw %}
+
+<p>【题目链接】</p>
+<p>           <a href="https://www.luogu.org/problemnew/show/P1313" target="_blank" rel="noopener nofollow"> https://www.luogu.org/problemnew/show/P1313</a></p>
+<p>【算法】</p>
+<p>           二项式定理</p>
+<p> 【代码】</p>
+<p>            </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">int</span> P = <span style="color: rgba(128, 0, 128, 1)">10007</span><span style="color: rgba(0, 0, 0, 1)">;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> a,b,k,n,m,ans;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span> fac[<span style="color: rgba(128, 0, 128, 1)">1010</span>],inv[<span style="color: rgba(128, 0, 128, 1)">1010</span><span style="color: rgba(0, 0, 0, 1)">];
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">int</span> power(<span style="color: rgba(0, 0, 255, 1)">int</span> a,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> n)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> res = <span style="color: rgba(128, 0, 128, 1)">1</span>,b =<span style="color: rgba(0, 0, 0, 1)"> a;
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span><span style="color: rgba(0, 0, 0, 1)"> (n)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (n &amp; <span style="color: rgba(128, 0, 128, 1)">1</span>) res = 1ll * res * b %<span style="color: rgba(0, 0, 0, 1)"> P;
+                b </span>= 1ll * b * b %<span style="color: rgba(0, 0, 0, 1)"> P;
+                n </span>&gt;&gt;= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> res;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> init()
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i;
+        fac[</span><span style="color: rgba(128, 0, 128, 1)">0</span>] = <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= k; i++) fac[i] = 1ll * fac[i-<span style="color: rgba(128, 0, 128, 1)">1</span>] * i %<span style="color: rgba(0, 0, 0, 1)"> P;
+        inv[k] </span>= power(fac[k],P-<span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = k - <span style="color: rgba(128, 0, 128, 1)">1</span>; i &gt;= <span style="color: rgba(128, 0, 128, 1)">1</span>; i--) inv[i] = 1ll * inv[i+<span style="color: rgba(128, 0, 128, 1)">1</span>] * (i + <span style="color: rgba(128, 0, 128, 1)">1</span>) %<span style="color: rgba(0, 0, 0, 1)"> P;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">int</span> C(<span style="color: rgba(0, 0, 255, 1)">int</span> n,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> m)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> 1ll * fac[n] * inv[m] % P * inv[n-m] %<span style="color: rgba(0, 0, 0, 1)"> P;
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() 
+{
+        
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d%d%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;a,&amp;b,&amp;k,&amp;n,&amp;<span style="color: rgba(0, 0, 0, 1)">m);
+        init();
+        ans </span>= 1ll * C(k,n) * power(a,n) % P * power(b,m) %<span style="color: rgba(0, 0, 0, 1)"> P;
+        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,ans);
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

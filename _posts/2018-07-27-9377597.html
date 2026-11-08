@@ -1,0 +1,263 @@
+---
+layout: post
+title: '[POJ 1639] Picnic Planning'
+date: 2018-07-27 15:00:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9377597.html
+cnblogs_id: 9377597
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p>           <a href="http://poj.org/problem?id=1639" target="_blank" rel="noopener nofollow">http://poj.org/problem?id=1639</a></p>
+<p>[算法]</p>
+<p>        首先，我们可以用深度优先遍历求出1号节点去除后有几个联通块</p>
+<p>        设共有T个联通块，若T &gt; K则无解，否则 ：</p>
+<p>        求出这些联通块的最小生成树，得到一棵最小T度生成树，我们尝试改动(K - T)条边，使得答案变得更小，具体过程如下 :</p>
+<p>        枚举所有与1相连的边，若这条边不在当前的生成树中，我们用广度优先搜索求出生成树上1号节点到该条边的节点中最长的边，用这条边的权值减去枚举边的权值即为生成树权值和变小了多少，求出这个变小的最大值</p>
+<p>        如果这个最大值大于0，将这个最大值对应的边从生成树中删除，并加入新的边，否则退出</p>
+<p>        重复以上过程(K - T)次，即可</p>
+<p>[代码]</p>
+<p>        </p>
+<div class="cnblogs_code">
+<pre>#include &lt;algorithm&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;bitset&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cctype&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cerrno&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;clocale&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cmath&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;complex&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cstdio&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cstdlib&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cstring&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;ctime&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;deque&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;exception&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;fstream&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;functional&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;limits&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;list&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;map&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;iomanip&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;ios&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;iosfwd&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;iostream&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;istream&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;ostream&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;queue&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;<span style="color: rgba(0, 0, 255, 1)">set</span>&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;sstream&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;stdexcept&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;streambuf&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;<span style="color: rgba(0, 0, 255, 1)">string</span>&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;utility&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;vector&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cwchar&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cwctype&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;stack&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;limits.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 1010
+<span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> Edge
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> u,v,w;
+} e[MAXN],edge[MAXN][MAXN];
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,j,n,w,k,tot,block,ans,mx;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> val[MAXN],size[MAXN],fa[MAXN],p[MAXN],belong[MAXN];
+</span><span style="color: rgba(0, 0, 255, 1)">bool</span><span style="color: rgba(0, 0, 0, 1)"> visited[MAXN],flag[MAXN];
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> mst[MAXN][MAXN];
+map</span>&lt;<span style="color: rgba(0, 0, 255, 1)">string</span>,<span style="color: rgba(0, 0, 255, 1)">int</span>&gt;<span style="color: rgba(0, 0, 0, 1)"> mp;
+</span><span style="color: rgba(0, 0, 255, 1)">string</span><span style="color: rgba(0, 0, 0, 1)"> u,v;
+vector</span>&lt; <span style="color: rgba(0, 0, 255, 1)">int</span> &gt;<span style="color: rgba(0, 0, 0, 1)"> a[MAXN];
+pair</span>&lt;<span style="color: rgba(0, 0, 255, 1)">int</span>,<span style="color: rgba(0, 0, 255, 1)">int</span>&gt;<span style="color: rgba(0, 0, 0, 1)"> ps,new_e,tmp;
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">bool</span><span style="color: rgba(0, 0, 0, 1)"> cmp(Edge a,Edge b)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> a.w &lt;<span style="color: rgba(0, 0, 0, 1)"> b.w;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">int</span> get_root(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (fa[x] == x) <span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> x;
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> fa[x] =<span style="color: rgba(0, 0, 0, 1)"> get_root(fa[x]);
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> dfs(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> u)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,v;
+        visited[u] </span>= <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+        belong[u] </span>=<span style="color: rgba(0, 0, 0, 1)"> block;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i &lt; a[u].size(); i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                v </span>=<span style="color: rgba(0, 0, 0, 1)"> a[u][i];
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (e[v].u == u &amp;&amp; e[v].v != <span style="color: rgba(128, 0, 128, 1)">1</span> &amp;&amp; !<span style="color: rgba(0, 0, 0, 1)">flag[v]) 
+                {
+                        flag[v] </span>= <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+                        edge[block][</span>++size[block]] =<span style="color: rgba(0, 0, 0, 1)"> e[v];
+                        dfs(e[v].v);
+                } </span><span style="color: rgba(0, 0, 255, 1)">else</span> <span style="color: rgba(0, 0, 255, 1)">if</span> (e[v].v == u &amp;&amp; e[v].u != <span style="color: rgba(128, 0, 128, 1)">1</span> &amp;&amp; !<span style="color: rgba(0, 0, 0, 1)">flag[v]) 
+                {
+                        flag[v] </span>= <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+                        edge[block][</span>++size[block]] =<span style="color: rgba(0, 0, 0, 1)"> e[v];
+                        dfs(e[v].u);
+                }
+        }
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> kruskal(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> id)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,su,sv;
+        </span><span style="color: rgba(0, 0, 255, 1)">static</span> <span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> s[MAXN];
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++) fa[i] =<span style="color: rgba(0, 0, 0, 1)"> i;    
+        sort(edge[id] </span>+ <span style="color: rgba(128, 0, 128, 1)">1</span>,edge[id] + size[id] + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">,cmp);    
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= size[id]; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                su </span>=<span style="color: rgba(0, 0, 0, 1)"> get_root(edge[id][i].u);
+                sv </span>=<span style="color: rgba(0, 0, 0, 1)"> get_root(edge[id][i].v);
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (su !=<span style="color: rgba(0, 0, 0, 1)"> sv) 
+                {
+                        ans </span>+=<span style="color: rgba(0, 0, 0, 1)"> edge[id][i].w;
+                        mst[edge[id][i].u][edge[id][i].v] </span>=<span style="color: rgba(0, 0, 0, 1)"> edge[id][i].w;
+                        mst[edge[id][i].v][edge[id][i].u] </span>=<span style="color: rgba(0, 0, 0, 1)"> edge[id][i].w;
+                        fa[su] </span>=<span style="color: rgba(0, 0, 0, 1)"> sv;
+                } 
+        }
+}
+inline pair</span>&lt;<span style="color: rgba(0, 0, 255, 1)">int</span>,<span style="color: rgba(0, 0, 255, 1)">int</span>&gt; bfs(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> s)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,cur,l,r,now,mx;
+        </span><span style="color: rgba(0, 0, 255, 1)">static</span> <span style="color: rgba(0, 0, 255, 1)">bool</span><span style="color: rgba(0, 0, 0, 1)"> visited[MAXN];
+        </span><span style="color: rgba(0, 0, 255, 1)">static</span> pair&lt;<span style="color: rgba(0, 0, 255, 1)">int</span>,<span style="color: rgba(0, 0, 255, 1)">int</span>&gt;<span style="color: rgba(0, 0, 0, 1)"> q[MAXN];
+        </span><span style="color: rgba(0, 0, 255, 1)">static</span> <span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> pre[MAXN];
+        </span><span style="color: rgba(0, 0, 255, 1)">bool</span> found = <span style="color: rgba(0, 0, 255, 1)">false</span><span style="color: rgba(0, 0, 0, 1)">;
+        pair</span>&lt;<span style="color: rgba(0, 0, 255, 1)">int</span>,<span style="color: rgba(0, 0, 255, 1)">int</span>&gt;<span style="color: rgba(0, 0, 0, 1)"> res;
+        memset(visited,</span><span style="color: rgba(0, 0, 255, 1)">false</span>,<span style="color: rgba(0, 0, 255, 1)">sizeof</span><span style="color: rgba(0, 0, 0, 1)">(visited));
+        q[l </span>= r = <span style="color: rgba(128, 0, 128, 1)">1</span>] = make_pair(s,<span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">);
+        visited[s] </span>= <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+        pre[</span><span style="color: rgba(128, 0, 128, 1)">1</span>] = -<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (l &lt;=<span style="color: rgba(0, 0, 0, 1)"> r)
+        {
+                cur </span>=<span style="color: rgba(0, 0, 0, 1)"> q[l].first;
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (visited[i]) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!mst[cur][i]) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                        visited[i] </span>= <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+                        q[</span>++r] =<span style="color: rgba(0, 0, 0, 1)"> make_pair(i,mst[cur][i]);
+                        pre[r] </span>=<span style="color: rgba(0, 0, 0, 1)"> l;                    
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (i == <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">)
+                        {
+                                found </span>= <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+                                </span><span style="color: rgba(0, 0, 255, 1)">break</span><span style="color: rgba(0, 0, 0, 1)">;
+                        }
+                }
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (found) <span style="color: rgba(0, 0, 255, 1)">break</span><span style="color: rgba(0, 0, 0, 1)">;
+                l</span>++<span style="color: rgba(0, 0, 0, 1)">;
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!found) <span style="color: rgba(0, 0, 255, 1)">return</span> make_pair(<span style="color: rgba(128, 0, 128, 1)">0</span>,<span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">);
+        now </span>= r; mx = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (pre[now] != -<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (q[now].second &gt;<span style="color: rgba(0, 0, 0, 1)"> mx)
+                {
+                        mx </span>=<span style="color: rgba(0, 0, 0, 1)"> q[now].second;
+                        res </span>=<span style="color: rgba(0, 0, 0, 1)"> make_pair(q[pre[now]].first,q[now].first);
+                }
+                now </span>=<span style="color: rgba(0, 0, 0, 1)"> pre[now];
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> res;
+}
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() 
+{
+        <br>　　　　 cin.tie(0);
+        cin </span>&gt;&gt;<span style="color: rgba(0, 0, 0, 1)"> n;
+        mp[</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">Park</span><span style="color: rgba(128, 0, 0, 1)">"</span>] = <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        tot </span>= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                cin </span>&gt;&gt; u &gt;&gt; v &gt;&gt;<span style="color: rgba(0, 0, 0, 1)"> w;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!mp[u]) mp[u] = ++<span style="color: rgba(0, 0, 0, 1)">tot;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!mp[v]) mp[v]    = ++<span style="color: rgba(0, 0, 0, 1)">tot;
+                e[i] </span>=<span style="color: rgba(0, 0, 0, 1)"> (Edge){mp[u],mp[v],w};
+                a[mp[u]].push_back(i);
+                a[mp[v]].push_back(i);
+        }
+         scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">k);
+         visited[</span><span style="color: rgba(128, 0, 128, 1)">1</span>] = <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+         </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+         {
+                 </span><span style="color: rgba(0, 0, 255, 1)">if</span> (e[i].u == <span style="color: rgba(128, 0, 128, 1)">1</span> &amp;&amp; !<span style="color: rgba(0, 0, 0, 1)">visited[e[i].v]) 
+                 {
+                         block</span>++<span style="color: rgba(0, 0, 0, 1)">;
+                        dfs(e[i].v);        
+                }
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (e[i].v == <span style="color: rgba(128, 0, 128, 1)">1</span> &amp;&amp; !<span style="color: rgba(0, 0, 0, 1)">visited[e[i].u])
+                {
+                        block</span>++<span style="color: rgba(0, 0, 0, 1)">;
+                        dfs(e[i].u);
+                }
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (block &gt;<span style="color: rgba(0, 0, 0, 1)"> k)
+        {
+                printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">-1\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">);
+                </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= block; i++<span style="color: rgba(0, 0, 0, 1)">) kruskal(i);
+        memset(val,</span><span style="color: rgba(128, 0, 128, 1)">0x3f</span>,<span style="color: rgba(0, 0, 255, 1)">sizeof</span><span style="color: rgba(0, 0, 0, 1)">(val));
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (e[i].u == <span style="color: rgba(128, 0, 128, 1)">1</span> &amp;&amp; e[i].w &lt;<span style="color: rgba(0, 0, 0, 1)"> val[belong[e[i].v]]) 
+                {
+                        val[belong[e[i].v]] </span>=<span style="color: rgba(0, 0, 0, 1)"> e[i].w;
+                        p[belong[e[i].v]] </span>=<span style="color: rgba(0, 0, 0, 1)"> e[i].v;
+                } </span><span style="color: rgba(0, 0, 255, 1)">else</span> <span style="color: rgba(0, 0, 255, 1)">if</span> (e[i].v == <span style="color: rgba(128, 0, 128, 1)">1</span> &amp;&amp; e[i].w &lt;<span style="color: rgba(0, 0, 0, 1)"> val[belong[e[i].u]]) 
+                {
+                        val[belong[e[i].u]] </span>=<span style="color: rgba(0, 0, 0, 1)"> e[i].w;    
+                        p[belong[e[i].u]] </span>=<span style="color: rgba(0, 0, 0, 1)"> e[i].u;
+                }
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= block; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                ans </span>+=<span style="color: rgba(0, 0, 0, 1)"> val[i];
+                mst[</span><span style="color: rgba(128, 0, 128, 1)">1</span>][p[i]] =<span style="color: rgba(0, 0, 0, 1)"> val[i];
+                mst[p[i]][</span><span style="color: rgba(128, 0, 128, 1)">1</span>] =<span style="color: rgba(0, 0, 0, 1)"> val[i];
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= k - block; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                mx </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                ps </span>= new_e = make_pair(<span style="color: rgba(128, 0, 128, 1)">0</span>,<span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">);
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= n; j++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (e[j].u == <span style="color: rgba(128, 0, 128, 1)">1</span> &amp;&amp; !mst[<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">][e[j].v])
+                        {
+                                tmp </span>=<span style="color: rgba(0, 0, 0, 1)"> bfs(e[j].v); 
+                                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (mst[tmp.first][tmp.second] - e[j].w &gt;<span style="color: rgba(0, 0, 0, 1)"> mx)        
+                                {
+                                        ps </span>=<span style="color: rgba(0, 0, 0, 1)"> tmp;
+                                        new_e </span>=<span style="color: rgba(0, 0, 0, 1)"> make_pair(e[j].v,e[j].w);
+                                        mx </span>= mst[tmp.first][tmp.second] -<span style="color: rgba(0, 0, 0, 1)"> e[j].w;
+                                }
+                        } 
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (e[j].v == <span style="color: rgba(128, 0, 128, 1)">1</span> &amp;&amp; !mst[<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">][e[j].u])
+                        {
+                                tmp </span>=<span style="color: rgba(0, 0, 0, 1)"> bfs(e[j].u);
+                                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (mst[tmp.first][tmp.second] - e[j].w &gt;<span style="color: rgba(0, 0, 0, 1)"> mx)
+                                {
+                                        ps </span>=<span style="color: rgba(0, 0, 0, 1)"> tmp;
+                                        new_e </span>=<span style="color: rgba(0, 0, 0, 1)"> make_pair(e[j].u,e[j].w);
+                                        mx </span>= mst[tmp.first][tmp.second] -<span style="color: rgba(0, 0, 0, 1)"> e[j].w;
+                                }
+                        }
+                }    
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (mx == <span style="color: rgba(128, 0, 128, 1)">0</span>) <span style="color: rgba(0, 0, 255, 1)">break</span><span style="color: rgba(0, 0, 0, 1)">;
+                ans </span>-=<span style="color: rgba(0, 0, 0, 1)"> mx;
+                mst[</span><span style="color: rgba(128, 0, 128, 1)">1</span>][new_e.first] =<span style="color: rgba(0, 0, 0, 1)"> new_e.second;
+                mst[ps.first][ps.second] </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        }
+        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">Total miles driven: %d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,ans);
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+<p>        </p>
+
+
+{% endraw %}

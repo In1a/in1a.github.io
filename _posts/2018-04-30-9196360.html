@@ -1,0 +1,44 @@
+---
+layout: post
+title: '【BZOJ 2456】 mode'
+date: 2018-04-30 15:49:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9196360.html
+cnblogs_id: 9196360
+---
+{% raw %}
+
+<p>【题目链接】</p>
+<p>           <a href="https://www.lydsy.com/JudgeOnline/problem.php?id=2456" rel="noopener nofollow">点击打开链接</a></p>
+<p>【算法】</p>
+<p>           此题初看是大水题，只需调用std :: sort即可</p>
+<p style="text-align: left">           但是，n最大500000，显然会超时</p>
+<p style="text-align: left">           而且，内存限制1MB，我们连数组也开不了！</p>
+<p style="text-align: left">           那怎么做呢 ？</p>
+<p style="text-align: left">           我们发现，一个非众数和众数可以抵消，因此，暴力扫描一遍即可</p>
+<p style="text-align: left">【代码】</p>
+<p style="text-align: left">           </p>
+<div class="cnblogs_code">
+<pre>#include&lt;cstdio&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,num,n,x,s;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() {
+        
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">n);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">) {
+                scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">x);
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (num == x) s++<span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">else</span> s--<span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (s &lt;= <span style="color: rgba(128, 0, 128, 1)">0</span>) { s = <span style="color: rgba(128, 0, 128, 1)">1</span>; num =<span style="color: rgba(0, 0, 0, 1)"> x; }        
+        }
+        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,num);
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

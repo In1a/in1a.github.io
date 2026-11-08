@@ -1,0 +1,417 @@
+---
+layout: post
+title: '九月训练记录'
+date: 2020-09-05 15:16:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/13618306.html
+cnblogs_id: 13618306
+---
+{% raw %}
+
+<p><span class="math inline">\(Day1\)</span><br>
+报到日 ， 无训练。</p>
+<p><span class="math inline">\(Day2\)</span></p>
+<p>训练得分 <span class="math inline">\(100 + 100 + 0 = 200\)</span>。</p>
+<p><span class="math inline">\(A.\)</span><br>
+将每个函数映射成一个数 , 可以通过 <span class="math inline">\(std::map\)</span> 来实现。<br>
+转化后的问题相当于 <span class="math inline">\(DAG\)</span> 路径计数。 时间复杂度 : <span class="math inline">\(O(N)\)</span></p>
+<p><span class="math inline">\(B.\)</span><br>
+容斥原理。<br>
+首先预处理每个点的概率 ， 然后对于每组和整体分别容斥即可。 时间复杂度 : <span class="math inline">\(O(N ^ 2)\)</span></p>
+<p><span class="math inline">\(C.\)</span><br>
+设定阈值跑最短路。<br>
+时间复杂度 : <span class="math inline">\(O(NB)\)</span></p>
+<p><span class="math inline">\(Day3\)</span></p>
+<p>训练得分 <span class="math inline">\(80 + 50 + 50 = 180\)</span>。</p>
+<p><span class="math inline">\(A.\)</span><br>
+首先在原树的基础上建出一棵新树 ， 新树上每个点连向原树上恰好权值大于它的 ， 最近的祖先节点。 可以通过倍增得到。<br>
+对于 <span class="math inline">\(Q\)</span> 个询问 ， 先在新树上倍增找到第一个权值比 <span class="math inline">\(C\)</span> 大的节点。 然后继续倍增向上跳到第一个深度比 <span class="math inline">\(U\)</span> 小的节点即可。<br>
+时间复杂度 : <span class="math inline">\(O(NlogN)\)</span></p>
+<p><span class="math inline">\(B.\)</span><br>
+首先可以证明最小的环是三元环。 这是因为如果 <span class="math inline">\(n(n \geq 4)\)</span> 元环存在 ， 则一定存在 <span class="math inline">\((n - 1)\)</span> 元环。 否则就没有环存在。<br>
+问题转化为了竞赛图上的三元环计数。 有一个经典的容斥原理做法 ，假设边集已经确定， 那么 :<br>
+<span class="math inline">\(ANS = {n \choose 3} - \sum{deg_{u} \choose 2}\)</span>。<br>
+可以画图理解。<br>
+那么根据期望的线性性 ， 就只需对每个点维护其已确定的出边和不确定的出边即可。<br>
+时间复杂度 : <span class="math inline">\(O(N)\)</span></p>
+<p><span class="math inline">\(C.\)</span><br>
+首先考虑 ， <span class="math inline">\({a_{i} + b_{i} + a_{j} + b_{j} \choose a_{i} + b_{i}}\)</span> 这个式子等价于从 <span class="math inline">\((-a_{i} , -b{i})\)</span> ， 每次向右或向上 ， 到达 <span class="math inline">\((a_{j} , b_{j})\)</span> 的方案数。 可以根据组合意义来理解。 根据这个结论 ， 直接求解 <span class="math inline">\(NE \ Lattice \ Path\)</span> ， 可以得到 <span class="math inline">\(50\)</span> 分。<br>
+考虑从第四象限到第一象限的一条路径 ， 我们发现其一定经过 <span class="math inline">\(y = -x\)</span> 这条直线。 那么不妨对于直线上每个点维护方案数。 由于 <span class="math inline">\(\sum{a_{i}} + \sum{b_{i}}\)</span> 不超过 <span class="math inline">\(2 * 10 ^ 6\)</span> ， 因此总的加点更新次数也不超过这个值。<br>
+时间复杂度 : <span class="math inline">\(O(\sum{a_{i}} + \sum{b_{i}})\)</span></p>
+<p>晚上做了一下 <span class="math inline">\(CEOI\)</span> 的两道题。</p>
+<p><span class="math inline">\(The \ Potion \ of \ Great \ Power.\)</span><br>
+用平衡树维护每对关系的出现时间。<br>
+对时间轴建立 <span class="math inline">\(N\)</span> 棵线段树 ， 我们只需将平衡树上的点加入线段树就可以维护出每个人在任意时刻的所有 "朋友"。<br>
+由于每个人每个时刻最多有 <span class="math inline">\(500\)</span> 个朋友 ， 因此只需在线段树上查询根到其的路径 ， 得到它的朋友的 <span class="math inline">\(h_{i}\)</span>值。<br>
+然后 <span class="math inline">\(Two-Pointers\)</span> 扫描 ，即可。时间复杂度 : <span class="math inline">\(O(ND)\)</span></p>
+<p><span class="math inline">\(Spring \ Cleaning\)</span><br>
+首先有一个结论 ， 对于 <span class="math inline">\(size\)</span> 值为奇数的节点需要被覆盖一次 ， 偶数的要覆盖两次。<br>
+这是为什么呢？ 可以考虑直接构造 ， 对于 <span class="math inline">\(size\)</span> 为偶数的节点， 将其子树向上的链两两配对留下一组。否则将这些链两两配对最后留下 <span class="math inline">\(1\)</span> 条链。<br>
+显然这样是最优的。<br>
+那么只需树链剖分 + 线段树维护即可。 也可以建出虚树进行树形 <span class="math inline">\(DP\)</span> 以获得更优的复杂度。<br>
+时间复杂度 : <span class="math inline">\(O(QlogN)\)</span></p>
+<p><span class="math inline">\(Day4\)</span></p>
+<p>训练得分 <span class="math inline">\(100 + 40 + 29 = 169\)</span>。</p>
+<p><span class="math inline">\(A.\)</span></p>
+<p>因为是一棵树 ， 所以对于每个询问 ，<br>
+<span class="math inline">\(联通块数量 = (R - L + 1) - 两个端点都在[L , R]区间内的边数\)</span>。<br>
+二维数点即可 ， 可以离线后用树状数组统计。<br>
+时间复杂度 : <span class="math inline">\(O(QlogN)\)</span></p>
+<p><span class="math inline">\(B\)</span></p>
+<p>首先考虑一个容斥原理的做法 , 对行列容斥 ， 枚举容斥了 <span class="math inline">\(i\)</span> 行和 <span class="math inline">\(j\)</span> 列 ， 那么相当于将这 <span class="math inline">\(i\)</span> 行和 <span class="math inline">\(j\)</span> 列的限制减去了 <span class="math inline">\(1\)</span>。可以得到 <span class="math inline">\(10\)</span> 分。<br>
+注意到每个位置的取值之和其行和列的最小值有关 ， 它们互相独立。<br>
+因此枚举行和列中小的值 ， 进行上述的容斥原理。 通过乘法原理把容斥得到的值乘起来即可。<br>
+时间复杂度 : <span class="math inline">\(O(N ^ 3logN)\)</span></p>
+<p><span class="math inline">\(C\)</span></p>
+<p>提交答案题。<br>
+前 <span class="math inline">\(6\)</span> 个点高精度算 <span class="math inline">\(2\)</span>的次幂。<br>
+后面的点可能需要用到 <span class="math inline">\(Method \ of \ four \ Russians\)</span> ?</p>
+<p>下午做了两个题 :</p>
+<p><span class="math inline">\(Calc\)</span><br>
+来自于 <span class="math inline">\(2012\)</span> 年的国家集训队互测。<br>
+首先我们设 <span class="math inline">\(f(n , A)\)</span> 表示前 <span class="math inline">\(n\)</span> 个数构成递增序列 ， 其中第 <span class="math inline">\(n\)</span> 个数的值不超过 <span class="math inline">\(A\)</span> 的序列乘积和。 这是无序的情况 ， 那么有序的情况答案就是 <span class="math inline">\(f(n , A) * n!\)</span><br>
+有转移方程 : <span class="math inline">\(f(n , A) = f(n , A - 1) + f(n - 1 , A - 1) * A\)</span>。 这是通过枚举第 <span class="math inline">\(n\)</span> 个数得到的。<br>
+注意到 <span class="math inline">\(n\)</span> 很小 ， 但是 <span class="math inline">\(A\)</span> 很大 ， 不难想到插值。<br>
+引理 : <span class="math inline">\(f(n)\)</span> 的每个位置的取值是一个 <span class="math inline">\(2n\)</span> 次多项式的点值。<br>
+证明 : 将转移方程移项得到 : <span class="math inline">\(f(n , A) - f(n , A - 1) = f(n - 1 , A - 1) * A\)</span>。 我们知道对于一个 <span class="math inline">\(n\)</span> 次多项式 <span class="math inline">\(P(x)\)</span> ， 有 <span class="math inline">\(P(x) - P(x - 1)\)</span> 是关于 <span class="math inline">\(x\)</span> 的 <span class="math inline">\((n - 1)\)</span> 次多项式。 所以              如果设 <span class="math inline">\(f(n)\)</span> 的次数为 <span class="math inline">\(g(n)\)</span> , 就有 <span class="math inline">\(g(n) - 1 = g(n - 1) + 1\)</span> , 而显然又有 <span class="math inline">\(g(0) = 0\)</span> , 因此 <span class="math inline">\(g\)</span> 是公差为 <span class="math inline">\(2\)</span> 的等差数列。<br>
+因此只要求出 <span class="math inline">\(f(n , \Delta)\)</span> , 其中 <span class="math inline">\(\Delta \leq 2n\)</span> , 然后通过拉格朗日插值求出答案。 插值公式和定理就不赘述了。<br>
+时间复杂度 : <span class="math inline">\(O(N ^ 2)\)</span></p>
+<p><span class="math inline">\(LOJ2977\)</span><br>
+来自于清华集训 <span class="math inline">\(2017\)</span> 。<br>
+我们注意到如果颜色数量不大那么显然是可以求最小斯坦纳树的。<br>
+对于颜色数量很大的情况 ， 我们将每种颜色随机映射为 <span class="math inline">\([0 , K]\)</span> 中的一个整数。 再求解斯坦纳树问题。 这样一次随机的正确率是 <span class="math inline">\(K! \over K ^ K\)</span>。<br>
+执行上述过程 <span class="math inline">\(150\)</span> 次以上 ，答案的正确率超过 <span class="math inline">\(99.99\%\)</span> ，那么就可以顺利通过这道题了。<br>
+时间复杂度 : <span class="math inline">\(O(NM * 2 ^ K)\)</span></p>
+<p><span class="math inline">\(Day5\)</span></p>
+<p>训练得分 <span class="math inline">\(87 + 91 + 0 = 178\)</span>。</p>
+<p><span class="math inline">\(A.\)</span><br>
+发现如果 <span class="math inline">\(t\)</span> 时刻成立 ， 那么在 <span class="math inline">\((t + 1)\)</span>时刻也必然成立。<br>
+这是为什么呢？ 假设 <span class="math inline">\(t\)</span> 时刻选出的函数的 <span class="math inline">\(k\)</span> 值和比 <span class="math inline">\(0\)</span> 大 ， 那么 <span class="math inline">\((t + 1)\)</span> 时刻显然也是成立的。 否则 <span class="math inline">\(0\)</span> 时刻显然也是满足的 ， 与 <span class="math inline">\(t\)</span> 时刻是最小满足的点矛盾。<br>
+因此虽然不满足单调性 ， 但是是可二分的。<br>
+因此首先判断 <span class="math inline">\(0\)</span> 时刻是否可行 ， 再进行二分求解即可。 注意二分中的排序我们并不需要用快速排序算法 ， 只需要用<span class="math inline">\(GNU \ C++\)</span>自带的 <span class="math inline">\(std :: nth \underline{} element\)</span> 函数即可。<br>
+时间复杂度 : <span class="math inline">\(O(NlogN)\)</span><br>
+<span class="math inline">\(B.\)</span><br>
+首先可以将每个点用 <span class="math inline">\(x_{1}\)</span> 表示出来 ， 形如 <span class="math inline">\(x_{i} = k_{i} * x_{1} + w_{i}\)</span> 其中 <span class="math inline">\(k \in \{-1,1\}\)</span>。<br>
+<span class="math inline">\(k_{i}\)</span> 的符号和节点在树中的深度有关 ， 而对于修改操作 ， 又可以看做对子树中深度为奇数 / 偶数的节点的 <span class="math inline">\(w\)</span> 值做加法 / 减法。可以通过 <span class="math inline">\(DFS\)</span> 序 + 树状数组 的方式求得。<br>
+对于每个询问 ， 根据节点奇偶性讨论解方程即可。 细节较为繁琐 ， 需要精细实现。<br>
+时间复杂度 : <span class="math inline">\(O(MlogN)\)</span> , 需要注意常数优化 ，因为输入量较大 ， 可以使用 <span class="math inline">\(\mathbb{fread}\)</span> 读入。<br>
+<span class="math inline">\(C.\)</span><br>
+首先枚举矩形横向的 <span class="math inline">\(L\)</span> 和 <span class="math inline">\(R\)</span>。<br>
+对这两条线进行扫描线 ， 枚举两条线中最靠下的那个点 ，计算其对答案的贡献即可。<br>
+可以用数据结构来优化这个过程。<br>
+细节很多 ， 需要精细实现。<br>
+时间复杂度 : <span class="math inline">\(O(NMlogN)\)</span></p>
+<p><span class="math inline">\(Day6\)</span></p>
+<p><span class="math inline">\(AGC039F\)</span></p>
+<p>首先定义 <span class="math inline">\(a_{i}\)</span> 为第 <span class="math inline">\(i\)</span> 行最小的数 ， <span class="math inline">\(b_{j}\)</span> 为第 <span class="math inline">\(j\)</span> 列最小的数。<br>
+算恰好等于是很复杂的 ， 我们考虑至少的情况 ， 那么<br>
+其权值为 <span class="math inline">\(\prod_{i=1}^n\prod_{j=1}^m{a_{i}b_{j}}\)</span> ， 方案数为 <span class="math inline">\(\prod_{i=1}^n\prod_{j=1}^m{(D - max\{a_{i} , b_{j}\} + 1)}\)</span>。<br>
+考虑容斥原理 ， 我们容斥一行或一列 ， 则相当于将其限制加上了 <span class="math inline">\(1\)</span>。<br>
+考虑直接动态规划 ， 令 <span class="math inline">\(f_{i,j,k}\)</span> 表示使用了 <span class="math inline">\([1 , i]\)</span> 范围内的权值 ， <span class="math inline">\(j\)</span> 行 <span class="math inline">\(k\)</span> 列的答案 ， 那么每次就只需要枚举加入的行数 ，加入的被容斥的行数 ， 加入的列数 ， 加入的被容斥的列数即可。<br>
+这样复杂度是不能接受的 ， 但我们可以分 <span class="math inline">\(4\)</span> 个阶段转移并预处理转移系数。<br>
+时间复杂度 : <span class="math inline">\(O(N^3)\)</span></p>
+<p><span class="math inline">\(AGC036C\)</span><br>
+首先有一个结论 ， 一个序列合法当且仅当其长度为 <span class="math inline">\(N\)</span> , 最大值不超过 <span class="math inline">\(2M\)</span> , 奇数的个数不超过<span class="math inline">\(M\)</span>。<br>
+考虑证明 ， 必要性显然 ， 充分性可以构造证出。<br>
+忽略最大值的限制 ， 定义 <span class="math inline">\(F(N , M , K)\)</span> 表示 <span class="math inline">\(N\)</span> 个数 ， 和为 <span class="math inline">\(M\)</span> , 奇数的个数不超过 <span class="math inline">\(K\)</span> 的方案数。 只需用一些组合数的技巧 , 就可以在 <span class="math inline">\(O(N)\)</span> 的时间内解出这个函数。<br>
+然后再考虑最大值 ， 考虑容斥原理 ， 用合法减去不合法 ， 枚举最大的那个数 ， 将其减去 <span class="math inline">\(2M\)</span> (因为这样不会对奇偶性的限制造成影响)。<br>
+我们要求的是剩下的 <span class="math inline">\(N\)</span> 个数和为 <span class="math inline">\(M\)</span> ， 奇数个数不超过 <span class="math inline">\(M\)</span> ，且枚举的数比 <span class="math inline">\(0\)</span> 大的方案数。<br>
+考虑再进行一次容斥原理 ， 用 <span class="math inline">\(F(N , M , M) - F(N - 1 , M , M)\)</span> ， 就得到了上面要求的。<br>
+综上 ，答案为 <span class="math inline">\(F(N , 2M , M) - N(F(N , M , M) - F(N - 1 , M , M))\)</span>。<br>
+预处理组合数即可 ， 时间复杂度 : <span class="math inline">\(O(N)\)</span>。</p>
+<p><span class="math inline">\(Day7 - Day13\)</span><br>
+军训。</p>
+<p><span class="math inline">\(Day14\)</span></p>
+<p>正睿十连测第三场 :</p>
+<p><span class="math inline">\(A\)</span><br>
+直接给出结论 ， 当 <span class="math inline">\(M = 0\)</span> 时不可能 ， 否则一定有一种方案。<br>
+可以构造证明。<br>
+还有一种证明方法是求出期望的符合要求边数是 <span class="math inline">\(M \over 2\)</span> ， 因此除了 <span class="math inline">\(M = 0\)</span> 的情况 ， 其它都一定有一组解。<br>
+时间复杂度 : <span class="math inline">\(O(1)\)</span></p>
+<p><span class="math inline">\(B\)</span><br>
+首先我们发现操作是可逆的.<br>
+因此我们定义 <span class="math inline">\(f(s)\)</span> 表示字符串 <span class="math inline">\(s\)</span> 通过题目中描述的操作所能得到的 ， 字典序最小的串。问题转化为是否有 <span class="math inline">\(f(a) = f(b)\)</span>。<br>
+注意 ， 这里的"字典序" 是指在 <span class="math inline">\(0\)</span> 的个数最多的情况下 ， <span class="math inline">\(1\)</span> 的位置尽可能靠前。<br>
+发现如果有连续的 <span class="math inline">\(k\)</span> 个 <span class="math inline">\(0\)</span> 后面跟着一个 <span class="math inline">\(1\)</span> ， 那么就可以用这个 <span class="math inline">\(1\)</span> 和前面的第一个位置交换。<br>
+因此 ， 直接用堆栈模拟这个过程 ， 每次遇到 <span class="math inline">\(k\)</span> 个连续的数就弹栈。<br>
+时间复杂度 : <span class="math inline">\(O(N)\)</span></p>
+<p><span class="math inline">\(C\)</span><br>
+首先记"不属于"关系的集合为 <span class="math inline">\(A\)</span> ， "属于" 关系的集合为 <span class="math inline">\(B\)</span>。<br>
+考虑集合 <span class="math inline">\(B\)</span> , 将集合中的值排序后 ， 公差显然为 <span class="math inline">\(gcd(b_{1} - b_{0} , b_{2} - b_{1} , b_{3} - b_{2} , .... , b_{n} - b_{n - 1})\)</span> 的约数。<br>
+不妨考虑枚举公差 ， 对于每种差值 ， 计算可能的序列有多少种。<br>
+于是考虑集合 <span class="math inline">\(A\)</span> , 枚举其中的每一个元素 ， 算出左右端点的取值范围即可。<br>
+时间复杂度 : <span class="math inline">\(O(M \sqrt{M})\)</span></p>
+<p><span class="math inline">\(CF1406E\)</span><br>
+交互题。<br>
+首先线性筛 ， 求出 <span class="math inline">\(N\)</span> 以内的所有质数。<br>
+将质数分为 <span class="math inline">\(\sqrt{M}\)</span> 块。<br>
+枚举最小质因子 ， 每次可以先将序列中最小质因子在块内的数去除 ， 再通过询问 <span class="math inline">\("A \ 1"\)</span> 来判断 <span class="math inline">\(x\)</span> 是否有块内的因子。<br>
+最后我们枚举 <span class="math inline">\(x\)</span> 的每个质因子 ， 通过 <span class="math inline">\(A\)</span> 类询问求出其次幂 ， 再将这些值相乘 ， 即可。<br>
+总操作数 <span class="math inline">\(M + 2\sqrt{M} + log(M)\)</span><br>
+代码 : <a href="https://codeforces.ml/contest/1406/submission/92755571" target="_blank" rel="noopener nofollow">https://codeforces.ml/contest/1406/submission/92755571</a></p>
+<p><span class="math inline">\(AGC035F\)</span><br>
+首先设 <span class="math inline">\(a_{i}\)</span> 表示第 <span class="math inline">\(i\)</span> 行染的长度 , <span class="math inline">\(b_{j}\)</span> 表示第 <span class="math inline">\(j\)</span> 列染的长度。<br>
+若 <span class="math inline">\(a_{i} = j - 1 , b_{j} = i\)</span> ， 那么令 <span class="math inline">\(a_{i} = j , b_{j} = i - 1\)</span> 可以获得同样的效果。<br>
+结论 :<br>
+答案为不存在 <span class="math inline">\(a_{i} = j - 1 , b_{j} = i\)</span> 这样情况的方案数。<br>
+证明 :<br>
+我们设两个不同的染色方案 <span class="math inline">\(a , b , a' , b'\)</span> 的作用相同。<br>
+找到最小的 <span class="math inline">\(b_{j} \neq b_{j}'\)</span> , 令 <span class="math inline">\(b_{j} &lt; b_{j}'\)</span> ， 并记 <span class="math inline">\(r = b_{j}\)</span>。<br>
+因为两个网格同构 ， 所以有 <span class="math inline">\(a_{r} \geq j , a_{r}' &lt; j\)</span>。<br>
+若 <span class="math inline">\(j = 1\)</span> , 则 <span class="math inline">\(a_{r}' = 0\)</span> ， 矛盾。<br>
+若 <span class="math inline">\(j &gt; 1\)</span> , 则 <span class="math inline">\(a_{r}' &lt; j - 1\)</span> ， 而 <span class="math inline">\(a_{r} \geq j , b_{j} = b_{j - 1}\)</span> , <span class="math inline">\((r , j - 1)\)</span> 位置在两种方案下取值不同 ， 矛盾。<br>
+有了这个结论后 ， 就可以进行容斥原理 / 二项式反演了 ， 答案为 :<br>
+<span class="math inline">\(\sum{ {n \choose i}{m \choose i}i!(m+1)^{(n-i)}(n+1)^{(m-i)} }\)</span>。<br>
+预处理阶乘 ，阶乘逆元 ， <span class="math inline">\((n + 1) , (m + 1)\)</span> 的幂次即可。<br>
+时间复杂度 : <span class="math inline">\(O(NlogN)\)</span>。<br>
+代码 : <a href="https://atcoder.jp/contests/agc035/submissions/16747257" target="_blank" rel="noopener nofollow">https://atcoder.jp/contests/agc035/submissions/16747257</a></p>
+<p><span class="math inline">\(Day15\)</span></p>
+<p>训练得分 : <span class="math inline">\(100 + 80 + 100 = 280\)</span>。</p>
+<p><span class="math inline">\(A\)</span><br>
+令 <span class="math inline">\(dp_{i}\)</span> 表示前 <span class="math inline">\(i\)</span> 个 ， 最小代价是多少。<br>
+<span class="math inline">\(dp_{i} = \min(dp_{j - 1} + K + S(mx - mn))\)</span>。<br>
+时间复杂度 : <span class="math inline">\(O(NM)\)</span>。</p>
+<p><span class="math inline">\(B\)</span><br>
+首先建出最短路径生成树。<br>
+每次删除一条边 ， 运行 <span class="math inline">\(BFS / DFS\)</span> , 将生成树上影响到的节点删除即可。<br>
+时间复杂度 : <span class="math inline">\(O(N + M)\)</span></p>
+<p><span class="math inline">\(C\)</span><br>
+首先枚举对角线。<br>
+然后枚举右下角 ， 计算左上角对其的贡献。<br>
+用扫描线 <span class="math inline">\(+\)</span> 树状数组统计即可。<br>
+时间复杂度 : <span class="math inline">\(O(NMlogN)\)</span>。</p>
+<p><span class="math inline">\(AGC007E\)</span><br>
+首先二分答案 <span class="math inline">\(mid\)</span>。<br>
+设 <span class="math inline">\(dp_{u , l , r}\)</span> 表示以 <span class="math inline">\(u\)</span> 为根的子树 ， 第一次走到了叶子节点 <span class="math inline">\(l\)</span> , 最后一次走到叶子节点 <span class="math inline">\(r\)</span> ， 每次经过边权不超过 <span class="math inline">\(mid\)</span> , 是否可行。<br>
+这个动态规划该如何转移？ 显然可以直接考虑左边和右边 ， 两两合并即可。<br>
+这样做是 <span class="math inline">\(O(N ^ 3logN)\)</span> 的。<br>
+考虑优化 ， 首先观察到一个性质 :<br>
+如果有两个可行状态 <span class="math inline">\(dp_{u,l1,r1}\)</span> 和 <span class="math inline">\(dp_{u,l2,r2}\)</span> ， 满足 <span class="math inline">\(l1 \leq l2 , r1 \leq r2\)</span> , 那么后者是无用的。<br>
+这个结论显然正确。<br>
+因此将可行的状态按 <span class="math inline">\(l\)</span> 排序 ， 右端点必然单调递减。<br>
+这样我们就可以枚举一个子树的 <span class="math inline">\(l\)</span> ， 在另一棵子树中 ， 找到左端点最大的与其匹配即可。 可以用 <span class="math inline">\(Two-Pointers\)</span> 优化。<br>
+然后注意到另一个性质 : 一个子树 <span class="math inline">\(S\)</span> 的可行状态数是 <span class="math inline">\(2|S|\)</span> 级别。<br>
+用类似启发式合并的复杂度分析可以证明 ， 这个做法的时间复杂度是 <span class="math inline">\(O(Nlog^2N)\)</span>。</p>
+<p><span class="math inline">\(Day16\)</span></p>
+<p>训练得分 : <span class="math inline">\(100 + 100 + 100 = 300\)</span>。</p>
+<p><span class="math inline">\(A\)</span><br>
+不难证明能往后放就尽可能往后一定是最优的。<br>
+预处理前 <span class="math inline">\(20\)</span> 个菲波那契数 ， 哈希 / 平衡树求解。<br>
+时间复杂度 : <span class="math inline">\(O(NlogN)\)</span>。<br>
+<span class="math inline">\(B\)</span><br>
+将字符串 <span class="math inline">\(A\)</span> 中每个字母映射到 <span class="math inline">\(B\)</span> 中去。 树状数组 / 归并排序求逆序对数即可。<br>
+时间复杂度 : <span class="math inline">\(O(NlogN)\)</span><br>
+<span class="math inline">\(C\)</span><br>
+首先简化题意。 将圆上问题转化为序列上的问题。<br>
+每个操作相当于给数轴上一段区间插入一个数。 那么相当于在 <span class="math inline">\(l\)</span> 处插入一个数 ， 在 <span class="math inline">\(r\)</span> 处删除这个数。<br>
+对于每一个划分段分别统计答案 ， 我们要求的是覆盖它的数(圆)中半径第 <span class="math inline">\(K\)</span> 大的。<br>
+在树状数组上二分即可 ， 还有一种做法是用堆来实现 ， 当堆的大小小于 <span class="math inline">\(K\)</span> 时 ， 将前面一段的答案一起计算。<br>
+时间复杂度 : <span class="math inline">\(O(NlogN)\)</span>。</p>
+<p><span class="math inline">\(Day17\)</span></p>
+<p>训练得分 : <span class="math inline">\(0 + 0 + 60 = 60\)</span>。</p>
+<p><span class="math inline">\(A\)</span><br>
+结论 <span class="math inline">\(1\)</span> : 一个"好" 数必然是另一个 “好” 数乘上一个质数。<br>
+结论 <span class="math inline">\(2\)</span> ：一个 <span class="math inline">\(10 ^ {18}\)</span> 以内的"好"数的最大质因子不超过 <span class="math inline">\(67\)</span>。<br>
+暴力搜索即可。 时间复杂度 : <span class="math inline">\(O(KlogK)\)</span><br>
+<span class="math inline">\(B\)</span><br>
+考虑将两个数组分别从大到小排序。<br>
+对于每个请求 ， 取出符合条件中最小的那个 ， 并将 <span class="math inline">\((val - w)\)</span> 放入一个大根堆 ， 如果没有 ， 就使用一次修改。<br>
+最终取出堆中最大的 <span class="math inline">\(K\)</span> 个值 ， 将其减去。<br>
+时间复杂度 : <span class="math inline">\(O(NlogN)\)</span>。<br>
+<span class="math inline">\(C\)</span><br>
+我的做法 :<br>
+首先最优方案必然是一个子树中选取一个点 ， 再在另外一部分中选一个点。<br>
+在这两个点的 <span class="math inline">\(LCA\)</span> 上统计答案。 做树形 <span class="math inline">\(DP\)</span> 即可。<br>
+按照题目中所述的生成方式 ， 树高不超过 <span class="math inline">\(logN\)</span> , 每个节点的子节点个数不超过 <span class="math inline">\(ln N\)</span>。<br>
+固时间复杂度 : <span class="math inline">\(O(Nlog^3N)\)</span>。<br>
+标准做法 :<br>
+延续刚才的思路 ， 枚举一条断边。 对于剩下的两部分分别求带权重心即可。<br>
+这个做法的时间复杂度 : <span class="math inline">\(O(NlogN)\)</span> ， 可以通过 <span class="math inline">\(D = 100\)</span> 的数据。<br>
+<span class="math inline">\(CF1053C\)</span><br>
+首先考虑一个经典问题 :<br>
+<span class="math inline">\(|a_{1} - x| + |a_{2} - x| + |a_{3} - x| + ..... + |a_{n} - x|\)</span> 的最小值是多少？(x为整数)<br>
+显然当 <span class="math inline">\(x\)</span> 取 <span class="math inline">\({a}\)</span> 的中位数最优。<br>
+接着 ， 考虑带上权值怎么做 ， 即 :<br>
+<span class="math inline">\(w_{1} \cdot |a_{1} - x| + w_{2} \cdot |a_{2} - x| + ..... + w_{n} \cdot |a_{n} - x|\)</span> 的最小值。<br>
+那么 <span class="math inline">\(x\)</span> 的值取 <span class="math inline">\(\sum_{i=1}^{x}{w_{i}}\)</span> 恰好大于等于 <span class="math inline">\(\sum_{i=x+1}^{n}{w_{i}}\)</span> 时最小、<br>
+这是因为如果 <span class="math inline">\(x\)</span> 右移时式子的值会减小。<br>
+那么这个题怎么做呢？<br>
+将一段区间整体移动 ， 相当于先移动到一个固定的点再调整 ， 因此转化为了上述问题。<br>
+列出答案的式子 ， 化简后发现只要知道 <span class="math inline">\(\sum{w_{i}}\)</span> 和 <span class="math inline">\(\sum{w_{i} - i}\)</span> 即可 ， 可以使用两个支持单点修改区间查询的数据结构维护 ， 那么树状数组不失为一个不错的选择。<br>
+时间复杂度 : <span class="math inline">\(O(NlogN)\)</span>。</p>
+<p><span class="math inline">\(Day18\)</span></p>
+<p>训练得分 : <span class="math inline">\(70 + 100 + 40 = 210\)</span>。<br>
+<span class="math inline">\(A\)</span><br>
+考虑当前一个数 <span class="math inline">\(x\)</span> ， 有四种转移 :<br>
+<span class="math inline">\(1.\)</span> 花费 <span class="math inline">\(1\)</span> 步 ， 将这个数加一。<br>
+<span class="math inline">\(2.\)</span> 花费 <span class="math inline">\(1\)</span> 步 ， 将这个数减一。<br>
+<span class="math inline">\(3.\)</span> 花费 <span class="math inline">\(4\)</span> 步将其复制 ， 再用 <span class="math inline">\(2k\)</span> 步将其乘 <span class="math inline">\((k + 1)\)</span>。<br>
+<span class="math inline">\(4.\)</span> 花费 <span class="math inline">\(3\)</span> 步将其清零。<br>
+那么直接运行最短路即可。<br>
+用 <span class="math inline">\(SPFA\)</span> 算法 + <span class="math inline">\(SLF\)</span>优化可以获得比 <span class="math inline">\(Dijkstra\)</span> 更优的复杂度。<br>
+时间复杂度 : <span class="math inline">\(O(NlogN)\)</span> (存在很小的常数)<br>
+<span class="math inline">\(B\)</span><br>
+我的做法 ：<br>
+建图二分图匹配。<br>
+时间复杂度 : <span class="math inline">\(O(N ^ 2)\)</span>。<br>
+<span class="math inline">\(C\)</span><br>
+首先观察到答案不超过 <span class="math inline">\(2n\)</span> ， 这是因为每次取最大的最多只需用 <span class="math inline">\(2\)</span> 次操作就能换到其对应的位置。<br>
+因此迭代加深 + <span class="math inline">\(DFS\)</span> 就可以得到 <span class="math inline">\(40\)</span> 分。<br>
+接着 ， 我们注意到每次交换后 ， 最多只有一个 <span class="math inline">\(|a_{i} - a_{i - 1}|\)</span> 的值发生改变。<br>
+因此可以将估价函数定义为 <span class="math inline">\(|a_{i} - a_{i - 1}|\)</span> 不为 <span class="math inline">\(1\)</span> 的个数。<br>
+<span class="math inline">\(IDA*\)</span>即可 ， 时间复杂度 : <span class="math inline">\(O(?)\)</span></p>
+<p><span class="math inline">\(CF1139F\)</span><br>
+首先考虑题目中给出的条件 :<br>
+<span class="math inline">\(p_{i} \leq inc_{j} \leq s_{i}\)</span><br>
+<span class="math inline">\(|b_{i} - pref_{i}| \leq (inc_{j} - p_{i})\)</span><br>
+显然可以将绝对值展开 ， 那么 ， <span class="math inline">\(i\)</span> 对 <span class="math inline">\(j\)</span> 产生贡献当且仅当<br>
+1). <span class="math inline">\(p_{i} \leq inc_{j} \leq s_{i}\)</span><br>
+2). <span class="math inline">\(inc_{j} + pref_{j} \geq b_{i} + p_{i}\)</span><br>
+3). <span class="math inline">\(pref_{j} - inc_{j} \leq b_{i} - p_{i}\)</span><br>
+考虑这三个条件的含义 ， 将 <span class="math inline">\(inc\)</span> 值作为横轴 ， <span class="math inline">\(pref\)</span> 值作为纵轴 ， 发现 <span class="math inline">\(i\)</span> 能够造成的贡献的点恰好为平面上的一个等腰三角形。如图（来自陈栉旷) :<br>
+<img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202009/1424311-20200918223241750-1387738477.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202009/1424311-20200918223241750-1387738477.png"><br>
+考虑扫描线并进行差分 ， 在扫描到 <span class="math inline">\(b_{i}\)</span> 时加入这个三角形 ， 在扫描到 <span class="math inline">\(s_{i} + 1\)</span> 时去除这个三角形所造成的影响。<br>
+除此以外 ， 还需要支持查询某个点在多少个三角形内。<br>
+于是考虑第 <span class="math inline">\(i\)</span> 个三角形造成的影响 ， 可以看成<br>
+1). 在直线 <span class="math inline">\(x + y = b_{i} + p_{i}\)</span> 上贡献 <span class="math inline">\(1\)</span>。<br>
+2). 在直线 <span class="math inline">\(y - x = b_{i} - p_{i} + 1\)</span> 上贡献 <span class="math inline">\(-1\)</span>。<br>
+询问相当于询问横坐标为 <span class="math inline">\(inc_{j}\)</span> ， 纵坐标不超过 <span class="math inline">\(pref_{j}\)</span> 的贡献之和。<br>
+那么对于 <span class="math inline">\(x + y\)</span> 和 <span class="math inline">\(y - x\)</span> 分别维护一个树状数组即可。<br>
+时间复杂度 : <span class="math inline">\(O(NlogN)\)</span>。</p>
+<p><span class="math inline">\(Day19\)</span></p>
+<p><span class="math inline">\(AGC022E\)</span><br>
+考虑给定一个序列 ， 判断其是否合法。<br>
+不妨维护一个栈。<br>
+如果加入的数是 <span class="math inline">\(0\)</span> ：<br>
+如果栈顶已经有两个 <span class="math inline">\(0\)</span> , 将三个数 <span class="math inline">\(0\)</span> 合并为一个 <span class="math inline">\(0\)</span>。<br>
+否则加入这个 <span class="math inline">\(0\)</span>。<br>
+如果加入的数是 <span class="math inline">\(1\)</span> :<br>
+如果栈顶是 <span class="math inline">\(0\)</span> , 那么删除这个 <span class="math inline">\(0\)</span> , 因为这三个数的中位数取决于下一个数。<br>
+否则加入这个 <span class="math inline">\(1\)</span><br>
+那么就有一个动态规划的思路了 ：<br>
+记 <span class="math inline">\(dp_{i , j , k}\)</span> 表示前 <span class="math inline">\(i\)</span> 个数 ， 栈中有 <span class="math inline">\(j\)</span> 个 <span class="math inline">\(0\)</span> , <span class="math inline">\(k\)</span> 个 <span class="math inline">\(1\)</span> ， 有多少种不同的序列。<br>
+<span class="math inline">\(j\)</span> 和 <span class="math inline">\(k\)</span> 不超过 <span class="math inline">\(3\)</span> , 因此时间复杂度 : <span class="math inline">\(O(N)\)</span>。<br>
+事实上这个转移可以看做有限状态自动机 ， 可以矩阵乘法做到 <span class="math inline">\(O(logN)\)</span> 级别 ， 不过放在这题没有必要了。</p>
+<p><span class="math inline">\(AGC030F\)</span><br>
+首先如果两个数都已经确定 ， 那么显然可以去除。<br>
+那么剩下的数就是两个数中只有 <span class="math inline">\(1\)</span> 个不确定的和两个都不确定的。 将只有一个数不确定的组中 ， 不为零的那个数的 <span class="math inline">\(v\)</span> 值标记为 <span class="math inline">\(1\)</span>。<br>
+将 <span class="math inline">\(1 - 2N\)</span> 顺次排成一排 ， 配对的连一条线 ， 那么 ， <span class="math inline">\(B\)</span> 中的元素就是每条线的左端点的值。<br>
+如果这条线两端的值都没有在 <span class="math inline">\(A\)</span> 中，那么我们先不给这条线赋值，等到最后统计完所有方案后，可以发现这样的线的个数是确定的（就等于 <span class="math inline">\(N\)</span> 减去一端在 <span class="math inline">\(A\)</span> 中的数对的数量），假设为 <span class="math inline">\(|S|\)</span> ，把答案乘以 <span class="math inline">\(|S|!\)</span> 就行了。<br>
+两个方案不同当且仅当 ：<br>
+1). 有一个点在第一个方案中是左端点 ， 而在另一个方案中不是左端点。<br>
+2). 两个左端点所在的线的编号不同。<br>
+考虑从大到小动态规划 ， 记 :<br>
+<span class="math inline">\(dp_{i , j , k}\)</span> 表示大于等于 <span class="math inline">\(i\)</span> 的数中 ， 有 <span class="math inline">\(j\)</span> 个 <span class="math inline">\(v_{x} = 0\)</span> 的点没配对 ， 有 <span class="math inline">\(k\)</span> 个 <span class="math inline">\(v_{x} = 1\)</span> 的点没配对。<br>
+时间复杂度 : <span class="math inline">\(O(N ^ 3)\)</span></p>
+<p><span class="math inline">\(CF1227F\)</span><br>
+首先将 <span class="math inline">\(A\)</span> 类区间和 <span class="math inline">\(B\)</span> 类区间分别插入两棵不同的线段树。这两棵树的值域为 <span class="math inline">\([0 , 2 ^ {60}]\)</span> , 这样每个节点的长度都是二的次幂。<br>
+将输入区间拆成的次幂对应在线段树上的节点标记为黑色节点。<br>
+考虑两个节点的贡献 ， 显然和深度较小的那个节点有关。<br>
+那么就有一个 <span class="math inline">\(O(N^2L^2log(N^2L^2))\)</span>的思路了 ：<br>
+枚举两棵树上的两个黑色节点 ， 那么对一个形如 <span class="math inline">\([x , x + 2 ^ {d}]\)</span> 的区间造成了贡献 ， 这也对应了一个线段树上的节点。<br>
+以线段树上 <span class="math inline">\(DFS\)</span> 序从小到大的顺序枚举计算即可 ， 具体而言 ， 就是如果一个节点的祖先节点没被标记 ， 就加上它的贡献。<br>
+然而这样是不能通过的。 需要发现一些其他性质 ：<br>
+考虑两个节点 <span class="math inline">\(p , q\)</span> , 其中 <span class="math inline">\(dep_{p} &lt; dep_{q}\)</span> , 那么将 <span class="math inline">\(q\)</span> 变成它的父亲节点所造成的贡献是相同的。<br>
+因此可以换一种枚举方式 ：<br>
+枚举两个节点 <span class="math inline">\(p , q\)</span> ,  其中 <span class="math inline">\(dep_{p} = dep_{q}\)</span> ， 并且<span class="math inline">\(p\)</span> , <span class="math inline">\(q\)</span>中有一个黑色节点。 计算这两个点形成的异或区间。<br>
+这样复杂度是 ： <span class="math inline">\(O(N ^ 2Llog(N^2L))\)</span>。</p>
+<p><span class="math inline">\(LOJ2743\)</span><br>
+一个经典问题 ， 来自于<span class="math inline">\(2016\)</span>年日本信息学竞赛(<span class="math inline">\(JOI\)</span>)夏令营。<br>
+考虑将 <span class="math inline">\(A\)</span> 从小到大排序 ， 依次加入这个序列。<br>
+<img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202009/1424311-20200919202340759-906495695.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202009/1424311-20200919202340759-906495695.png"><br>
+如图 ， 在 <span class="math inline">\(A_{i}\)</span> 不断增大的过程中 ， 维护直线 <span class="math inline">\(y = A_{i}\)</span> 下方的长度和。<br>
+于是定义 <span class="math inline">\(DP\)</span> 状态 <span class="math inline">\(f_{i , j , k , h}\)</span> , 表示插入了 <span class="math inline">\(i\)</span> 个数 ， 分成了 <span class="math inline">\(j\)</span> 个联通块 ， 当前的总和为 <span class="math inline">\(k\)</span> , 选出了 <span class="math inline">\(h\)</span> 个边界的方案数。<br>
+这样定义状态的好处是 ， 只需保证两段之间有空位或是否在边界即可 ， 而并不关心其实际位置。<br>
+不难发现 ， 每次从 <span class="math inline">\(f_{i}\)</span> 转移至 <span class="math inline">\(f_{i + 1}\)</span> , 每段会增加 <span class="math inline">\(A_{i + 1} - A_{i}\)</span> , 因此贡献为 <span class="math inline">\((2j - h)(A_{i + 1} - A_{i})\)</span>。<br>
+具体转移不再赘述了 ， 需要分 <span class="math inline">\(5\)</span> 类情况讨论。<br>
+时间复杂度 : <span class="math inline">\(O(N ^ 2L)\)</span> , 可以使用滚动数组优化第一维空间。</p>
+<p><span class="math inline">\(Day20\)</span><br>
+整理山东省队集训题</p>
+<p><span class="math inline">\(Day21\)</span><br>
+训练得分 : <span class="math inline">\(70 + 80 + 60 = 210\)</span>。</p>
+<p><span class="math inline">\(A\)</span><br>
+记 <span class="math inline">\(dp_{S , i}\)</span> 表示当前队列里人的集合为 <span class="math inline">\(S\)</span> , 有 <span class="math inline">\(i\)</span>　个不满足关系的方案数。<br>
+时间复杂度 : <span class="math inline">\(O(2^NN^2)\)</span>。</p>
+<p><span class="math inline">\(B\)</span><br>
+对于每个右端点计算其贡献。<br>
+维护两个单调栈和支持区间赋值 ， 询问区间和的最大 / 最小线段树。<br>
+时间复杂度 : <span class="math inline">\(O(NlogN)\)</span></p>
+<p><span class="math inline">\(C\)</span><br>
+考虑期望的线性性 ， 有 <span class="math inline">\(E(A) = \sum{E(A_{i})} = \sum\sum{E(A_{i} , A_{j})}\)</span>。 其中 <span class="math inline">\(E(A_{i} , A_{j})\)</span> 是 <span class="math inline">\(A_{j}\)</span> 排在 <span class="math inline">\(A_{i}\)</span> 之前的概率。<br>
+考虑一个 <span class="math inline">\([L_{i} , R_{i}]\)</span> 的贡献 ， 是一个等差数列 + 一段区间加同一个数的形式。<br>
+那么维护一棵支持区间加法和区间加等差数列的线段树即可。<br>
+时间复杂度 : <span class="math inline">\(O(NlogN)\)</span></p>
+<p><span class="math inline">\(Day22\)</span></p>
+<p>训练得分 : <span class="math inline">\(100 + 0 + 100 = 200\)</span>。</p>
+<p><span class="math inline">\(A\)</span><br>
+求 <span class="math inline">\(AND\)</span> 的最大值 ， 显然可以从高到低判断是否每一位能为 <span class="math inline">\(1\)</span>。<br>
+求 <span class="math inline">\(OR\)</span> 的最大值 ， 可以用高维前缀和解决。<br>
+求 <span class="math inline">\(XOR\)</span> 的最大值 ， 可以用 <span class="math inline">\(Trie\)</span> 树贪心。<br>
+时间复杂度 : <span class="math inline">\(O(NlogM + 2 ^ M * M)\)</span><br>
+<span class="math inline">\(B\)</span><br>
+第一个性质 : 每个点无论如何运动 ， 排名不变。<br>
+第二个性质 : 两个点相遇后反向运动 ， 不考虑编号的情况下 ， 等价于两个点按原来的方向继续行进。<br>
+对于每组询问二分答案求第 <span class="math inline">\(K\)</span> 小排名的点即可。<br>
+时间复杂度 : <span class="math inline">\(O(QlogN)\)</span>。<br>
+<span class="math inline">\(C\)</span><br>
+每加一个数的贡献是 <span class="math inline">\((A_{i + 1} - A_{i})\)</span>。<br>
+设 <span class="math inline">\(dp_{i , j , k}\)</span> 表示前 <span class="math inline">\(i\)</span> 个数 ， 当前和为 <span class="math inline">\(j\)</span> , 分成 <span class="math inline">\(k\)</span> 组的方案数。<br>
+分类讨论转移即可。<br>
+时间复杂度 : <span class="math inline">\(O(N ^ 2K)\)</span>。</p>
+<p><span class="math inline">\(Day23\)</span></p>
+<p>训练得分 : <span class="math inline">\(100 + 100 + 0 = 200\)</span>。</p>
+<p><span class="math inline">\(A\)</span><br>
+将小于 <span class="math inline">\(b\)</span> 看成 <span class="math inline">\(-1\)</span> ， 将大于 <span class="math inline">\(b\)</span> 看成 <span class="math inline">\(1\)</span> ， 一段数的中位数为 <span class="math inline">\(b\)</span> 当且仅当这段的权值和为 <span class="math inline">\(0\)</span>。<br>
+前缀和 + 哈希维护即可。<br>
+时间复杂度 : <span class="math inline">\(O(NlogN)\)</span></p>
+<p><span class="math inline">\(B\)</span><br>
+建最短路图 ， <span class="math inline">\(Tarjan\)</span> 求割边即可。<br>
+时间复杂度 : <span class="math inline">\(O(N + M)\)</span></p>
+<p><span class="math inline">\(C\)</span><br>
+搜索即可。<br>
+时间复杂度 : <span class="math inline">\(O(?)\)</span>。</p>
+<p><span class="math inline">\(LOJ6039\)</span><br>
+首先发现 <span class="math inline">\(C_{i}\)</span> 很小 ， 因此可以将 <span class="math inline">\(C_{i}\)</span> 相同的合并。<br>
+对于一段 <span class="math inline">\(C_{i}\)</span> 相同的 ， 一定是取最大价值的优先考虑。<br>
+于是设 <span class="math inline">\(f_{i , j}\)</span> 表示小于等于 <span class="math inline">\(i\)</span> 的权值 ， 用了容积 <span class="math inline">\(j\)</span> , 获得的最大收益。<br>
+按照 <span class="math inline">\(j\)</span> 模 <span class="math inline">\(i\)</span> 的意义下分类 ， 有 <span class="math inline">\(f_{i , j} = \max(f_{i - 1 , j},f_{i - 1 , j - ik} + V_{i , k})\)</span>。<br>
+注意到 <span class="math inline">\(V\)</span> 值的斜率是单调不增的 ， 因此该转移具有决策单调性。<br>
+那么分治优化决策单调性 <span class="math inline">\(DP\)</span> 即可。<br>
+时间复杂度 : <span class="math inline">\(O(NMlogN)\)</span></p>
+<p><span class="math inline">\(LOJ6029\)</span><br>
+线段树维护区间的 <span class="math inline">\(Max\)</span> 和 <span class="math inline">\(Min\)</span> 值 ， 一次除法操作 ， 如果区间的最大最小值变化量相同 ， 那么相当于区间减操作。<br>
+定义一个区间的势能为 <span class="math inline">\((Max - Min)\)</span> , 这个区间的势能变化量不超过 <span class="math inline">\(log\)</span> 次 ， 故时间复杂度 : <span class="math inline">\(O(Nlog^2N)\)</span>。</p>
+<p><span class="math inline">\(Day24\)</span> - <span class="math inline">\(Day27\)</span><br>
+/</p>
+<p><span class="math inline">\(Day28\)</span><br>
+训练得分 : <span class="math inline">\(100 + 10 + 0 = 110\)</span>。</p>
+<p><span class="math inline">\(A\)</span><br>
+答案一定是相邻两个数最优。<br>
+线段树维护即可 ， 时间复杂度 : <span class="math inline">\(O(MlogN)\)</span></p>
+<p><span class="math inline">\(B\)</span><br>
+考虑一个非好数 ， 将最大数加入这个数的左右两边 ， 非好数数量不变。<br>
+动态规划即可。<br>
+时间复杂度 : <span class="math inline">\(O(N ^ 2)\)</span></p>
+<p><span class="math inline">\(C\)</span><br>
+<span class="math inline">\(S\)</span> 到 <span class="math inline">\(T\)</span> 的路径异或和一定是 <span class="math inline">\(S\)</span> 到 <span class="math inline">\(T\)</span> 的任意一条路径异或若干个环的形式。<br>
+将环插入线性基 ， 按位计算答案。<br>
+时间复杂度 : <span class="math inline">\(O(MlogN)\)</span></p>
+<p><span class="math inline">\(Day29\)</span><br>
+训练得分 ： <span class="math inline">\(100 + 100 + 0 = 200\)</span></p>
+<p><span class="math inline">\(A\)</span><br>
+基环树上的期望问题。<br>
+先拓扑排序 ， 环上点的期望是一定的 ， 先算出环上的期望 ， 然后逆着拓扑序计算即可。<br>
+时间复杂度 : <span class="math inline">\(O(N)\)</span></p>
+<p><span class="math inline">\(B\)</span><br>
+将曼哈顿距离转化为切比雪夫距离。<br>
+扫描线 + 线段树计算答案即可。<br>
+时间复杂度 : <span class="math inline">\(O(NlogN)\)</span></p>
+<p><span class="math inline">\(C\)</span><br>
+不难发现题目中的条件为两点在同一个边 - 双连通分量中(<span class="math inline">\(e-DCC\)</span>)。 也就是被至少一个环所包含。<br>
+首先建出最小生成树。<br>
+用并查集维护每个点向上第一条未被覆盖的边。<br>
+按边权从小到大枚举非树边 ， 用并查集合并未被覆盖的边 , 在合并过程中建出一棵重构树 ， 查询时求重构树上最近公共祖先即可。<br>
+时间复杂度 : <span class="math inline">\(O((N + Q)logN)\)</span></p>
+
+
+
+{% endraw %}

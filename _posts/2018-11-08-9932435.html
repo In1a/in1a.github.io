@@ -1,0 +1,75 @@
+---
+layout: post
+title: '[USACO2007 Demo] Cow Acrobats'
+date: 2018-11-08 22:20:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9932435.html
+cnblogs_id: 9932435
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p>          <a href="https://www.lydsy.com/JudgeOnline/problem.php?id=1629" target="_blank" rel="noopener nofollow">https://www.lydsy.com/JudgeOnline/problem.php?id=1629</a></p>
+<p>[算法]</p>
+<p>        贪心</p>
+<p>        考虑两头相邻的牛 ， 它们的高度值和力量值分别为ax , ay , bx , by </p>
+<p>        我们发现 ， 当ax + ay &lt; bx + by时 ， x排在前面比y排在前面更优</p>
+<p>        也就是说 ， 当序列中有相邻的牛使得ax + ay &gt;= bx + by时 ， 可以通过交换两头牛使得答案更优</p>
+<p>        综上 ， 按牛的(高度值 + 力量值)以关键字升序排序 ， 即可</p>
+<p>        时间复杂度 : O(NlogN)</p>
+<p>[代码]</p>
+<p>        </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 50010<span style="color: rgba(0, 0, 0, 1)">
+typedef </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> LL;
+</span><span style="color: rgba(0, 0, 255, 1)">const</span> LL inf =<span style="color: rgba(0, 0, 0, 1)"> 1e18;
+
+</span><span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> info
+{
+        LL x , y;
+} a[MAXN];
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> n;
+
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> chkmax(T &amp;x,T y) { x =<span style="color: rgba(0, 0, 0, 1)"> max(x,y); }
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> chkmin(T &amp;x,T y) { x =<span style="color: rgba(0, 0, 0, 1)"> min(x,y); }
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> read(T &amp;<span style="color: rgba(0, 0, 0, 1)">x)
+{
+    T f </span>= <span style="color: rgba(128, 0, 128, 1)">1</span>; x = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">char</span> c =<span style="color: rgba(0, 0, 0, 1)"> getchar();
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; !isdigit(c); c = getchar()) <span style="color: rgba(0, 0, 255, 1)">if</span> (c == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>) f = -<span style="color: rgba(0, 0, 0, 1)">f;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; isdigit(c); c = getchar()) x = (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">3</span>) + (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>) + c - <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">;
+    x </span>*=<span style="color: rgba(0, 0, 0, 1)"> f;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">bool</span><span style="color: rgba(0, 0, 0, 1)"> cmp(info a , info b)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> a.x + a.y &lt; b.x +<span style="color: rgba(0, 0, 0, 1)"> b.y;
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main()
+{
+        
+        read(n);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                read(a[i].x);
+                read(a[i].y);
+        }
+        sort(a </span>+ <span style="color: rgba(128, 0, 128, 1)">1</span> , a + n + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)"> , cmp);
+        LL ans </span>= -inf , now = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                chkmax(ans , now </span>-<span style="color: rgba(0, 0, 0, 1)"> a[i].y);
+                now </span>+=<span style="color: rgba(0, 0, 0, 1)"> a[i].x;        
+        }
+        cout</span>&lt;&lt; ans &lt;&lt; <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">\n</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">;
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

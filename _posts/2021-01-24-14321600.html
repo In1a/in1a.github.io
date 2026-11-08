@@ -1,0 +1,135 @@
+---
+layout: post
+title: '[CF506E] Mr. Kitayuta''s Gift'
+date: 2021-01-24 17:35:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/14321600.html
+cnblogs_id: 14321600
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p><a href="" rel="noopener nofollow">https://codeforces.com/contest/506/problem/E</a></p>
+<p>[题解]</p>
+<p>首先假设 <span class="math inline">\(|s| + n\)</span> 为偶数。</p>
+<p>考虑朴素动态规划 ， 令 <span class="math inline">\(dp_{i , l , r}\)</span> 表示用了 <span class="math inline">\(i\)</span> 个字符 ， 字符串 <span class="math inline">\(S\)</span> 还剩 <span class="math inline">\([l , r]\)</span> 这段区间的方案数 ， <span class="math inline">\(g_{i}\)</span> 表示用了 <span class="math inline">\(i\)</span> 个字符匹配了 <span class="math inline">\(S\)</span> 的方案数。 转移不赘述了。</p>
+<p>用矩阵乘法优化 ， 可以得到一个 <span class="math inline">\(O(|S| ^ 6log|S|)\)</span> 的做法。</p>
+<p>注意到这个 <span class="math inline">\(DP\)</span> 实质上实在一个有限状态自动机 (<span class="math inline">\(DFA\)</span>) 上匹配的过程。 如图 ：</p>
+<p><img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210124172120394-592082499.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210124172120394-592082499.png"></p>
+<p>考虑压缩自动机 ， 注意到一条有 <span class="math inline">\(k\)</span> 个红点的路径必然对应着 <span class="math inline">\(\rfloor \frac{|s| - k}{2} \rfloor\)</span> 个绿点 ， 同时最终连接终点的点一定是绿点。</p>
+<p>对于两条红点个数相同的链 ， 它们对答案的贡献与红点的具体位置无关 ， 因为其自环数及点数都相同。 因此只有 <span class="math inline">\(O(|S|)\)</span> 条本质不同的链。</p>
+<p>令 <span class="math inline">\(h_{i , l , r}\)</span> 表示从起点走到 <span class="math inline">\((l , r)\)</span> 对应的节点的路径中 ，有多少条经过了 <span class="math inline">\(i\)</span> 个红点 ， 可以用记忆化搜索的方式求得 ， 时间复杂度 <span class="math inline">\(O(|S| ^ 3)\)</span>。</p>
+<p>现在我们只有了 <span class="math inline">\(O(|S|)\)</span> 条本质不同的链 ， 同时知道了每种链的条数 ， 可以对每条链进行矩阵乘法 ， 时间复杂度降为 <span class="math inline">\(O(|S| ^ 4log|S|)\)</span>。</p>
+<p>但这样仍然是不行的 ， 考虑建出一个 <span class="math inline">\(O(|S|)\)</span> 个节点的自动机 (如图) ：</p>
+<p><img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210124173137429-478676857.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210124173137429-478676857.png"></p>
+<p>这样就可以做到 <span class="math inline">\(O(|S| ^ 3log|S|)\)</span> 了！</p>
+<p>最后考虑奇数的情况 ， 相比起偶数的情况 ， 奇数的情况相当于限制了最后一步不能从一个 <span class="math inline">\(2\)</span> 个字符的绿色节点转移而来 ， 那么去除自动机终点的自环 ， 求出这样的方案数减去即可。</p>
+<p>但我们仍然不能通过此题。 考虑将节点编号 ， 每条边都从编号小的节点连向编号大的。 那么这样转移矩阵就是一个上三角矩阵。 不用全部清零 ， 复杂度被乘了一个 <span class="math inline">\(\frac{1}{6}\)</span> 的常数。</p>
+<p>问题得到了完美的解决。</p>
+<p>[代码]</p>
+<pre><code class="language-cpp">#include&lt;bits/stdc++.h&gt;
+
+using namespace std;
+
+#define rep(i , l , r) for (int i = (l); i &lt; (r); ++i)
+
+typedef long long LL;
+
+const int MN = 207 , MM = 307 , mod = 10007;
+
+int n , m , k;
+char s[MN];
+bool vis[MN][MN][MN];
+int h[MN][MN][MN] , f[MM] , g[MM][MM] , F[MM] , G[MM][MM];
+
+inline void inc(int &amp;x , int y) {
+	  x = x + y &lt; mod ? x + y : x + y - mod;
+}
+inline void dec(int &amp;x , int y) {
+	  x = x - y &gt;= 0 ? x - y : x - y + mod;
+}
+inline int ceil(int n) {
+	  return (n &gt;&gt; 1) + (n &amp; 1);
+}
+inline int H(int i , int l , int r) {
+		if (i &lt; 0) return 0;
+		if (vis[i][l][r]) return h[i][l][r];
+		vis[i][l][r] = 1;
+		if (l == 1 &amp;&amp; r == m) return h[i][l][r] = !i;
+		if (l != 1 &amp;&amp; s[l - 1] != s[r]) inc(h[i][l][r] , H(i - 1 , l - 1 , r));
+		if (r != m &amp;&amp; s[l] != s[r + 1]) inc(h[i][l][r] , H(i - 1 , l , r + 1));
+		if (l != 1 &amp;&amp; r != m &amp;&amp; s[l - 1] == s[r + 1]) inc(h[i][l][r] , H(i , l - 1 , r + 1));
+		return h[i][l][r];
+}
+inline void mul(int f[MM] , int g[MM][MM]) {
+		int a[MM];
+		memset(a , 0 , sizeof(a));
+		for (int j = 1; j &lt;= k; ++j)
+		for (int i = 1; i &lt;= k; ++i)
+				inc(a[i] , 1ll * f[j] * g[j][i] % mod);
+		for (int i = 1; i &lt;= k; ++i) f[i] = a[i]; 
+}
+inline void mul(int g[MM][MM]) {
+		int a[MM][MM];
+		memset(a , 0 , sizeof(a));
+		for (int i = 1; i &lt;= k; ++i)
+		for (int o = i; o &lt;= k; ++o)
+		for (int j = o; j &lt;= k; ++j)
+				inc(a[i][j] , 1ll * g[i][o] * g[o][j] % mod);
+		for (int i = 1; i &lt;= k; ++i)
+		for (int j = 1; j &lt;= k; ++j)
+				g[i][j] = a[i][j]; 
+}
+inline void Exp(int o) {
+		while (o) {
+				if (o &amp; 1) mul(f , g);
+				mul(g); o &gt;&gt;= 1;
+		}
+} 
+
+int main() {
+		
+		scanf("%s%d" , s + 1 , &amp;n); m = strlen(s + 1); k = m + ceil(m);
+		for (int i = 0; i &lt; m; ++i) {
+				int c = 0;
+				for (int j = 1; j &lt;= m; ++j) {
+						inc(c , H(i , j , j));
+						if (j != m &amp;&amp; s[j] == s[j + 1]) inc(c , H(i , j , j + 1));
+				}
+				if (i) {
+						g[i][k - ceil(m - i)] = c , g[i][i] = 24;
+						if (i != 1) g[i - 1][i] = 1;
+						else f[i] = 1;
+				} else {
+						f[m] = c , g[k][k] = 26;
+						for (int j = m; j &lt; k; ++j) g[j][j + 1] = 1 , g[j][j] = 25;
+				}
+		}
+		if ((n + m) &amp; 1) {
+				for (int i = 1; i &lt;= k; ++i) F[i] = f[i];
+				for (int i = 1; i &lt;= k; ++i)
+				for (int j = 1; j &lt;= k; ++j)
+						G[i][j] = g[i][j];
+		}
+		Exp(ceil(n + m));
+		if (!((n + m) &amp; 1)) { printf("%d\n" , f[k]); return 0; }
+		int ans = f[k];
+		for (int i = 1; i &lt;= k; ++i) f[i] = F[i];
+		for (int i = 1; i &lt;= k; ++i)
+		for (int j = 1; j &lt;= k; ++j)
+				g[i][j] = G[i][j];
+		for (int i = 0; i &lt; m; ++i) {
+				int c = 0;
+				for (int j = 1; j &lt;= m; ++j) 
+						if (j != m &amp;&amp; s[j] == s[j + 1]) inc(c , H(i , j , j + 1));
+				if (i) g[i][k - ceil(m - i)] = c;
+				else f[m] = c , g[k][k] = 0;
+		}
+		Exp(ceil(n + m));
+		printf("%d\n" , (ans - f[k] + mod) % mod);
+	  return 0;
+}
+</code></pre>
+
+
+
+{% endraw %}

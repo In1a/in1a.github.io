@@ -1,0 +1,117 @@
+---
+layout: post
+title: '[Codeforces 545E] Paths and Trees'
+date: 2018-10-05 21:26:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9745950.html
+cnblogs_id: 9745950
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p>        <a href="https://codeforces.com/contest/545/problem/E" target="_blank" rel="noopener nofollow">https://codeforces.com/contest/545/problem/E</a></p>
+<p>[算法]</p>
+<p>        首先求 u 到所有结点的最短路</p>
+<p>        记录每个节点最短路径上的最后一条边</p>
+<p><em id="__mceDel">        </em>答案即为以u为根的一棵最短路径生成树</p>
+<p>        时间复杂度 : O(NlogN)</p>
+<p>[代码]</p>
+<p>       </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">int</span> MAXN = 3e5 + <span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">;
+</span><span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span> INF =<span style="color: rgba(0, 0, 0, 1)"> 1e60;
+
+</span><span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> edge
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> to , w , nxt;
+} e[MAXN </span>&lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> n , m , s , tot;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> head[MAXN],u[MAXN],v[MAXN],w[MAXN],last[MAXN];
+</span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> dist[MAXN];
+</span><span style="color: rgba(0, 0, 255, 1)">bool</span> visited[MAXN],vis[MAXN &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> chkmax(T &amp;x,T y) { x =<span style="color: rgba(0, 0, 0, 1)"> max(x,y); }
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> chkmin(T &amp;x,T y) { x =<span style="color: rgba(0, 0, 0, 1)"> min(x,y); }
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> read(T &amp;<span style="color: rgba(0, 0, 0, 1)">x)
+{
+    T f </span>= <span style="color: rgba(128, 0, 128, 1)">1</span>; x = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">char</span> c =<span style="color: rgba(0, 0, 0, 1)"> getchar();
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; !isdigit(c); c = getchar()) <span style="color: rgba(0, 0, 255, 1)">if</span> (c == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>) f = -<span style="color: rgba(0, 0, 0, 1)">f;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; isdigit(c); c = getchar()) x = (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">3</span>) + (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>) + c - <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">;
+    x </span>*=<span style="color: rgba(0, 0, 0, 1)"> f;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> addedge(<span style="color: rgba(0, 0, 255, 1)">int</span> u,<span style="color: rgba(0, 0, 255, 1)">int</span> v,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> w)
+{
+        tot</span>++<span style="color: rgba(0, 0, 0, 1)">;
+        e[tot] </span>=<span style="color: rgba(0, 0, 0, 1)"> (edge){v,w,head[u]};
+        head[u] </span>=<span style="color: rgba(0, 0, 0, 1)"> tot;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> dijkstra(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> s)
+{
+        priority_queue</span>&lt; pair&lt;<span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span>,<span style="color: rgba(0, 0, 255, 1)">int</span>&gt; , vector&lt; pair&lt;<span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span>,<span style="color: rgba(0, 0, 255, 1)">int</span>&gt; &gt; ,greater&lt; pair&lt;<span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span>,<span style="color: rgba(0, 0, 255, 1)">int</span>&gt; &gt; &gt;<span style="color: rgba(0, 0, 0, 1)"> q;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                dist[i] </span>=<span style="color: rgba(0, 0, 0, 1)"> INF;
+                visited[i] </span>= <span style="color: rgba(0, 0, 255, 1)">false</span><span style="color: rgba(0, 0, 0, 1)">;        
+        }        
+        dist[s] </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        q.push(make_pair(</span><span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">,s));
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (!<span style="color: rgba(0, 0, 0, 1)">q.empty())
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span> cur =<span style="color: rgba(0, 0, 0, 1)"> q.top().second;
+                q.pop();
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (visited[cur]) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                visited[cur] </span>= <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = head[cur]; i; i =<span style="color: rgba(0, 0, 0, 1)"> e[i].nxt)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">int</span> v = e[i].to , w =<span style="color: rgba(0, 0, 0, 1)"> e[i].w;
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!visited[v] &amp;&amp; dist[cur] + w &lt;=<span style="color: rgba(0, 0, 0, 1)"> dist[v])
+                        {
+                                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (dist[cur] + w &lt; dist[v]) last[v] =<span style="color: rgba(0, 0, 0, 1)"> i;
+                                </span><span style="color: rgba(0, 0, 255, 1)">else</span> <span style="color: rgba(0, 0, 255, 1)">if</span> (w &lt; e[last[v]].w) last[v] =<span style="color: rgba(0, 0, 0, 1)"> i;
+                                dist[v] </span>= dist[cur] +<span style="color: rgba(0, 0, 0, 1)"> w;
+                                q.push(make_pair(dist[v],v));
+                        }
+                }
+        }
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main()
+{
+        
+        read(n); read(m);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= m; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                read(u[i]); read(v[i]); read(w[i]);
+                addedge(u[i],v[i],w[i]);
+                addedge(v[i],u[i],w[i]); 
+        } 
+        read(s);
+        dijkstra(s);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++) vis[last[i]] = <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+        vector</span>&lt; <span style="color: rgba(0, 0, 255, 1)">int</span> &gt;<span style="color: rgba(0, 0, 0, 1)"> ans;
+        </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span> res = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">2</span>; i &lt;= tot; i += <span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (vis[i] || vis[i - <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">])
+                {
+                        ans.push_back(i </span>&gt;&gt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+                        res </span>+=<span style="color: rgba(0, 0, 0, 1)"> e[i].w;
+                }
+        }
+        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%I64d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,res);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (unsigned i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i &lt; ans.size(); i++<span style="color: rgba(0, 0, 0, 1)">) 
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (i == <span style="color: rgba(128, 0, 128, 1)">0</span>) printf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,ans[i]); 
+                </span><span style="color: rgba(0, 0, 255, 1)">else</span> printf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)"> %d</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,ans[i]);
+        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">);
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

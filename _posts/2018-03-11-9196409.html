@@ -1,0 +1,67 @@
+---
+layout: post
+title: '【Codeforces 762A】 k-th divisor'
+date: 2018-03-11 18:32:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9196409.html
+cnblogs_id: 9196409
+---
+{% raw %}
+
+<p>【题目链接】</p>
+<p>           <a href="http://codeforces.com/problemset/problem/762/A" rel="noopener nofollow">点击打开链接</a></p>
+<p>【算法】</p>
+<p>          我们知道，一个数的因子是成对出现的，一半小于等于sqrt(N)，一半大于sqrt(N),因此，我们可以从</p>
+<p>         2..sqrt(N)枚举因子</p>
+<p>【代码】</p>
+<p>          </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAX 3000000<span style="color: rgba(0, 0, 0, 1)">
+typedef </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> ll;
+
+ll i,l,n,k;
+ll a[MAX</span>+<span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">];
+
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> read(T &amp;<span style="color: rgba(0, 0, 0, 1)">x) {
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> f = <span style="color: rgba(128, 0, 128, 1)">1</span>; x = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">char</span> c =<span style="color: rgba(0, 0, 0, 1)"> getchar();
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; !isdigit(c); c = getchar()) { <span style="color: rgba(0, 0, 255, 1)">if</span> (c == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>) f = -<span style="color: rgba(0, 0, 0, 1)">f; }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; isdigit(c); c = getchar()) x = x * <span style="color: rgba(128, 0, 128, 1)">10</span> + c - <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">;
+        x </span>*=<span style="color: rgba(0, 0, 0, 1)"> f;
+}
+
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> write(T x) {
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (x &lt; <span style="color: rgba(128, 0, 128, 1)">0</span>) { putchar(<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>); x = -<span style="color: rgba(0, 0, 0, 1)">x; }
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (x &gt; <span style="color: rgba(128, 0, 128, 1)">9</span>) write(x/<span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">);
+    putchar(x</span>%<span style="color: rgba(128, 0, 128, 1)">10</span>+<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">);
+}
+
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> writeln(T x) {
+    write(x);
+    puts(</span><span style="color: rgba(128, 0, 0, 1)">""</span><span style="color: rgba(0, 0, 0, 1)">);
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() {
+        
+        read(n); read(k);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= sqrt(n); i++<span style="color: rgba(0, 0, 0, 1)">) {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!(n %<span style="color: rgba(0, 0, 0, 1)"> i)) {
+                        a[</span>++l] =<span style="color: rgba(0, 0, 0, 1)"> i;
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (i * i != n) a[++l] = n /<span style="color: rgba(0, 0, 0, 1)"> i;
+                }
+        }
+        
+        sort(a</span>+<span style="color: rgba(128, 0, 128, 1)">1</span>,a+l+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (k &lt;=<span style="color: rgba(0, 0, 0, 1)"> l) writeln(a[k]);
+        </span><span style="color: rgba(0, 0, 255, 1)">else</span> puts(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">-1</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">);
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

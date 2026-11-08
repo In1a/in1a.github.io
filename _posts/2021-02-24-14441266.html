@@ -1,0 +1,122 @@
+---
+layout: post
+title: '[CF1479D] Odd Mineral Resource'
+date: 2021-02-24 14:31:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/14441266.html
+cnblogs_id: 14441266
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p><a href="" rel="noopener nofollow">http://codeforces.com/contest/1479/problem/D</a></p>
+<p>[题解]</p>
+<p>做法 <span class="math inline">\(1\)</span> :</p>
+<p>考虑树上莫队 ， 维护每种颜色的 <span class="math inline">\(cnt\)</span> 数组 ， 直接用树状数组 / 线段树这样的带 <span class="math inline">\(log\)</span> 数据结构会得到一个复杂度为 <span class="math inline">\(O(N \sqrt{N} log(N))\)</span> 的做法。 这样显然是不优的 ， 考虑均摊 ， 将线段树改为分块即可。这样的复杂度为 <span class="math inline">\(O(N\sqrt{N})\)</span></p>
+<p>做法 <span class="math inline">\(2\)</span> :</p>
+<p>不妨给每种颜色分配一个 <span class="math inline">\(2 ^ {64}\)</span> 以内的随机权值。 记 <span class="math inline">\(f(u , l , r)\)</span> 表示从根节点到节点 <span class="math inline">\(u\)</span> 路径上颜色种类在 <span class="math inline">\([l , r]\)</span> 区间内的点得权值异或和。 这可以用可持久化线段树轻松维护。 那么</p>
+<p>条路径的权值异或和 <span class="math inline">\(f(u , v , l , r)\)</span> 就可以通过四棵线段树异或出。</p>
+<p>考虑二分求解 ， 若 <span class="math inline">\(f(u , v , l , r) = 0\)</span> , 则退出。 否则在左子树 / 右子树中分别寻找答案。</p>
+<p>这样对于一组询问的正确率为 <span class="math inline">\(1 - 2 ^ {-64}\)</span>。</p>
+<p>那么 <span class="math inline">\(q\)</span> 组询问的正确率至少是 :</p>
+<p><span class="math inline">\(\begin{aligned} \Pr\left[ \bigwedge_{i=1}^{q} A_i \right] &amp; = 1 - \Pr\left[ \bigvee_{i=1}^q \bar A_i \right] \\ &amp; \geq 1 - \sum_{i=1}^q \Pr[\bar A_i] \\ &amp; = 1 - \sum_{i=1}^q \left( 1 - \Pr[A_i] \right) \\ &amp; \geq 1 - \sum_{i=1}^q \left( 1 - \left( 1 - 2^{-64} \right) \right) \\ &amp; = 1 - 2^{-64}q, \end{aligned}\)</span></p>
+<p>故正确率大于 <span class="math inline">\(1 - 2 ^ {44}\)</span>。 是足以通过这道题的。</p>
+<p>时间复杂度 ： <span class="math inline">\(O(NlogN)\)</span>。</p>
+<pre><code class="language-cpp">#include&lt;bits/stdc++.h&gt;
+ 
+using namespace std;
+ 
+typedef long long LL;
+ 
+#define rep(i , l , r) for (int i = (l); i &lt; (r); ++i)
+ 
+const int MN = 3e5 + 5 , MM = MN * 40;
+ 
+typedef unsigned long long ull;
+ 
+mt19937_64 get_value(355);
+ 
+int N , M , fa[MN] , size , A[MN] , ans;
+ull key[MM] , sum[MM];
+int lc[MM] , rc[MM] , root[MM];
+ 
+inline int query(int a , int b , int c , int d , int l , int r , int ql , int qr) {
+	if ((sum[a] ^ sum[b] ^ sum[c] ^ sum[d]) == 0) return -1;
+	if (l == r) return l;
+	int mid = l + r &gt;&gt; 1; int res = -1;
+	if (mid &gt;= ql) {
+		res = query(lc[a] , lc[b] , lc[c] , lc[d] , l , mid , ql , qr);
+		if (res != -1) return res;
+	}
+	if (qr &gt; mid) {
+		res = query(rc[a] , rc[b] , rc[c] , rc[d] , mid + 1 , r , ql , qr);
+		if (res != -1) return res;
+	}
+	return -1;
+}
+inline void add(int &amp;now , int old , int l , int r , int x , ull val) {
+	now = ++size; lc[now] = lc[old] , rc[now] = rc[old];
+	sum[now] = sum[old] ^ val;
+	if (l == r) return;
+	int mid = l + r &gt;&gt; 1;
+	if (mid &gt;= x) add(lc[now] , lc[old] , l , mid , x , val);
+	else add(rc[now] , rc[old] , mid + 1 , r , x , val);
+}
+struct Edge {
+	int to , nxt;
+} E[MN &lt;&lt; 1];
+ 
+int tot , head[MN];
+ 
+inline void AddEdge(int u , int v) {
+	E[++tot] = (Edge) {v , head[u]};
+	head[u] = tot;
+}
+ 
+int heavy[MN] , siz[MN] , dep[MN] , top[MN];
+ 
+inline void dfs1(int x) {
+	add(root[x] , root[fa[x]] , 1 , N , A[x] , key[A[x]]);
+	siz[x] = 1;
+	for (int i = head[x]; i; i = E[i].nxt) {
+		int v = E[i].to; if (v == fa[x]) continue;
+		dep[v] = dep[x] + 1 , fa[v] = x , dfs1(v) , siz[x] += siz[v];
+		if (siz[v] &gt; siz[heavy[x]]) heavy[x] = v;
+	}
+}
+inline void dfs2(int x) {
+	if (heavy[x]) top[heavy[x]] = top[x] , dfs2(heavy[x]);
+	for (int i = head[x]; i; i = E[i].nxt) {
+		int v = E[i].to; if (v == fa[x] || v == heavy[x]) continue;
+		top[v] = v , dfs2(v);
+	}
+}
+inline int lca(int u , int v) {
+	while (top[u] != top[v]) {
+		if (dep[top[u]] &lt; dep[top[v]]) swap(u , v);
+		u = fa[top[u]];
+	}
+	if (dep[u] &lt; dep[v]) swap(u , v);
+	return v;
+}
+ 
+int main() {
+	 
+	 scanf("%d%d" , &amp;N , &amp;M);
+	 for (int i = 1; i &lt;= N; ++i) scanf("%d" , &amp;A[i]) , key[i] = get_value();
+	 for (int i = 1; i &lt; N; ++i) {
+	 	  int u , v; scanf("%d%d" , &amp;u , &amp;v);
+	 	  AddEdge(u , v) , AddEdge(v , u);
+	 }
+	 dfs1(1); top[1] = 1; dfs2(1);
+	 while (M--) {
+	 	 int u , v , sl , sr; scanf("%d%d%d%d" , &amp;u , &amp;v , &amp;sl , &amp;sr);
+	 	 int LCA = lca(u , v);
+	 	 printf("%d\n" , query(root[u] , root[v] , root[LCA] , root[fa[LCA]] , 1 , N , sl , sr));
+	 }
+     return 0;
+}
+</code></pre>
+
+
+
+{% endraw %}

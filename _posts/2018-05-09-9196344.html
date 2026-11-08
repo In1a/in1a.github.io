@@ -1,0 +1,124 @@
+---
+layout: post
+title: '【SCOI 2005】 最大子矩阵'
+date: 2018-05-09 19:53:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9196344.html
+cnblogs_id: 9196344
+---
+{% raw %}
+
+<p>【题目链接】</p>
+<p>           <a href="https://www.lydsy.com/JudgeOnline/problem.php?id=1084" rel="noopener nofollow">点击打开链接</a></p>
+<p>【算法】</p>
+<p>          动态规划</p>
+<p>          我们发现，M只有两种取值，1和2，那么，只需分类讨论即可</p>
+<p>          当M = 1时，其实这个问题就成了就最大连续子段和的问题，只不过要选K段而已</p>
+<p>          用f[i][j]表示选到第i行，选了j段，那么，显然有 : f[i][j] = max{f[i-1][j],f[k][j-1] + sum[i] - sum[k]}（sum为前缀和）</p>
+<p>          当M = 2时，我们用f[i][j][k]表示第一列选到第i行，第二列选到第j行,选了k段</p>
+<p>          那么 ：</p>
+<p>                  如果不取，f[i][j][k] = max{f[i-1][j][k],f[i][j-1][k]}</p>
+<p>                  如果第一列取，f[i][j][k] = max{f[t][j][k-1] + sum[i][1] - sum[t][1]}</p>
+<p>                  如果第二列取,   f[i][j][k] = max{f[i][t][k-1] + sum[i][2] - sum[t][2]}</p>
+<p>                  如果第一二列都取，我们可以把它看成两种情况</p>
+<p>                  第一种，看成一个大矩形，f[i][j][k] = max{f[t][t][k-1] + sum[i][1] - sum[t][1] + sum[i][2] - sum[t][2]}</p>
+<p>                  第二种，看成两个小矩形，f[i][j][k] = max{f[t][t][k-2] + sum[i][1] - sum[t][1] + sum[i][2] - sum[t][2]} (k &gt; 1)</p>
+<p>          此题就是需要我们认真读题，如果发现了"1&lt;=M&lt;=2"，那么，问题就变得简单多了！</p>
+<p>【代码】</p>
+<p>            </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 110
+<span style="color: rgba(0, 0, 255, 1)">#define</span> MAXK 12
+<span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">int</span> INF =<span style="color: rgba(0, 0, 0, 1)"> 2e9;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> n,m,k;
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> solve1()
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,j,t;
+        </span><span style="color: rgba(0, 0, 255, 1)">static</span> <span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> a[MAXN],sum[MAXN],f[MAXN][MAXK];
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= k; j++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        f[i][j] </span>= -<span style="color: rgba(0, 0, 0, 1)">INF;
+                }
+        }
+        memset(sum,</span><span style="color: rgba(128, 0, 128, 1)">0</span>,<span style="color: rgba(0, 0, 255, 1)">sizeof</span><span style="color: rgba(0, 0, 0, 1)">(sum));
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">a[i]);
+                sum[i] </span>= sum[i-<span style="color: rgba(128, 0, 128, 1)">1</span>] +<span style="color: rgba(0, 0, 0, 1)"> a[i];
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= k; j++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        f[i][j] </span>= f[i-<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">][j];
+                        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (t = <span style="color: rgba(128, 0, 128, 1)">0</span>; t &lt; i; t++<span style="color: rgba(0, 0, 0, 1)">)
+                        {
+                                f[i][j] </span>= max(f[i][j],f[t][j-<span style="color: rgba(128, 0, 128, 1)">1</span>]+sum[i]-<span style="color: rgba(0, 0, 0, 1)">sum[t]);
+                        }
+                }
+        }
+        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,f[n][k]);
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> solve2()
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,j,x,y;
+        </span><span style="color: rgba(0, 0, 255, 1)">static</span> <span style="color: rgba(0, 0, 255, 1)">int</span> a[MAXN][<span style="color: rgba(128, 0, 128, 1)">3</span>],sum[MAXN][<span style="color: rgba(128, 0, 128, 1)">3</span><span style="color: rgba(0, 0, 0, 1)">],f[MAXN][MAXN][MAXK];
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">0</span>; j &lt;= n; j++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (x = <span style="color: rgba(128, 0, 128, 1)">1</span>; x &lt;= k; x++<span style="color: rgba(0, 0, 0, 1)">)
+                        {
+                                f[i][j][x] </span>= -<span style="color: rgba(0, 0, 0, 1)">INF;
+                        }
+                }
+        }
+        memset(sum,</span><span style="color: rgba(128, 0, 128, 1)">0</span>,<span style="color: rgba(0, 0, 255, 1)">sizeof</span><span style="color: rgba(0, 0, 0, 1)">(sum));
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;a[i][<span style="color: rgba(128, 0, 128, 1)">1</span>],&amp;a[i][<span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">]);
+                sum[i][</span><span style="color: rgba(128, 0, 128, 1)">1</span>] = sum[i-<span style="color: rgba(128, 0, 128, 1)">1</span>][<span style="color: rgba(128, 0, 128, 1)">1</span>] + a[i][<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+                sum[i][</span><span style="color: rgba(128, 0, 128, 1)">2</span>] = sum[i-<span style="color: rgba(128, 0, 128, 1)">1</span>][<span style="color: rgba(128, 0, 128, 1)">2</span>] + a[i][<span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">];
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= n; j++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (x = <span style="color: rgba(128, 0, 128, 1)">1</span>; x &lt;= k; x++<span style="color: rgba(0, 0, 0, 1)">)
+                        {
+                                f[i][j][x] </span>= max(f[i-<span style="color: rgba(128, 0, 128, 1)">1</span>][j][x],f[i][j-<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">][x]);
+                                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (y = <span style="color: rgba(128, 0, 128, 1)">0</span>; y &lt; i; y++) f[i][j][x] = max(f[i][j][x],f[y][j][x-<span style="color: rgba(128, 0, 128, 1)">1</span>]+sum[i][<span style="color: rgba(128, 0, 128, 1)">1</span>]-sum[y][<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">]);
+                                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (y = <span style="color: rgba(128, 0, 128, 1)">0</span>; y &lt; j; y++) f[i][j][x] = max(f[i][j][x],f[i][y][x-<span style="color: rgba(128, 0, 128, 1)">1</span>]+sum[j][<span style="color: rgba(128, 0, 128, 1)">2</span>]-sum[y][<span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">]);
+                                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (i ==<span style="color: rgba(0, 0, 0, 1)"> j)
+                                {
+                                        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (y = <span style="color: rgba(128, 0, 128, 1)">0</span>; y &lt; i; y++<span style="color: rgba(0, 0, 0, 1)">)
+                                        {
+                                                f[i][j][x] </span>= max(f[i][j][x],f[y][y][x-<span style="color: rgba(128, 0, 128, 1)">1</span>]+sum[i][<span style="color: rgba(128, 0, 128, 1)">1</span>]-sum[y][<span style="color: rgba(128, 0, 128, 1)">1</span>]+sum[i][<span style="color: rgba(128, 0, 128, 1)">2</span>]-sum[y][<span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">]);
+                                                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (x &gt; <span style="color: rgba(128, 0, 128, 1)">1</span>) f[i][j][x] = max(f[i][j][x],f[y][y][x-<span style="color: rgba(128, 0, 128, 1)">2</span>]+sum[i][<span style="color: rgba(128, 0, 128, 1)">1</span>]-sum[y][<span style="color: rgba(128, 0, 128, 1)">1</span>]+sum[i][<span style="color: rgba(128, 0, 128, 1)">2</span>]-sum[y][<span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">]);
+                                        }
+                                }
+                        }
+                }
+        }
+        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,f[n][n][k]);
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main()
+{
+    
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;n,&amp;m,&amp;<span style="color: rgba(0, 0, 0, 1)">k);
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (m == <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">) solve1();
+        </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)"> solve2();
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

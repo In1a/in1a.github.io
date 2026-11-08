@@ -1,0 +1,79 @@
+---
+layout: post
+title: '【SCOI 2005】 繁忙的都市'
+date: 2018-05-09 19:57:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9196343.html
+cnblogs_id: 9196343
+---
+{% raw %}
+
+<p>【题目链接】</p>
+<p>           <a href="https://www.lydsy.com/JudgeOnline/problem.php?id=1083" rel="noopener nofollow">点击打开链接</a></p>
+<p>【算法】</p>
+<p>           题目描述比较繁琐，但细心观察后，发现其实就是用kruskal算法求最小生成树</p>
+<p>【代码】</p>
+<p>          </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 310
+<span style="color: rgba(0, 0, 255, 1)">#define</span> MAXM 10000
+
+<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,n,m,ans,sx,sy,sum;
+
+</span><span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> info
+{
+    </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> u,v,c;
+} a[MAXM];
+</span><span style="color: rgba(0, 0, 255, 1)">bool</span> cmp(info a,info b) { <span style="color: rgba(0, 0, 255, 1)">return</span> a.c &lt;<span style="color: rgba(0, 0, 0, 1)"> b.c; }
+
+</span><span style="color: rgba(0, 0, 255, 1)">class</span><span style="color: rgba(0, 0, 0, 1)"> DisjointSet
+{
+    </span><span style="color: rgba(0, 0, 255, 1)">private</span><span style="color: rgba(0, 0, 0, 1)"> :
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> fa[MAXN];
+    </span><span style="color: rgba(0, 0, 255, 1)">public</span><span style="color: rgba(0, 0, 0, 1)"> :
+        inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> init(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> n)
+        {
+            </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i;
+            </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++) fa[i] =<span style="color: rgba(0, 0, 0, 1)"> i;
+        }
+        inline </span><span style="color: rgba(0, 0, 255, 1)">int</span> get_root(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x)
+        {
+            </span><span style="color: rgba(0, 0, 255, 1)">if</span> (fa[x] == x) <span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> x;
+            fa[x] </span>=<span style="color: rgba(0, 0, 0, 1)"> get_root(fa[x]);
+            </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> fa[x];
+        }
+        inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> merge(<span style="color: rgba(0, 0, 255, 1)">int</span> x,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> y)
+        {
+            fa[get_root(x)] </span>=<span style="color: rgba(0, 0, 0, 1)"> get_root(y);    
+        }    
+} s;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main()
+{
+    
+    scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;n,&amp;<span style="color: rgba(0, 0, 0, 1)">m);
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= m; i++) scanf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;a[i].u,&amp;a[i].v,&amp;<span style="color: rgba(0, 0, 0, 1)">a[i].c);
+    sort(a</span>+<span style="color: rgba(128, 0, 128, 1)">1</span>,a+m+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">,cmp);
+    s.init(n);
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= m; i++<span style="color: rgba(0, 0, 0, 1)">)
+    {
+        sx </span>=<span style="color: rgba(0, 0, 0, 1)"> s.get_root(a[i].u);
+        sy </span>=<span style="color: rgba(0, 0, 0, 1)"> s.get_root(a[i].v);
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (sx !=<span style="color: rgba(0, 0, 0, 1)"> sy) 
+        {
+            ans </span>=<span style="color: rgba(0, 0, 0, 1)"> a[i].c;
+            </span><span style="color: rgba(0, 0, 255, 1)">if</span> ((++sum) == n - <span style="color: rgba(128, 0, 128, 1)">1</span>) <span style="color: rgba(0, 0, 255, 1)">break</span><span style="color: rgba(0, 0, 0, 1)">;
+            s.merge(a[i].u,a[i].v);
+        }
+    }
+    
+    printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d %d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span>,n-<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">,ans);
+        
+    </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

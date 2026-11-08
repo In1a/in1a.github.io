@@ -1,0 +1,80 @@
+---
+layout: post
+title: '[APIO 2010] 特别行动队'
+date: 2019-02-06 22:26:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/10354200.html
+cnblogs_id: 10354200
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p>        <a href="https://www.lydsy.com/JudgeOnline/problem.php?id=1911" target="_blank" rel="noopener nofollow"> https://www.lydsy.com/JudgeOnline/problem.php?id=1911</a></p>
+<p>[算法]</p>
+<p>         设前i个士兵"修正"后的最大战斗力为fi</p>
+<p>         令sumi表示x的前缀和</p>
+<p>         显然 ， 有状态转移方程 : fi = max{ fj + a * (sumi - sumj) ^ 2 + b * (sumi - sumj) + c }</p>
+<p>         对该式进行化简 ， 得 :</p>
+<p>         fi = max{ fj + asumi ^ 2 + asumj ^ 2 - 2asumisumj + bsumi - bsumj + c}</p>
+<p>        令Yj = fj + asumj ^ 2 , Xj = sumj</p>
+<p>         则 : fi = max{Yj - Xj(2sumi + b) + aumi ^ 2 + bsumi + c}</p>
+<p>         那么Yj = Xj + (2asumi + b) + fi - asumi ^ 2 - bsumi - c</p>
+<p>         显然我们要做的是最大化截距</p>
+<p>         2asumi + b单调递减 ， Xi单调递增 ， 维护一个上凸壳即可</p>
+<p>         时间复杂度 : O(N)</p>
+<p>[代码]</p>
+<p>         </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">int</span> N = <span style="color: rgba(128, 0, 128, 1)">1000010</span><span style="color: rgba(0, 0, 0, 1)">;
+typedef </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> ll;
+typedef </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">double</span><span style="color: rgba(0, 0, 0, 1)"> ld;
+typedef unsigned </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> ull;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> n , l , r;
+ll a , b , c;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> q[N];
+ll f[N] , sum[N] , X[N] , Y[N];
+
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> chkmax(T &amp;x , T y) { x =<span style="color: rgba(0, 0, 0, 1)"> max(x , y); }
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> chkmin(T &amp;x , T y) { x =<span style="color: rgba(0, 0, 0, 1)"> min(x , y); }
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> read(T &amp;<span style="color: rgba(0, 0, 0, 1)">x)
+{
+    T f </span>= <span style="color: rgba(128, 0, 128, 1)">1</span>; x = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">char</span> c =<span style="color: rgba(0, 0, 0, 1)"> getchar();
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; !isdigit(c); c = getchar()) <span style="color: rgba(0, 0, 255, 1)">if</span> (c == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>) f = -<span style="color: rgba(0, 0, 0, 1)">f;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; isdigit(c); c = getchar()) x = (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">3</span>) + (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>) + c - <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">;
+    x </span>*=<span style="color: rgba(0, 0, 0, 1)"> f;
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main()
+{
+        
+        read(n);
+        read(a); read(b); read(c);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x;
+                read(x);
+                sum[i] </span>= sum[i - <span style="color: rgba(128, 0, 128, 1)">1</span>] +<span style="color: rgba(0, 0, 0, 1)"> x;
+                X[i] </span>=<span style="color: rgba(0, 0, 0, 1)"> sum[i];
+        }
+        f[q[l </span>= r = <span style="color: rgba(128, 0, 128, 1)">1</span>] = <span style="color: rgba(128, 0, 128, 1)">0</span>] = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">while</span> (l &lt; r &amp;&amp; Y[q[l + <span style="color: rgba(128, 0, 128, 1)">1</span>]] - Y[q[l]] &gt;= (<span style="color: rgba(128, 0, 128, 1)">2</span> * a * sum[i] + b) * (X[q[l + <span style="color: rgba(128, 0, 128, 1)">1</span>]] - X[q[l]])) ++<span style="color: rgba(0, 0, 0, 1)">l;
+                f[i] </span>= Y[q[l]] - X[q[l]] * (<span style="color: rgba(128, 0, 128, 1)">2</span> * a * sum[i] + b) + a * sum[i] * sum[i] + b * sum[i] +<span style="color: rgba(0, 0, 0, 1)"> c;
+                Y[i] </span>= f[i] + a * sum[i] *<span style="color: rgba(0, 0, 0, 1)"> sum[i];
+                </span><span style="color: rgba(0, 0, 255, 1)">while</span> (l &lt; r &amp;&amp; (Y[i] - Y[q[r]]) * (X[q[r]] - X[q[r - <span style="color: rgba(128, 0, 128, 1)">1</span>]]) &gt;= (Y[q[r]] - Y[q[r - <span style="color: rgba(128, 0, 128, 1)">1</span>]]) * (X[i] - X[q[r]])) --<span style="color: rgba(0, 0, 0, 1)">r;
+                q[</span>++r] =<span style="color: rgba(0, 0, 0, 1)"> i;        
+        }
+        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%lld\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)"> , f[n]);
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

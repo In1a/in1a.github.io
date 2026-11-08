@@ -1,0 +1,63 @@
+---
+layout: post
+title: '国外训练试题泛做'
+date: 2020-11-07 11:57:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/13940534.html
+cnblogs_id: 13940534
+---
+{% raw %}
+
+<p><span class="math inline">\(36th\ Petrozavodsk\ Programming\ Camp , 300iq\ contest\ 3\)</span></p>
+<p><span class="math inline">\(F\)</span></p>
+<p>首先如果选择 <span class="math inline">\(i\)</span> ， 记花费在 <span class="math inline">\(i\)</span> 上的有 <span class="math inline">\(r_{i}\)</span> 次 ， 则 <span class="math inline">\((h_{i} - r_{i} \cdot a)\ mod\ b &lt; a\)</span>。</p>
+<p>发现 <span class="math inline">\(r_{i} = \lfloor \frac{(h_{i}\ mod\ b)}{a} \rfloor\)</span>。 那么得分至少要花费 <span class="math inline">\(r_{i} + 1\)</span> 次。</p>
+<p>注意到如果选择 <span class="math inline">\(i\)</span> 个物品也只需花费 <span class="math inline">\(r_{i} + 1\)</span> 次 ， 因为多花费显然不优。</p>
+<p>那么就有一个反悔贪心的思路了。 每次假定不选择 ， 将决策放入小根堆 ， 每次将堆顶与当前的决策比较即可。</p>
+<p>时间复杂度 : <span class="math inline">\(O(NlogN)\)</span></p>
+<p><span class="math inline">\(J\)</span></p>
+<p>首先每个点可以看成一个线性同余方程 ， 因此这个题目的本质是求一个线性同余方程组的自由元个数。</p>
+<p>任取一棵生成树 ， 注意到在非树边确定的情况下树边的权值是确定的。 并且每个点权值向上的贡献是一个正负交替的形式。 因此还要</p>
+<p>额外保证奇数深度和偶数深度的点权和相等。 这里的 "点权" 指的是相邻的边权和。</p>
+<p>换言之 ， 就是对于一个连通分量 ， 如果它是二分图 ， 那么贡献是 <span class="math inline">\(2 ^ {|E| - |V| + 1}\)</span> ， 否则是 <span class="math inline">\(2 ^ {|E| - |V|}\)</span>。</p>
+<p>时间复杂度 ： <span class="math inline">\(O(N)\)</span></p>
+<p><span class="math inline">\(I\)</span></p>
+<p>每个数被统计当且仅当这个数没有 <span class="math inline">\(a_{1} \oplus a_{2} ... \oplus a_{i - 1}\)</span> 中的位。</p>
+<p>直接考虑每个数的贡献即可。</p>
+<p>时间复杂度 : <span class="math inline">\(O(NlogV)\)</span></p>
+<p><span class="math inline">\(H\)</span></p>
+<p>题目可以抽象为两种操作 ：</p>
+<p><span class="math inline">\(0.\)</span> 在右侧加点。</p>
+<p><span class="math inline">\(1.\)</span> 在左侧加点 ， 向右侧所有点连边。</p>
+<p>这样所给的 <span class="math inline">\(a\)</span> 序列就可以转化为一个 <span class="math inline">\(0\)</span> 和 <span class="math inline">\(1\)</span> 的交错操作序列。</p>
+<p>注意到最后答案的形式必然是 <span class="math inline">\(010101010.....\)</span> 这样的形式。</p>
+<p>不妨记 <span class="math inline">\(dp_{i , j}\)</span> 表示考虑了操作序列的前 <span class="math inline">\(i\)</span> 个操作 ， 当前形成了 <span class="math inline">\(j\)</span> 条链的方案数。</p>
+<p>每次如果是在右侧加点 ， 那么这个点与当前左侧所有点都没有连边。 有两种决策 ：</p>
+<p><span class="math inline">\(1.\)</span> 单独成一条链。</p>
+<p><span class="math inline">\(2.\)</span> 添加在之前某条链的末尾。</p>
+<p>如果加入的是左侧点 ， 那么该点与右侧所有点都有连边 ， 有两种决策 :</p>
+<p><span class="math inline">\(1.\)</span> 什么都不做。</p>
+<p><span class="math inline">\(2.\)</span> 合并两条链。</p>
+<p>这样分析后 ， 这个动态规划就很容易转移了。</p>
+<p>注意对于一个环而言 ， 其正向和反向都被记了一遍 ， 所以答案要除以二。</p>
+<p>还需减去二元环的个数 ， 为 <span class="math inline">\(\sum{a_{i}}\)</span> 。</p>
+<p>时间复杂度 : <span class="math inline">\(O(N ^ 2)\)</span></p>
+<p><span class="math inline">\(B\)</span></p>
+<p>记度数为 <span class="math inline">\(1\)</span> 的点有 <span class="math inline">\(x\)</span> 个。</p>
+<p>答案为 <span class="math inline">\(min\{\frac{N}{2} , N - x\}\)</span>。</p>
+<p>证明略。</p>
+<p>时间复杂度 : <span class="math inline">\(O(N)\)</span></p>
+<p><span class="math inline">\(ICPC\ World\ Final\ ,\ 2020\)</span></p>
+<p><span class="math inline">\(A\)</span></p>
+<p>首先只有 <span class="math inline">\(p\)</span> 值相同的才能改变位置。</p>
+<p>于是将两排都按 <span class="math inline">\(p\)</span> 值从小到大排序。 用 <span class="math inline">\(std::set\)</span> 维护当前两个集合。 当 <span class="math inline">\(ap_{i} \neq ap_{i + 1}\)</span> 或 <span class="math inline">\(bp_{i} \neq bp_{i + 1}\)</span> 时 ， 在 <span class="math inline">\(set\)</span> 里二分构造方案即可。</p>
+<p>时间复杂度 : <span class="math inline">\(O(NlogN)\)</span></p>
+<p><span class="math inline">\(G\)</span></p>
+<p>建立反串的 <span class="math inline">\(AC\)</span> 自动机。 并将询问串也倒着插入。</p>
+<p>对于每个给定字符串 ， 将其沿着 <span class="math inline">\(fail\)</span> 树一路的标记都 <span class="math inline">\(+1\)</span>。</p>
+<p>那么最后询问的就是每个终止节点的标记。</p>
+<p>树上差分即可。</p>
+<p>时间复杂度 ： <span class="math inline">\(O(N)\)</span></p>
+
+
+
+{% endraw %}

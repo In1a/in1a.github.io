@@ -1,0 +1,133 @@
+---
+layout: post
+title: '【POJ 1082】 Calendar Game'
+date: 2018-07-13 17:11:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9306108.html
+cnblogs_id: 9306108
+---
+{% raw %}
+
+<p>【题目链接】</p>
+<p>            <a href="http://poj.org/problem?id=1082" target="_blank" rel="noopener nofollow">http://poj.org/problem?id=1082</a></p>
+<p>【算法】</p>
+<p>            对于每种状态，要么必胜，要么必败</p>
+<p>            记忆化搜索即可</p>
+<p>【代码】</p>
+<p>            </p>
+<div class="cnblogs_code">
+<pre>#include &lt;algorithm&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;bitset&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cctype&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cerrno&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;clocale&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cmath&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;complex&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cstdio&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cstdlib&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cstring&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;ctime&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;deque&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;exception&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;fstream&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;functional&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;limits&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;list&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;map&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;iomanip&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;ios&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;iosfwd&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;iostream&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;istream&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;ostream&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;queue&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;<span style="color: rgba(0, 0, 255, 1)">set</span>&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;sstream&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;stdexcept&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;streambuf&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;<span style="color: rgba(0, 0, 255, 1)">string</span>&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;utility&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;vector&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cwchar&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cwctype&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;stack&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;limits.h&gt;
+
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> newy,newm,newd,y,m,d,T;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span> f[<span style="color: rgba(128, 0, 128, 1)">2005</span>][<span style="color: rgba(128, 0, 128, 1)">13</span>][<span style="color: rgba(128, 0, 128, 1)">32</span><span style="color: rgba(0, 0, 0, 1)">];
+</span><span style="color: rgba(0, 0, 255, 1)">int</span> day[<span style="color: rgba(128, 0, 128, 1)">13</span>] = {<span style="color: rgba(128, 0, 128, 1)">0</span>,<span style="color: rgba(128, 0, 128, 1)">31</span>,<span style="color: rgba(128, 0, 128, 1)">0</span>,<span style="color: rgba(128, 0, 128, 1)">31</span>,<span style="color: rgba(128, 0, 128, 1)">30</span>,<span style="color: rgba(128, 0, 128, 1)">31</span>,<span style="color: rgba(128, 0, 128, 1)">30</span>,<span style="color: rgba(128, 0, 128, 1)">31</span>,<span style="color: rgba(128, 0, 128, 1)">31</span>,<span style="color: rgba(128, 0, 128, 1)">30</span>,<span style="color: rgba(128, 0, 128, 1)">31</span>,<span style="color: rgba(128, 0, 128, 1)">30</span>,<span style="color: rgba(128, 0, 128, 1)">31</span><span style="color: rgba(0, 0, 0, 1)">};
+ 
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> read(T &amp;<span style="color: rgba(0, 0, 0, 1)">x) {
+    </span><span style="color: rgba(0, 0, 255, 1)">int</span> f = <span style="color: rgba(128, 0, 128, 1)">1</span>; x = <span style="color: rgba(128, 0, 128, 1)">0</span>; <span style="color: rgba(0, 0, 255, 1)">char</span> c =<span style="color: rgba(0, 0, 0, 1)"> getchar();
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; !isdigit(c); c = getchar()) { <span style="color: rgba(0, 0, 255, 1)">if</span> (c == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>) f = -<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">; }
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; isdigit(c); c = getchar()) x = x * <span style="color: rgba(128, 0, 128, 1)">10</span> + c - <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">;
+    x </span>*=<span style="color: rgba(0, 0, 0, 1)"> f;    
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">bool</span> is_leap(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> yy) {
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (((yy % <span style="color: rgba(128, 0, 128, 1)">4</span> == <span style="color: rgba(128, 0, 128, 1)">0</span>) &amp;&amp; (yy % <span style="color: rgba(128, 0, 128, 1)">100</span> != <span style="color: rgba(128, 0, 128, 1)">0</span>)) || (yy % <span style="color: rgba(128, 0, 128, 1)">400</span> == <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">))
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">else</span> <span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(0, 0, 255, 1)">false</span><span style="color: rgba(0, 0, 0, 1)">;    
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">bool</span> check(<span style="color: rgba(0, 0, 255, 1)">int</span> yy,<span style="color: rgba(0, 0, 255, 1)">int</span> mm,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> dd) {
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (is_leap(yy)) day[<span style="color: rgba(128, 0, 128, 1)">2</span>] = <span style="color: rgba(128, 0, 128, 1)">29</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">else</span> day[<span style="color: rgba(128, 0, 128, 1)">2</span>] = <span style="color: rgba(128, 0, 128, 1)">28</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (dd &gt; day[mm]) <span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(0, 0, 255, 1)">false</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (yy &gt; <span style="color: rgba(128, 0, 128, 1)">2001</span>) <span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(0, 0, 255, 1)">false</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> ((yy == <span style="color: rgba(128, 0, 128, 1)">2001</span>) &amp;&amp; (mm &gt; <span style="color: rgba(128, 0, 128, 1)">11</span>)) <span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(0, 0, 255, 1)">false</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> ((yy == <span style="color: rgba(128, 0, 128, 1)">2001</span>) &amp;&amp; (mm == <span style="color: rgba(128, 0, 128, 1)">11</span>) &amp;&amp; (dd &gt; <span style="color: rgba(128, 0, 128, 1)">4</span>)) <span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(0, 0, 255, 1)">false</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">; 
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> next_day() {
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (is_leap(newy)) day[<span style="color: rgba(128, 0, 128, 1)">2</span>] = <span style="color: rgba(128, 0, 128, 1)">29</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">else</span> day[<span style="color: rgba(128, 0, 128, 1)">2</span>] = <span style="color: rgba(128, 0, 128, 1)">28</span><span style="color: rgba(0, 0, 0, 1)">;
+    newd</span>++<span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (newd &gt; day[newm]) { newd = <span style="color: rgba(128, 0, 128, 1)">1</span>; newm++<span style="color: rgba(0, 0, 0, 1)">; }
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (newm &gt; <span style="color: rgba(128, 0, 128, 1)">12</span>) { newm = <span style="color: rgba(128, 0, 128, 1)">1</span>; newy++<span style="color: rgba(0, 0, 0, 1)">; }    
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> next_month() {
+    newm</span>++<span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (newm &gt; <span style="color: rgba(128, 0, 128, 1)">12</span>) { newm = <span style="color: rgba(128, 0, 128, 1)">1</span>; newy++<span style="color: rgba(0, 0, 0, 1)">; }    
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">bool</span> dfs(<span style="color: rgba(0, 0, 255, 1)">int</span> yy,<span style="color: rgba(0, 0, 255, 1)">int</span> mm,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> dd) {
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (f[yy][mm][dd] != -<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">)
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> f[yy][mm][dd];
+    f[yy][mm][dd] </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    newy </span>= yy; newm = mm; newd =<span style="color: rgba(0, 0, 0, 1)"> dd;
+    next_day();
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span><span style="color: rgba(0, 0, 0, 1)"> (check(newy,newm,newd)) {
+        f[yy][mm][dd] </span>|= (!<span style="color: rgba(0, 0, 0, 1)">dfs(newy,newm,newd));
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (f[yy][mm][dd] == <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">)
+            </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+    }
+    newy </span>= yy; newm = mm; newd =<span style="color: rgba(0, 0, 0, 1)"> dd;
+    next_month();
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span><span style="color: rgba(0, 0, 0, 1)"> (check(newy,newm,newd)) 
+        f[yy][mm][dd] </span>|= (!<span style="color: rgba(0, 0, 0, 1)">dfs(newy,newm,newd));
+    </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> f[yy][mm][dd];
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() { 
+    
+    memset(f,</span><span style="color: rgba(128, 0, 128, 1)">255</span>,<span style="color: rgba(0, 0, 255, 1)">sizeof</span><span style="color: rgba(0, 0, 0, 1)">(f));
+    f[</span><span style="color: rgba(128, 0, 128, 1)">2001</span>][<span style="color: rgba(128, 0, 128, 1)">11</span>][<span style="color: rgba(128, 0, 128, 1)">4</span>] = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    read(T);
+    
+    </span><span style="color: rgba(0, 0, 255, 1)">while</span> (T--<span style="color: rgba(0, 0, 0, 1)">) {
+        read(y); read(m); read(d);
+        puts((dfs(y,m,d))</span>?(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">YES</span><span style="color: rgba(128, 0, 0, 1)">"</span>):(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">NO</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">));    
+    }
+    
+    </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

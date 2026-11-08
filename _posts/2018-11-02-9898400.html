@@ -1,0 +1,66 @@
+---
+layout: post
+title: '[BZOJ 1419] Red is good'
+date: 2018-11-02 20:57:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9898400.html
+cnblogs_id: 9898400
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p>         <a href="https://www.lydsy.com/JudgeOnline/problem.php?id=1419" target="_blank" rel="noopener nofollow">https://www.lydsy.com/JudgeOnline/problem.php?id=1419</a></p>
+<p>[算法]</p>
+<p>       概率DP</p>
+<p>       用Fi,j表示还剩下i张红卡 ， j张黑卡 ， 期望获得的最大价值</p>
+<p>       时间复杂度 ： O(N ^ 2)</p>
+<p>       滚动数组 ， 将空间复杂度降至O(N)</p>
+<p>[代码]</p>
+<p>        </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 5010
+<span style="color: rgba(0, 0, 255, 1)">#define</span> RG register
+
+<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> R , B;
+</span><span style="color: rgba(0, 0, 255, 1)">double</span> dp[<span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">][MAXN];
+
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> chkmax(T &amp;x,T y) { x =<span style="color: rgba(0, 0, 0, 1)"> max(x,y); }
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> chkmin(T &amp;x,T y) { x =<span style="color: rgba(0, 0, 0, 1)"> min(x,y); }
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> read(T &amp;<span style="color: rgba(0, 0, 0, 1)">x)
+{
+    T f </span>= <span style="color: rgba(128, 0, 128, 1)">1</span>; x = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">char</span> c =<span style="color: rgba(0, 0, 0, 1)"> getchar();
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; !isdigit(c); c = getchar()) <span style="color: rgba(0, 0, 255, 1)">if</span> (c == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>) f = -<span style="color: rgba(0, 0, 0, 1)">f;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; isdigit(c); c = getchar()) x = (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">3</span>) + (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>) + c - <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">;
+    x </span>*=<span style="color: rgba(0, 0, 0, 1)"> f;
+}
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main()
+{
+        
+        read(R); read(B);
+        dp[</span><span style="color: rgba(128, 0, 128, 1)">0</span>][<span style="color: rgba(128, 0, 128, 1)">0</span>] = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (RG <span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i &lt;= R; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (RG <span style="color: rgba(0, 0, 255, 1)">int</span> j = <span style="color: rgba(128, 0, 128, 1)">0</span>; j &lt;= B; j++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (i + j == <span style="color: rgba(128, 0, 128, 1)">0</span>) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                        </span><span style="color: rgba(0, 0, 255, 1)">double</span> p = <span style="color: rgba(128, 0, 128, 1)">1.0</span> * i / (i +<span style="color: rgba(0, 0, 0, 1)"> j);
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (i == <span style="color: rgba(128, 0, 128, 1)">0</span>) dp[i &amp; <span style="color: rgba(128, 0, 128, 1)">1</span>][j] = max(<span style="color: rgba(128, 0, 128, 1)">0.0</span> , (dp[i &amp; <span style="color: rgba(128, 0, 128, 1)">1</span>][j - <span style="color: rgba(128, 0, 128, 1)">1</span>] - <span style="color: rgba(128, 0, 128, 1)">1</span>) * (<span style="color: rgba(128, 0, 128, 1)">1</span> -<span style="color: rgba(0, 0, 0, 1)"> p));
+                        </span><span style="color: rgba(0, 0, 255, 1)">else</span> <span style="color: rgba(0, 0, 255, 1)">if</span> (j == <span style="color: rgba(128, 0, 128, 1)">0</span>) dp[i &amp; <span style="color: rgba(128, 0, 128, 1)">1</span>][j] = max(<span style="color: rgba(128, 0, 128, 1)">0.0</span> , (dp[(i - <span style="color: rgba(128, 0, 128, 1)">1</span>) &amp; <span style="color: rgba(128, 0, 128, 1)">1</span>][j] + <span style="color: rgba(128, 0, 128, 1)">1</span>) *<span style="color: rgba(0, 0, 0, 1)"> p);
+                        </span><span style="color: rgba(0, 0, 255, 1)">else</span> dp[i &amp; <span style="color: rgba(128, 0, 128, 1)">1</span>][j] = max(<span style="color: rgba(128, 0, 128, 1)">0.0</span> , <span style="color: rgba(128, 0, 128, 1)">1.0</span> * (dp[(i - <span style="color: rgba(128, 0, 128, 1)">1</span>) &amp; <span style="color: rgba(128, 0, 128, 1)">1</span>][j] + <span style="color: rgba(128, 0, 128, 1)">1</span>) *  p + <span style="color: rgba(128, 0, 128, 1)">1.0</span> * (dp[i &amp; <span style="color: rgba(128, 0, 128, 1)">1</span>][j - <span style="color: rgba(128, 0, 128, 1)">1</span>] - <span style="color: rgba(128, 0, 128, 1)">1</span>) * (<span style="color: rgba(128, 0, 128, 1)">1</span> -<span style="color: rgba(0, 0, 0, 1)"> p));
+                }
+        }
+        dp[R </span>&amp; <span style="color: rgba(128, 0, 128, 1)">1</span>][B] *= (<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)">)1e6;
+        dp[R </span>&amp; <span style="color: rgba(128, 0, 128, 1)">1</span>][B] = floor(dp[R &amp; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">][B]);
+        dp[R </span>&amp; <span style="color: rgba(128, 0, 128, 1)">1</span>][B] /= (<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)">)1e6;
+        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%.6lf\n</span><span style="color: rgba(128, 0, 0, 1)">"</span> , dp[R &amp; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">][B]);
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

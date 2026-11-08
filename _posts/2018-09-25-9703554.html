@@ -1,0 +1,84 @@
+---
+layout: post
+title: '[NOIP 2016] 愤怒的小鸟'
+date: 2018-09-25 21:10:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9703554.html
+cnblogs_id: 9703554
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p>           <a href="http://uoj.ac/problem/265" target="_blank" rel="noopener nofollow">http://uoj.ac/problem/265</a></p>
+<p>[算法]</p>
+<p>         首先 ， 可以通过枚举两点计算出抛物线</p>
+<p>         用Fi表示打掉集合i所需的最少抛物线 ， 每次转移只需枚举第一个没打到的点即可</p>
+<p>         时间复杂度 : O(2 ^ n * n ^ 2)</p>
+<p>[代码]</p>
+<p>         </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 20
+<span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">int</span> MAXS = <span style="color: rgba(128, 0, 128, 1)">1</span> &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">20</span><span style="color: rgba(0, 0, 0, 1)">;
+</span><span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">double</span> EPS = 1e-<span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> n , m;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> value[MAXN][MAXN];
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> dp[MAXS];
+</span><span style="color: rgba(0, 0, 255, 1)">double</span><span style="color: rgba(0, 0, 0, 1)"> x[MAXN],y[MAXN];
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> init()
+{
+    memset(value,</span><span style="color: rgba(128, 0, 128, 1)">0</span>,<span style="color: rgba(0, 0, 255, 1)">sizeof</span><span style="color: rgba(0, 0, 0, 1)">(value));
+    memset(dp,</span><span style="color: rgba(128, 0, 128, 1)">0x3f</span>,<span style="color: rgba(0, 0, 255, 1)">sizeof</span><span style="color: rgba(0, 0, 0, 1)">(dp));    
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main()
+{
+    
+    </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> T;
+    scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">T);
+    </span><span style="color: rgba(0, 0, 255, 1)">while</span> (T--<span style="color: rgba(0, 0, 0, 1)">)
+    {
+        init();
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;n,&amp;<span style="color: rgba(0, 0, 0, 1)">m);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++) scanf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%lf%lf</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;x[i],&amp;<span style="color: rgba(0, 0, 0, 1)">y[i]);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+            </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> j = i + <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= n; j++<span style="color: rgba(0, 0, 0, 1)">)
+            {
+                 </span><span style="color: rgba(0, 0, 255, 1)">if</span> (fabs(x[i] - x[j]) &lt; EPS) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                 </span><span style="color: rgba(0, 0, 255, 1)">double</span> a = (y[i] * x[j] - y[j] * x[i]) / (x[i] * x[i] * x[j] - x[j] * x[j] *<span style="color: rgba(0, 0, 0, 1)"> x[i]) ,
+                         b </span>= (y[i] * x[j] * x[j] - y[j] * x[i] * x[i]) / (x[j] * x[j] * x[i] - x[j] * x[i] *<span style="color: rgba(0, 0, 0, 1)"> x[i]);
+                 </span><span style="color: rgba(0, 0, 255, 1)">if</span> (a &gt; 0 || (a &gt; -EPS &amp;&amp; a &lt; EPS)) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                 </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> k = <span style="color: rgba(128, 0, 128, 1)">1</span>; k &lt;= n; k++<span style="color: rgba(0, 0, 0, 1)">)
+                 {
+                      </span><span style="color: rgba(0, 0, 255, 1)">if</span> (fabs(y[k] - a * x[k] * x[k] - b * x[k]) &lt;<span style="color: rgba(0, 0, 0, 1)"> EPS) 
+                            value[i][j] </span>|= <span style="color: rgba(128, 0, 128, 1)">1</span> &lt;&lt; (k - <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);             
+                 }     
+            }    
+        }    
+        dp[</span><span style="color: rgba(128, 0, 128, 1)">0</span>] = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i &lt; (<span style="color: rgba(128, 0, 128, 1)">1</span> &lt;&lt; n);  i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+            </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= n; j++<span style="color: rgba(0, 0, 0, 1)">)
+            {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> ((i &amp; (<span style="color: rgba(128, 0, 128, 1)">1</span> &lt;&lt; (j - <span style="color: rgba(128, 0, 128, 1)">1</span>))) == <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">)
+                {
+                    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> k = j + <span style="color: rgba(128, 0, 128, 1)">1</span>; k &lt;= n; k++<span style="color: rgba(0, 0, 0, 1)">)
+                         dp[i </span>| value[j][k]] = min(dp[i | value[j][k]],dp[i] + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+                    dp[i </span>| (<span style="color: rgba(128, 0, 128, 1)">1</span> &lt;&lt; (j - <span style="color: rgba(128, 0, 128, 1)">1</span>))] = min(dp[i | (<span style="color: rgba(128, 0, 128, 1)">1</span> &lt;&lt; (j - <span style="color: rgba(128, 0, 128, 1)">1</span>))],dp[i] + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+                    </span><span style="color: rgba(0, 0, 255, 1)">break</span><span style="color: rgba(0, 0, 0, 1)">;
+                }
+            }
+        }
+        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span>,dp[(<span style="color: rgba(128, 0, 128, 1)">1</span> &lt;&lt; n) - <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">]);
+    }
+        
+    </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

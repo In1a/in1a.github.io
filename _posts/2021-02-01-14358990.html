@@ -1,0 +1,74 @@
+---
+layout: post
+title: '[THUWC2017] 随机二分图'
+date: 2021-02-01 20:59:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/14358990.html
+cnblogs_id: 14358990
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p><a href="" rel="noopener nofollow">https://loj.ac/p/2290</a></p>
+<p>[题解]</p>
+<p>首先考虑所有边满足 <span class="math inline">\(t = 0\)</span> 的情况。</p>
+<p>不妨设 <span class="math inline">\(dp_{s1 , s2}\)</span> 表示左侧未选集合为 <span class="math inline">\(s1\)</span> , 右侧为 <span class="math inline">\(s2\)</span> 的完美匹配数期望。</p>
+<p>根据期望的线性性 ， 有 <span class="math inline">\(dp_{s1 , s2} = \sum_{i \in s1}\sum_{j \in s2}{p_{i , j} \cdot dp_{s1 \oplus bit_{i} , s2 \oplus bit_{j}}}\)</span>。</p>
+<p>直接这样计算会将本质相同的一组完美匹配贡献多次 ， 因此转移时可以考虑强制去掉最高位 / 最低位。</p>
+<p>接着考虑存在 <span class="math inline">\(t \neq 0\)</span> 的情况。</p>
+<p>假设 <span class="math inline">\(t = 1\)</span> ， 不妨将 <span class="math inline">\((u , v)\)</span> 和 <span class="math inline">\((a , b)\)</span> 这两条边当作 "<span class="math inline">\(0\)</span> 类边" 处理 ， 将其概率均设为 <span class="math inline">\(\frac{1}{2}\)</span>。这样在计算答案时 ， <span class="math inline">\((u , v)\)</span> , <span class="math inline">\((a , b)\)</span> 二者出现一条的概率为 <span class="math inline">\(\frac{1}{2}\)</span> ， 符合要求 ， 但 <span class="math inline">\((u , v)\)</span> , <span class="math inline">\((a , b)\)</span> 二者同时出现的概率变为了 <span class="math inline">\(\frac{1}{4}\)</span> ， 与要求的 <span class="math inline">\(\frac{1}{2}\)</span> 不符。 因此不妨加入一条 "四元边" <span class="math inline">\((u , v , a , b)\)</span> ， 其出现概率为 <span class="math inline">\(\frac{1}{4}\)</span>。 对于 <span class="math inline">\(t = 2\)</span> 的情况则加入一条概率为 <span class="math inline">\(-\frac{1}{4}\)</span> 的边。虽然这样不符合常理 ， 但根据期望的线性性质是可行的 。</p>
+<p>注意当 <span class="math inline">\((u , v)\)</span> , <span class="math inline">\((a , b)\)</span> 存在公共点时二者不可兼得 ， 故不需要加入 "四元边"。</p>
+<p>状态数很大 ， 数组存不下 ， 可以用一个 <span class="math inline">\(unordered\)</span>_<span class="math inline">\(map\)</span> 存储。</p>
+<p>时间复杂度 : <span class="math inline">\(O(?)\)</span></p>
+<p>[代码]</p>
+<pre><code class="language-cpp">#include&lt;bits/stdc++.h&gt;
+
+using namespace std;
+
+typedef long long LL;
+
+#define rep(i , l , r) for (int i = (l); i &lt; (r); ++i)
+
+const int MN = 5005;
+const int mod = 1e9 + 7 , inv2 = 500000004, inv4 = 250000002;
+
+unordered_map &lt; int , int &gt; dp , f;
+
+int w[MN] , e[MN] , N , M , tot;
+
+inline void inc(int &amp;x , int y) {
+	x = x + y &lt; mod ? x + y : x + y - mod;
+}
+inline int dfs(int s) {
+	if (!s) return 1;
+	if (f[s]) return dp[s];
+	int res = 0;
+	f[s] = 1;
+	for (int i = 1; i &lt;= tot; ++i)
+		if ((e[i] &amp; s) == e[i] &amp;&amp; e[i] &gt; s / 2)
+			inc(res , 1ll * w[i] * dfs(s ^ e[i]) % mod);
+	return dp[s] = res;
+}
+int main() {
+	 
+	 scanf("%d%d" , &amp;N , &amp;M);
+	 for (int i = 1; i &lt;= M; ++i) {
+	 	 int op , u , v , a , b;
+	 	 scanf("%d%d%d" , &amp;op , &amp;u , &amp;v);
+	 	 --u , --v;
+	 	 e[++tot] = (1 &lt;&lt; u) | (1 &lt;&lt; v + N); w[tot] = inv2;
+	 	 if (!op) continue;
+	 	 scanf("%d%d" , &amp;a , &amp;b);
+	 	 --a , --b;
+	 	 e[++tot] = (1 &lt;&lt; a) | (1 &lt;&lt; b + N); w[tot] = inv2;
+	 	 if (e[tot] &amp; e[tot - 1]) continue;
+	 	 e[tot + 1] = e[tot] | e[tot - 1];
+	 	 w[++tot] = (op == 1 ? inv4 : mod - inv4);
+	 }
+	 printf("%d\n" , 1ll * (1 &lt;&lt; N) * dfs((1 &lt;&lt; (2 * N)) - 1) % mod);
+     return 0;
+}
+</code></pre>
+
+
+
+{% endraw %}

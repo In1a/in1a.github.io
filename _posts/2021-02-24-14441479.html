@@ -1,0 +1,110 @@
+---
+layout: post
+title: '[CF1375H] Set Merging'
+date: 2021-02-24 14:59:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/14441479.html
+cnblogs_id: 14441479
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p><a href="" rel="noopener nofollow">http://codeforces.com/contest/1375/problem/H</a></p>
+<p>[题解]</p>
+<p>考虑对值域分块。</p>
+<p>不难发现对于一段值域在 <span class="math inline">\([l , r]\)</span> 中对应的也是一段连续区间。</p>
+<p>那么不妨对每一段记 <span class="math inline">\(f_{l , r}\)</span> 表示 <span class="math inline">\([l , r]\)</span> 这段区间对应的节点。</p>
+<p>考虑建出一个类似于线段树的结构进行分治 ， 每次递归处理小于 / 大于 <span class="math inline">\(mid\)</span> 的数形成的集合。最后对跨过 <span class="math inline">\(mid\)</span> 的进行合并即可。</p>
+<p>这样做的复杂度 <span class="math inline">\(T(B) = 2T(\frac{B}{2}) + B ^ 2 \approx O(B ^ 2)\)</span>。</p>
+<p>一共有 <span class="math inline">\(\frac{N}{B}\)</span> 个块 ， 故这部分复杂度 <span class="math inline">\(O(NB)\)</span>。</p>
+<p>那么对于每个需求只需将其对应的每块值域的节点合并起来即可。</p>
+<p>当 <span class="math inline">\(B\)</span> 取 <span class="math inline">\(\sqrt{N}\)</span> 时 ， 操作数约为 <span class="math inline">\(N\sqrt{N} \approx 2.2 * 10 ^ {6}\)</span>。</p>
+<p>[代码]</p>
+<pre><code class="language-cpp">#include&lt;bits/stdc++.h&gt;
+ 
+using namespace std;
+ 
+typedef long long LL;
+ 
+#define rep(i , l , r) for (int i = (l); i &lt; (r); ++i)
+ 
+typedef pair &lt; int , int &gt; pii;
+#define mp make_pair
+ 
+const int MN = 1e5 , MM = 2e6 , MS = 2.5e6 + 5 , MB = 1 &lt;&lt; 8;
+ 
+int A[MN] , rv[MN];
+int N , M , siz , ans[MN] , B;
+vector &lt; pii &gt; way;
+ 
+inline int merge(int u , int v) {
+	if (!u || !v) return u + v;
+	way.emplace_back(mp(u , v));
+	return ++siz;
+}
+ 
+int f[MB * 2 + 5][MB + 5][MB + 5];
+ 
+struct Block {
+	int l , r;
+	inline void solve(int u , int l , int r , vector &lt; int &gt; V) {
+		if (l == r) { f[u][1][1] = rv[V[1]]; return; }
+		int mid = l + r &gt;&gt; 1; vector &lt; int &gt; LV(1) , RV(1);
+		for (int i = 1; i &lt; V.size(); ++i) 
+			 if (V[i] &lt;= mid) LV.emplace_back(V[i]);
+			 else RV.emplace_back(V[i]);
+		solve(u &lt;&lt; 1 , l , mid , LV); solve(u &lt;&lt; 1 | 1 , mid + 1 , r , RV);
+		for (int i = 1 , xl = 1 , xr = 1; i &lt; V.size(); xl += (V[i] &lt;= mid) , xr += (V[i] &gt; mid) , ++i) {
+			for (int j = i - 1 , yl = xl - 1 , yr = xr - 1; j &lt; V.size(); ++j , yl += (V[j] &lt;= mid) , yr += (V[j] &gt; mid)) {
+				if (j == i - 1) continue;
+				f[u][i][j] = merge(f[u &lt;&lt; 1][xl][yl] , f[u &lt;&lt; 1 | 1][xr][yr]);
+			}
+		}
+	}
+	int home[MN] , res[MB + 5][MB + 5];
+	inline void build() {
+		vector &lt; int &gt; vec(1);
+		for (int i = 1; i &lt;= N; ++i) 
+			if (A[i] &gt;= l &amp;&amp; A[i] &lt;= r) {
+				vec.emplace_back(A[i]);
+				home[i] = home[i - 1] + 1;
+			} else home[i] = home[i - 1];
+		solve(1 , l , r , vec);
+		for (int i = 1; i &lt; vec.size(); ++i)
+		for (int j = 1; j &lt; vec.size(); ++j)
+			res[i][j] = f[1][i][j];
+		return;
+	}
+	inline int query(int l , int r) {
+		return res[home[l - 1] + 1][home[r]];
+	}
+} blo[20];
+ 
+int main() {
+	 
+	 scanf("%d%d" , &amp;N , &amp;M); siz = N , B = min(N , MB);
+	 for (int i = 1; i &lt;= N; ++i) {
+	 	 scanf("%d" , &amp;A[i]);
+	 	 rv[A[i]] = i;
+	 }
+	 for (int i = 1; (i - 1) * B + 1 &lt;= N; ++i) {
+	 	 blo[i].l = (i - 1) * B + 1 , blo[i].r = i * B;
+		 blo[i].build(); 
+	 }
+	 for (int i = 1; i &lt;= M; ++i) {
+	 	 int l , r; scanf("%d%d" , &amp;l , &amp;r); ans[i] = 0;
+	 	 for (int j = 1; j &lt;= (N - 1) / B + 1; ++j)
+	 	 	ans[i] = merge(ans[i] , blo[j].query(l , r));
+	 }
+	 printf("%d\n" , siz);
+	 for (auto x : way)
+	  	 printf("%d %d\n" , x.first , x.second);
+	 for (int i = 1; i &lt;= M; ++i)
+	 	 printf("%d " , ans[i]);
+	 printf("\n");
+     return 0;
+}
+</code></pre>
+
+
+
+{% endraw %}

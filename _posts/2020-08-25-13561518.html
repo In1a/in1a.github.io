@@ -1,0 +1,78 @@
+---
+layout: post
+title: 'NOI2020 简要题解'
+date: 2020-08-25 19:34:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/13561518.html
+cnblogs_id: 13561518
+---
+{% raw %}
+
+<p><span class="math inline">\(A\)</span><br>
+首先不难发现一个暴力动态规划的做法 ， 记<span class="math inline">\(f_{i,j}\)</span>表示第<span class="math inline">\(i\)</span>天 ，当前在第<span class="math inline">\(j\)</span>座城市所获得的最大收益<br>
+有转移方程 <span class="math inline">\(f_{i,j} = max\{f_{i-w_{i},u_{i}}+cost_i+extra_{i,j}\}\)</span><br>
+发现<span class="math inline">\(w_{i}\)</span>非常小 ， 考虑拆点。 将每个点拆成<span class="math inline">\(w_{i}\)</span>个点 ， 那么一共会有至多<span class="math inline">\(5n\)</span>个点。<br>
+接着 ， 考虑矩阵乘法 , 事实上 ， 将求和运算改为<span class="math inline">\(max\)</span>运算 ， 并将括号内的改为加法 ， 是依然成立的 (广义矩阵乘法）<br>
+那么我们就只需要预处理<span class="math inline">\(64\)</span>个矩阵 ， 并用向量乘矩阵合并答案<br>
+时间复杂度 : <span class="math inline">\(O({(5N)^2logT + (5N)^3logT})\)</span><br>
+代码 : <a href="https://loj.ac/submission/917284" target="_blank" rel="noopener nofollow">https://loj.ac/submission/917284</a></p>
+<p><span class="math inline">\(B\)</span><br>
+首先对于<span class="math inline">\(M &lt;= 23\)</span> , 有一个容斥原理的做法 ：<br>
+考虑钦定每个限制是否一定不满足 ， 那么就只需建出虚树 ， 设一共有<span class="math inline">\(i\)</span>个限制一定不满足 ， 虚树的长度总和为<span class="math inline">\(l\)</span> , 对答案的贡献即为 <span class="math inline">\((-1)^i \cdot 2^{n-1-l}\)</span><br>
+但是这样的指数级算法是不能接受的。<br>
+考虑一个动态规划的思路 ：<br>
+记 <span class="math inline">\(f_{i,j}\)</span> 表示以 <span class="math inline">\(i\)</span> 为根的子树 ， 在<span class="math inline">\(j\)</span>深度或更大的点一定要有一条向上边权为<span class="math inline">\(1\)</span>的边的方案数。<br>
+转移的时候只需枚举其儿子节点 ， 并讨论边权为<span class="math inline">\(0/1\)</span>的情况 ， 依次合并即可。<br>
+直接这样做是 <span class="math inline">\(O(ND)\)</span> 的 ， 其中<span class="math inline">\(D\)</span>表示深度<br>
+考虑优化 ， 不妨写出转移方程 : <span class="math inline">\(dp'_{x,i} = dp_{x,i} \cdot (sum_{y,depx} + sum_{y , i}) + dp_{y,i} \cdot sum_{x , i - 1}\)</span> , 其中<span class="math inline">\(sum\)</span>表示<span class="math inline">\(dp\)</span>数组的前缀和。<br>
+考虑线段树合并 ， 每次先将左子树的和累加 ， 然后加到右子树上 ， 我们只需对于线段树上每个节点维护一个整体乘法标记即可。2018年北大冬令营有过一个类似的套路。<br>
+时间复杂度 : <span class="math inline">\(O(NlogN)\)</span><br>
+代码 : <a href="https://loj.ac/submission/916802" target="_blank" rel="noopener nofollow">https://loj.ac/submission/916802</a></p>
+<p><span class="math inline">\(C\)</span></p>
+<p>分块。</p>
+<p><span class="math inline">\(D\)</span><br>
+首先观察数据范围 , 有 <span class="math inline">\(m \geq n - 2\)</span> 。并且部分分中有一档是 <span class="math inline">\(m = n - 1\)</span> , 很可能起到提示标准算法的作用。<br>
+考虑<span class="math inline">\(m = n - 1\)</span>怎么做。<br>
+令 <span class="math inline">\(d_1 \leq d_2 \leq d_3 .... \leq d_{n}\)</span><br>
+首先 ， <span class="math inline">\(m = n - 1\)</span> 时一定有解。<br>
+我们发现 ， <span class="math inline">\(n=2 , 3\)</span> 的情况都可以直接构造 ， 那么我们是否能将 <span class="math inline">\(n\)</span> 的情况向 <span class="math inline">\(n - 1\)</span> 转化呢？<br>
+引理 <span class="math inline">\(1\)</span> ： <span class="math inline">\(d_1 &lt; k\)</span><br>
+证明 : 假设 <span class="math inline">\(d_1 \geq k\)</span> ， 那么 <span class="math inline">\(d_1 + d_2 + d_3 + ... + d_n \geq nk &gt; (n - 1)k = d_1 + d_2 + .... + d_n\)</span> ， 矛盾。<br>
+引理 <span class="math inline">\(2\)</span> : <span class="math inline">\(d_{1} + d{n} \geq k\)</span><br>
+假设 <span class="math inline">\(d_{1} + d_n \leq k - 1\)</span> , 那么 , <span class="math inline">\(d_n &lt;= k - 1 - d_1\)</span> , 则<span class="math inline">\(d_1 + d_2 + ... + d_n \leq d_1 + (k - 1 - d_1)(n - 1)\)</span> , 矛盾。<br>
+根据这两条引理 ， 我们就获得了一个构造方案 ， 每次将 <span class="math inline">\(d_1\)</span> 用完 ， 然后用 <span class="math inline">\(d_n\)</span> 填补空缺 ， 当只剩两个的时候直接放一起即可。<br>
+对于 <span class="math inline">\(m &gt;= n\)</span> 的情况 ， 考虑向 <span class="math inline">\(m = n - 1\)</span>转化。<br>
+引理 <span class="math inline">\(3\)</span> : <span class="math inline">\(d_{n} \geq k\)</span>。<br>
+证明 : 若 <span class="math inline">\(d_{n} &lt; k\)</span> , 则 <span class="math inline">\(d_1 + d_2 + ... + d_n &lt; nk \leq mk = d_1 + d_2 + ..... + d_n\)</span><br>
+单独用一次 <span class="math inline">\(d_n\)</span> ， 就使 <span class="math inline">\(m\)</span> 减小了<span class="math inline">\(1\)</span> ， 因此可以最终转化为 <span class="math inline">\(m = n - 1\)</span>的情况。<br>
+综上 ， 我们得到了一个 <span class="math inline">\(m \geq n - 1\)</span>时的做法 , 可以得到 <span class="math inline">\(20\)</span> 分。 如果加上 <span class="math inline">\(n &lt;= 10\)</span>的暴力做法 ， 就可以得到 <span class="math inline">\(45\)</span> 分的可观得分。<br>
+接着 ， 我们考虑如何处理 <span class="math inline">\(m = n - 2\)</span>。<br>
+引理 <span class="math inline">\(4\)</span> : 问题有解当且仅当可以找到一个子集 <span class="math inline">\(S\)</span> , 记 <span class="math inline">\(x = |S|\)</span> , <span class="math inline">\(S\)</span>中的元素的和 <span class="math inline">\(= (x - 1)k\)</span>。<br>
+证明 :<br>
+充分性 : 显然 ， 对于集合 <span class="math inline">\(S\)</span> 与集合 <span class="math inline">\(T = U - S\)</span> , 都是两个满足 <span class="math inline">\(m = n - 1\)</span> 的子问题。 直接对于两个集合分别构造一组解即可。<br>
+必要性 : 考虑一张图<span class="math inline">\(G\)</span> ， 我们将两种一起使用的节点连一条边 ， 那么就一共有 <span class="math inline">\(n - 2\)</span> 条边 ， 这张图一定是不连通的。 所以满足有解一定要找到这样的一个集合。<br>
+根据引理 <span class="math inline">\(4\)</span> , 我们可以将每个 <span class="math inline">\(d_i\)</span> 减去 <span class="math inline">\(k\)</span> ， 那么就只需判断是否有一个集合的元素和为 <span class="math inline">\(-k\)</span>。<br>
+这是一个经典的背包问题 ， 可以通过 <span class="math inline">\(bitset\)</span> 优化。<br>
+时间复杂度 : <span class="math inline">\(O({N ^ 2K \over w})\)</span> , 取 <span class="math inline">\(w\)</span> = <span class="math inline">\(32\)</span> 或 <span class="math inline">\(64\)</span>。<br>
+代码 : <a href="https://loj.ac/submission/917359" target="_blank" rel="noopener nofollow">https://loj.ac/submission/917359</a></p>
+<p><span class="math inline">\(E\)</span><br>
+首先引出"好树"的概念 ， 我们将一棵每个节点左右儿子 <span class="math inline">\(size\)</span> 值的最小值均不超过 <span class="math inline">\(1\)</span> 的二叉树称为好树。<br>
+观察 <span class="math inline">\(1\)</span> : 如果仅有有限个好树不在集合 <span class="math inline">\(grow(T)\)</span> 中 ， 则该集合是几乎完备的。<br>
+观察 <span class="math inline">\(2\)</span> : 输入的集合中 ， 非好树是无用的。<br>
+观察 <span class="math inline">\(1\)</span> 比较显然 ， 而观察 <span class="math inline">\(2\)</span> 是因为根据观察 <span class="math inline">\(1\)</span> ， 只有好树是值得关心的。<br>
+那么我们就有了一个递归求解的思路 :<br>
+令 <span class="math inline">\(solve(T)\)</span> 表示树林 <span class="math inline">\(T\)</span> 是否几乎完备。<br>
+首先 ， 如果有叶子节点 ， 返回完备。 如果树林为空 ， 返回不完备。<br>
+否则 ， 将其分为 <span class="math inline">\(4\)</span> 类 :<br>
+<span class="math inline">\(1\)</span> : 根只有左儿子。<br>
+<span class="math inline">\(2\)</span> : 根只有右儿子。<br>
+<span class="math inline">\(3\)</span> : 根有左右儿子且左儿子大小为 <span class="math inline">\(1\)</span>。<br>
+<span class="math inline">\(4\)</span> : 根有左右儿子且右儿子大小为 <span class="math inline">\(1\)</span>。<br>
+判断这四个子问题是否都成立即可。<br>
+因为每个节点的贡献都是 <span class="math inline">\(1\)</span> , 因此时间复杂度是 <span class="math inline">\(O(N)\)</span> 级别。<br>
+代码 : <a href="https://loj.ac/submission/918127" target="_blank" rel="noopener nofollow">https://loj.ac/submission/918127</a></p>
+<p><span class="math inline">\(F\)</span></p>
+<p>弦图。</p>
+
+
+
+{% endraw %}

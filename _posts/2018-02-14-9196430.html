@@ -1,0 +1,97 @@
+---
+layout: post
+title: '【USACO】 奶牛政坛'
+date: 2018-02-14 15:05:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9196430.html
+cnblogs_id: 9196430
+---
+{% raw %}
+
+<p>【题目链接】</p>
+<p>          <a href="http://oj.jzxx.net/problem.php?id=1655" rel="noopener nofollow">点击打开链接</a></p>
+<p>【算法】</p>
+<p>         tarjan算法求LCA</p>
+<p>【代码】</p>
+<p>      </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 200010
+<span style="color: rgba(0, 0, 255, 1)">#pragma</span> GOC optimize("O2")
+
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> n,k,i,p,fa,q;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> a[MAXN],visit[MAXN],parent[MAXN],maxn[MAXN],
+    depth[MAXN],x[MAXN],y[MAXN],z[MAXN],ans[MAXN];
+vector</span>&lt;<span style="color: rgba(0, 0, 255, 1)">int</span>&gt;<span style="color: rgba(0, 0, 0, 1)"> son[MAXN],vec[MAXN];
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span> find(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x) {
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (parent[x] == x) <span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> x;
+    parent[x] </span>=<span style="color: rgba(0, 0, 0, 1)"> find(parent[x]);
+    </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> parent[x];    
+} 
+
+</span><span style="color: rgba(0, 0, 255, 1)">void</span> dfs(<span style="color: rgba(0, 0, 255, 1)">int</span> dep,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> d) {
+    </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i;
+    depth[dep] </span>=<span style="color: rgba(0, 0, 0, 1)"> d;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i &lt; son[dep].size(); i++<span style="color: rgba(0, 0, 0, 1)">) 
+        dfs(son[dep][i],d</span>+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">void</span> tarjan(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> u) {
+    </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i;
+    parent[u] </span>=<span style="color: rgba(0, 0, 0, 1)"> u;
+    visit[u] </span>= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i &lt; vec[u].size(); i++<span style="color: rgba(0, 0, 0, 1)">) {
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (y[vec[u][i]] == u &amp;&amp; visit[x[vec[u][i]]]) z[vec[u][i]] =<span style="color: rgba(0, 0, 0, 1)"> find(x[vec[u][i]]);
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (x[vec[u][i]] == u &amp;&amp; visit[y[vec[u][i]]]) z[vec[u][i]] =<span style="color: rgba(0, 0, 0, 1)"> find(y[vec[u][i]]);
+    }
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i &lt; son[u].size(); i++<span style="color: rgba(0, 0, 0, 1)">) {
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!<span style="color: rgba(0, 0, 0, 1)">visit[son[u][i]]) {
+            tarjan(son[u][i]);
+            parent[son[u][i]] </span>=<span style="color: rgba(0, 0, 0, 1)"> u;
+        }
+    }
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() {
+    
+    scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;n,&amp;<span style="color: rgba(0, 0, 0, 1)">k);
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">) {
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;a[i],&amp;<span style="color: rgba(0, 0, 0, 1)">p);
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (p != <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">) son[p].push_back(i);
+        </span><span style="color: rgba(0, 0, 255, 1)">else</span> fa =<span style="color: rgba(0, 0, 0, 1)"> i;    
+    }
+    
+    dfs(fa,</span><span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">);
+    
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">) {
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (depth[i] &gt;<span style="color: rgba(0, 0, 0, 1)"> depth[maxn[a[i]]]) 
+            maxn[a[i]] </span>=<span style="color: rgba(0, 0, 0, 1)"> i;    
+    }
+    
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">) {
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (maxn[a[i]] !=<span style="color: rgba(0, 0, 0, 1)"> i) {
+            </span>++<span style="color: rgba(0, 0, 0, 1)">q;
+            x[q] </span>=<span style="color: rgba(0, 0, 0, 1)"> maxn[a[i]];
+            y[q] </span>=<span style="color: rgba(0, 0, 0, 1)"> i;
+            vec[maxn[a[i]]].push_back(q);
+            vec[i].push_back(q);
+        }        
+    }
+    
+    tarjan(fa);
+
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= q; i++<span style="color: rgba(0, 0, 0, 1)">) {
+        ans[a[x[i]]] </span>= max(ans[a[x[i]]],depth[x[i]] + depth[y[i]] - <span style="color: rgba(128, 0, 128, 1)">2</span> *<span style="color: rgba(0, 0, 0, 1)"> depth[z[i]]);
+    } 
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= k; i++) printf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,ans[i]);
+    
+    </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

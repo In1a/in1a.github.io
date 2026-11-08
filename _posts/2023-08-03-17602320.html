@@ -1,0 +1,219 @@
+---
+layout: post
+title: 'Yifan and Yifan'
+date: 2023-08-03 08:29:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/17602320.html
+cnblogs_id: 17602320
+---
+{% raw %}
+
+<p>Yifan Zhao 和 Yifan Bao 的训练题集.....</p>
+<p>第一场</p>
+<p><span class="math inline">\(A.\)</span> Making Anti-Palindromes</p>
+<p>首先如果出现最多的数次数超过一半，显然是无解的。</p>
+<p>如果是奇数也必然无解。</p>
+<p>否则， 考虑一共有多少对 <span class="math inline">\(S_{i} = S_{n - i + 1}\)</span> 以及满足这个性质的最多的字母是什么。如果超过了一半， 那么把那个字母全部换掉就行。 否则两两配对。</p>
+<p>时间复杂度 <span class="math inline">\(O(N)\)</span></p>
+<p><span class="math inline">\(B\)</span>. The Third Letter</p>
+<p>带权并查集。每次看一看两个点是否被并起来了，如果否就合并两个点。 否则检查两个点之间的树上权值和是否恰好为 <span class="math inline">\(D\)</span></p>
+<p>时间复杂度 <span class="math inline">\(O(MlogN)\)</span></p>
+<p><span class="math inline">\(C\)</span>. Imbalanced Arrays</p>
+<p>考虑绝对值最大那个数</p>
+<p>如果这个数是正数， 那么它的 <span class="math inline">\(a\)</span> 值必然为 <span class="math inline">\(n\)</span>， 否则为 <span class="math inline">\(0\)</span></p>
+<p>考虑如何把规模为 <span class="math inline">\(n\)</span> 的问题转化为规模 <span class="math inline">\(n - 1\)</span> 的问题</p>
+<p>如果绝对值最大的是正数， 那么把所有 <span class="math inline">\(a\)</span> 值减一，并将该数删去</p>
+<p>如果是负数， 那么直接把该数删去</p>
+<p>递归地做就行了， 具体实现时维护两个指针即可。</p>
+<p>时间复杂度 <span class="math inline">\(O(N)\)</span></p>
+<p><span class="math inline">\(D.\)</span> Professor Higashikata</p>
+<p>先考虑不带修改怎么做</p>
+<p>显然希望尽可能将前面的字符都填 <span class="math inline">\(1\)</span></p>
+<p>不难统计出字符串中 <span class="math inline">\(1\)</span> 的个数 <span class="math inline">\(K\)</span>。</p>
+<p>找出一个最大的前缀区间并， 满足并的大小尽可能接近 <span class="math inline">\(K\)</span></p>
+<p>把这个并中所有的 <span class="math inline">\(0\)</span> 换成 <span class="math inline">\(1\)</span> 即为交换的次数</p>
+<p>问题是怎么高效实现上述算法？</p>
+<p>先求出字符串每个位置最早被哪个区间覆盖， 这可以用 <span class="math inline">\(set\)</span> / 链表 / 线段树轻松做到。</p>
+<p>用树状数组维护区间并中 <span class="math inline">\(0\)</span> 的个数， 具体实现比较繁琐</p>
+<p>时间复杂度 <span class="math inline">\(O(QlogM)\)</span></p>
+<p>贴一下代码</p>
+<pre><code class="language-cpp">#include &lt;bits/stdc++.h&gt;
+
+using namespace std;
+
+typedef long long LL;
+
+const int MN = 2e5 + 5;
+
+int N, M, Q, CNT[MN], val[MN], A[MN], l[MN], r[MN];
+char S[MN];
+vector &lt; int &gt; ins[MN], del[MN], foo[MN];
+
+struct Fenwick {
+    unordered_map&lt; int, int &gt; mp;
+    inline void clr() {
+        mp.clear();
+    }
+    inline void add(int x, int val) {
+        for (int i = x; i &lt;= N; i += i &amp; -i) mp[i] += val;
+        return;
+    }
+    inline int query(int x) {
+        int ret = 0;
+        for (int i = x; i; i -= i &amp; -i) ret += mp[i];
+        return ret;
+    }
+} fen, bit[MN];
+
+int main() {
+
+    scanf("%d%d%d%s", &amp;N, &amp;M, &amp;Q, S + 1); int TOT = 0;
+    for (int i = 1; i &lt;= N; ++i) A[i] = S[i] - '0';
+    for (int i = 1; i &lt;= M; ++i) {
+        scanf("%d%d", &amp;l[i], &amp;r[i]);
+        ins[l[i]].emplace_back(i);
+        del[r[i] + 1].emplace_back(i);
+    }
+    set &lt; int &gt; s; s.clear();
+    for (int i = 1; i &lt;= N; ++i) {
+        for (int x : ins[i]) s.insert(x);
+        for (int x : del[i]) s.erase(x);
+        if (s.size()) val[i] = *s.begin();
+        else val[i] = -1;
+    }
+    for (int i = 1; i &lt;= N; ++i) if (~val[i]) ++CNT[val[i]];
+    for (int i = 1; i &lt;= M; ++i) CNT[i] += CNT[i - 1];
+    fen.clr();
+    for (int i = 1; i &lt;= N; ++i) bit[i].clr();
+    for (int i = 1; i &lt;= N; ++i) 
+        if (!A[i]) {
+            if (~val[i]) 
+                fen.add(val[i], 1);
+        } else ++TOT;
+    for (int i = 1; i &lt;= N; ++i) {
+        if (val[i] == -1) continue;
+        foo[val[i]].emplace_back(i);
+        if (!A[i]) bit[val[i]].add(i, 1);
+    }
+    while (Q--) {
+        int x; scanf("%d", &amp;x);
+        if (A[x]) {
+            --TOT; 
+            if (~val[x]) fen.add(val[x], 1);
+            if (~val[x]) bit[val[x]].add(x, 1);
+        } else {
+            ++TOT;
+            if (~val[x]) fen.add(val[x], -1);
+            if (~val[x]) bit[val[x]].add(x, -1);
+        }
+        A[x] ^= 1;
+        int l = 1, r = M, Rank = 0;
+        while (l &lt;= r) {
+            int mid = l + r &gt;&gt; 1;
+            if (CNT[mid] &lt; TOT) Rank = mid, l = mid + 1;
+            else r = mid - 1;
+        }
+        int ans = fen.query(Rank);
+        if (Rank &lt; M) {
+            ++Rank;
+            int P = TOT - CNT[Rank - 1] &lt; foo[Rank].size() ? foo[Rank][TOT - CNT[Rank - 1] - 1] : foo[Rank][foo[Rank].size() - 1];
+            ans += bit[Rank].query(P);
+        }
+        printf("%d\n", ans);
+    } 
+    return 0;
+}
+</code></pre>
+<p><span class="math inline">\(E.\)</span> Pairs of Segments</p>
+<p>将最少去掉多少线段转化为最多留下多少</p>
+<p>首先对于所有 <span class="math inline">\(i, j\)</span>， 如果第 <span class="math inline">\(i\)</span> 个区间和第 <span class="math inline">\(j\)</span> 个区间有交， 那么保留这两条线段的代价为不能保留和 <span class="math inline">\([min(l_{j}, r_{j}), max(r_{i}, r_{j})]\)</span> 有交的任何其他线段。</p>
+<p>那么就很简单了， 贪心解一个类似于最大独立集的问题。</p>
+<p>时间复杂度 <span class="math inline">\(O(N^2)\)</span></p>
+<p><span class="math inline">\(F.\)</span> Ball Sorting</p>
+<p>考虑没有被移动过的数。</p>
+<p>它们显然从左到右单调递增。</p>
+<p>根据这个性质动态规划即可。</p>
+<p>时间复杂度 <span class="math inline">\(O(N ^ 2)\)</span></p>
+<p>贴一下代码</p>
+<pre><code class="language-cpp">#include &lt;bits/stdc++.h&gt;
+
+using namespace std;
+
+typedef long long LL;
+
+const int MN = 555, INF = 1e9;
+
+int N, A[MN], F[MN][MN];
+
+int main() {
+
+    int T; scanf("%d", &amp;T);
+    while (T--) {
+        scanf("%d", &amp;N);
+        for (int i = 1; i &lt;= N; ++i) scanf("%d", &amp;A[i]);
+        A[N + 1] = INF;
+        for (int i = 0; i &lt;= N + 1; ++i) for (int j = 0; j &lt;= N + 1; ++j)
+            F[i][j] = INF;
+        for (int i = 0; i &lt;= N + 1; ++i) F[0][i] = 0;
+        for (int i = 1; i &lt;= N + 1; ++i) {
+            for (int j = 0; j &lt;= N; ++j) {
+                if (A[i] &gt; A[i - 1])
+                    F[i][j] = min(F[i][j], F[i - 1][j]);
+                if (!j) continue;
+                for (int k = 0; k &lt; i - 1; ++k)
+                    if (A[i] &gt; A[k])
+                        F[i][j] = min(F[i][j], F[k][j - 1] + i - k - 1);
+            }
+        }
+        for (int i = 1; i &lt;= N; ++i)
+            printf("%d ", F[N + 1][i]);
+        printf("\n");
+    }
+    return 0;
+}
+</code></pre>
+<p>第二场</p>
+<p><span class="math inline">\(A.\)</span> Triangle Coloring</p>
+<p>首先最大值必然是每个三元环点权最大的两个和的和。</p>
+<p>先不考虑颜色的问题。 我们知道每个环在最优解情况下必然是一个蓝两个红或者两个蓝一个红。 故最后统计答案时只要乘上 <span class="math inline">\(\binom{N}{2}\)</span> 即可。</p>
+<p>对于每个环而言，不难发现如果三个数权值相等， 那么有三种染色方案。 如果最小的两个数相等，那么有两种方案。 否则就只有一种。</p>
+<p>时间复杂度 <span class="math inline">\(O(NlogN)\)</span></p>
+<p><span class="math inline">\(B.\)</span> Running Miles</p>
+<p>首先 <span class="math inline">\(A_{l}, A_{r}\)</span> 必然是最大的三个数之一， 否则必然可以增加 <span class="math inline">\(l\)</span> 或减少 <span class="math inline">\(r\)</span> 使答案更优。</p>
+<p>故答案为 <span class="math inline">\(A_{l} + A_{r} + A_{x} - (r - l)\)</span> 其中 <span class="math inline">\(l &lt; x &lt; r\)</span> 且 <span class="math inline">\(A_{x}\)</span> 为区间 <span class="math inline">\((l, r)\)</span> 中权值最大的数。</p>
+<p>化简一下式子 <span class="math inline">\(A_{l} + A_{r} + A_{x} - (r - l) = (A_{l} + l) + (A_{r} - r) + A_{x}\)</span></p>
+<p>预处理 <span class="math inline">\(A_{i} + i\)</span> 的前缀最值和 <span class="math inline">\(A_{i} - i\)</span> 的后缀最值。 枚举 <span class="math inline">\(x\)</span> 计算答案。</p>
+<p>时间复杂度 <span class="math inline">\(O(N)\)</span></p>
+<p><span class="math inline">\(C.\)</span> Rudolph and Mimic</p>
+<p>可以先通过 "<span class="math inline">\(- 0\)</span>" 这样的询问问出 <span class="math inline">\(mimic\)</span> 的特征值。</p>
+<p>然后把其他特征值全部删去。</p>
+<p>继续重复询问 “<span class="math inline">\(- 0\)</span>" 直到问出 <span class="math inline">\(mimic\)</span> 的具体位置</p>
+<p>时间复杂度 <span class="math inline">\(O(N)\)</span></p>
+<p><span class="math inline">\(D.\)</span> Professor Higashikata</p>
+<p>同第一天 <span class="math inline">\(D\)</span> 题</p>
+<p><span class="math inline">\(E.\)</span> Different Arrays</p>
+<p>每次操作都会得到两个新的数组。</p>
+<p>直接记 <span class="math inline">\(F_{i, j}\)</span> 表示前 <span class="math inline">\(i\)</span> 个数最后一个是 <span class="math inline">\(j\)</span> 的方案数。</p>
+<p>转移不难。</p>
+<p>时间复杂度 <span class="math inline">\(O(N ^ 3)\)</span></p>
+<p><span class="math inline">\(F.\)</span> The Harmonization of XOR</p>
+<p>先考虑一个性质 <span class="math inline">\(x \oplus x \oplus x = x\)</span></p>
+<p>所以三组可以合并为一组。</p>
+<p>那么只需要求出最大可以分为多少组， 然后把多出的组随便合并到前面就行了。</p>
+<p>不妨考虑将所有 <span class="math inline">\({a, a \oplus x}\)</span> 分为一组。 注意 <span class="math inline">\({x}\)</span> 单独分一组就行。</p>
+<p>剩余的数直接并到任意一组即可。</p>
+<p>为什么这样是对的？</p>
+<p>记 <span class="math inline">\(x\)</span> 二进制表示下的最高位为 <span class="math inline">\(h\)</span>，<span class="math inline">\(1\)</span> 到 <span class="math inline">\(n\)</span> 中有 <span class="math inline">\(k\)</span> 个数二进制表示下第 <span class="math inline">\(h\)</span> 位为 <span class="math inline">\(1\)</span></p>
+<p>首先答案显然不超过 <span class="math inline">\(h\)</span>,  因为每个组内必然有一个数满足其二进制表示下第 <span class="math inline">\(h\)</span> 为 <span class="math inline">\(1\)</span>。</p>
+<p>而我们共分了 <span class="math inline">\(h\)</span> 组， 因为对于每个 <span class="math inline">\(n\)</span> 以内二进制表示下第 <span class="math inline">\(h\)</span> 位为 <span class="math inline">\(1\)</span> 的数 <span class="math inline">\(a\)</span>, <span class="math inline">\(a \oplus x\)</span> 必然比 <span class="math inline">\(a\)</span> 小。</p>
+<p>故不可能有比这更优的分组方案了。</p>
+<p>时间复杂度 <span class="math inline">\(O(N)\)</span></p>
+<p><span class="math inline">\(G.\)</span> Circular RMQ</p>
+<p>线段树区间加，查询</p>
+<p>时间复杂度 <span class="math inline">\(O(QlogN)\)</span></p>
+<p><span class="math inline">\(H.\)</span> Lomsat gelral</p>
+<p>线段树合并, 也可以使用 <span class="math inline">\(dsu \ on \ the \ tree\)</span></p>
+<p>时间复杂度 <span class="math inline">\(O(NlogN)\)</span></p>
+
+
+
+{% endraw %}

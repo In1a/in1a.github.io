@@ -1,0 +1,44 @@
+---
+layout: post
+title: '【HDU 1846】 Brave Game'
+date: 2018-07-12 10:37:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9298247.html
+cnblogs_id: 9298247
+---
+{% raw %}
+
+<p>【题目链接】</p>
+<p>            <a href="http://acm.hdu.edu.cn/showproblem.php?pid=1846" target="_blank" rel="noopener nofollow">http://acm.hdu.edu.cn/showproblem.php?pid=1846</a></p>
+<p>【算法】</p>
+<p>           巴什博弈</p>
+<p>           若有(m+1)个石子，显然先手不能直接取完，后手必胜</p>
+<p>           因此，我们可以把石子总数表示为 ： n = k(m+1) + r</p>
+<p>           若r不为0，则先手取走r个，若后手取s个，先手取（m + 1 - s)个，只要保证留给对手的石子数是(m+1)的倍数即可，先手必胜</p>
+<p>           否则，先手必败</p>
+<p>【代码】</p>
+<p>           </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> T,n,m;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() 
+{
+        
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">T);
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (T--<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;n,&amp;<span style="color: rgba(0, 0, 0, 1)">m);
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (n % (m + <span style="color: rgba(128, 0, 128, 1)">1</span>)) printf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">first\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">);
+                </span><span style="color: rgba(0, 0, 255, 1)">else</span> printf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">second\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">);    
+        }
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

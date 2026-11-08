@@ -1,0 +1,117 @@
+---
+layout: post
+title: '[CQOI 2015] 任务查询系统'
+date: 2018-11-17 20:03:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9975381.html
+cnblogs_id: 9975381
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p>          <a href="https://www.lydsy.com/JudgeOnline/problem.php?id=3932" target="_blank" rel="noopener nofollow">https://www.lydsy.com/JudgeOnline/problem.php?id=3932</a></p>
+<p>[算法]</p>
+<p>        首先 ， 我们可以将(Si , Ei , Pi)转化为在Si处加入Pi ， 在(Ei + 1)出删除Pi</p>
+<p>        建立可持久化线段树 ， 维护每秒出现任务的个数和优先级的和 ， 即可</p>
+<p>        时间复杂度 : O(NlogN)</p>
+<p>[代码]</p>
+<p>       </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 200010<span style="color: rgba(0, 0, 0, 1)">
+typedef </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> LL;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> n , m , idx , version;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span> S[MAXN] , E[MAXN] , P[MAXN] , root[MAXN * <span style="color: rgba(128, 0, 128, 1)">40</span>] , cnt[MAXN * <span style="color: rgba(128, 0, 128, 1)">40</span>] , tmp[MAXN * <span style="color: rgba(128, 0, 128, 1)">40</span>] , lson[MAXN * <span style="color: rgba(128, 0, 128, 1)">40</span>] , rson[MAXN * <span style="color: rgba(128, 0, 128, 1)">40</span>] , rt[MAXN * <span style="color: rgba(128, 0, 128, 1)">40</span><span style="color: rgba(0, 0, 0, 1)">];
+LL sum[MAXN </span>* <span style="color: rgba(128, 0, 128, 1)">40</span><span style="color: rgba(0, 0, 0, 1)">];
+multiset</span>&lt; <span style="color: rgba(0, 0, 255, 1)">int</span> &gt;<span style="color: rgba(0, 0, 0, 1)"> ins[MAXN] , del[MAXN];
+
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> chkmax(T &amp;x,T y) { x =<span style="color: rgba(0, 0, 0, 1)"> max(x,y); }
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> chkmin(T &amp;x,T y) { x =<span style="color: rgba(0, 0, 0, 1)"> min(x,y); }
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> read(T &amp;<span style="color: rgba(0, 0, 0, 1)">x)
+{
+    T f </span>= <span style="color: rgba(128, 0, 128, 1)">1</span>; x = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">char</span> c =<span style="color: rgba(0, 0, 0, 1)"> getchar();
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; !isdigit(c); c = getchar()) <span style="color: rgba(0, 0, 255, 1)">if</span> (c == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>) f = -<span style="color: rgba(0, 0, 0, 1)">f;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; isdigit(c); c = getchar()) x = (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">3</span>) + (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>) + c - <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">;
+    x </span>*=<span style="color: rgba(0, 0, 0, 1)"> f;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> build(<span style="color: rgba(0, 0, 255, 1)">int</span> &amp;k , <span style="color: rgba(0, 0, 255, 1)">int</span> l , <span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> r)
+{
+        k </span>= ++<span style="color: rgba(0, 0, 0, 1)">idx;
+        cnt[k] </span>= sum[k] = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (l == r) <span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> mid = (l + r) &gt;&gt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        build(lson[k] , l , mid);
+        build(rson[k] , mid </span>+ <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)"> , r);        
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> modify(<span style="color: rgba(0, 0, 255, 1)">int</span> &amp;k , <span style="color: rgba(0, 0, 255, 1)">int</span> old , <span style="color: rgba(0, 0, 255, 1)">int</span> l , <span style="color: rgba(0, 0, 255, 1)">int</span> r , <span style="color: rgba(0, 0, 255, 1)">int</span> x , <span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> value)
+{
+        k </span>= ++<span style="color: rgba(0, 0, 0, 1)">idx;
+        lson[k] </span>= lson[old] , rson[k] =<span style="color: rgba(0, 0, 0, 1)"> rson[old];
+        cnt[k] </span>= cnt[old] +<span style="color: rgba(0, 0, 0, 1)"> value;
+        sum[k] </span>= sum[old] + 1LL * tmp[x] *<span style="color: rgba(0, 0, 0, 1)"> value;    
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (l == r) <span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> mid = (l + r) &gt;&gt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (mid &gt;=<span style="color: rgba(0, 0, 0, 1)"> x) modify(lson[k] , lson[k] , l , mid , x , value);
+        </span><span style="color: rgba(0, 0, 255, 1)">else</span> modify(rson[k] , rson[k] , mid + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)"> , r , x , value);
+}
+inline LL query(</span><span style="color: rgba(0, 0, 255, 1)">int</span> &amp;k , <span style="color: rgba(0, 0, 255, 1)">int</span> l , <span style="color: rgba(0, 0, 255, 1)">int</span> r , <span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x)
+{
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (l == r) <span style="color: rgba(0, 0, 255, 1)">return</span> 1LL * tmp[l] *<span style="color: rgba(0, 0, 0, 1)"> min(x , cnt[k]);
+    </span><span style="color: rgba(0, 0, 255, 1)">int</span> mid = (l + r)    &gt;&gt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (cnt[lson[k]] &gt;= x) <span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> query(lson[k] , l , mid , x);
+    </span><span style="color: rgba(0, 0, 255, 1)">else</span> <span style="color: rgba(0, 0, 255, 1)">return</span> sum[lson[k]] + query(rson[k] , mid + <span style="color: rgba(128, 0, 128, 1)">1</span> , r , x -<span style="color: rgba(0, 0, 0, 1)"> cnt[lson[k]]); 
+}
+ 
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main()
+{
+        
+        read(n); read(m);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+              read(S[i]);
+                read(E[i]);
+              read(P[i]);
+              tmp[i] </span>=<span style="color: rgba(0, 0, 0, 1)"> P[i];
+        }
+        sort(tmp </span>+ <span style="color: rgba(128, 0, 128, 1)">1</span> , tmp + n + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> len = unique(tmp +  <span style="color: rgba(128, 0, 128, 1)">1</span> , tmp + n + <span style="color: rgba(128, 0, 128, 1)">1</span>) - tmp - <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">) 
+        {
+                P[i] </span>= lower_bound(tmp +  <span style="color: rgba(128, 0, 128, 1)">1</span> , tmp + len + <span style="color: rgba(128, 0, 128, 1)">1</span> , P[i]) -<span style="color: rgba(0, 0, 0, 1)"> tmp;
+                ins[S[i]].insert(P[i]);
+                del[E[i] </span>+ <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">].insert(P[i]);
+        }
+        build(root[version </span>= <span style="color: rgba(128, 0, 128, 1)">0</span>] , <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)"> , len);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (multiset&lt; <span style="color: rgba(0, 0, 255, 1)">int</span> &gt; :: iterator it = ins[i].begin(); it != ins[i].end(); it++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">int</span> t = (*<span style="color: rgba(0, 0, 0, 1)">it);
+                        modify(root[</span>++version] , root[version] , <span style="color: rgba(128, 0, 128, 1)">1</span> , n , t , <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);    
+                }        
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (multiset&lt; <span style="color: rgba(0, 0, 255, 1)">int</span> &gt; :: iterator it = del[i].begin(); it != del[i].end(); it++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">int</span> t = (*<span style="color: rgba(0, 0, 0, 1)">it);
+                        modify(root[</span>++version] , root[version] , <span style="color: rgba(128, 0, 128, 1)">1</span> , n , t , -<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+                }
+                rt[i] </span>=<span style="color: rgba(0, 0, 0, 1)"> version;
+        }
+        LL pre </span>= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= m; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+            LL xi , ai , bi , ci;
+            read(xi); read(ai); read(bi); read(ci);
+            </span><span style="color: rgba(0, 0, 255, 1)">int</span> ki = (1LL * ai * (pre % ci) % ci + bi % ci) % ci + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+            printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%lld\n</span><span style="color: rgba(128, 0, 0, 1)">"</span> , pre = query(root[rt[xi]] , <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)"> , n , ki));        
+        }
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

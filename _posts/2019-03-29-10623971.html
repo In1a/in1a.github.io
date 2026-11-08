@@ -1,0 +1,162 @@
+---
+layout: post
+title: '[CTSC 2012] Cheat'
+date: 2019-03-29 21:18:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/10623971.html
+cnblogs_id: 10623971
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p>         <a href="https://www.lydsy.com/JudgeOnline/problem.php?id=2806" target="_blank" rel="noopener nofollow">https://www.lydsy.com/JudgeOnline/problem.php?id=2806</a></p>
+<p>[算法]</p>
+<p>         首先建立广义后缀自动机</p>
+<p>         注意到问题具有单调性 ， 不妨对于每组询问二分答案mid</p>
+<p>         如何检验?</p>
+<p>         记fi表示前i个字符最多能选几个 ， 有转移方程 ：</p>
+<p>          fi = max{ fi - 1 , fj + i - j } (i - maxlen[i] &lt;= j &lt;= i - mid)</p>
+<p>          其中maxlen[i]表示第i个字符向前最多可匹配多少个字符</p>
+<p>          i - maxlen[i]单调递增 , i - mid同样单调递增</p>
+<p>         单调队列优化即可</p>
+<p>         时间复杂度 : O(NlogN)</p>
+<p>[代码]</p>
+<p>         </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> N 1100010
+          
+<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> n , m , L;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> dp[N] , maxlen[N] , q[N];
+</span><span style="color: rgba(0, 0, 255, 1)">char</span><span style="color: rgba(0, 0, 0, 1)"> s[N];
+
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> rint register int
+
+<span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> Suffix_Automaton
+{
+    </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> sz , last;
+    </span><span style="color: rgba(0, 0, 255, 1)">int</span> father[N] , child[N][<span style="color: rgba(128, 0, 128, 1)">3</span><span style="color: rgba(0, 0, 0, 1)">] , depth[N];
+    Suffix_Automaton()
+    {
+        sz </span>= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        last </span>= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+    }
+    inline </span><span style="color: rgba(0, 0, 255, 1)">int</span> new_node(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> dep)
+    {
+        depth[</span>++sz] =<span style="color: rgba(0, 0, 0, 1)"> dep;
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> sz;
+    }
+    inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> extend(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> ch)
+    {
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> np = new_node(depth[last] + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> p =<span style="color: rgba(0, 0, 0, 1)"> last;
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (child[p][ch] == <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">)
+        {
+            child[p][ch] </span>=<span style="color: rgba(0, 0, 0, 1)"> np;
+            p </span>=<span style="color: rgba(0, 0, 0, 1)"> father[p];
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (child[p][ch] == np) father[np] = <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)">
+        {
+            </span><span style="color: rgba(0, 0, 255, 1)">int</span> q =<span style="color: rgba(0, 0, 0, 1)"> child[p][ch];
+            </span><span style="color: rgba(0, 0, 255, 1)">if</span> (depth[q] == depth[p] + <span style="color: rgba(128, 0, 128, 1)">1</span>) father[np] =<span style="color: rgba(0, 0, 0, 1)"> q;
+            </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)">
+            {
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span> nq = new_node(depth[p] + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+                father[nq] </span>=<span style="color: rgba(0, 0, 0, 1)"> father[q];
+                father[np] </span>= father[q] =<span style="color: rgba(0, 0, 0, 1)"> nq;
+                memcpy(child[nq] , child[q] , </span><span style="color: rgba(0, 0, 255, 1)">sizeof</span><span style="color: rgba(0, 0, 0, 1)">(child[q]));
+                </span><span style="color: rgba(0, 0, 255, 1)">while</span> (child[p][ch] ==<span style="color: rgba(0, 0, 0, 1)"> q)
+                {
+                    child[p][ch] </span>=<span style="color: rgba(0, 0, 0, 1)"> nq;
+                    p </span>=<span style="color: rgba(0, 0, 0, 1)"> father[p];
+                }
+            }
+        }
+        last </span>=<span style="color: rgba(0, 0, 0, 1)"> np;
+      }
+      inline </span><span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> match()
+      {
+              </span><span style="color: rgba(0, 0, 255, 1)">int</span> now = <span style="color: rgba(128, 0, 128, 1)">1</span> , mxlen = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+              </span><span style="color: rgba(0, 0, 255, 1)">for</span> (rint i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= L; ++<span style="color: rgba(0, 0, 0, 1)">i)
+            {
+                    </span><span style="color: rgba(0, 0, 255, 1)">int</span> nxt = s[i] - <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">;
+                          </span><span style="color: rgba(0, 0, 255, 1)">while</span> (now != <span style="color: rgba(128, 0, 128, 1)">1</span> &amp;&amp; !child[now][nxt]) now = father[now] , mxlen =<span style="color: rgba(0, 0, 0, 1)"> depth[now];
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span><span style="color: rgba(0, 0, 0, 1)"> (child[now][nxt]) 
+                {
+                    </span>++<span style="color: rgba(0, 0, 0, 1)">mxlen;
+                    now </span>=<span style="color: rgba(0, 0, 0, 1)"> child[now][nxt];
+                } </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)">
+                {
+                    mxlen </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                    now </span>= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                }
+                maxlen[i] </span>=<span style="color: rgba(0, 0, 0, 1)"> mxlen;
+            }
+            }
+} SAM;
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> chkmin(<span style="color: rgba(0, 0, 255, 1)">int</span> &amp;x , <span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> y)
+{
+        x </span>=<span style="color: rgba(0, 0, 0, 1)"> min(x , y);
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> chkmax(<span style="color: rgba(0, 0, 255, 1)">int</span> &amp;x , <span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> y)
+{
+    x </span>=<span style="color: rgba(0, 0, 0, 1)"> max(x , y);
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">bool</span> check(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> mid)
+{
+    </span><span style="color: rgba(0, 0, 255, 1)">int</span> l = <span style="color: rgba(128, 0, 128, 1)">1</span> , r = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (rint i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt; mid; ++i) dp[i] = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (rint i = mid; i &lt;= L; ++<span style="color: rgba(0, 0, 0, 1)">i)
+    {
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (l &lt;= r &amp;&amp; dp[q[r]] - q[r] &lt;= dp[i - mid] - i + mid) --<span style="color: rgba(0, 0, 0, 1)">r;
+        q[</span>++r] = i -<span style="color: rgba(0, 0, 0, 1)"> mid;
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (l &lt;= r &amp;&amp; q[l] &lt; i - maxlen[i]) ++<span style="color: rgba(0, 0, 0, 1)">l;
+        dp[i] </span>= dp[i - <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (l &lt;= r) chkmax(dp[i] , dp[q[l]] - q[l] +<span style="color: rgba(0, 0, 0, 1)"> i);    
+    }    
+    </span><span style="color: rgba(0, 0, 255, 1)">return</span> dp[L] * <span style="color: rgba(128, 0, 128, 1)">10</span> &gt;= <span style="color: rgba(128, 0, 128, 1)">9</span> *<span style="color: rgba(0, 0, 0, 1)"> L;
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main()
+{
+    
+    scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span> , &amp;n , &amp;<span style="color: rgba(0, 0, 0, 1)">m);
+    </span><span style="color: rgba(0, 0, 255, 1)">int</span> mxl = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (rint i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= m; ++<span style="color: rgba(0, 0, 0, 1)">i)
+    {
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%s</span><span style="color: rgba(128, 0, 0, 1)">"</span> , s + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+                L </span>= strlen(s + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+                chkmax(mxl , L);
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (rint j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= L; ++j) SAM.extend(s[j] - <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">);
+                SAM.extend(</span><span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">);
+    }
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (rint i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; ++<span style="color: rgba(0, 0, 0, 1)">i)
+    {
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%s</span><span style="color: rgba(128, 0, 0, 1)">"</span> , s + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> l = <span style="color: rgba(128, 0, 128, 1)">1</span> , r = strlen(s + <span style="color: rgba(128, 0, 128, 1)">1</span>) , ans = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                L </span>=<span style="color: rgba(0, 0, 0, 1)"> r;
+                chkmin(r , mxl);
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> now = <span style="color: rgba(128, 0, 128, 1)">1</span> , mxlen = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        SAM.match();
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (l &lt;=<span style="color: rgba(0, 0, 0, 1)"> r)
+        {
+            </span><span style="color: rgba(0, 0, 255, 1)">int</span> mid = (l + r) &gt;&gt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+            </span><span style="color: rgba(0, 0, 255, 1)">if</span><span style="color: rgba(0, 0, 0, 1)"> (check(mid))
+            {
+                ans </span>=<span style="color: rgba(0, 0, 0, 1)"> mid;
+                l </span>= mid + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+            } </span><span style="color: rgba(0, 0, 255, 1)">else</span> r = mid - <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        }    
+        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)"> , ans);
+    }
+    
+    </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+}</span></pre>
+</div>
+<p> </p>
+<p>  </p>
+
+
+{% endraw %}

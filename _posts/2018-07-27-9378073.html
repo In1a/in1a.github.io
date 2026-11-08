@@ -1,0 +1,131 @@
+---
+layout: post
+title: '[POJ 2728] Desert King'
+date: 2018-07-27 15:56:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9378073.html
+cnblogs_id: 9378073
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p>       <a href="http://poj.org/problem?id=2728" target="_blank" rel="noopener nofollow"> http://poj.org/problem?id=2728</a></p>
+<p>[算法]</p>
+<p>        0/1分数规划 + 最小生成树<br>[代码]</p>
+<p>        在本题中，prim算法的时间复杂度优于kruskal算法，且实现较为容易，因此，笔者程序中使用的是prim算法</p>
+<p>         </p>
+<div class="cnblogs_code">
+<pre>#include &lt;algorithm&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;bitset&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cctype&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cerrno&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;clocale&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cmath&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;complex&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cstdio&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cstdlib&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cstring&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;ctime&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;deque&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;exception&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;fstream&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;functional&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;limits&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;list&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;map&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;iomanip&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;ios&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;iosfwd&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;iostream&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;istream&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;ostream&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;queue&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;<span style="color: rgba(0, 0, 255, 1)">set</span>&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;sstream&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;stdexcept&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;streambuf&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;<span style="color: rgba(0, 0, 255, 1)">string</span>&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;utility&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;vector&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cwchar&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cwctype&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;stack&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;limits.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 1010
+<span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">double</span> eps = 1e-<span style="color: rgba(128, 0, 128, 1)">7</span><span style="color: rgba(0, 0, 0, 1)">;
+</span><span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">double</span> INF =<span style="color: rgba(0, 0, 0, 1)"> 1e50;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,j,n;
+</span><span style="color: rgba(0, 0, 255, 1)">double</span><span style="color: rgba(0, 0, 0, 1)"> l,r,mid,ans;
+</span><span style="color: rgba(0, 0, 255, 1)">double</span><span style="color: rgba(0, 0, 0, 1)"> dist[MAXN][MAXN],cost[MAXN][MAXN];
+</span><span style="color: rgba(0, 0, 255, 1)">double</span><span style="color: rgba(0, 0, 0, 1)"> x[MAXN],y[MAXN],h[MAXN];
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">double</span> prim(<span style="color: rgba(0, 0, 255, 1)">double</span><span style="color: rgba(0, 0, 0, 1)"> mid)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,j,p;
+        </span><span style="color: rgba(0, 0, 255, 1)">double</span> mn,res = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">static</span> <span style="color: rgba(0, 0, 255, 1)">double</span><span style="color: rgba(0, 0, 0, 1)"> d[MAXN];
+        </span><span style="color: rgba(0, 0, 255, 1)">static</span> <span style="color: rgba(0, 0, 255, 1)">bool</span><span style="color: rgba(0, 0, 0, 1)"> visited[MAXN];
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">) 
+        {
+                d[i] </span>=<span style="color: rgba(0, 0, 0, 1)"> INF;
+                visited[i] </span>= <span style="color: rgba(0, 0, 255, 1)">false</span><span style="color: rgba(0, 0, 0, 1)">;
+        }
+        d[</span><span style="color: rgba(128, 0, 128, 1)">1</span>] = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt; n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                p </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                mn </span>=<span style="color: rgba(0, 0, 0, 1)"> INF;
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= n; j++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!visited[j] &amp;&amp; d[j] &lt;<span style="color: rgba(0, 0, 0, 1)"> mn)
+                        {
+                                mn </span>=<span style="color: rgba(0, 0, 0, 1)"> d[j];
+                                p </span>=<span style="color: rgba(0, 0, 0, 1)"> j;
+                        }
+                }
+                visited[p] </span>= <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= n; j++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!<span style="color: rgba(0, 0, 0, 1)">visited[j])
+                                d[j] </span>= min(d[j],<span style="color: rgba(128, 0, 128, 1)">1.0</span> * cost[p][j] - mid *<span style="color: rgba(0, 0, 0, 1)"> dist[p][j]);
+                }
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++) res +=<span style="color: rgba(0, 0, 0, 1)"> d[i];
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> res;
+}
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() 
+{
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (scanf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;n) &amp;&amp;<span style="color: rgba(0, 0, 0, 1)"> n)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++) scanf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%lf%lf%lf</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;x[i],&amp;y[i],&amp;<span style="color: rgba(0, 0, 0, 1)">h[i]);
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = i + <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= n; j++<span style="color: rgba(0, 0, 0, 1)">)
+                        {
+                                dist[i][j] </span>= dist[j][i] = <span style="color: rgba(128, 0, 128, 1)">1.0</span> * sqrt(<span style="color: rgba(128, 0, 128, 1)">1.0</span> * (x[i] - x[j]) * (x[i] - x[j]) + (y[i] - y[j]) * (y[i] -<span style="color: rgba(0, 0, 0, 1)"> y[j]));
+                                cost[i][j] </span>= cost[j][i] = <span style="color: rgba(128, 0, 128, 1)">1.0</span> * abs(h[i] -<span style="color: rgba(0, 0, 0, 1)"> h[j]);
+                        }
+                }
+                l </span>= <span style="color: rgba(128, 0, 128, 1)">0.0</span>; r = <span style="color: rgba(128, 0, 128, 1)">100.00</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">while</span> (r - l &gt;<span style="color: rgba(0, 0, 0, 1)"> eps)
+                {
+                        mid </span>= (l + r) / <span style="color: rgba(128, 0, 128, 1)">2.00</span><span style="color: rgba(0, 0, 0, 1)">;
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (prim(mid) &gt;= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">) 
+                        {
+                                ans </span>=<span style="color: rgba(0, 0, 0, 1)"> mid;
+                                l </span>=<span style="color: rgba(0, 0, 0, 1)"> mid;
+                        } </span><span style="color: rgba(0, 0, 255, 1)">else</span> r =<span style="color: rgba(0, 0, 0, 1)"> mid;
+                }
+                printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%.3f\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,ans);
+        }
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

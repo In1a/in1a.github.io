@@ -1,0 +1,58 @@
+---
+layout: post
+title: '【CAIOJ1177】 子串是否出现'
+date: 2018-04-20 20:11:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9196379.html
+cnblogs_id: 9196379
+---
+{% raw %}
+
+<p>【题目链接】</p>
+<p>           <a href="http://www.caioj.cn/problem.php?id=1177" rel="noopener nofollow">点击打开链接</a></p>
+<p>【算法】</p>
+<p>          KMP</p>
+<p>【代码】</p>
+<p>           </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXA 1000010
+<span style="color: rgba(0, 0, 255, 1)">#define</span> MAXB 1010
+
+<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,j,lenA,lenB;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> p[MAXB];
+</span><span style="color: rgba(0, 0, 255, 1)">char</span><span style="color: rgba(0, 0, 0, 1)"> SA[MAXA],SB[MAXB];
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() {
+        
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%s</span><span style="color: rgba(128, 0, 0, 1)">"</span>,SA+<span style="color: rgba(128, 0, 128, 1)">1</span>); lenA = strlen(SA+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%s</span><span style="color: rgba(128, 0, 0, 1)">"</span>,SB+<span style="color: rgba(128, 0, 128, 1)">1</span>); lenB = strlen(SB+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+        p[</span><span style="color: rgba(128, 0, 128, 1)">1</span>] = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">2</span>; i &lt;= lenB; i++<span style="color: rgba(0, 0, 0, 1)">) {
+                j </span>= p[i-<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+                </span><span style="color: rgba(0, 0, 255, 1)">while</span> ((j &gt; <span style="color: rgba(128, 0, 128, 1)">0</span>) &amp;&amp; (SB[i] != SB[j+<span style="color: rgba(128, 0, 128, 1)">1</span>])) j =<span style="color: rgba(0, 0, 0, 1)"> p[j];
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (SB[i] == SB[j+<span style="color: rgba(128, 0, 128, 1)">1</span>]) p[i] = j + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">; 
+                </span><span style="color: rgba(0, 0, 255, 1)">else</span> p[i] = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        }
+        
+        j </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= lenA; i++<span style="color: rgba(0, 0, 0, 1)">) {
+                </span><span style="color: rgba(0, 0, 255, 1)">while</span> ((j &gt; <span style="color: rgba(128, 0, 128, 1)">0</span>) &amp;&amp; (SA[i] != SB[j+<span style="color: rgba(128, 0, 128, 1)">1</span>])) j =<span style="color: rgba(0, 0, 0, 1)"> p[j];
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (SA[i] == SB[j+<span style="color: rgba(128, 0, 128, 1)">1</span>]) j++<span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (j ==<span style="color: rgba(0, 0, 0, 1)"> lenB) {
+                        cout</span>&lt;&lt; i - lenB + <span style="color: rgba(128, 0, 128, 1)">1</span> &lt;&lt; <span style="color: rgba(128, 0, 0, 1)">'</span> <span style="color: rgba(128, 0, 0, 1)">'</span> &lt;&lt; i &lt;&lt;<span style="color: rgba(0, 0, 0, 1)"> endl;
+                        exit(</span><span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">);
+                }    
+        }
+        
+        cout</span>&lt;&lt; <span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">NO</span><span style="color: rgba(128, 0, 0, 1)">"</span> &lt;&lt;<span style="color: rgba(0, 0, 0, 1)"> endl;
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

@@ -1,0 +1,110 @@
+---
+layout: post
+title: '【USACO】Dining'
+date: 2018-02-03 13:58:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9196443.html
+cnblogs_id: 9196443
+---
+{% raw %}
+
+<p>【题目链接】</p>
+<p>【JZXX】<a href="http://oj.jzxx.net/problem.php?id=1480" rel="noopener nofollow">点击打开链接</a></p>
+<p>【caioj】<a href="http://www.caioj.cn/problem.php?id=1116" rel="noopener nofollow">点击打开链接</a></p>
+<p>【算法】</p>
+<p>拆点+网络流</p>
+<p> </p>
+<p>【代码】</p>
+<p> </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 1000
+
+<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,tot,N,F,D,sf,sd,ans,x;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span> U[MAXN*<span style="color: rgba(128, 0, 128, 1)">5</span>],V[MAXN*<span style="color: rgba(128, 0, 128, 1)">5</span>],W[MAXN*<span style="color: rgba(128, 0, 128, 1)">5</span>],Head[MAXN*<span style="color: rgba(128, 0, 128, 1)">5</span><span style="color: rgba(0, 0, 0, 1)">],
+        Next[MAXN</span>*<span style="color: rgba(128, 0, 128, 1)">5</span>],other[MAXN*<span style="color: rgba(128, 0, 128, 1)">5</span>],h[MAXN*<span style="color: rgba(128, 0, 128, 1)">5</span><span style="color: rgba(0, 0, 0, 1)">];
+
+template </span>&lt;typename T&gt; <span style="color: rgba(0, 0, 255, 1)">void</span> read(T &amp;<span style="color: rgba(0, 0, 0, 1)">x) {
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> f=<span style="color: rgba(128, 0, 128, 1)">1</span>; x = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">char</span> c =<span style="color: rgba(0, 0, 0, 1)"> getchar(); 
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; !isdigit(c); c = getchar()) { <span style="color: rgba(0, 0, 255, 1)">if</span> (c==<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>) f=-<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">; }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; isdigit(c); c = getchar()) x=x*<span style="color: rgba(128, 0, 128, 1)">10</span>+c-<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">;
+        x</span>*=<span style="color: rgba(0, 0, 0, 1)">f;
+}
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> add(<span style="color: rgba(0, 0, 255, 1)">int</span> a,<span style="color: rgba(0, 0, 255, 1)">int</span> b,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> c) {
+        </span>++<span style="color: rgba(0, 0, 0, 1)">tot;
+        U[tot] </span>= a; V[tot] = b; W[tot] =<span style="color: rgba(0, 0, 0, 1)"> c;
+        Next[tot] </span>= Head[a]; Head[a] =<span style="color: rgba(0, 0, 0, 1)"> tot;
+        other[tot] </span>= tot + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span>++<span style="color: rgba(0, 0, 0, 1)">tot;
+        U[tot] </span>= b; V[tot] = a; W[tot] = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        Next[tot] </span>= Head[b]; Head[b] =<span style="color: rgba(0, 0, 0, 1)"> tot;
+        other[tot] </span>= tot - <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+}
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">bool</span><span style="color: rgba(0, 0, 0, 1)"> BFS() {
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,x,y;
+        queue</span>&lt;<span style="color: rgba(0, 0, 255, 1)">int</span>&gt;<span style="color: rgba(0, 0, 0, 1)"> q;    
+        memset(h,</span><span style="color: rgba(128, 0, 128, 1)">0</span>,<span style="color: rgba(0, 0, 255, 1)">sizeof</span><span style="color: rgba(0, 0, 0, 1)">(h)); 
+        h[</span><span style="color: rgba(128, 0, 128, 1)">1</span>] = <span style="color: rgba(128, 0, 128, 1)">1</span>; q.push(<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (!<span style="color: rgba(0, 0, 0, 1)">q.empty()) {
+                x </span>=<span style="color: rgba(0, 0, 0, 1)"> q.front(); q.pop();
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = Head[x]; i; i =<span style="color: rgba(0, 0, 0, 1)"> Next[i]) {
+                        y </span>=<span style="color: rgba(0, 0, 0, 1)"> V[i];
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> ((W[i] &gt; <span style="color: rgba(128, 0, 128, 1)">0</span>) &amp;&amp; (!<span style="color: rgba(0, 0, 0, 1)">h[y])) {
+                                h[y] </span>= h[x] + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                                q.push(y);
+                        }
+                }
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (h[F+<span style="color: rgba(128, 0, 128, 1)">2</span>*N+D+<span style="color: rgba(128, 0, 128, 1)">2</span>]) <span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">else</span> <span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(0, 0, 255, 1)">false</span><span style="color: rgba(0, 0, 0, 1)">;
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span> maxflow(<span style="color: rgba(0, 0, 255, 1)">int</span> x,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> f) {
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> i,y,s=<span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">,t;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (x == F + <span style="color: rgba(128, 0, 128, 1)">2</span> * N + D + <span style="color: rgba(128, 0, 128, 1)">2</span>) <span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> f;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = Head[x]; i; i =<span style="color: rgba(0, 0, 0, 1)"> Next[i]) {
+                y </span>=<span style="color: rgba(0, 0, 0, 1)"> V[i];
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> ((W[i] &gt; <span style="color: rgba(128, 0, 128, 1)">0</span>) &amp;&amp; (h[y] == h[x] + <span style="color: rgba(128, 0, 128, 1)">1</span>) &amp;&amp; (s &lt;<span style="color: rgba(0, 0, 0, 1)"> f)) {
+                        s </span>+= (t = maxflow(y,min(W[i],f-<span style="color: rgba(0, 0, 0, 1)">s)));
+                        W[i] </span>-= t; W[other[i]] +=<span style="color: rgba(0, 0, 0, 1)"> t;
+                }
+        }    
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!s) h[x] = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> s;
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() {
+        
+        read(N); read(F); read(D);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= F; i++) add(<span style="color: rgba(128, 0, 128, 1)">1</span>,<span style="color: rgba(128, 0, 128, 1)">1</span>+i,<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= D; i++) add(<span style="color: rgba(128, 0, 128, 1)">1</span>+F+<span style="color: rgba(128, 0, 128, 1)">2</span>*N+i,F+<span style="color: rgba(128, 0, 128, 1)">2</span>*N+D+<span style="color: rgba(128, 0, 128, 1)">2</span>,<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= N; i++) add(<span style="color: rgba(128, 0, 128, 1)">1</span>+F+i,<span style="color: rgba(128, 0, 128, 1)">1</span>+F+N+i,<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= N; i++<span style="color: rgba(0, 0, 0, 1)">) {
+                read(sf); read(sd);
+                </span><span style="color: rgba(0, 0, 255, 1)">while</span> (sf--<span style="color: rgba(0, 0, 0, 1)">) {
+                        read(x);
+                        add(</span><span style="color: rgba(128, 0, 128, 1)">1</span>+x,i+F+<span style="color: rgba(128, 0, 128, 1)">1</span>,<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+                }
+                </span><span style="color: rgba(0, 0, 255, 1)">while</span> (sd--<span style="color: rgba(0, 0, 0, 1)">) {
+                        read(x);
+                        add(</span><span style="color: rgba(128, 0, 128, 1)">1</span>+F+N+i,<span style="color: rgba(128, 0, 128, 1)">1</span>+F+<span style="color: rgba(128, 0, 128, 1)">2</span>*N+x,<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">); 
+                }        
+        }
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span><span style="color: rgba(0, 0, 0, 1)"> (BFS()) {
+                ans </span>+= maxflow(<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">,2e9);
+        }
+        
+        cout</span>&lt;&lt; ans &lt;&lt;<span style="color: rgba(0, 0, 0, 1)"> endl;
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

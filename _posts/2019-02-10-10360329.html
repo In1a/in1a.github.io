@@ -1,0 +1,134 @@
+---
+layout: post
+title: '[HAOI 2016] 找相同字符'
+date: 2019-02-10 21:35:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/10360329.html
+cnblogs_id: 10360329
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p>         <a href="https://www.lydsy.com/JudgeOnline/problem.php?id=4566" target="_blank" rel="noopener nofollow">https://www.lydsy.com/JudgeOnline/problem.php?id=4566</a></p>
+<p>[算法]</p>
+<p>         首先 ， 子串是后缀的前缀</p>
+<p>         考虑拼接两个字符串 ， 中间用不可见字符隔开 ， 求出该字符串的后缀数组</p>
+<p>         那么前缀相同的后缀一定排名一定接近</p>
+<p>         而我们又知道lcp(i , j) = min{ height[rk[i] + 1] , height[rk[i] + 2] ... , height[rk[j]] }</p>
+<p>         维护一个单调递增的后缀数组即可</p>
+<p>        时间复杂度 : O(NlogN)(N = |A| + |B|)</p>
+<p>[代码]</p>
+<p>         </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> N 400010
+<span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">int</span> ALPHA = <span style="color: rgba(128, 0, 128, 1)">26</span><span style="color: rgba(0, 0, 0, 1)">;
+typedef </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> ll;
+typedef </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">double</span><span style="color: rgba(0, 0, 0, 1)"> ld;
+typedef unsigned </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> ull;
+
+</span><span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> info
+{
+    </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> height;
+    </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> cnta , cntb;
+} ;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> n , m , len;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> height[N] , rk[N] , sa[N];
+</span><span style="color: rgba(0, 0, 255, 1)">char</span><span style="color: rgba(0, 0, 0, 1)"> s[N] , s1[N] , s2[N];
+
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> chkmin(T &amp;x , T y) { x =<span style="color: rgba(0, 0, 0, 1)"> min(x , y); }
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> chkmax(T &amp;x , T y) { x =<span style="color: rgba(0, 0, 0, 1)"> max(x , y); }
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> read(T &amp;<span style="color: rgba(0, 0, 0, 1)">x)
+{
+   T f </span>= <span style="color: rgba(128, 0, 128, 1)">1</span>; x = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+   </span><span style="color: rgba(0, 0, 255, 1)">char</span> c =<span style="color: rgba(0, 0, 0, 1)"> getchar();
+   </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; !isdigit(c); c = getchar()) <span style="color: rgba(0, 0, 255, 1)">if</span> (c == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>) f = -<span style="color: rgba(0, 0, 0, 1)">f;
+   </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; isdigit(c); c = getchar()) x = (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">3</span>) + (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>) + c - <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">;
+   x </span>*=<span style="color: rgba(0, 0, 0, 1)"> f;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> build_sa()
+{
+    </span><span style="color: rgba(0, 0, 255, 1)">static</span> <span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x[N] , y[N] , cnt[N];
+    memset(cnt , </span><span style="color: rgba(128, 0, 128, 1)">0</span> , <span style="color: rgba(0, 0, 255, 1)">sizeof</span><span style="color: rgba(0, 0, 0, 1)">(cnt));
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= len; i++) ++cnt[(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)">)s[i]];
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= <span style="color: rgba(128, 0, 128, 1)">256</span>; i++) cnt[i] += cnt[i - <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= len; i++) sa[cnt[s[i]]--] =<span style="color: rgba(0, 0, 0, 1)"> i;
+    rk[sa[</span><span style="color: rgba(128, 0, 128, 1)">1</span>]] = <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">2</span>; i &lt;= len; i++) rk[sa[i]] = rk[sa[i - <span style="color: rgba(128, 0, 128, 1)">1</span>]] + (s[sa[i]] != s[sa[i - <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">]]);
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> k = <span style="color: rgba(128, 0, 128, 1)">1</span>; rk[sa[len]] != len; k &lt;&lt;= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">)
+    {
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= len; i++<span style="color: rgba(0, 0, 0, 1)">)
+            x[i] </span>= rk[i] , y[i] = (i + k &lt;= len) ? rk[i + k] : <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        memset(cnt , </span><span style="color: rgba(128, 0, 128, 1)">0</span> , <span style="color: rgba(0, 0, 255, 1)">sizeof</span><span style="color: rgba(0, 0, 0, 1)">(cnt));
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= len; i++) ++<span style="color: rgba(0, 0, 0, 1)">cnt[y[i]];
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= len; i++) cnt[i] += cnt[i - <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = len; i &gt;= <span style="color: rgba(128, 0, 128, 1)">1</span>; i--) rk[cnt[y[i]]--] =<span style="color: rgba(0, 0, 0, 1)"> i;
+        memset(cnt , </span><span style="color: rgba(128, 0, 128, 1)">0</span> , <span style="color: rgba(0, 0, 255, 1)">sizeof</span><span style="color: rgba(0, 0, 0, 1)">(cnt));
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= len; i++) ++<span style="color: rgba(0, 0, 0, 1)">cnt[x[i]];
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= len; i++) cnt[i] += cnt[i - <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = len; i &gt;= <span style="color: rgba(128, 0, 128, 1)">1</span>; i--) sa[cnt[x[rk[i]]]--] =<span style="color: rgba(0, 0, 0, 1)"> rk[i];
+        rk[sa[</span><span style="color: rgba(128, 0, 128, 1)">1</span>]] = <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">2</span>; i &lt;= len; i++) rk[sa[i]] = (rk[sa[i - <span style="color: rgba(128, 0, 128, 1)">1</span>]]) + (x[sa[i]] != x[sa[i - <span style="color: rgba(128, 0, 128, 1)">1</span>]] || y[sa[i]] != y[sa[i - <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">]]);
+    } 
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> get_height()
+{
+    </span><span style="color: rgba(0, 0, 255, 1)">int</span> k = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= len; i++<span style="color: rgba(0, 0, 0, 1)">)
+    {
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (k) --<span style="color: rgba(0, 0, 0, 1)">k;
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> j = sa[rk[i] - <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (s[i + k] == s[j + k]) ++<span style="color: rgba(0, 0, 0, 1)">k;
+        height[rk[i]] </span>=<span style="color: rgba(0, 0, 0, 1)"> k;
+    }
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> merge(info &amp;<span style="color: rgba(0, 0, 0, 1)">x , info y)
+{
+    x </span>= (info){x.height , x.cnta + y.cnta , x.cntb +<span style="color: rgba(0, 0, 0, 1)"> y.cntb};
+}
+inline ll calc()
+{
+    </span><span style="color: rgba(0, 0, 255, 1)">int</span> top = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">static</span><span style="color: rgba(0, 0, 0, 1)"> info s[N];
+    ll ret </span>= <span style="color: rgba(128, 0, 128, 1)">0</span> , va = <span style="color: rgba(128, 0, 128, 1)">0</span> , vb = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    sa[</span><span style="color: rgba(128, 0, 128, 1)">0</span>] = n + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= len; i++<span style="color: rgba(0, 0, 0, 1)">)
+    {
+        info tmp </span>= (info){height[i] , sa[i - <span style="color: rgba(128, 0, 128, 1)">1</span>] &lt; n + <span style="color: rgba(128, 0, 128, 1)">1</span> , sa[i - <span style="color: rgba(128, 0, 128, 1)">1</span>] &gt; n + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">};
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (top &gt; <span style="color: rgba(128, 0, 128, 1)">0</span> &amp;&amp; height[i] &lt;=<span style="color: rgba(0, 0, 0, 1)"> s[top].height)
+        {
+            va </span>-= 1ll * s[top].height *<span style="color: rgba(0, 0, 0, 1)"> s[top].cnta;
+            vb </span>-= 1ll * s[top].height *<span style="color: rgba(0, 0, 0, 1)"> s[top].cntb;
+            merge(tmp , s[top]);
+            </span>--<span style="color: rgba(0, 0, 0, 1)">top;
+        }
+        s[</span>++top] =<span style="color: rgba(0, 0, 0, 1)"> tmp;
+        va </span>+= 1ll * s[top].height *<span style="color: rgba(0, 0, 0, 1)"> s[top].cnta;
+        vb </span>+= 1ll * s[top].height *<span style="color: rgba(0, 0, 0, 1)"> s[top].cntb; 
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (sa[i] &lt; n + <span style="color: rgba(128, 0, 128, 1)">1</span>) ret +=<span style="color: rgba(0, 0, 0, 1)"> vb;
+        </span><span style="color: rgba(0, 0, 255, 1)">else</span> ret +=<span style="color: rgba(0, 0, 0, 1)"> va;
+    }    
+    </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> ret;
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main()
+{
+    
+    scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%s%s</span><span style="color: rgba(128, 0, 0, 1)">"</span> , s1 + <span style="color: rgba(128, 0, 128, 1)">1</span> , s2 + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+    n </span>= strlen(s1 + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">) ,
+    m </span>= strlen(s2 + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++) s[++len] =<span style="color: rgba(0, 0, 0, 1)"> s1[i];
+    s[</span>++len] = <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">#</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++) s[++len] =<span style="color: rgba(0, 0, 0, 1)"> s2[i];
+    build_sa();
+    get_height();
+    printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%lld\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)"> , calc());
+    
+    </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

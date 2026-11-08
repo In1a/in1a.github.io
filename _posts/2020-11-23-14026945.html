@@ -1,0 +1,84 @@
+---
+layout: post
+title: '[AGC001F] Wide Swap'
+date: 2020-11-23 20:47:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/14026945.html
+cnblogs_id: 14026945
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p><a href="" rel="noopener nofollow">https://atcoder.jp/contests/agc001/tasks/agc001_f</a></p>
+<p>[题解]</p>
+<p>题目中的限制比较麻烦 ， 首先转化问题 ， 考虑排列的逆 <span class="math inline">\(Q = P ^ {-1}\)</span>。</p>
+<p>那么 ， <span class="math inline">\(Q\)</span> 中相邻元素差不超过 <span class="math inline">\(K\)</span> 的都可以任意互换。</p>
+<p>考虑两个元素差值 <span class="math inline">\(|u - v| &lt; K\)</span> ， 根据上面所述 ， <span class="math inline">\(u\)</span> 和 <span class="math inline">\(v\)</span> 在 <span class="math inline">\(Q\)</span> 中的相对顺序永远不会改变。</p>
+<p>一个重要的事实是 ： 设一个新序列 <span class="math inline">\(R\)</span> ， 只要 <span class="math inline">\(Q , R\)</span> 相对顺序关系不改变 ， 那么就必然存在一个有限步的操作序列 ， 使 <span class="math inline">\(Q\)</span> 转化为 <span class="math inline">\(R\)</span>。 这是因为必然能在 <span class="math inline">\(Q\)</span> 中找到相邻两个元素 ， 交换后使逆序对数减少了 <span class="math inline">\(1\)</span>。</p>
+<p>将这个条件对应到 <span class="math inline">\(P\)</span> 上 ， 原限制转化为对于 <span class="math inline">\(|i - j| \leq K , P_{i} \leq P_{j}\)</span> , 必然有 <span class="math inline">\(i\)</span> 的值比 <span class="math inline">\(j\)</span> 的值小。 反之亦然。</p>
+<p>所有这样的关系可以构成一张有向无环图 (<span class="math inline">\(DAG\)</span>) , 要求的就是求出一个拓扑序列将节点编号 ， 并使得字典序尽可能小。</p>
+<p>注意到出度为 <span class="math inline">\(0\)</span> 的点中最大编号点可以直接填当前的最大值 ， 那么用堆维护点做一遍反向拓扑排序即可。 时间复杂度 <span class="math inline">\(O(N ^ 2)\)</span>。</p>
+<p>这样仍然不能通过本题。 考虑用数据结构优化这个过程。</p>
+<p>首先建一棵线段树维护 <span class="math inline">\(P\)</span> 值。</p>
+<p>对于一个点 <span class="math inline">\(i\)</span> ， 若 <span class="math inline">\((i - K , i + K)\)</span> 中的最大值是 <span class="math inline">\(P_{i}\)</span> , 那么这个点入队。</p>
+<p>每次从堆中弹出一个点 ， 相当于将它的权值赋为 <span class="math inline">\(-\infty\)</span>。 那么从两边找到新的出度为 <span class="math inline">\(0\)</span> 的点 ， 继续执行上述过程即可。</p>
+<p>时间复杂度 : <span class="math inline">\(O(NlogN)\)</span></p>
+<p>[代码]</p>
+<pre><code class="language-cpp">#include &lt;bits/stdc++.h&gt;
+
+using namespace std;
+
+typedef long long LL;
+
+const int MN = 5e5 + 5 , INF = 2e9;
+
+int N , K , P[MN] , mxp[MN &lt;&lt; 2] , Ans[MN] , inq[MN];
+priority_queue &lt; int &gt; pq;
+
+inline void build(int now , int l , int r) {
+	if (l == r) { mxp[now] = l; return; }
+	int mid = l + r &gt;&gt; 1;
+	build(now &lt;&lt; 1 , l , mid) , build(now &lt;&lt; 1 | 1 , mid + 1 , r);
+	mxp[now] = P[mxp[now &lt;&lt; 1]] &gt; P[mxp[now &lt;&lt; 1 | 1]] ? mxp[now &lt;&lt; 1] : mxp[now &lt;&lt; 1 | 1];
+}
+inline int Query(int i, int l, int r, int a, int b) {
+	if (r &lt; a || b &lt; l) return 0;
+	if (a &lt;= l &amp;&amp; r &lt;= b) return mxp[i]; int mid = l + r &gt;&gt; 1;
+	int v1 = Query(i &lt;&lt; 1, l , mid , a, b), v2 = Query(i &lt;&lt; 1 | 1, mid + 1 , r , a, b);
+	return P[v1] &gt; P[v2] ? v1 : v2;
+}
+inline void Del(int now , int l , int r , int x) {
+	if (l == r) { mxp[now] = 0; return; }
+	int mid = l + r &gt;&gt; 1;
+	if (mid &gt;= x) Del(now &lt;&lt; 1 , l , mid , x);
+	else Del(now &lt;&lt; 1 | 1 , mid + 1 , r , x);
+	mxp[now] = P[mxp[now &lt;&lt; 1]] &gt; P[mxp[now &lt;&lt; 1 | 1]] ? mxp[now &lt;&lt; 1] : mxp[now &lt;&lt; 1 | 1];
+} 
+inline void check(int id) {
+	if (inq[id]) return;
+	if (Query(1, 1, N, id - K + 1, id + K - 1) == id)
+		pq.push(id) , inq[id] = 1;
+}
+
+int main() {
+	
+	scanf("%d%d" , &amp;N , &amp;K);
+	for (int i = 1; i &lt;= N; ++i) scanf("%d" , &amp;P[i]);
+	P[0] = -INF;
+	build(1 , 1 , N);
+	for (int i = 1; i &lt;= N; ++i) check(i);
+	for (int i = N; i &gt;= 1; --i) {
+		int u = pq.top(); pq.pop();
+		Ans[u] = i;
+		Del(1 , 1 , N , u);
+		int pos;
+		if ((pos = Query(1 , 1 , N , u - K + 1 , u - 1))) check(pos);
+		if ((pos = Query(1 , 1 , N , u + 1 , u + K - 1))) check(pos);
+	}
+	for (int i = 1; i &lt;= N; ++i) printf("%d\n" , Ans[i]);
+	return 0;
+}
+</code></pre>
+
+
+
+{% endraw %}

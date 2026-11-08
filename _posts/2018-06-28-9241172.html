@@ -1,0 +1,89 @@
+---
+layout: post
+title: '【Codeforces 429D】 Tricky Function'
+date: 2018-06-28 22:25:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9241172.html
+cnblogs_id: 9241172
+---
+{% raw %}
+
+<p>【题目链接】</p>
+<p>           <a href="http://codeforces.com/problemset/problem/429/D" target="_blank" rel="noopener nofollow">http://codeforces.com/problemset/problem/429/D</a></p>
+<p>【算法】</p>
+<p>           令Si = A1 + A2 + ... + Ai（A的前缀和）</p>
+<p>           则g(i,j) = Sj - Si</p>
+<p>               f(i,j) = (i-j)^2 + (Si - Sj)^2</p>
+<p>           观察这个式子，我们发现可以用类似于平面最近点对的算法来求解该问题</p>
+<p>【代码】</p>
+<p>           </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 100010
+<span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span> INF =<span style="color: rgba(0, 0, 0, 1)"> 1e15;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,n,x;
+</span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> sum[MAXN];
+
+</span><span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> point
+{    
+        </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> x,y;
+} a[MAXN];
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">bool</span><span style="color: rgba(0, 0, 0, 1)"> cmpx(point a,point b)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> a.x &lt;<span style="color: rgba(0, 0, 0, 1)"> b.x;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">bool</span><span style="color: rgba(0, 0, 0, 1)"> cmpy(point a,point b)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> a.y &lt;<span style="color: rgba(0, 0, 0, 1)"> b.y;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> dist(point a,point b)
+{    
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> abs(a.x - b.x) * abs(a.x - b.x) + abs(a.y - b.y) * abs(a.y -<span style="color: rgba(0, 0, 0, 1)"> b.y);
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span> Closest_Pair(<span style="color: rgba(0, 0, 255, 1)">int</span> l,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> r)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> i,j,mid,len = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> d;        
+        </span><span style="color: rgba(0, 0, 255, 1)">static</span><span style="color: rgba(0, 0, 0, 1)"> point s[MAXN];
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (l == r) <span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> INF;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (l + <span style="color: rgba(128, 0, 128, 1)">1</span> == r) <span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> dist(a[l],a[r]);
+        mid </span>= (l + r) &gt;&gt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        d </span>= min(Closest_Pair(l,mid),Closest_Pair(mid+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">,r));
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = l; i &lt;= r; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> ((<span style="color: rgba(0, 0, 255, 1)">double</span>)abs(a[i].x - a[mid].x) &lt;= (<span style="color: rgba(0, 0, 255, 1)">double</span>)sqrt(d)) s[++len] =<span style="color: rgba(0, 0, 0, 1)"> a[i];        
+        }
+        sort(s</span>+<span style="color: rgba(128, 0, 128, 1)">1</span>,s+len+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">,cmpy);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= len; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = i + <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= len &amp;&amp; s[j].y - s[i].y &lt;= sqrt(d); j++<span style="color: rgba(0, 0, 0, 1)">)
+                {    
+                        d </span>=<span style="color: rgba(0, 0, 0, 1)"> min(d,dist(s[i],s[j]));
+                }
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> d;
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() 
+{
+        
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">n);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">x);
+                sum[i] </span>= sum[i-<span style="color: rgba(128, 0, 128, 1)">1</span>] +<span style="color: rgba(0, 0, 0, 1)"> x;
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++) a[i] =<span style="color: rgba(0, 0, 0, 1)"> (point){i,sum[i]};
+        sort(a</span>+<span style="color: rgba(128, 0, 128, 1)">1</span>,a+n+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">,cmpx);
+        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%I64d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span>,Closest_Pair(<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">,n));
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

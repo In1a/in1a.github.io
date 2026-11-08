@@ -1,0 +1,230 @@
+---
+layout: post
+title: '[IOI 2018] Werewolf'
+date: 2019-02-13 23:02:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/10372309.html
+cnblogs_id: 10372309
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p>         <a href="https://www.luogu.org/problemnew/show/P4899" target="_blank" rel="noopener nofollow">https://www.luogu.org/problemnew/show/P4899</a></p>
+<p>[算法] </p>
+<p><em id="__mceDel">        </em>建出原图的最小/最大生成树的kruskal重构树然后二维数点</p>
+<p>        时间复杂度 : O((N+Q)logN)</p>
+<p>[代码]</p>
+<p>       </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> N 200010
+<span style="color: rgba(0, 0, 255, 1)">#define</span> M 400010
+<span style="color: rgba(0, 0, 255, 1)">#define</span> MAXLOG 20<span style="color: rgba(0, 0, 0, 1)">
+typedef </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> ll;
+typedef </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">double</span><span style="color: rgba(0, 0, 0, 1)"> ld;
+typedef unsigned </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> ull;
+
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> chkmin(T &amp;x , T y) { x =<span style="color: rgba(0, 0, 0, 1)"> min(x , y); }
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> chkmax(T &amp;x , T y) { x =<span style="color: rgba(0, 0, 0, 1)"> max(x , y); }
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> read(T &amp;<span style="color: rgba(0, 0, 0, 1)">x)
+{
+   T f </span>= <span style="color: rgba(128, 0, 128, 1)">1</span>; x = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+   </span><span style="color: rgba(0, 0, 255, 1)">char</span> c =<span style="color: rgba(0, 0, 0, 1)"> getchar();
+   </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; !isdigit(c); c = getchar()) <span style="color: rgba(0, 0, 255, 1)">if</span> (c == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>) f = -<span style="color: rgba(0, 0, 0, 1)">f;
+   </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; isdigit(c); c = getchar()) x = (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">3</span>) + (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>) + c - <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">;
+   x </span>*=<span style="color: rgba(0, 0, 0, 1)"> f;
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> info
+{
+    </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x , y;
+} a[M];
+</span><span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> edge
+{
+    </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> to , nxt;
+} ea[N </span>&lt;&lt; <span style="color: rgba(128, 0, 128, 1)">2</span>] , eb[N &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">];
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> n , m , q , tot , timera , timerb , cnta , cntb;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span> la[N &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>] , ra[N &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>] , fathera[N &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>][MAXLOG] , fatherb[N &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">][MAXLOG] , 
+    deptha[N </span>&lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>] , depthb[N &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>] , rt[N &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>] , heada[N &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>] , headb[N &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">] ,
+    lb[N </span>&lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>] , rb[N &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>] , fa[N &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>] , valuea[N &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>] , valueb[N &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>] , w[N &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+
+</span><span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> Presitent_Segment_Tree 
+{
+    </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> sz;
+    Presitent_Segment_Tree()
+    {
+        sz </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    }
+    </span><span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> node
+    {
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> lc , rc;    
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> cnt;
+    } a[N </span>* <span style="color: rgba(128, 0, 128, 1)">60</span><span style="color: rgba(0, 0, 0, 1)">];
+    inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> modify(<span style="color: rgba(0, 0, 255, 1)">int</span> &amp;now , <span style="color: rgba(0, 0, 255, 1)">int</span> old , <span style="color: rgba(0, 0, 255, 1)">int</span> l , <span style="color: rgba(0, 0, 255, 1)">int</span> r , <span style="color: rgba(0, 0, 255, 1)">int</span> x , <span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> value)
+    {
+        now </span>= ++<span style="color: rgba(0, 0, 0, 1)">sz;
+        a[now].lc </span>= a[old].lc , a[now].rc =<span style="color: rgba(0, 0, 0, 1)"> a[old].rc;
+        a[now].cnt </span>= a[old].cnt +<span style="color: rgba(0, 0, 0, 1)"> value;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (l == r) <span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> mid = (l + r) &gt;&gt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (mid &gt;=<span style="color: rgba(0, 0, 0, 1)"> x) modify(a[now].lc , a[old].lc , l , mid , x , value);
+        </span><span style="color: rgba(0, 0, 255, 1)">else</span> modify(a[now].rc , a[old].rc , mid + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)"> , r , x , value);
+    }
+    inline </span><span style="color: rgba(0, 0, 255, 1)">int</span> query(<span style="color: rgba(0, 0, 255, 1)">int</span> rt1 , <span style="color: rgba(0, 0, 255, 1)">int</span> rt2 , <span style="color: rgba(0, 0, 255, 1)">int</span> l , <span style="color: rgba(0, 0, 255, 1)">int</span> r , <span style="color: rgba(0, 0, 255, 1)">int</span> ql , <span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> qr)
+    {
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (l == ql &amp;&amp; r ==<span style="color: rgba(0, 0, 0, 1)"> qr)
+            </span><span style="color: rgba(0, 0, 255, 1)">return</span> a[rt1].cnt -<span style="color: rgba(0, 0, 0, 1)"> a[rt2].cnt;
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> mid = (l + r) &gt;&gt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (mid &gt;= qr) <span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> query(a[rt1].lc , a[rt2].lc , l , mid , ql , qr);
+        </span><span style="color: rgba(0, 0, 255, 1)">else</span> <span style="color: rgba(0, 0, 255, 1)">if</span> (mid + <span style="color: rgba(128, 0, 128, 1)">1</span> &lt;= ql) <span style="color: rgba(0, 0, 255, 1)">return</span> query(a[rt1].rc , a[rt2].rc , mid + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)"> , r , ql , qr);
+        </span><span style="color: rgba(0, 0, 255, 1)">else</span> <span style="color: rgba(0, 0, 255, 1)">return</span> query(a[rt1].lc , a[rt2].lc , l , mid , ql , mid) + query(a[rt1].rc , a[rt2].rc , mid + <span style="color: rgba(128, 0, 128, 1)">1</span> , r , mid + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)"> , qr);
+    }
+} PST;
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> addedgea(<span style="color: rgba(0, 0, 255, 1)">int</span> u , <span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> v)
+{
+    </span>++<span style="color: rgba(0, 0, 0, 1)">tot;
+    ea[tot] </span>=<span style="color: rgba(0, 0, 0, 1)"> (edge){v , heada[u]};
+    heada[u] </span>=<span style="color: rgba(0, 0, 0, 1)"> tot;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> addedgeb(<span style="color: rgba(0, 0, 255, 1)">int</span> u , <span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> v)
+{
+    </span>++<span style="color: rgba(0, 0, 0, 1)">tot;
+    eb[tot] </span>=<span style="color: rgba(0, 0, 0, 1)"> (edge){v , headb[u]};
+    headb[u] </span>=<span style="color: rgba(0, 0, 0, 1)"> tot;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> dfsa(<span style="color: rgba(0, 0, 255, 1)">int</span> u , <span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> par)
+{
+    fathera[u][</span><span style="color: rgba(128, 0, 128, 1)">0</span>] =<span style="color: rgba(0, 0, 0, 1)"> par;
+    deptha[u] </span>= deptha[par] + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt; MAXLOG; i++<span style="color: rgba(0, 0, 0, 1)">)
+        fathera[u][i] </span>= fathera[fathera[u][i - <span style="color: rgba(128, 0, 128, 1)">1</span>]][i - <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+    la[u] </span>= ++<span style="color: rgba(0, 0, 0, 1)">timera;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = heada[u]; i; i =<span style="color: rgba(0, 0, 0, 1)"> ea[i].nxt)
+    {
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> v =<span style="color: rgba(0, 0, 0, 1)"> ea[i].to;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (v == par) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+        dfsa(v , u);
+    }
+    ra[u] </span>=<span style="color: rgba(0, 0, 0, 1)"> timera;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> dfsb(<span style="color: rgba(0, 0, 255, 1)">int</span> u , <span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> par)
+{
+    fatherb[u][</span><span style="color: rgba(128, 0, 128, 1)">0</span>] =<span style="color: rgba(0, 0, 0, 1)"> par;
+    depthb[u] </span>= depthb[par] + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt; MAXLOG; i++<span style="color: rgba(0, 0, 0, 1)">)
+        fatherb[u][i] </span>= fatherb[fatherb[u][i - <span style="color: rgba(128, 0, 128, 1)">1</span>]][i - <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+    lb[u] </span>= ++<span style="color: rgba(0, 0, 0, 1)">timerb;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = headb[u]; i; i =<span style="color: rgba(0, 0, 0, 1)"> eb[i].nxt)
+    {
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> v =<span style="color: rgba(0, 0, 0, 1)"> eb[i].to;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (v == par) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+        dfsb(v , u);
+    }
+    rb[u] </span>=<span style="color: rgba(0, 0, 0, 1)"> timerb;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">bool</span><span style="color: rgba(0, 0, 0, 1)"> cmpa(info a , info b)
+{
+    </span><span style="color: rgba(0, 0, 255, 1)">return</span> min(a.x , a.y) &gt;<span style="color: rgba(0, 0, 0, 1)"> min(b.x , b.y);
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">bool</span><span style="color: rgba(0, 0, 0, 1)"> cmpb(info a , info b)
+{
+    </span><span style="color: rgba(0, 0, 255, 1)">return</span> max(a.x , a.y) &lt;<span style="color: rgba(0, 0, 0, 1)"> max(b.x , b.y);
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">int</span> getroot(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x)
+{
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (fa[x] == x) <span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> x;
+    </span><span style="color: rgba(0, 0, 255, 1)">else</span> <span style="color: rgba(0, 0, 255, 1)">return</span> fa[x] =<span style="color: rgba(0, 0, 0, 1)"> getroot(fa[x]);
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> kruskalA()
+{
+    </span><span style="color: rgba(0, 0, 255, 1)">int</span> tot = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    cnta </span>=<span style="color: rgba(0, 0, 0, 1)"> n;
+    timera </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    sort(a </span>+ <span style="color: rgba(128, 0, 128, 1)">1</span> , a + m + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)"> , cmpa);
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= <span style="color: rgba(128, 0, 128, 1)">2</span> * n; i++) fa[i] =<span style="color: rgba(0, 0, 0, 1)"> i;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= m; i++<span style="color: rgba(0, 0, 0, 1)">)
+    {
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> fu = getroot(a[i].x) , fv =<span style="color: rgba(0, 0, 0, 1)"> getroot(a[i].y);
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (fu !=<span style="color: rgba(0, 0, 0, 1)"> fv)
+        {
+            </span>++<span style="color: rgba(0, 0, 0, 1)">cnta;
+            addedgea(cnta , fu);
+            addedgea(cnta , fv);
+            valuea[cnta] </span>=<span style="color: rgba(0, 0, 0, 1)"> min(a[i].x , a[i].y);
+            fa[fu] </span>= fa[fv] = fa[cnta] =<span style="color: rgba(0, 0, 0, 1)"> cnta;
+            </span>++<span style="color: rgba(0, 0, 0, 1)">tot;
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (tot == n - <span style="color: rgba(128, 0, 128, 1)">1</span>) <span style="color: rgba(0, 0, 255, 1)">break</span><span style="color: rgba(0, 0, 0, 1)">; 
+    }    
+    dfsa(cnta , </span><span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">);
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> kruskalB()
+{
+    </span><span style="color: rgba(0, 0, 255, 1)">int</span> tot = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    cntb </span>=<span style="color: rgba(0, 0, 0, 1)"> n;
+    timerb </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    sort(a </span>+ <span style="color: rgba(128, 0, 128, 1)">1</span> , a + m + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)"> , cmpb);
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= <span style="color: rgba(128, 0, 128, 1)">2</span> * n; i++) fa[i] =<span style="color: rgba(0, 0, 0, 1)"> i;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= m; i++<span style="color: rgba(0, 0, 0, 1)">)
+    {
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> fu = getroot(a[i].x) , fv =<span style="color: rgba(0, 0, 0, 1)"> getroot(a[i].y);
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (fu !=<span style="color: rgba(0, 0, 0, 1)"> fv)
+        {
+            </span>++<span style="color: rgba(0, 0, 0, 1)">cntb;
+            addedgeb(cntb , fu);
+            addedgeb(cntb , fv);
+            valueb[cntb] </span>=<span style="color: rgba(0, 0, 0, 1)"> max(a[i].x , a[i].y);
+            fa[fu] </span>= fa[fv] = fa[cntb] =<span style="color: rgba(0, 0, 0, 1)"> cntb;
+            </span>++<span style="color: rgba(0, 0, 0, 1)">tot;
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (tot == n - <span style="color: rgba(128, 0, 128, 1)">1</span>) <span style="color: rgba(0, 0, 255, 1)">break</span><span style="color: rgba(0, 0, 0, 1)">;
+    }
+    dfsb(cntb , </span><span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">);
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">bool</span> query(<span style="color: rgba(0, 0, 255, 1)">int</span> l1 , <span style="color: rgba(0, 0, 255, 1)">int</span> r1 , <span style="color: rgba(0, 0, 255, 1)">int</span> l2 , <span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> r2)
+{
+    </span><span style="color: rgba(0, 0, 255, 1)">return</span> PST.query(rt[r1] , rt[l1 - <span style="color: rgba(128, 0, 128, 1)">1</span>] , <span style="color: rgba(128, 0, 128, 1)">1</span> , <span style="color: rgba(128, 0, 128, 1)">2</span> *<span style="color: rgba(0, 0, 0, 1)"> n , l2 , r2);
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main()
+{
+    
+    read(n); read(m); read(q);
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= m; i++<span style="color: rgba(0, 0, 0, 1)">)
+    {
+        read(a[i].x);
+        read(a[i].y);
+        </span>++a[i].x; ++<span style="color: rgba(0, 0, 0, 1)">a[i].y;
+    }
+    kruskalA();
+    kruskalB();
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++) w[la[i]] =<span style="color: rgba(0, 0, 0, 1)"> lb[i];
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= <span style="color: rgba(128, 0, 128, 1)">2</span> * n; i++) PST.modify(rt[i] , rt[i - <span style="color: rgba(128, 0, 128, 1)">1</span>] , <span style="color: rgba(128, 0, 128, 1)">1</span> , <span style="color: rgba(128, 0, 128, 1)">2</span> * n , w[i] , <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= q; i++<span style="color: rgba(0, 0, 0, 1)">)
+    {
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> s , e , l , r;
+        read(s); read(e); read(l); read(r);
+        </span>++s; ++e; ++l; ++<span style="color: rgba(0, 0, 0, 1)">r;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (s &lt; l || e &gt;<span style="color: rgba(0, 0, 0, 1)"> r) 
+        {
+            puts(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">);
+            </span><span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = MAXLOG - <span style="color: rgba(128, 0, 128, 1)">1</span>; i &gt;= <span style="color: rgba(128, 0, 128, 1)">0</span>; i--<span style="color: rgba(0, 0, 0, 1)">)
+            </span><span style="color: rgba(0, 0, 255, 1)">if</span> (fathera[s][i] &amp;&amp; valuea[fathera[s][i]] &gt;=<span style="color: rgba(0, 0, 0, 1)"> l)
+                s </span>=<span style="color: rgba(0, 0, 0, 1)"> fathera[s][i];
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = MAXLOG - <span style="color: rgba(128, 0, 128, 1)">1</span>; i &gt;= <span style="color: rgba(128, 0, 128, 1)">0</span>; i--<span style="color: rgba(0, 0, 0, 1)">)
+            </span><span style="color: rgba(0, 0, 255, 1)">if</span> (fatherb[e][i] &amp;&amp; valueb[fatherb[e][i]] &lt;=<span style="color: rgba(0, 0, 0, 1)"> r)
+                e </span>=<span style="color: rgba(0, 0, 0, 1)"> fatherb[e][i];
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (query(la[s] , ra[s] , lb[e] , rb[e])) puts(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">1</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">);
+        </span><span style="color: rgba(0, 0, 255, 1)">else</span> puts(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">);
+    }
+    
+    </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

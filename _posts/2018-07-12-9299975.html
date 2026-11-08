@@ -1,0 +1,100 @@
+---
+layout: post
+title: '【HDU 5015】233 Matrix'
+date: 2018-07-12 16:02:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9299975.html
+cnblogs_id: 9299975
+---
+{% raw %}
+
+<p>【题目链接】</p>
+<p>            <a href="http://acm.hdu.edu.cn/showproblem.php?pid=5015" target="_blank" rel="noopener nofollow">http://acm.hdu.edu.cn/showproblem.php?pid=5015</a></p>
+<p>【算法】</p>
+<p>          矩阵乘法</p>
+<p>【代码】</p>
+<p>           </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">int</span> P = <span style="color: rgba(128, 0, 128, 1)">10000007</span><span style="color: rgba(0, 0, 0, 1)">;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,j,n,m,ans;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span> a[<span style="color: rgba(128, 0, 128, 1)">20</span>],val[<span style="color: rgba(128, 0, 128, 1)">20</span><span style="color: rgba(0, 0, 0, 1)">];
+
+</span><span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> Matrix
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> mat[<span style="color: rgba(128, 0, 128, 1)">20</span>][<span style="color: rgba(128, 0, 128, 1)">20</span><span style="color: rgba(0, 0, 0, 1)">];
+} b;
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> multipy(Matrix &amp;<span style="color: rgba(0, 0, 0, 1)">a,Matrix b)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,j,k;    
+        Matrix res;
+        memset(res.mat,</span><span style="color: rgba(128, 0, 128, 1)">0</span>,<span style="color: rgba(0, 0, 255, 1)">sizeof</span><span style="color: rgba(0, 0, 0, 1)">(res.mat));
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i &lt;= n + <span style="color: rgba(128, 0, 128, 1)">1</span>; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">0</span>; j &lt;= n + <span style="color: rgba(128, 0, 128, 1)">1</span>; j++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (k = <span style="color: rgba(128, 0, 128, 1)">0</span>; k &lt;= n + <span style="color: rgba(128, 0, 128, 1)">1</span>; k++<span style="color: rgba(0, 0, 0, 1)">)
+                        {
+                                res.mat[i][j] </span>= (res.mat[i][j] + 1ll * a.mat[i][k] * b.mat[k][j]) %<span style="color: rgba(0, 0, 0, 1)"> P;
+                        }
+                }
+        }
+        a </span>=<span style="color: rgba(0, 0, 0, 1)"> res;
+}
+inline Matrix power(Matrix a,</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> n)
+{
+        Matrix res;
+        memcpy(res.mat,a.mat,</span><span style="color: rgba(0, 0, 255, 1)">sizeof</span><span style="color: rgba(0, 0, 0, 1)">(a.mat));
+        n</span>--<span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (n &gt; <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (n &amp; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">) multipy(res,a);
+                multipy(a,a);
+                n </span>&gt;&gt;= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> res;
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() 
+{
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (scanf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;n,&amp;m) !=<span style="color: rgba(0, 0, 0, 1)"> EOF)
+        {
+                ans </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                a[</span><span style="color: rgba(128, 0, 128, 1)">0</span>] = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++) scanf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">a[i]);
+                val[</span><span style="color: rgba(128, 0, 128, 1)">0</span>] = <span style="color: rgba(128, 0, 128, 1)">233</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++) val[i] = (val[i-<span style="color: rgba(128, 0, 128, 1)">1</span>] % P + a[i] % P) %<span style="color: rgba(0, 0, 0, 1)"> P;
+                val[n</span>+<span style="color: rgba(128, 0, 128, 1)">1</span>] = <span style="color: rgba(128, 0, 128, 1)">3</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (m == <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,val[n]);
+                        </span><span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                }
+                memset(b.mat,</span><span style="color: rgba(128, 0, 128, 1)">0</span>,<span style="color: rgba(0, 0, 255, 1)">sizeof</span><span style="color: rgba(0, 0, 0, 1)">(b.mat));
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        b.mat[i][</span><span style="color: rgba(128, 0, 128, 1)">0</span>] = <span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">;
+                        b.mat[i][n</span>+<span style="color: rgba(128, 0, 128, 1)">1</span>] = <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= n; j++<span style="color: rgba(0, 0, 0, 1)">)
+                        {
+                                b.mat[i][j] </span>= (i &gt;=<span style="color: rgba(0, 0, 0, 1)"> j);
+                        }
+                }        
+                b.mat[n</span>+<span style="color: rgba(128, 0, 128, 1)">1</span>][n+<span style="color: rgba(128, 0, 128, 1)">1</span>] = <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                b </span>= power(b,m-<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i &lt;= n + <span style="color: rgba(128, 0, 128, 1)">1</span>; i++) ans = (ans + 1ll * b.mat[n][i] * val[i]) %<span style="color: rgba(0, 0, 0, 1)"> P;
+                printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,ans);
+                
+        }
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

@@ -1,0 +1,224 @@
+---
+layout: post
+title: '[POJ 3683] Priest John''s Busiest Day'
+date: 2018-08-01 18:32:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9403250.html
+cnblogs_id: 9403250
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p>          <a href="http://poj.org/problem?id=3683" target="_blank" rel="noopener nofollow"> http://poj.org/problem?id=3683</a></p>
+<p>[算法]</p>
+<p>         2-SAT,  用拓扑排序输出可行解</p>
+<p>[代码]</p>
+<p>      </p>
+<div class="cnblogs_code">
+<pre>#include &lt;algorithm&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;bitset&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cctype&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cerrno&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;clocale&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cmath&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;complex&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cstdio&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cstdlib&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cstring&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;ctime&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;deque&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;exception&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;fstream&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;functional&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;limits&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;list&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;map&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;iomanip&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;ios&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;iosfwd&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;iostream&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;istream&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;ostream&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;queue&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;<span style="color: rgba(0, 0, 255, 1)">set</span>&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;sstream&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;stdexcept&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;streambuf&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;<span style="color: rgba(0, 0, 255, 1)">string</span>&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;utility&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;vector&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cwchar&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cwctype&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;stack&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;limits.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 1010
+<span style="color: rgba(0, 0, 255, 1)">#define</span> MAXM 1000010
+
+<span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> edge
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> to,nxt;
+} e[MAXM </span>&lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>],ec[MAXM &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,j,n,m,SH,SM,TH,TM,timer,top,cnt,tot,ctot;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span> S[MAXN],T[MAXN],D[MAXN],low[MAXN &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>],dfn[MAXN &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>],belong[MAXN &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">],
+        stk[MAXN </span>&lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>],head[MAXN &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>],chead[MAXN &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>],val[MAXN &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>],opp[MAXN &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+</span><span style="color: rgba(0, 0, 255, 1)">bool</span> instack[MAXN &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+stack</span>&lt;<span style="color: rgba(0, 0, 255, 1)">int</span>&gt;<span style="color: rgba(0, 0, 0, 1)"> s;
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> addedge(<span style="color: rgba(0, 0, 255, 1)">int</span> u,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> v)
+{
+        tot</span>++<span style="color: rgba(0, 0, 0, 1)">;
+        e[tot] </span>=<span style="color: rgba(0, 0, 0, 1)"> (edge){v,head[u]};
+        head[u] </span>=<span style="color: rgba(0, 0, 0, 1)"> tot;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> addcedge(<span style="color: rgba(0, 0, 255, 1)">int</span> u,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> v)
+{
+        ctot</span>++<span style="color: rgba(0, 0, 0, 1)">;
+        ec[ctot] </span>=<span style="color: rgba(0, 0, 0, 1)"> (edge){v,chead[u]};
+        chead[u] </span>=<span style="color: rgba(0, 0, 0, 1)"> ctot;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">bool</span> illegal(<span style="color: rgba(0, 0, 255, 1)">int</span> a,<span style="color: rgba(0, 0, 255, 1)">int</span> b,<span style="color: rgba(0, 0, 255, 1)">int</span> c,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> d)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (a &gt;= c &amp;&amp; a &lt; d) <span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (b &gt; c &amp;&amp; b &lt;= d)  <span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (a &lt;= c &amp;&amp; b &gt;= d) <span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(0, 0, 255, 1)">false</span><span style="color: rgba(0, 0, 0, 1)">;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> tarjan(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> u)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,v;
+        low[u] </span>= dfn[u] = ++<span style="color: rgba(0, 0, 0, 1)">timer;
+        instack[u] </span>= <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+        s.push(u);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = head[u]; i; i =<span style="color: rgba(0, 0, 0, 1)"> e[i].nxt)
+        {
+                v </span>=<span style="color: rgba(0, 0, 0, 1)"> e[i].to;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!<span style="color: rgba(0, 0, 0, 1)">dfn[v])
+                {
+                        tarjan(v);
+                        low[u] </span>=<span style="color: rgba(0, 0, 0, 1)"> min(low[u],low[v]);
+                } </span><span style="color: rgba(0, 0, 255, 1)">else</span> <span style="color: rgba(0, 0, 255, 1)">if</span> (instack[v]) low[u] =<span style="color: rgba(0, 0, 0, 1)"> min(low[u],dfn[v]);
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (dfn[u] ==<span style="color: rgba(0, 0, 0, 1)"> low[u])
+        {
+                cnt</span>++<span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">do</span><span style="color: rgba(0, 0, 0, 1)">
+                {
+                        v </span>=<span style="color: rgba(0, 0, 0, 1)"> s.top(); 
+                        s.pop();
+                        belong[v] </span>=<span style="color: rgba(0, 0, 0, 1)"> cnt;
+                        instack[v] </span>= <span style="color: rgba(0, 0, 255, 1)">false</span><span style="color: rgba(0, 0, 0, 1)">;
+                } </span><span style="color: rgba(0, 0, 255, 1)">while</span> (v !=<span style="color: rgba(0, 0, 0, 1)"> u);
+        }
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> topsort()
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,u,v;
+        queue</span>&lt; <span style="color: rgba(0, 0, 255, 1)">int</span> &gt;<span style="color: rgba(0, 0, 0, 1)"> q;
+        </span><span style="color: rgba(0, 0, 255, 1)">static</span> <span style="color: rgba(0, 0, 255, 1)">int</span> deg[MAXN &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= cnt; i++<span style="color: rgba(0, 0, 0, 1)">) 
+        {
+                deg[i] </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                val[i] </span>= -<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (u = <span style="color: rgba(128, 0, 128, 1)">1</span>; u &lt;= <span style="color: rgba(128, 0, 128, 1)">2</span> * n; u++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = head[u]; i; i =<span style="color: rgba(0, 0, 0, 1)"> e[i].nxt)
+                {
+                        v </span>=<span style="color: rgba(0, 0, 0, 1)"> e[i].to;
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (belong[u] !=<span style="color: rgba(0, 0, 0, 1)"> belong[v]) 
+                        {
+                                addcedge(belong[v],belong[u]);
+                                deg[belong[u]]</span>++<span style="color: rgba(0, 0, 0, 1)">;
+                        }
+                }
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= cnt; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!<span style="color: rgba(0, 0, 0, 1)">deg[i])
+                        q.push(i);
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (!<span style="color: rgba(0, 0, 0, 1)">q.empty())
+        {
+                u </span>=<span style="color: rgba(0, 0, 0, 1)"> q.front();
+                q.pop();
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (val[u] == -<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">) 
+                {
+                        val[u] </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">; 
+                        val[opp[u]] </span>= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                }
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = chead[u]; i; i =<span style="color: rgba(0, 0, 0, 1)"> ec[i].nxt)
+                {
+                        v </span>=<span style="color: rgba(0, 0, 0, 1)"> ec[i].to;
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (--deg[v] == <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">) q.push(v);
+                }
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (val[belong[i]] == <span style="color: rgba(128, 0, 128, 1)">0</span>) printf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%02d:%02d %02d:%02d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span>,S[i] / <span style="color: rgba(128, 0, 128, 1)">60</span>,S[i] % <span style="color: rgba(128, 0, 128, 1)">60</span>,(S[i] + D[i]) / <span style="color: rgba(128, 0, 128, 1)">60</span>,(S[i] + D[i]) % <span style="color: rgba(128, 0, 128, 1)">60</span><span style="color: rgba(0, 0, 0, 1)">);
+                </span><span style="color: rgba(0, 0, 255, 1)">else</span> printf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%02d:%02d %02d:%02d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span>,(T[i] - D[i]) / <span style="color: rgba(128, 0, 128, 1)">60</span>,(T[i] - D[i]) % <span style="color: rgba(128, 0, 128, 1)">60</span>,T[i] / <span style="color: rgba(128, 0, 128, 1)">60</span>,T[i] % <span style="color: rgba(128, 0, 128, 1)">60</span><span style="color: rgba(0, 0, 0, 1)">);
+        }
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() 
+{
+        
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">n);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d:%d %d:%d %d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;SH,&amp;SM,&amp;TH,&amp;TM,&amp;<span style="color: rgba(0, 0, 0, 1)">D[i]);
+                S[i] </span>= SH * <span style="color: rgba(128, 0, 128, 1)">60</span> +<span style="color: rgba(0, 0, 0, 1)"> SM;
+                T[i] </span>= TH * <span style="color: rgba(128, 0, 128, 1)">60</span> +<span style="color: rgba(0, 0, 0, 1)"> TM;        
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = i + <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= n; j++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (illegal(S[i],S[i] + D[i],S[j],S[j] +<span style="color: rgba(0, 0, 0, 1)"> D[j]))
+                        {
+                                addedge(i,j </span>+<span style="color: rgba(0, 0, 0, 1)"> n);
+                                addedge(j,i </span>+<span style="color: rgba(0, 0, 0, 1)"> n);
+                        }
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (illegal(S[i],S[i] + D[i],T[j] -<span style="color: rgba(0, 0, 0, 1)"> D[j],T[j]))
+                        {
+                                addedge(i,j);
+                                addedge(j </span>+ n,i +<span style="color: rgba(0, 0, 0, 1)"> n);
+                        }
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (illegal(T[i] - D[i],T[i],S[j],S[j] +<span style="color: rgba(0, 0, 0, 1)"> D[j]))
+                        {
+                                addedge(i </span>+ n,j +<span style="color: rgba(0, 0, 0, 1)"> n);
+                                addedge(j,i);
+                        }
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (illegal(T[i] - D[i],T[i],T[j] -<span style="color: rgba(0, 0, 0, 1)"> D[j],T[j]))
+                        {
+                                addedge(i </span>+<span style="color: rgba(0, 0, 0, 1)"> n,j);
+                                addedge(j </span>+<span style="color: rgba(0, 0, 0, 1)"> n,i);
+                        }
+                }
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= <span style="color: rgba(128, 0, 128, 1)">2</span> * n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!<span style="color: rgba(0, 0, 0, 1)">dfn[i])
+                    tarjan(i);
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (belong[i] == belong[i +<span style="color: rgba(0, 0, 0, 1)"> n])
+                {
+                        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">NO\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">);
+                        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                }
+                opp[belong[i]] </span>= belong[i +<span style="color: rgba(0, 0, 0, 1)"> n];
+                opp[belong[i </span>+ n]] =<span style="color: rgba(0, 0, 0, 1)"> belong[i]; 
+        }
+        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">YES\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">);
+        topsort();
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

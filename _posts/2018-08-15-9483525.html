@@ -1,0 +1,49 @@
+---
+layout: post
+title: '[NOIP 2013] 转圈游戏'
+date: 2018-08-15 19:32:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9483525.html
+cnblogs_id: 9483525
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p>        <a href="https://www.luogu.org/problemnew/show/P1965" target="_blank" rel="noopener nofollow"> https://www.luogu.org/problemnew/show/P1965</a></p>
+<p>[算法]</p>
+<p>       不难看出答案为(x + m10^k) % n</p>
+<p>       用快速幂求解即可</p>
+<p>       时间复杂度 ：O(log K)</p>
+<p>[代码]</p>
+<p>        </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> n,m,k,x;
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">int</span> power(<span style="color: rgba(0, 0, 255, 1)">int</span> a,<span style="color: rgba(0, 0, 255, 1)">int</span> n,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> p)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> b = a,res = <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (n &gt; <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (n &amp; <span style="color: rgba(128, 0, 128, 1)">1</span>) res = 1ll * res * b %<span style="color: rgba(0, 0, 0, 1)"> p;
+                b </span>= 1ll * b * b %<span style="color: rgba(0, 0, 0, 1)"> p;
+                n </span>&gt;&gt;= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">; 
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> res;
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() 
+{
+        
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;n,&amp;m,&amp;k,&amp;<span style="color: rgba(0, 0, 0, 1)">x);
+        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span>,(x + m * power(<span style="color: rgba(128, 0, 128, 1)">10</span>,k,n)) %<span style="color: rgba(0, 0, 0, 1)"> n);
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

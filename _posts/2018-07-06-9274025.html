@@ -1,0 +1,129 @@
+---
+layout: post
+title: '【HAOI 2008】 移动玩具'
+date: 2018-07-06 15:53:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9274025.html
+cnblogs_id: 9274025
+---
+{% raw %}
+
+<p>【题目链接】</p>
+<p>           <a href="https://www.lydsy.com/JudgeOnline/problem.php?id=1054" target="_blank" rel="noopener nofollow">https://www.lydsy.com/JudgeOnline/problem.php?id=1054</a></p>
+<p>【算法】</p>
+<p>            广度优先搜索</p>
+<p>【代码】</p>
+<p>             </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">int</span> dx[<span style="color: rgba(128, 0, 128, 1)">4</span>] = {<span style="color: rgba(128, 0, 128, 1)">0</span>,<span style="color: rgba(128, 0, 128, 1)">0</span>,-<span style="color: rgba(128, 0, 128, 1)">1</span>,<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">};
+</span><span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">int</span> dy[<span style="color: rgba(128, 0, 128, 1)">4</span>] = {-<span style="color: rgba(128, 0, 128, 1)">1</span>,<span style="color: rgba(128, 0, 128, 1)">1</span>,<span style="color: rgba(128, 0, 128, 1)">0</span>,<span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">};
+</span><span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">int</span> MAXS = <span style="color: rgba(128, 0, 128, 1)">1</span> &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">16</span><span style="color: rgba(0, 0, 0, 1)">;
+
+</span><span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> info
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> mp[<span style="color: rgba(128, 0, 128, 1)">5</span>][<span style="color: rgba(128, 0, 128, 1)">5</span><span style="color: rgba(0, 0, 0, 1)">];
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> step;
+} ;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,j,k,goal,tx,ty,l,r,state;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span> mp[<span style="color: rgba(128, 0, 128, 1)">5</span>][<span style="color: rgba(128, 0, 128, 1)">5</span>],g[<span style="color: rgba(128, 0, 128, 1)">5</span>][<span style="color: rgba(128, 0, 128, 1)">5</span><span style="color: rgba(0, 0, 0, 1)">];
+info q[MAXS];
+info cur,tmp;
+</span><span style="color: rgba(0, 0, 255, 1)">bool</span><span style="color: rgba(0, 0, 0, 1)"> visited[MAXS];
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">bool</span> valid(<span style="color: rgba(0, 0, 255, 1)">int</span> x,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> y)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> x &gt; <span style="color: rgba(128, 0, 128, 1)">0</span> &amp;&amp; x &lt;= <span style="color: rgba(128, 0, 128, 1)">4</span> &amp;&amp; y &gt; <span style="color: rgba(128, 0, 128, 1)">0</span> &amp;&amp; y &lt;= <span style="color: rgba(128, 0, 128, 1)">4</span><span style="color: rgba(0, 0, 0, 1)">;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">int</span> <span style="color: rgba(0, 0, 255, 1)">get</span>(<span style="color: rgba(0, 0, 255, 1)">int</span> a[<span style="color: rgba(128, 0, 128, 1)">5</span>][<span style="color: rgba(128, 0, 128, 1)">5</span><span style="color: rgba(0, 0, 0, 1)">])
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> i,j,ret = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> b = <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= <span style="color: rgba(128, 0, 128, 1)">4</span>; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= <span style="color: rgba(128, 0, 128, 1)">4</span>; j++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        ret </span>+= a[i][j] *<span style="color: rgba(0, 0, 0, 1)"> b;
+                        b </span>&lt;&lt;= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;        
+                }        
+        }        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> ret;
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() 
+{
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= <span style="color: rgba(128, 0, 128, 1)">4</span>; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= <span style="color: rgba(128, 0, 128, 1)">4</span>; j++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        mp[i][j] </span>= getchar() - <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">;        
+                }        
+                getchar();
+        }
+        getchar();
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= <span style="color: rgba(128, 0, 128, 1)">4</span>; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= <span style="color: rgba(128, 0, 128, 1)">4</span>; j++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        g[i][j] </span>= getchar() - <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">;
+                }
+                getchar();
+        }
+        goal </span>= <span style="color: rgba(0, 0, 255, 1)">get</span><span style="color: rgba(0, 0, 0, 1)">(g);
+        visited[</span><span style="color: rgba(0, 0, 255, 1)">get</span>(mp)] = <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span><span style="color: rgba(0, 0, 0, 1)"> (visited[goal])
+        {
+                printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">0\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">);
+                </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        }
+        l </span>= r = <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        memcpy(q[</span><span style="color: rgba(128, 0, 128, 1)">1</span>].mp,mp,<span style="color: rgba(0, 0, 255, 1)">sizeof</span>(q[<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">].mp));
+        q[</span><span style="color: rgba(128, 0, 128, 1)">1</span>].step = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (l &lt;=<span style="color: rgba(0, 0, 0, 1)"> r)
+        {
+                cur </span>=<span style="color: rgba(0, 0, 0, 1)"> q[l];
+                l</span>++<span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= <span style="color: rgba(128, 0, 128, 1)">4</span>; i++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= <span style="color: rgba(128, 0, 128, 1)">4</span>; j++<span style="color: rgba(0, 0, 0, 1)">)
+                        {
+                                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (cur.mp[i][j] == <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">)
+                                {
+                                        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (k = <span style="color: rgba(128, 0, 128, 1)">0</span>; k &lt; <span style="color: rgba(128, 0, 128, 1)">4</span>; k++<span style="color: rgba(0, 0, 0, 1)">)
+                                        {
+                                                tx </span>= i +<span style="color: rgba(0, 0, 0, 1)"> dx[k];
+                                                ty </span>= j +<span style="color: rgba(0, 0, 0, 1)"> dy[k];
+                                                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (valid(tx,ty) &amp;&amp; cur.mp[tx][ty] == <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">)
+                                                {
+                                                        swap(cur.mp[i][j],cur.mp[tx][ty]);
+                                                        state </span>= <span style="color: rgba(0, 0, 255, 1)">get</span><span style="color: rgba(0, 0, 0, 1)">(cur.mp);
+                                                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!<span style="color: rgba(0, 0, 0, 1)">visited[state])
+                                                        {
+                                                                visited[state] </span>= <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+                                                                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (state ==<span style="color: rgba(0, 0, 0, 1)"> goal) 
+                                                                {
+                                                                        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span>,cur.step+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+                                                                        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                                                                }
+                                                                r</span>++<span style="color: rgba(0, 0, 0, 1)">;
+                                                                memcpy(q[r].mp,cur.mp,</span><span style="color: rgba(0, 0, 255, 1)">sizeof</span><span style="color: rgba(0, 0, 0, 1)">(q[r].mp));
+                                                                q[r].step </span>= cur.step + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                                                        }
+                                                        swap(cur.mp[i][j],cur.mp[tx][ty]);
+                                                }        
+                                        }        
+                                }    
+                        }        
+                }        
+        }
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

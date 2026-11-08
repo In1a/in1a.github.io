@@ -1,0 +1,152 @@
+---
+layout: post
+title: '[NOIP 2012] 开车旅行'
+date: 2018-07-19 15:40:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9336180.html
+cnblogs_id: 9336180
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p>       <a href="https://www.luogu.org/problemnew/show/P1081" target="_blank" rel="noopener nofollow"> https://www.luogu.org/problemnew/show/P1081</a></p>
+<p>[算法]</p>
+<p>         STL-set + 倍增 + DP</p>
+<p>[代码]</p>
+<p>       </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 100010
+<span style="color: rgba(0, 0, 255, 1)">#define</span> MAXLOG 20<span style="color: rgba(0, 0, 0, 1)">
+typedef </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> ll;
+
+</span><span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> info
+{
+    ll height;
+    ll id;
+    friend </span><span style="color: rgba(0, 0, 255, 1)">bool</span> <span style="color: rgba(0, 0, 255, 1)">operator</span> &lt;<span style="color: rgba(0, 0, 0, 1)"> (info a,info b)
+    {
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> a.height &lt;<span style="color: rgba(0, 0, 0, 1)"> b.height;
+    }
+} a[MAXN];
+
+ll i,j,n,T,ans,x0,si,xi;
+</span><span style="color: rgba(0, 0, 255, 1)">set</span>&lt; info &gt;<span style="color: rgba(0, 0, 0, 1)"> s;
+ll ga[MAXN],gb[MAXN];
+ll x,y;
+ll f[MAXN][MAXLOG],da[MAXN][MAXLOG],db[MAXN][MAXLOG];
+pair</span>&lt;ll,ll&gt;<span style="color: rgba(0, 0, 0, 1)"> tmp;
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">bool</span><span style="color: rgba(0, 0, 0, 1)"> cmp(info x,info y)
+{
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (x.height != y.height) <span style="color: rgba(0, 0, 255, 1)">return</span> x.height &lt;<span style="color: rgba(0, 0, 0, 1)"> y.height;
+    </span><span style="color: rgba(0, 0, 255, 1)">else</span> <span style="color: rgba(0, 0, 255, 1)">return</span> a[x.id].height &lt;<span style="color: rgba(0, 0, 0, 1)"> a[y.id].height;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> <span style="color: rgba(0, 0, 255, 1)">get</span><span style="color: rgba(0, 0, 0, 1)">(ll id)
+{
+    ll len </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">set</span>&lt; info &gt;<span style="color: rgba(0, 0, 0, 1)"> :: iterator it;
+    info tmp[</span><span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">];
+    it </span>=<span style="color: rgba(0, 0, 0, 1)"> s.find(a[id]);
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (it !=<span style="color: rgba(0, 0, 0, 1)"> s.begin())
+    {
+        it</span>--<span style="color: rgba(0, 0, 0, 1)">;
+        tmp[</span>++len] = (info){a[id].height - it -&gt; height,it -&gt;<span style="color: rgba(0, 0, 0, 1)"> id};
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (it !=<span style="color: rgba(0, 0, 0, 1)"> s.begin())
+        {
+            it</span>--<span style="color: rgba(0, 0, 0, 1)">;
+            tmp[</span>++len] = (info){a[id].height - it -&gt; height,it -&gt;<span style="color: rgba(0, 0, 0, 1)"> id};    
+            it</span>++<span style="color: rgba(0, 0, 0, 1)">;
+        }    
+        it</span>++<span style="color: rgba(0, 0, 0, 1)">;
+    }
+    it</span>++<span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (it !=<span style="color: rgba(0, 0, 0, 1)"> s.end()) 
+    {
+        tmp[</span>++len] = (info){it -&gt; height - a[id].height,it -&gt;<span style="color: rgba(0, 0, 0, 1)"> id};
+        it</span>++<span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (it != s.end()) tmp[++len] = (info){it -&gt; height - a[id].height,it -&gt;<span style="color: rgba(0, 0, 0, 1)"> id};
+    }
+    sort(tmp</span>+<span style="color: rgba(128, 0, 128, 1)">1</span>,tmp+len+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">,cmp);
+    ga[id] </span>= tmp[<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">].id;
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (len == <span style="color: rgba(128, 0, 128, 1)">1</span>) <span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)">;
+    gb[id] </span>= tmp[<span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">].id;
+}
+inline pair</span>&lt;ll,ll&gt;<span style="color: rgba(0, 0, 0, 1)"> ask(ll pos,ll d)
+{
+    ll i;
+    ll ans1 </span>= <span style="color: rgba(128, 0, 128, 1)">0</span>,ans2 = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = MAXLOG - <span style="color: rgba(128, 0, 128, 1)">1</span>; i &gt;= <span style="color: rgba(128, 0, 128, 1)">0</span>; i--<span style="color: rgba(0, 0, 0, 1)">)
+    {
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (f[pos][i] &amp;&amp; ans1 + ans2 + da[pos][i] + db[pos][i] &lt;=<span style="color: rgba(0, 0, 0, 1)"> d)
+        {
+            ans1 </span>+=<span style="color: rgba(0, 0, 0, 1)"> da[pos][i];
+            ans2 </span>+=<span style="color: rgba(0, 0, 0, 1)"> db[pos][i];
+            pos </span>=<span style="color: rgba(0, 0, 0, 1)"> f[pos][i];
+        }
+    }
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span><span style="color: rgba(0, 0, 0, 1)"> (gb[pos])
+    {
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (ans1 + ans2 + abs(a[pos].height - a[gb[pos]].height) &lt;=<span style="color: rgba(0, 0, 0, 1)"> d)
+            ans1 </span>+= abs(a[pos].height -<span style="color: rgba(0, 0, 0, 1)"> a[gb[pos]].height);
+    }
+    </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> make_pair(ans1,ans2);
+}
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main()
+{
+    
+    scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%lld</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">n);
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">) 
+    {
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%lld</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">a[i].height);
+        a[i].id </span>=<span style="color: rgba(0, 0, 0, 1)"> i;
+    }
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = n; i &gt;= <span style="color: rgba(128, 0, 128, 1)">1</span>; i--<span style="color: rgba(0, 0, 0, 1)">)
+    {
+        s.insert(a[i]);
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (i != n) <span style="color: rgba(0, 0, 255, 1)">get</span><span style="color: rgba(0, 0, 0, 1)">(i);    
+    }
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+    {
+        f[i][</span><span style="color: rgba(128, 0, 128, 1)">0</span>] =<span style="color: rgba(0, 0, 0, 1)"> ga[gb[i]];
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (gb[i]) da[i][<span style="color: rgba(128, 0, 128, 1)">0</span>] = abs(a[i].height -<span style="color: rgba(0, 0, 0, 1)"> a[gb[i]].height);
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (gb[i] &amp;&amp; ga[gb[i]]) db[i][<span style="color: rgba(128, 0, 128, 1)">0</span>] = abs(a[gb[i]].height -<span style="color: rgba(0, 0, 0, 1)"> a[ga[gb[i]]].height);     
+    }
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt; MAXLOG; j++<span style="color: rgba(0, 0, 0, 1)">)
+    {
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+            f[i][j] </span>= f[f[i][j-<span style="color: rgba(128, 0, 128, 1)">1</span>]][j-<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+            da[i][j] </span>= da[i][j-<span style="color: rgba(128, 0, 128, 1)">1</span>] + da[f[i][j-<span style="color: rgba(128, 0, 128, 1)">1</span>]][j-<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+            db[i][j] </span>= db[i][j-<span style="color: rgba(128, 0, 128, 1)">1</span>] + db[f[i][j-<span style="color: rgba(128, 0, 128, 1)">1</span>]][j-<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+        }
+    }
+    scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%lld</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">x0);
+    ans </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    x </span>= y = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+    {
+        tmp </span>=<span style="color: rgba(0, 0, 0, 1)"> ask(i,x0);
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (tmp.second != <span style="color: rgba(128, 0, 128, 1)">0</span> &amp;&amp; (!ans || tmp.first * y &lt; tmp.second *<span style="color: rgba(0, 0, 0, 1)"> x))
+        {
+            ans </span>=<span style="color: rgba(0, 0, 0, 1)"> i;
+            x </span>=<span style="color: rgba(0, 0, 0, 1)"> tmp.first;
+            y </span>=<span style="color: rgba(0, 0, 0, 1)"> tmp.second;
+        }
+    }
+    printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%lld\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,ans);
+    scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%lld</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">T);
+    </span><span style="color: rgba(0, 0, 255, 1)">while</span> (T--<span style="color: rgba(0, 0, 0, 1)">)
+    {
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%lld%lld</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;si,&amp;<span style="color: rgba(0, 0, 0, 1)">xi);
+        tmp </span>=<span style="color: rgba(0, 0, 0, 1)"> ask(si,xi);
+        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%lld %lld\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,tmp.first,tmp.second);
+    }
+    
+    </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

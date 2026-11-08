@@ -1,0 +1,177 @@
+---
+layout: post
+title: '【POJ 3740】 Easy Finding'
+date: 2018-07-03 20:48:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9260544.html
+cnblogs_id: 9260544
+---
+{% raw %}
+
+<p>【题目链接】</p>
+<p>             <a href="http://poj.org/problem?id=3740" target="_blank" rel="noopener nofollow">http://poj.org/problem?id=3740</a></p>
+<p>【算法】</p>
+<p>           Dancing Links算法解精确覆盖问题</p>
+<p>           详见这篇文章 ： <a href="https://www.cnblogs.com/grenet/p/3145800.html" target="_blank">https://www.cnblogs.com/grenet/p/3145800.html</a></p>
+<p>【代码】</p>
+<p>             </p>
+<div class="cnblogs_code">
+<pre>#include &lt;algorithm&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;bitset&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cctype&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cerrno&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;clocale&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cmath&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;complex&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cstdio&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cstdlib&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cstring&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;ctime&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;deque&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;exception&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;fstream&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;functional&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;limits&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;list&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;map&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;iomanip&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;ios&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;iosfwd&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;iostream&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;istream&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;ostream&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;queue&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;<span style="color: rgba(0, 0, 255, 1)">set</span>&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;sstream&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;stdexcept&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;streambuf&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;<span style="color: rgba(0, 0, 255, 1)">string</span>&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;utility&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;vector&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cwchar&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cwctype&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;stack&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;limits.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 10010
+
+<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> n,m,i,j,val;
+
+</span><span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> DancingLinks
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> n,m,size;
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> U[MAXN],D[MAXN],L[MAXN],R[MAXN],Row[MAXN],Col[MAXN];
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> H[MAXN],S[MAXN];
+        inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> init(<span style="color: rgba(0, 0, 255, 1)">int</span> _n,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> _m)
+        {
+                n </span>=<span style="color: rgba(0, 0, 0, 1)"> _n;
+                m </span>=<span style="color: rgba(0, 0, 0, 1)"> _m;
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i &lt;= m; i++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        S[i] </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                        U[i] </span>= D[i] =<span style="color: rgba(0, 0, 0, 1)"> i;
+                        L[i] </span>= i - <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                        R[i] </span>= i + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                }
+                R[m] </span>= <span style="color: rgba(128, 0, 128, 1)">0</span>; L[<span style="color: rgba(128, 0, 128, 1)">0</span>] =<span style="color: rgba(0, 0, 0, 1)"> m;
+                size </span>=<span style="color: rgba(0, 0, 0, 1)"> m;
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++) H[i] = -<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        }
+        inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> link(<span style="color: rgba(0, 0, 255, 1)">int</span> r,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> c)
+        {
+                size</span>++<span style="color: rgba(0, 0, 0, 1)">;
+                Row[size] </span>=<span style="color: rgba(0, 0, 0, 1)"> r;
+                Col[size] </span>=<span style="color: rgba(0, 0, 0, 1)"> c;
+                S[c]</span>++<span style="color: rgba(0, 0, 0, 1)">;
+                D[size] </span>=<span style="color: rgba(0, 0, 0, 1)"> D[c];
+                U[D[c]] </span>=<span style="color: rgba(0, 0, 0, 1)"> size;
+                U[size] </span>=<span style="color: rgba(0, 0, 0, 1)"> c; 
+                D[c] </span>=<span style="color: rgba(0, 0, 0, 1)"> size;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (H[r] &lt; <span style="color: rgba(128, 0, 128, 1)">0</span>) L[size] = R[size] = H[r] =<span style="color: rgba(0, 0, 0, 1)"> size;
+                </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)">
+                {
+                        R[size] </span>=<span style="color: rgba(0, 0, 0, 1)"> R[H[r]];
+                        L[R[H[r]]] </span>=<span style="color: rgba(0, 0, 0, 1)"> size;
+                        L[size] </span>=<span style="color: rgba(0, 0, 0, 1)"> H[r];
+                        R[H[r]] </span>=<span style="color: rgba(0, 0, 0, 1)"> size;
+                }
+        }
+        inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> remove(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> c)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,j;
+                L[R[c]] </span>=<span style="color: rgba(0, 0, 0, 1)"> L[c];
+                R[L[c]] </span>=<span style="color: rgba(0, 0, 0, 1)"> R[c];
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = D[c]; i != c; i =<span style="color: rgba(0, 0, 0, 1)"> D[i])
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = R[i]; j != i; j =<span style="color: rgba(0, 0, 0, 1)"> R[j])
+                        {
+                                U[D[j]] </span>=<span style="color: rgba(0, 0, 0, 1)"> U[j];
+                                D[U[j]] </span>=<span style="color: rgba(0, 0, 0, 1)"> D[j];
+                                S[Col[j]]</span>--<span style="color: rgba(0, 0, 0, 1)">;    
+                        }
+                }
+        }
+        inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> resume(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> c)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,j;
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = D[c]; i != c; i =<span style="color: rgba(0, 0, 0, 1)"> D[i])
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = R[i]; j != i; j =<span style="color: rgba(0, 0, 0, 1)"> R[j])
+                        {
+                                D[U[j]] </span>=<span style="color: rgba(0, 0, 0, 1)"> j;
+                                U[D[j]] </span>=<span style="color: rgba(0, 0, 0, 1)"> j;
+                                S[Col[j]]</span>++<span style="color: rgba(0, 0, 0, 1)">;
+                        }
+                }        
+                L[R[c]] </span>=<span style="color: rgba(0, 0, 0, 1)"> c;
+                R[L[c]] </span>=<span style="color: rgba(0, 0, 0, 1)"> c;
+        }
+        inline </span><span style="color: rgba(0, 0, 255, 1)">bool</span><span style="color: rgba(0, 0, 0, 1)"> solve()
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,c;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (R[<span style="color: rgba(128, 0, 128, 1)">0</span>] == <span style="color: rgba(128, 0, 128, 1)">0</span>) <span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+                c </span>= R[<span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">];
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = R[<span style="color: rgba(128, 0, 128, 1)">0</span>]; i; i =<span style="color: rgba(0, 0, 0, 1)"> R[i])
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (S[i] &lt;<span style="color: rgba(0, 0, 0, 1)"> S[c])
+                                c </span>=<span style="color: rgba(0, 0, 0, 1)"> i; 
+                }
+                remove(c);
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = D[c]; i != c; i =<span style="color: rgba(0, 0, 0, 1)"> D[i])
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = R[i]; j != i; j =<span style="color: rgba(0, 0, 0, 1)"> R[j]) 
+                                remove(Col[j]);
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (solve()) <span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+                        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = R[i]; j != i; j =<span style="color: rgba(0, 0, 0, 1)"> R[j]) 
+                                resume(Col[j]); 
+                } 
+                resume(c);
+                </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(0, 0, 255, 1)">false</span><span style="color: rgba(0, 0, 0, 1)">;
+        }
+} DLX;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() 
+{
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (scanf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;n,&amp;m) !=<span style="color: rgba(0, 0, 0, 1)"> EOF)
+        {
+                DLX.init(n,m);
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= m; j++<span style="color: rgba(0, 0, 0, 1)">)
+                        {
+                                scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">val);
+                                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (val == <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">) DLX.link(i,j);        
+                        }        
+                }        
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (DLX.solve()) printf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">Yes, I found it\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">);
+                </span><span style="color: rgba(0, 0, 255, 1)">else</span> printf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">It is impossible\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">);
+        }
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

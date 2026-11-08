@@ -1,0 +1,108 @@
+---
+layout: post
+title: '[NOIP 2016] 蚯蚓'
+date: 2018-08-13 19:47:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9470473.html
+cnblogs_id: 9470473
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p>         <a href="https://www.lydsy.com/JudgeOnline/problem.php?id=4721" target="_blank" rel="noopener nofollow">https://www.lydsy.com/JudgeOnline/problem.php?id=4721</a></p>
+<p>[算法]</p>
+<p>        首先，我们可以维护一个堆，堆中存放蚯蚓的长度，由于除当前蚯蚓其他的蚯蚓长度都要增加q，我们不妨将当前蚯蚓长度减去q，期望得分85pts</p>
+<p>        进一步观察，我们发现，同一种切法，早切的蚯蚓一定比晚切的长，根据这个性质，维护三个单调队列，分别维护未被切割的蚯蚓长度，被切割过的蚯蚓长度中较长的那些的长度，被切割的蚯蚓长度中较短的那些的长度，时间复杂度O(M),可以通过所有数据</p>
+<p>[代码]</p>
+<p>          注意为了避免精度误差，需使用long double类型，否则可能无法通过UOJ Extra Test</p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span> INF =<span style="color: rgba(0, 0, 0, 1)"> 1e18;
+</span><span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span> MAXN =<span style="color: rgba(0, 0, 0, 1)"> 1e7;
+
+</span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> i,n,m,u,value,t,x,y,mx,pos,v;
+</span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span> head[<span style="color: rgba(128, 0, 128, 1)">10</span>],tail[<span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">],ans1[MAXN],ans2[MAXN];
+</span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span> q[<span style="color: rgba(128, 0, 128, 1)">3</span><span style="color: rgba(0, 0, 0, 1)">][MAXN];
+
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> read(T &amp;<span style="color: rgba(0, 0, 0, 1)">x)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span> f = <span style="color: rgba(128, 0, 128, 1)">1</span>; x = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">char</span> c =<span style="color: rgba(0, 0, 0, 1)"> getchar();
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; !isdigit(c); c =<span style="color: rgba(0, 0, 0, 1)"> getchar())
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (c == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>) f = -<span style="color: rgba(0, 0, 0, 1)">f;
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; isdigit(c); c = getchar()) x = (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">3</span>) + (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>) + c - <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">;
+        x </span>*=<span style="color: rgba(0, 0, 0, 1)"> f;
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() 
+{
+        
+        read(n); read(m); read(value); read(u); read(v); read(t);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                read(x);
+                q[</span><span style="color: rgba(128, 0, 128, 1)">0</span>][++tail[<span style="color: rgba(128, 0, 128, 1)">0</span>]] =<span style="color: rgba(0, 0, 0, 1)"> x; 
+        } 
+        head[</span><span style="color: rgba(128, 0, 128, 1)">0</span>] = head[<span style="color: rgba(128, 0, 128, 1)">1</span>] = head[<span style="color: rgba(128, 0, 128, 1)">2</span>] = <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        sort(q[</span><span style="color: rgba(128, 0, 128, 1)">0</span>] + <span style="color: rgba(128, 0, 128, 1)">1</span>,q[<span style="color: rgba(128, 0, 128, 1)">0</span>] + tail[<span style="color: rgba(128, 0, 128, 1)">0</span>] + <span style="color: rgba(128, 0, 128, 1)">1</span>,greater&lt;<span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span>&gt;<span style="color: rgba(0, 0, 0, 1)">());
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= m; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                mx </span>= -<span style="color: rgba(0, 0, 0, 1)">INF;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (head[<span style="color: rgba(128, 0, 128, 1)">0</span>] &lt;= tail[<span style="color: rgba(128, 0, 128, 1)">0</span>] &amp;&amp; q[<span style="color: rgba(128, 0, 128, 1)">0</span>][head[<span style="color: rgba(128, 0, 128, 1)">0</span>]] &gt;<span style="color: rgba(0, 0, 0, 1)"> mx)
+                {
+                        mx </span>= q[<span style="color: rgba(128, 0, 128, 1)">0</span>][head[<span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">]];
+                        pos </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                }
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (head[<span style="color: rgba(128, 0, 128, 1)">1</span>] &lt;= tail[<span style="color: rgba(128, 0, 128, 1)">1</span>] &amp;&amp; q[<span style="color: rgba(128, 0, 128, 1)">1</span>][head[<span style="color: rgba(128, 0, 128, 1)">1</span>]] &gt;<span style="color: rgba(0, 0, 0, 1)"> mx)
+                {
+                        mx </span>= q[<span style="color: rgba(128, 0, 128, 1)">1</span>][head[<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">]];
+                        pos </span>= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                }
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (head[<span style="color: rgba(128, 0, 128, 1)">2</span>] &lt;= tail[<span style="color: rgba(128, 0, 128, 1)">2</span>] &amp;&amp; q[<span style="color: rgba(128, 0, 128, 1)">2</span>][head[<span style="color: rgba(128, 0, 128, 1)">2</span>]] &gt;<span style="color: rgba(0, 0, 0, 1)"> mx)
+                {
+                        mx </span>= q[<span style="color: rgba(128, 0, 128, 1)">2</span>][head[<span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">]];
+                        pos </span>= <span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">;
+                }
+                ans1[i] </span>= mx + (i - <span style="color: rgba(128, 0, 128, 1)">1</span>) *<span style="color: rgba(0, 0, 0, 1)"> value;
+                head[pos]</span>++<span style="color: rgba(0, 0, 0, 1)">;
+                x </span>= (<span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span>)((mx + (i - <span style="color: rgba(128, 0, 128, 1)">1</span>) * value) * (<span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">double</span>)<span style="color: rgba(128, 0, 128, 1)">1.0</span> * u / v) - i *<span style="color: rgba(0, 0, 0, 1)"> value;
+                y </span>= mx + (i - <span style="color: rgba(128, 0, 128, 1)">1</span>) * value - (<span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span>)((mx + (i - <span style="color: rgba(128, 0, 128, 1)">1</span>) * value) * (<span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">double</span>)<span style="color: rgba(128, 0, 128, 1)">1.0</span> * u / v) - i *<span style="color: rgba(0, 0, 0, 1)"> value;
+                q[</span><span style="color: rgba(128, 0, 128, 1)">1</span>][++tail[<span style="color: rgba(128, 0, 128, 1)">1</span>]] =<span style="color: rgba(0, 0, 0, 1)"> max(x,y);
+                q[</span><span style="color: rgba(128, 0, 128, 1)">2</span>][++tail[<span style="color: rgba(128, 0, 128, 1)">2</span>]] =<span style="color: rgba(0, 0, 0, 1)"> min(x,y);
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i * t &lt;= m; i++) printf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%lld </span><span style="color: rgba(128, 0, 0, 1)">"</span>,ans1[i *<span style="color: rgba(0, 0, 0, 1)"> t]);
+        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n + m; i++<span style="color: rgba(0, 0, 0, 1)">) 
+        {
+                mx </span>= -<span style="color: rgba(0, 0, 0, 1)">INF;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (head[<span style="color: rgba(128, 0, 128, 1)">0</span>] &lt;= tail[<span style="color: rgba(128, 0, 128, 1)">0</span>] &amp;&amp; q[<span style="color: rgba(128, 0, 128, 1)">0</span>][head[<span style="color: rgba(128, 0, 128, 1)">0</span>]] &gt;<span style="color: rgba(0, 0, 0, 1)"> mx)
+                {
+                        mx </span>= q[<span style="color: rgba(128, 0, 128, 1)">0</span>][head[<span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">]];
+                        pos </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                }
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (head[<span style="color: rgba(128, 0, 128, 1)">1</span>] &lt;= tail[<span style="color: rgba(128, 0, 128, 1)">1</span>] &amp;&amp; q[<span style="color: rgba(128, 0, 128, 1)">1</span>][head[<span style="color: rgba(128, 0, 128, 1)">1</span>]] &gt;<span style="color: rgba(0, 0, 0, 1)"> mx)
+                {
+                        mx </span>= q[<span style="color: rgba(128, 0, 128, 1)">1</span>][head[<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">]];
+                        pos </span>= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                }
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (head[<span style="color: rgba(128, 0, 128, 1)">2</span>] &lt;= tail[<span style="color: rgba(128, 0, 128, 1)">2</span>] &amp;&amp; q[<span style="color: rgba(128, 0, 128, 1)">2</span>][head[<span style="color: rgba(128, 0, 128, 1)">2</span>]] &gt;<span style="color: rgba(0, 0, 0, 1)"> mx)
+                {
+                        mx </span>= q[<span style="color: rgba(128, 0, 128, 1)">2</span>][head[<span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">]];
+                        pos </span>= <span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">;
+                }
+                ans2[i] </span>= mx + m *<span style="color: rgba(0, 0, 0, 1)"> value;
+                head[pos]</span>++<span style="color: rgba(0, 0, 0, 1)">;
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i * t &lt;= n + m; i++) printf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%lld </span><span style="color: rgba(128, 0, 0, 1)">"</span>,ans2[i *<span style="color: rgba(0, 0, 0, 1)"> t]);
+        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">);
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

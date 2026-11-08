@@ -1,0 +1,73 @@
+---
+layout: post
+title: '[ARC101C] Ribbons On the Tree'
+date: 2020-11-25 08:26:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/14033859.html
+cnblogs_id: 14033859
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p><a href="" rel="noopener nofollow">https://atcoder.jp/contests/arc101/tasks/arc101_c</a></p>
+<p>[题解]</p>
+<p>直接做比较麻烦。</p>
+<p>考虑一个最简单的容斥原理 : <span class="math inline">\(ans = \sum{(-1)^{|S|}f(S)}\)</span> , 其中 <span class="math inline">\(f(S)\)</span> 表示 <span class="math inline">\(S\)</span> 集合内所有边都不选的方案。</p>
+<p>考虑对于一个大小为 <span class="math inline">\(N\)</span> (<span class="math inline">\(N\)</span> 为偶数) 的联通块随便连的方案数 ， 其贡献是 <span class="math inline">\((N - 1) * (N - 3) * ... * 1\)</span>。 那么 <span class="math inline">\(f(S)\)</span> 就是分割成的联通块的贡献乘积。</p>
+<p>不妨用 <span class="math inline">\(dp(i , j)\)</span> 表示以 <span class="math inline">\(i\)</span> 为根的子树 ， 现在 <span class="math inline">\(i\)</span> 所在联通块大小是 <span class="math inline">\(j\)</span> 的贡献和 (不包括当前联通块的贡献)。 转移的时候乘上容斥系数。 那么只需要做一个简单的树上背包即可。</p>
+<p>时间复杂度 ： <span class="math inline">\(O(N ^ 2)\)</span></p>
+<p>[代码]</p>
+<pre><code class="language-cpp">#include &lt;bits/stdc++.h&gt;
+ 
+using namespace std;
+ 
+typedef long long LL;
+ 
+const int MN = 5005 , mod = 1e9 + 7;
+ 
+int N , coef[MN] , f[MN][MN] , siz[MN];
+vector &lt; int &gt; a[MN];
+ 
+inline void inc(int &amp;x , int y) {
+	x = x + y &lt; mod ? x + y : x + y - mod;
+}
+inline void dec(int &amp;x , int y) {
+	x = x - y &gt;= 0 ? x - y : x - y + mod;
+}
+inline void solve(int u , int fa) {
+	f[u][1] = 1; siz[u] = 1;
+	for (int v : a[u]) 
+		if (v != fa) {
+			solve(v , u);
+			static int g[MN];
+			for (int i = 1; i &lt;= siz[u] + siz[v]; ++i) g[i] = 0;
+			for (int i = 1; i &lt;= siz[u]; ++i) {
+				for (int j = 1; j &lt;= siz[v]; ++j) {
+					dec(g[i] , 1ll * f[u][i] * coef[j] % mod * f[v][j] % mod);
+					inc(g[i + j] , 1ll * f[u][i] * f[v][j] % mod);
+				}
+			}
+			siz[u] += siz[v];
+			for (int i = 1; i &lt;= siz[u]; ++i) f[u][i] = g[i];
+		}
+}
+ 
+int main() { 
+	
+	scanf("%d" , &amp;N);
+	for (int i = 1; i &lt; N; ++i) {
+		int u , v;
+		scanf("%d%d" , &amp;u , &amp;v);
+		a[u].emplace_back(v) , a[v].emplace_back(u);
+	}
+	coef[0] = 1;
+	for (int i = 2; i &lt;= N; i += 2) coef[i] = 1ll * coef[i - 2] * (i - 1) % mod;
+	solve(1 , 0); int ans = 0;
+	for (int i = 2; i &lt;= N; i += 2) 
+		inc(ans , 1ll * coef[i] * f[1][i] % mod);
+	printf("%d\n" , ans);
+	return 0; 
+}</code></pre>
+
+
+
+{% endraw %}

@@ -1,0 +1,86 @@
+---
+layout: post
+title: '[NOI2010]超级钢琴'
+date: 2018-07-17 14:30:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9323212.html
+cnblogs_id: 9323212
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p>         <a href="https://www.lydsy.com/JudgeOnline/problem.php?id=2006" target="_blank" rel="noopener nofollow">https://www.lydsy.com/JudgeOnline/problem.php?id=2006</a></p>
+<p>[算法]</p>
+<p>          Sprase Table + 堆</p>
+<p>[代码]</p>
+<p>       </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 500010
+<span style="color: rgba(0, 0, 255, 1)">#define</span> MAXLOG 20
+
+<span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> info
+{
+    </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> val,pos,l,r;
+    friend </span><span style="color: rgba(0, 0, 255, 1)">bool</span> <span style="color: rgba(0, 0, 255, 1)">operator</span> &lt;<span style="color: rgba(0, 0, 0, 1)"> (info a,info b)
+    {
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> a.val &lt;<span style="color: rgba(0, 0, 0, 1)"> b.val;
+    }
+} ;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,j,m1,m2,n,k,l,r,x,pos;
+</span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> ans;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> mn[MAXN][MAXLOG];
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> sum[MAXN];
+priority_queue</span>&lt; info &gt;<span style="color: rgba(0, 0, 0, 1)"> q;
+info tmp;
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">int</span> my_min(<span style="color: rgba(0, 0, 255, 1)">int</span> x,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> y)
+{
+    </span><span style="color: rgba(0, 0, 255, 1)">return</span> sum[x] &lt; sum[y] ?<span style="color: rgba(0, 0, 0, 1)"> x : y;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">int</span> query(<span style="color: rgba(0, 0, 255, 1)">int</span> l,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> r)
+{
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (l &gt; r) <span style="color: rgba(0, 0, 255, 1)">return</span> -<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">int</span> k = log(r - l + <span style="color: rgba(128, 0, 128, 1)">1</span>) / log(<span style="color: rgba(128, 0, 128, 1)">2.0</span><span style="color: rgba(0, 0, 0, 1)">);    
+    </span><span style="color: rgba(0, 0, 255, 1)">return</span> my_min(mn[l][k],mn[r-(<span style="color: rgba(128, 0, 128, 1)">1</span>&lt;&lt;k)+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">][k]);
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main()
+{
+    
+    scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;n,&amp;k,&amp;l,&amp;<span style="color: rgba(0, 0, 0, 1)">r);
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+    {
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">x);
+        sum[i] </span>= sum[i-<span style="color: rgba(128, 0, 128, 1)">1</span>] +<span style="color: rgba(0, 0, 0, 1)"> x;
+        mn[i][</span><span style="color: rgba(128, 0, 128, 1)">0</span>] =<span style="color: rgba(0, 0, 0, 1)"> i;
+    }
+     </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">1</span>; (<span style="color: rgba(128, 0, 128, 1)">1</span> &lt;&lt; j) &lt;= n; j++<span style="color: rgba(0, 0, 0, 1)">)
+    {
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i + (<span style="color: rgba(128, 0, 128, 1)">1</span> &lt;&lt; j) - <span style="color: rgba(128, 0, 128, 1)">1</span> &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)    
+        {
+            mn[i][j] </span>= my_min(mn[i][j-<span style="color: rgba(128, 0, 128, 1)">1</span>],mn[i+(<span style="color: rgba(128, 0, 128, 1)">1</span>&lt;&lt;(j-<span style="color: rgba(128, 0, 128, 1)">1</span>))][j-<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">]);
+        }
+    }
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = l; i &lt;= n; i++) q.push((info){sum[i]-sum[query(max(i-r,<span style="color: rgba(128, 0, 128, 1)">0</span>),i-l)],i,max(i-r,<span style="color: rgba(128, 0, 128, 1)">0</span>),i-<span style="color: rgba(0, 0, 0, 1)">l});
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= k; i++<span style="color: rgba(0, 0, 0, 1)">)
+    {
+        tmp </span>=<span style="color: rgba(0, 0, 0, 1)"> q.top();
+        q.pop();
+        ans </span>+= (<span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)">)tmp.val;
+        pos </span>=<span style="color: rgba(0, 0, 0, 1)"> query(tmp.l,tmp.r);
+        m1 </span>= query(tmp.l,pos-<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+        m2 </span>= query(pos+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">,tmp.r);
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (m1 != -<span style="color: rgba(128, 0, 128, 1)">1</span>) q.push((info){sum[tmp.pos]-sum[m1],tmp.pos,tmp.l,pos-<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">});
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (m2 != -<span style="color: rgba(128, 0, 128, 1)">1</span>) q.push((info){sum[tmp.pos]-sum[m2],tmp.pos,pos+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">,tmp.r});
+    }
+    printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%lld\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,ans);
+
+    </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">; 
+} </span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

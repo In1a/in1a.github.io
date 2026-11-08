@@ -1,0 +1,67 @@
+---
+layout: post
+title: '【NOI 2014】 动物园'
+date: 2018-07-02 15:08:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9253891.html
+cnblogs_id: 9253891
+---
+{% raw %}
+
+<p>【题目链接】</p>
+<p>             <a href="https://www.lydsy.com/JudgeOnline/problem.php?id=3670" target="_blank" rel="noopener nofollow">https://www.lydsy.com/JudgeOnline/problem.php?id=3670</a></p>
+<p>【算法】</p>
+<p>           KMP</p>
+<p>【代码】</p>
+<p>              </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 1000010
+<span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">int</span> P = 1e9 + <span style="color: rgba(128, 0, 128, 1)">7</span><span style="color: rgba(0, 0, 0, 1)">;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> T,i,j,ans,len,tmp;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> num[MAXN],nxt[MAXN],cnt[MAXN];
+</span><span style="color: rgba(0, 0, 255, 1)">char</span><span style="color: rgba(0, 0, 0, 1)"> s[MAXN];
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() {
+        
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">T);
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (T--<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%s</span><span style="color: rgba(128, 0, 0, 1)">"</span>,s+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+                len </span>= strlen(s+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+                nxt[</span><span style="color: rgba(128, 0, 128, 1)">1</span>] = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                cnt[</span><span style="color: rgba(128, 0, 128, 1)">1</span>] = <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                j </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">2</span>; i &lt;= len; i++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        tmp </span>= nxt[i-<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+                        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (tmp &amp;&amp; s[tmp+<span style="color: rgba(128, 0, 128, 1)">1</span>] != s[i]) tmp =<span style="color: rgba(0, 0, 0, 1)"> nxt[tmp];
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (s[tmp+<span style="color: rgba(128, 0, 128, 1)">1</span>] ==<span style="color: rgba(0, 0, 0, 1)"> s[i]) 
+                        {
+                                nxt[i] </span>= tmp + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                                cnt[i] </span>= cnt[tmp+<span style="color: rgba(128, 0, 128, 1)">1</span>] + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                        }
+                        </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)"> 
+                        {
+                                nxt[i] </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                                cnt[i] </span>= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                        } 
+                        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (j &amp;&amp; s[j+<span style="color: rgba(128, 0, 128, 1)">1</span>] != s[i]) j =<span style="color: rgba(0, 0, 0, 1)"> nxt[j];
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (s[j+<span style="color: rgba(128, 0, 128, 1)">1</span>] == s[i]) j++<span style="color: rgba(0, 0, 0, 1)">;
+                        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (j &gt; i / <span style="color: rgba(128, 0, 128, 1)">2</span>) j =<span style="color: rgba(0, 0, 0, 1)"> nxt[j];
+                        num[i] </span>=<span style="color: rgba(0, 0, 0, 1)"> cnt[j];
+                }        
+                ans </span>= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= len; i++) ans = 1ll * ans * (num[i] + <span style="color: rgba(128, 0, 128, 1)">1</span>) %<span style="color: rgba(0, 0, 0, 1)"> P;
+                printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,ans);
+        }
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

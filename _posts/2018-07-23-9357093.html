@@ -1,0 +1,195 @@
+---
+layout: post
+title: '[HDU 4261] Estimation'
+date: 2018-07-23 21:38:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9357093.html
+cnblogs_id: 9357093
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p>         <a href="http://acm.hdu.edu.cn/showproblem.php?pid=4261" target="_blank" rel="noopener nofollow">http://acm.hdu.edu.cn/showproblem.php?pid=4261</a></p>
+<p>[算法]</p>
+<p>        首先，有一个结论 ：</p>
+<p>        | a[1] - k | + | a[2] - k | + ... + | a[n] - k | 当k取(a[1],a[2], ... , a[n])的中位数时，式子的值最小</p>
+<p>        考虑动态维护中位数</p>
+<p>        我们用一个大根堆和一个小根堆，大根堆中存放前[1..N/2]（向上取整）小的数,小根堆中存放[N/2 + 1,N]小的数，还需维护两个变量s1和s2，分别为小根堆中所有数的和和大根堆中所有数的和</p>
+<p>        这样，我们就可以预处理出每一段的最小值</p>
+<p>        然后，我们用f[i][j]表示前i个数分成j段取得的最小值，有状态转移方程 ：</p>
+<p>        f[i][j]  = min{ f[k][j - 1] + middle( k + 1,i) ) （其中，middle(k + 1,i)表示[k + 1,i]中每个数与中位数的差值和）</p>
+<p>        答案即为f[n][k]</p>
+<p>[代码]</p>
+<p>          </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 2010
+<span style="color: rgba(0, 0, 255, 1)">#define</span> MAXK 30
+<span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">int</span> INF =<span style="color: rgba(0, 0, 0, 1)"> 2e9;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,j,k,s1,s2,x,y,n,m,middle;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> a[MAXN],sum[MAXN][MAXN];
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> f[MAXN][MAXK];
+
+</span><span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> Sheap
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> tot;
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> a[MAXN];
+        inline </span><span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> clear()
+        {
+                tot </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        }
+        inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> up(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> now)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (now == <span style="color: rgba(128, 0, 128, 1)">1</span>) <span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span> fa = now &gt;&gt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (a[now] &lt;<span style="color: rgba(0, 0, 0, 1)"> a[fa])
+                {    
+                        swap(a[now],a[fa]);
+                        up(fa);
+                }
+        }
+        inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> down(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> now)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span> son = now &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (son &gt; tot) <span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (son + <span style="color: rgba(128, 0, 128, 1)">1</span> &lt;= tot &amp;&amp; a[son + <span style="color: rgba(128, 0, 128, 1)">1</span>] &lt; a[son]) son++<span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (a[son] &lt;<span style="color: rgba(0, 0, 0, 1)"> a[now])
+                {
+                        swap(a[son],a[now]);
+                        down(son);
+                }
+        }
+        inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> insert(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x)
+        {
+                a[</span>++tot] =<span style="color: rgba(0, 0, 0, 1)"> x;
+                up(tot);
+        }
+        inline </span><span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> del()
+        {
+                swap(a[</span><span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">],a[tot]);
+                tot</span>--<span style="color: rgba(0, 0, 0, 1)">;
+                down(</span><span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+        }
+        inline </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> getroot()
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">return</span> a[<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+        }
+} S;
+</span><span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> Bheap
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> tot;
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> a[MAXN];
+        inline </span><span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> clear()
+        {
+                tot </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;        
+        }            
+        inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> up(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> now)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (now == <span style="color: rgba(128, 0, 128, 1)">1</span>) <span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span> fa = now &gt;&gt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (a[now] &gt;<span style="color: rgba(0, 0, 0, 1)"> a[fa])
+                {
+                        swap(a[now],a[fa]);
+                        up(fa);
+                }
+        }
+        inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> down(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> now)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span> son = now &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (son &gt; tot) <span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (son + <span style="color: rgba(128, 0, 128, 1)">1</span> &lt;= tot &amp;&amp; a[son + <span style="color: rgba(128, 0, 128, 1)">1</span>] &gt; a[son]) son++<span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (a[son] &gt;<span style="color: rgba(0, 0, 0, 1)"> a[now])
+                {
+                        swap(a[now],a[son]);
+                        down(son);
+                }
+        }
+        inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> insert(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x)
+        {
+                a[</span>++tot] =<span style="color: rgba(0, 0, 0, 1)"> x;
+                up(tot);
+        }
+        inline </span><span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> del()
+        {
+                swap(a[</span><span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">],a[tot]);
+                tot</span>--<span style="color: rgba(0, 0, 0, 1)">;
+                down(</span><span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+        }
+        inline </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> getroot()
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">return</span> a[<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+        }
+} B;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() 
+{
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (scanf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;n,&amp;m) &amp;&amp; (n ||<span style="color: rgba(0, 0, 0, 1)"> m))
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++) scanf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">a[i]);
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        B.clear();
+                        S.clear();
+                        sum[i][i] </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                        B.insert(a[i]);
+                        s1 </span>=<span style="color: rgba(0, 0, 0, 1)"> a[i];
+                        s2 </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = i + <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= n; j++<span style="color: rgba(0, 0, 0, 1)">)
+                        {
+                                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (B.tot &lt;= (j - i) / <span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">) 
+                                {
+                                        B.insert(a[j]);
+                                        s1 </span>+=<span style="color: rgba(0, 0, 0, 1)"> a[j];
+                                } </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)"> 
+                                {
+                                        S.insert(a[j]);
+                                        s2 </span>+=<span style="color: rgba(0, 0, 0, 1)"> a[j];
+                                }
+                                x </span>=<span style="color: rgba(0, 0, 0, 1)"> B.getroot();
+                                y </span>=<span style="color: rgba(0, 0, 0, 1)"> S.getroot();
+                                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (x &gt;<span style="color: rgba(0, 0, 0, 1)"> y)
+                                {
+                                        B.del();
+                                        s1 </span>-=<span style="color: rgba(0, 0, 0, 1)"> x;
+                                        S.del();
+                                        s2 </span>-=<span style="color: rgba(0, 0, 0, 1)"> y;
+                                        S.insert(x);
+                                        s2 </span>+=<span style="color: rgba(0, 0, 0, 1)"> x;
+                                        B.insert(y);    
+                                        s1 </span>+=<span style="color: rgba(0, 0, 0, 1)"> y;    
+                                } 
+                                middle </span>=<span style="color: rgba(0, 0, 0, 1)"> B.getroot();
+                                sum[i][j]    </span>= middle * B.tot - s1 + s2 - middle *<span style="color: rgba(0, 0, 0, 1)"> S.tot;
+                        }        
+                }        
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= m; j++<span style="color: rgba(0, 0, 0, 1)">)
+                        {
+                                f[i][j] </span>=<span style="color: rgba(0, 0, 0, 1)"> INF;
+                        }
+                }
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++) f[i][<span style="color: rgba(128, 0, 128, 1)">1</span>] = sum[<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">][i];
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">2</span>; j &lt;= m; j++<span style="color: rgba(0, 0, 0, 1)">)
+                        {
+                                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (k = i - <span style="color: rgba(128, 0, 128, 1)">1</span>; k &gt;= <span style="color: rgba(128, 0, 128, 1)">1</span>; k--<span style="color: rgba(0, 0, 0, 1)">)
+                                {
+                                        f[i][j] </span>= min(f[i][j],f[k][j - <span style="color: rgba(128, 0, 128, 1)">1</span>] + sum[k + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">][i]);
+                                }
+                        }
+                }
+                printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,f[n][m]);
+        }
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

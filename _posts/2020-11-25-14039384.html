@@ -1,0 +1,122 @@
+---
+layout: post
+title: '[CF1119F] Niyaz and Small Degrees'
+date: 2020-11-25 22:44:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/14039384.html
+cnblogs_id: 14039384
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p><a href="" rel="noopener nofollow">https://codeforces.com/contest/1119/problem/F</a></p>
+<p>[题解]</p>
+<p>首先考虑一个朴素的做法。</p>
+<p>设 <span class="math inline">\(dp_{u , 0 / 1}\)</span> 表示以 <span class="math inline">\(u\)</span> 为根的子树 ， <span class="math inline">\((u , fa(u))\)</span> 这条边割 / 不割的最小代价。</p>
+<p>忽略 <span class="math inline">\(X\)</span> 的限制 ， 首先令 <span class="math inline">\(dp_{u , 0 / 1} = \sum_{v}{max\{dp_{v , 0} , dp_{v , 1} + w\}}\)</span>。</p>
+<p>不妨称 <span class="math inline">\(dp_{v , 1} + w \leq dp_{v , 0}\)</span> 的儿子 <span class="math inline">\(v\)</span> 叫 "好儿子" ， 其余叫"坏儿子"。 那么要做的就是把 <span class="math inline">\(max\{0 , deg_{u} - cnt - X\}\)</span> 个"坏儿子" 变为 "好儿子"。 把 <span class="math inline">\(dp_{v , 1} + w - dp_{v , 0}\)</span> 放入一个堆中 ， 取出前若干小的即可。</p>
+<p>这样时间复杂度是 <span class="math inline">\(O(N^2logN)\)</span> 的。</p>
+<p>考虑优化 ， 发现随着 <span class="math inline">\(X\)</span> 增大 ， 那些度数不超过 <span class="math inline">\(X\)</span> 的点 <span class="math inline">\(u\)</span> 就可以直接删去了 ， 只需在与其相邻的点 <span class="math inline">\(v\)</span> 的堆中加入 <span class="math inline">\(w(u , v)\)</span> 即可。 然后再对剩下的点做一遍树形 <span class="math inline">\(DP\)</span>。</p>
+<p>因为 <span class="math inline">\(\sum{X}\sum_{i}{[deg_{i} &gt; X]} = \sum{deg_{i}} = 2N - 2\)</span> ， 所以更新次数不超过 <span class="math inline">\(O(N)\)</span>。</p>
+<p>故时间复杂度 : <span class="math inline">\(O(NlogN)\)</span></p>
+<p>[代码]</p>
+<pre><code class="language-cpp">#include &lt;bits/stdc++.h&gt;
+ 
+using namespace std;
+ 
+typedef long long LL;
+ 
+typedef pair &lt; int , int &gt; pii;
+#define mp make_pair
+ 
+const int MN = 3e5 + 5;
+ 
+int N , X;
+vector &lt; pii &gt; E[MN];
+int deg[MN] , vis[MN];
+LL dp[MN][2];
+vector &lt; LL &gt; del , tmp;
+pii D[MN];
+ 
+inline void AddEdge(int u , int v , int w) {
+	E[u].emplace_back(mp(v , w));
+	++deg[u];
+}
+inline bool cmp(pair &lt; int , int &gt; x , pair &lt; int , int &gt; y) {
+	return deg[x.first] &gt; deg[y.first];
+}
+struct Heap {
+	int sz; LL sum;
+	priority_queue &lt; LL &gt; a , b;
+	inline void push(LL x) { a.push(x); ++sz; sum += (LL) x; }
+	inline void erase(LL x) { b.push(x); --sz; sum -= (LL) x; }
+	inline void check() { while (!a.empty() &amp;&amp; !b.empty() &amp;&amp; a.top() == b.top()) { a.pop(); b.pop(); } }
+	inline LL top() { check(); return a.top(); }
+	inline void pop() { check(); --sz; sum -= (LL) a.top(); a.pop(); }
+	inline int size() { return sz; }
+} H[MN];
+ 
+inline void die(int u) {
+	for (auto to : E[u]) {
+		int v = to.first , w = to.second;
+		if (deg[v] &lt;= X) break;
+		H[v].push(w);
+	}
+}
+inline void dfs(int u , int fa = 0) {
+	vis[u] = X;
+	int need = deg[u] - X;
+	LL res = 0;
+	for (; H[u].size() &gt; need; H[u].pop());
+	for (auto to : E[u]) {
+		int v = to.first , w = to.second; 
+		if (deg[v] &lt;= X) break; if (v == fa) continue; 
+		dfs(v , u);
+	}
+	tmp.clear() , del.clear();
+	for (auto to : E[u]) {
+		int v = to.first , w = to.second; if (v == fa) continue; 
+		if (deg[v] &lt;= X) break;
+		LL x = dp[v][1] + w - dp[v][0];
+		if (x &lt;= 0) { --need; res += dp[v][1] + w; continue; }
+		res += dp[v][0]; H[u].push(x); del.emplace_back(x);
+	}
+	for (; H[u].size() &amp;&amp; H[u].size() &gt; need; H[u].pop()) tmp.emplace_back(H[u].top());
+	dp[u][0] = res + H[u].sum;
+	for (; H[u].size() &amp;&amp; H[u].size() &gt; need - 1; H[u].pop()) tmp.emplace_back(H[u].top());
+	dp[u][1] = res + H[u].sum;
+	for (int i : tmp) H[u].push(i);
+	for (int i : del) H[u].erase(i);
+}
+ 
+int main() {
+	
+	scanf("%d" , &amp;N); LL sum = 0;
+	for (int i = 1; i &lt; N; ++i) {
+		int u , v , w;
+		scanf("%d%d%d" , &amp;u , &amp;v , &amp;w);
+		AddEdge(u , v , w); AddEdge(v , u , w);
+		sum += 1LL * w;
+	}
+	printf("%lld" , sum);
+	for (int i = 1; i &lt;= N; ++i)
+		D[i] = mp(deg[i] , i) , sort(E[i].begin() , E[i].end() , cmp);
+	sort(D + 1 , D + N + 1);
+	int cur = 1;
+	for (X = 1; X &lt; N; ++X) {
+		while (cur &lt;= N &amp;&amp; D[cur].first == X) die(D[cur].second) , ++cur;
+		LL ans = 0;
+		for (int j = cur; j &lt;= N; ++j) {
+			int v = D[j].second;
+			if (vis[v] == X) continue;
+			dfs(v) , ans += 1LL * dp[v][0];
+		}
+		printf(" %lld" , ans);
+	}
+	printf("\n");
+	return 0; 
+}
+</code></pre>
+
+
+
+{% endraw %}

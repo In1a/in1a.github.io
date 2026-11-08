@@ -1,0 +1,148 @@
+---
+layout: post
+title: 'UOJ346'
+date: 2020-11-24 12:41:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/14029624.html
+cnblogs_id: 14029624
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p><a href="" rel="noopener nofollow">https://uoj.ac/problem/346</a></p>
+<p>[题解]</p>
+<p>首先定义每个位置的值 <span class="math inline">\(val_{i} = min\{w\}\)</span> , 也就是覆盖这个位置的 <span class="math inline">\(w\)</span> 值最小值。 这样 ， 最终这个位置填的权值是不能超过 <span class="math inline">\(val\)</span> 的。</p>
+<p>注意到每种权值互相独立 ， 不妨分别计算将方案数相乘。</p>
+<p>对于每种权值 ， 考虑动态规划。</p>
+<p>设 <span class="math inline">\(dp_{i , j}\)</span> 表示前 <span class="math inline">\(i\)</span> 个区间 ， 上次放置在第 <span class="math inline">\(j\)</span> 个区间的方案数。 这样只需考虑当前这个区间选 / 不选点转移即可。</p>
+<p>时间复杂度 ： <span class="math inline">\(O(Q ^ 3)\)</span></p>
+<p>[代码]</p>
+<pre><code class="language-cpp">#include &lt;bits/stdc++.h&gt;
+
+using namespace std;
+
+typedef long long LL;
+
+#define rep(i , l , r) for (int i = (l); i &lt; (r); ++i)
+
+const int MN = 2005, mod = 998244353;
+
+set &lt; int &gt; st;
+int n, q, A, l[MN], r[MN], w[MN], s[MN], t[MN], dp[MN][MN], mn[MN], mx[MN], len;
+
+inline void inc(int &amp;x, int y) {
+    x = x + y &lt; mod ? x + y : x + y - mod;
+}
+inline void chkmin(int &amp;x, int y) {
+    x = min(x, y);
+}
+inline void chkmax(int &amp;x, int y) {
+    x = max(x, y);
+}
+inline int qPow(int a, int b) {
+    int c = 1;
+
+    for (; b; b &gt;&gt;= 1, a = 1ll * a * a % mod)
+        if (b &amp; 1)
+            c = 1ll * c * a % mod;
+
+    return c;
+}
+inline int calc(int now) {
+    int tot = 0;
+
+    for (int i = 1; i &lt;= len; ++i)
+        if (mn[i] == now)
+            t[++tot] = i;
+
+    if (!tot)
+        return -1;
+
+    for (int i = 1; i &lt;= tot; ++i)
+        mx[i] = 0;
+
+    for (int i = 1; i &lt;= q; ++i)
+        if (w[i] == now) {
+            int L = lower_bound(t + 1, t + 1 + tot, l[i]) - t,
+                R = lower_bound(t + 1, t + 1 + tot, r[i]) - t - 1;
+            chkmax(mx[R], L);
+        }
+
+    dp[0][0] = 1;
+
+    for (int i = 1; i &lt;= tot; ++i) {
+        dp[i][i] = 0;
+        int choose0 = qPow(now - 1, s[t[i] + 1] - s[t[i]]);
+        int choose1 = qPow(now, s[t[i] + 1] - s[t[i]]);
+
+        for (int j = 0; j &lt; i; ++j) {
+            if (j &gt;= mx[i])
+                dp[i][j] = 1ll * dp[i - 1][j] * choose0 % mod;
+            else
+                dp[i][j] = 0;
+
+            inc(dp[i][i], 1ll * dp[i - 1][j] * ((choose1 + mod - choose0) % mod) % mod);
+        }
+    }
+
+    int res = 0;
+
+    for (int i = 0; i &lt;= tot; ++i)
+        inc(res, dp[tot][i]);
+
+    return res;
+}
+inline void solve() {
+    st.clear();
+    scanf("%d%d%d", &amp;n, &amp;q, &amp;A);
+    s[len = 1] = 1;
+
+    for (int i = 1; i &lt;= q; ++i) {
+        scanf("%d%d%d", &amp;l[i], &amp;r[i], &amp;w[i]), ++r[i];
+        s[++len] = l[i], s[++len] = r[i], st.insert(w[i]);
+    }
+
+    s[++len] = n + 1, sort(s + 1, s + 1 + len);
+    len = unique(s + 1, s + 1 + len) - s - 1;
+
+    for (int i = 1; i &lt;= len; ++i)
+        mn[i] = 1 + A;
+
+    for (int i = 1; i &lt;= q; ++i) {
+        l[i] = lower_bound(s + 1, s + 1 + len, l[i]) - s;
+        r[i] = lower_bound(s + 1, s + 1 + len, r[i]) - s;
+
+        for (int j = l[i]; j &lt; r[i]; ++j)
+            chkmin(mn[j], w[i]);
+    }
+
+    int res = 1, x;
+
+    for (set &lt; int &gt; :: iterator it = st.begin(); it != st.end(); ++it) {
+        if (~(x = calc(*it)))
+            res = 1ll * res * x % mod;
+        else {
+            puts("0");
+            return;
+        }
+    }
+
+    for (int i = 1; i &lt; len; ++i)
+        if (mn[i] == A + 1)
+            res = 1ll * res * qPow(A, s[i + 1] - s[i]) % mod;
+
+    printf("%d\n", res);
+}
+int main() {
+
+    int T;
+    scanf("%d", &amp;T);
+
+    while (T--)
+        solve();
+
+    return 0;
+}</code></pre>
+
+
+
+{% endraw %}

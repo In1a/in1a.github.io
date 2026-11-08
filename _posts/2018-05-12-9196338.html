@@ -1,0 +1,55 @@
+---
+layout: post
+title: '【BZOJ 1233】 干草堆'
+date: 2018-05-12 09:41:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9196338.html
+cnblogs_id: 9196338
+---
+{% raw %}
+
+<p>【题目链接】</p>
+<p>          <a href="https://www.lydsy.com/JudgeOnline/problem.php?id=1233" rel="noopener nofollow">点击打开链接</a></p>
+<p>【算法】</p>
+<p>          这题有一个性质 ： 位于顶层的干草堆可以满足宽度最小且高度最高</p>
+<p>          根据这个性质，用单调队列优化DP，即可</p>
+<p>【代码】</p>
+<p>       </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 100010
+
+<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,n,head,tail;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> a[MAXN],sum[MAXN],q[MAXN],f[MAXN],h[MAXN];
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() 
+{
+        
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">n);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">) 
+        {
+                scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">a[i]);
+                sum[i] </span>= sum[i-<span style="color: rgba(128, 0, 128, 1)">1</span>] +<span style="color: rgba(0, 0, 0, 1)"> a[i];
+        }
+        
+        q[</span><span style="color: rgba(128, 0, 128, 1)">1</span>] = n + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        head </span>= tail = <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = n; i &gt;= <span style="color: rgba(128, 0, 128, 1)">1</span>; i--<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">while</span> (head &lt; tail &amp;&amp; sum[q[head+<span style="color: rgba(128, 0, 128, 1)">1</span>]-<span style="color: rgba(128, 0, 128, 1)">1</span>] - f[q[head+<span style="color: rgba(128, 0, 128, 1)">1</span>]] &gt;= sum[i-<span style="color: rgba(128, 0, 128, 1)">1</span>]) head++<span style="color: rgba(0, 0, 0, 1)">;
+                f[i] </span>= sum[q[head]-<span style="color: rgba(128, 0, 128, 1)">1</span>] - sum[i-<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+                h[i] </span>= h[q[head]] + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">while</span> (head &lt;= tail &amp;&amp; sum[q[tail]-<span style="color: rgba(128, 0, 128, 1)">1</span>] - f[q[tail]] &lt;= sum[i-<span style="color: rgba(128, 0, 128, 1)">1</span>] - f[i]) tail--<span style="color: rgba(0, 0, 0, 1)">;
+                q[</span>++tail] =<span style="color: rgba(0, 0, 0, 1)"> i;                                
+        }
+        
+        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span>,h[<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">]);
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

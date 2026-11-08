@@ -1,0 +1,146 @@
+---
+layout: post
+title: '[SDOI 2017] 序列计数'
+date: 2019-05-26 22:35:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/10928102.html
+cnblogs_id: 10928102
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p>        <a href="https://www.lydsy.com/JudgeOnline/problem.php?id=4818" rel="noopener nofollow">https://www.lydsy.com/JudgeOnline/problem.php?id=4818</a></p>
+<p>[算法]</p>
+<p>        考虑容斥 ， 用有至少有一个质数的合法序列数 - 没有质数的合法序列数</p>
+<p>        这两个问题是等价的 ， 为方便讨论 ， 我们考虑前者该如何计算 :</p>
+<p>        用fi , j表示前i个数 ， 模p余j的合法序列数</p>
+<p>        显然有fi , j = sigma{ fi - 1 , j - k }</p>
+<p>        矩阵优化即可</p>
+<p>        时间复杂度 : O(M + logN)</p>
+<p>[代码]</p>
+<p>        </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+
+#ifndef LOCAL
+    </span><span style="color: rgba(0, 0, 255, 1)">#define</span> eprintf(...) fprintf(stderr , _VA_ARGS)
+<span style="color: rgba(0, 0, 255, 1)">#else</span>
+    <span style="color: rgba(0, 0, 255, 1)">#define</span> eprintf(...) 42
+<span style="color: rgba(0, 0, 255, 1)">#endif</span><span style="color: rgba(0, 0, 0, 1)">
+
+typedef </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> ll;
+typedef </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">double</span><span style="color: rgba(0, 0, 0, 1)"> ld;
+typedef vector</span>&lt; <span style="color: rgba(0, 0, 255, 1)">int</span> &gt;<span style="color: rgba(0, 0, 0, 1)"> vi;
+typedef pair</span>&lt;<span style="color: rgba(0, 0, 255, 1)">int</span> , <span style="color: rgba(0, 0, 255, 1)">int</span>&gt;<span style="color: rgba(0, 0, 0, 1)"> pii;
+typedef pair</span>&lt;ll , <span style="color: rgba(0, 0, 255, 1)">int</span>&gt;<span style="color: rgba(0, 0, 0, 1)"> pli;
+typedef pair</span>&lt;ll , ll&gt;<span style="color: rgba(0, 0, 0, 1)"> pll;
+typedef unsigned </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> ull;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> mp make_pair
+<span style="color: rgba(0, 0, 255, 1)">#define</span> fi first
+<span style="color: rgba(0, 0, 255, 1)">#define</span> se second
+<span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">int</span> N    = 2e7 + <span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">;
+</span><span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">int</span> P = <span style="color: rgba(128, 0, 128, 1)">20170408</span><span style="color: rgba(0, 0, 0, 1)">;
+
+</span><span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> Tmatrix {
+    </span><span style="color: rgba(0, 0, 255, 1)">int</span> mat[<span style="color: rgba(128, 0, 128, 1)">110</span>][<span style="color: rgba(128, 0, 128, 1)">110</span><span style="color: rgba(0, 0, 0, 1)">];
+} a;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> n , m , p , tot;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span> prime[N] , sa[<span style="color: rgba(128, 0, 128, 1)">110</span>] , sb[<span style="color: rgba(128, 0, 128, 1)">110</span><span style="color: rgba(0, 0, 0, 1)">];
+</span><span style="color: rgba(0, 0, 255, 1)">bool</span><span style="color: rgba(0, 0, 0, 1)"> lab[N] , f[N];
+
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> chkmax(T &amp;x , T y) { x =<span style="color: rgba(0, 0, 0, 1)"> max(x , y); }
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> chkmin(T &amp;x , T y) { x =<span style="color: rgba(0, 0, 0, 1)"> min(x , y); }
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> read(T &amp;<span style="color: rgba(0, 0, 0, 1)">x) {
+    T f </span>= <span style="color: rgba(128, 0, 128, 1)">1</span>; x = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">char</span> c =<span style="color: rgba(0, 0, 0, 1)"> getchar();
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; !isdigit(c); c = getchar()) <span style="color: rgba(0, 0, 255, 1)">if</span> (c == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>) f = -<span style="color: rgba(0, 0, 0, 1)">f;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; isdigit(c); c = getchar()) x = (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">3</span>) + (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>) + c - <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">;
+    x </span>*=<span style="color: rgba(0, 0, 0, 1)"> f;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> sieve( ) {
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">2</span>; i &lt;= m; ++<span style="color: rgba(0, 0, 0, 1)">i) {
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!<span style="color: rgba(0, 0, 0, 1)">f[i]) {
+            prime[</span>++tot] =<span style="color: rgba(0, 0, 0, 1)"> i;
+            lab[i] </span>= <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;    
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= tot; ++<span style="color: rgba(0, 0, 0, 1)">j) {
+            </span><span style="color: rgba(0, 0, 255, 1)">int</span> tmp = i *<span style="color: rgba(0, 0, 0, 1)"> prime[j];
+            </span><span style="color: rgba(0, 0, 255, 1)">if</span> (tmp &gt; m) <span style="color: rgba(0, 0, 255, 1)">break</span><span style="color: rgba(0, 0, 0, 1)">;
+            f[tmp] </span>= <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+            </span><span style="color: rgba(0, 0, 255, 1)">if</span> (i % prime[j] == <span style="color: rgba(128, 0, 128, 1)">0</span>) <span style="color: rgba(0, 0, 255, 1)">break</span><span style="color: rgba(0, 0, 0, 1)">;
+        }
+    }        
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">int</span> sub(<span style="color: rgba(0, 0, 255, 1)">int</span> x , <span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> y) {
+    x </span>-=<span style="color: rgba(0, 0, 0, 1)"> y;
+    </span><span style="color: rgba(0, 0, 255, 1)">while</span> (x &lt; <span style="color: rgba(128, 0, 128, 1)">0</span>) x +=<span style="color: rgba(0, 0, 0, 1)"> P;
+    </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> x;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> multipy(Tmatrix &amp;<span style="color: rgba(0, 0, 0, 1)">a , Tmatrix b) {
+    Tmatrix c;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i &lt; p; ++<span style="color: rgba(0, 0, 0, 1)">i) {
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> j = <span style="color: rgba(128, 0, 128, 1)">0</span>; j &lt; p; ++<span style="color: rgba(0, 0, 0, 1)">j) {
+            c.mat[i][j] </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        }
+    }
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i &lt; p; ++<span style="color: rgba(0, 0, 0, 1)">i) {
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> j = <span style="color: rgba(128, 0, 128, 1)">0</span>; j &lt; p; ++<span style="color: rgba(0, 0, 0, 1)">j) {
+            </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> k = <span style="color: rgba(128, 0, 128, 1)">0</span>; k &lt; p; ++<span style="color: rgba(0, 0, 0, 1)">k) {
+                c.mat[i][j] </span>= (c.mat[i][j] + 1ll * a.mat[i][k] * b.mat[k][j] % P) %<span style="color: rgba(0, 0, 0, 1)"> P;
+            }
+        }
+    }
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i &lt; p; ++<span style="color: rgba(0, 0, 0, 1)">i) {
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> j = <span style="color: rgba(128, 0, 128, 1)">0</span>; j &lt; p; ++<span style="color: rgba(0, 0, 0, 1)">j) {
+            a.mat[i][j] </span>=<span style="color: rgba(0, 0, 0, 1)"> c.mat[i][j];
+        }
+    }
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> qpow(Tmatrix &amp;a , <span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> n) {
+    Tmatrix b , res;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i &lt; p; ++<span style="color: rgba(0, 0, 0, 1)">i) {
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> j = <span style="color: rgba(128, 0, 128, 1)">0</span>; j &lt; p; ++<span style="color: rgba(0, 0, 0, 1)">j) {
+            res.mat[i][j] </span>= (i ==<span style="color: rgba(0, 0, 0, 1)"> j);
+            b.mat[i][j] </span>=<span style="color: rgba(0, 0, 0, 1)"> a.mat[i][j];
+        }
+    }
+    </span><span style="color: rgba(0, 0, 255, 1)">while</span> (n &gt; <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">) {
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (n &amp; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">) multipy(res , b);
+        multipy(b , b);
+        n </span>&gt;&gt;= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+    }
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i &lt; p; ++<span style="color: rgba(0, 0, 0, 1)">i) {
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> j = <span style="color: rgba(128, 0, 128, 1)">0</span>; j &lt; p; ++<span style="color: rgba(0, 0, 0, 1)">j) {
+            a.mat[i][j] </span>=<span style="color: rgba(0, 0, 0, 1)"> res.mat[i][j];
+        }
+    }
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">int</span> calc(<span style="color: rgba(0, 0, 255, 1)">int</span> n , <span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> type) {
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i &lt; p; ++<span style="color: rgba(0, 0, 0, 1)">i) {
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> j = <span style="color: rgba(128, 0, 128, 1)">0</span>; j &lt; p; ++<span style="color: rgba(0, 0, 0, 1)">j) {
+            </span><span style="color: rgba(0, 0, 255, 1)">int</span> k = (i - j + p) %<span style="color: rgba(0, 0, 0, 1)"> p;
+            a.mat[i][j] </span>= type == <span style="color: rgba(128, 0, 128, 1)">0</span> ?<span style="color: rgba(0, 0, 0, 1)"> sa[k] : sb[k];
+        } 
+    }    
+    qpow(a , n);
+    </span><span style="color: rgba(0, 0, 255, 1)">return</span> a.mat[<span style="color: rgba(128, 0, 128, 1)">0</span>][<span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">];
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() {
+    
+    read(n); read(m); read(p);
+    sieve( );
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= m; ++<span style="color: rgba(0, 0, 0, 1)">i) {
+        sa[i </span>% p] = (sa[i % p] + <span style="color: rgba(128, 0, 128, 1)">1</span>) %<span style="color: rgba(0, 0, 0, 1)"> P;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!lab[i]) sb[i % p] = (sb[i % p] + <span style="color: rgba(128, 0, 128, 1)">1</span>) %<span style="color: rgba(0, 0, 0, 1)"> P;    
+    }
+    printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span> , sub(calc(n , <span style="color: rgba(128, 0, 128, 1)">0</span>) , calc(n , <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">)));
+    
+    </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

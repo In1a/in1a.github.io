@@ -1,0 +1,61 @@
+---
+layout: post
+title: '[CF1446C] Xor Tree'
+date: 2020-11-25 08:16:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/14033836.html
+cnblogs_id: 14033836
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p><a href="" rel="noopener nofollow">https://codeforces.com/contest/1446/problem/C</a></p>
+<p>[题解]</p>
+<p>将 "删去最少" 转化为 "保留最多" 会易于处理一些。</p>
+<p>题目中的限制相当于是这些数之间只有一组满足 <span class="math inline">\(pos_{i} = j , pos_{j} = i\)</span>。</p>
+<p>按二进制位建立字典树。 不妨设 <span class="math inline">\(f_{i}\)</span> 表示以 <span class="math inline">\(i\)</span> 为根的子树中保留最多的个数。</p>
+<p><span class="math inline">\(i\)</span> 没有左右儿子 ， 或者是叶子的情况是很好处理的。</p>
+<p>若 <span class="math inline">\(i\)</span> 有左右儿子 ， 则 <span class="math inline">\(f_{i} = max\{f_{lc_{i}} , f_{rc_{i}}\} + 1\)</span> (左边或右边取出一个最多的 ， 再在另一个儿子中再取一个)</p>
+<p>时间复杂度 ： <span class="math inline">\(O(N)\)</span></p>
+<p>[代码]</p>
+<pre><code class="language-cpp">#include&lt;bits/stdc++.h&gt;
+
+using namespace std;
+
+typedef long long LL;
+
+#define rep(i , l , r) for (int i = (l); i &lt; (r); ++i)
+
+const int MN = 2e5 + 5;
+
+int rt = 1 , tot = 1 , A[MN] , N , ch[MN * 31][2];
+
+inline void insert(int val) {
+	int cur = rt;
+	for (int i = 30; i &gt;= 0; --i) {
+		bool c = val &gt;&gt; i &amp; 1;
+		if (!ch[cur][c]) ch[cur][c] = ++tot;
+		cur = ch[cur][c]; 
+	}
+}
+inline int solve(int now) {
+	if (!ch[now][0] &amp;&amp; !ch[now][1]) return 1;
+	if (!ch[now][0]) return solve(ch[now][1]);
+	if (!ch[now][1]) return solve(ch[now][0]);
+	return max(solve(ch[now][0]) , solve(ch[now][1])) + 1;
+}
+
+int main() {
+	 
+ 	 scanf("%d" , &amp;N);
+ 	 for (int i = 1; i &lt;= N; ++i) {
+ 	 	 scanf("%d" , &amp;A[i]);
+ 	 	 insert(A[i]);
+	 }
+	 printf("%d\n" , N - solve(rt));
+     return 0;
+}
+</code></pre>
+
+
+
+{% endraw %}

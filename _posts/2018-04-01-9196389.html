@@ -1,0 +1,102 @@
+---
+layout: post
+title: '【POJ 2478】 Farey Sequence'
+date: 2018-04-01 19:25:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9196389.html
+cnblogs_id: 9196389
+---
+{% raw %}
+
+
+                <p>【题目链接】</p><p>           <a href="http://poj.org/problem?id=2478" rel="noopener nofollow">点击打开链接</a></p><p>【算法】</p><p>           不难看出，ans = phi(2) + phi(3) + .... + phi(n-1) + phi(n)</p><p>           线性筛筛出欧拉函数，预处理前缀和，即可</p><p>【代码】</p><p>           </p><pre class="cpp">#include &lt;algorithm&gt;
+#include &lt;bitset&gt;
+#include &lt;cctype&gt;
+#include &lt;cerrno&gt;
+#include &lt;clocale&gt;
+#include &lt;cmath&gt;
+#include &lt;complex&gt;
+#include &lt;cstdio&gt;
+#include &lt;cstdlib&gt;
+#include &lt;cstring&gt;
+#include &lt;ctime&gt;
+#include &lt;deque&gt;
+#include &lt;exception&gt;
+#include &lt;fstream&gt;
+#include &lt;functional&gt;
+#include &lt;limits&gt;
+#include &lt;list&gt;
+#include &lt;map&gt;
+#include &lt;iomanip&gt;
+#include &lt;ios&gt;
+#include &lt;iosfwd&gt;
+#include &lt;iostream&gt;
+#include &lt;istream&gt;
+#include &lt;ostream&gt;
+#include &lt;queue&gt;
+#include &lt;set&gt;
+#include &lt;sstream&gt;
+#include &lt;stdexcept&gt;
+#include &lt;streambuf&gt;
+#include &lt;string&gt;
+#include &lt;utility&gt;
+#include &lt;vector&gt;
+#include &lt;cwchar&gt;
+#include &lt;cwctype&gt;
+#include &lt;stack&gt;
+#include &lt;limits.h&gt;
+using namespace std;
+typedef long long ll;
+
+const ll MAXN = 1e6;
+
+ll i,n,tmp,j,tot;
+ll prime[MAXN+10],phi[MAXN+10],sum[MAXN+10],f[MAXN+10];
+
+template &lt;typename T&gt; inline void read(T &amp;x) {
+		ll f = 1; x = 0;
+		char c = getchar();
+		for (; !isdigit(c); c = getchar()) { if (c == '-') f = -f; }
+		for (; isdigit(c); c = getchar()) x = (x &lt;&lt; 3) + (x &lt;&lt; 1) + c - '0';
+		x *= f;
+}
+template &lt;typename T&gt; inline void write(T x) {
+		if (x &lt; 0) { x = -x; putchar('-'); }
+		if (x &gt; 9) write(x/10);
+		putchar(x%10+'0');	
+}
+template &lt;typename T&gt; inline void writeln(T x) {
+		write(x);
+		puts("");	
+}
+
+int main() {
+	
+	for (i = 2; i &lt;= MAXN; i++) {
+			if (!f[i]) {
+					prime[++tot] = f[i] = i;
+					phi[i] = i - 1;
+			}	
+			for (j = 1; j &lt;= tot; j++) {
+					tmp = i * prime[j];
+					if (tmp &gt; MAXN) break;
+					f[tmp] = prime[j];
+					if (prime[j] == f[i]) {
+							phi[tmp] = prime[j] * phi[i];
+							break;
+					}
+					phi[tmp] = phi[i] * phi[prime[j]];
+			}
+	}
+	for (i = 2; i &lt;= MAXN; i++) sum[i] = sum[i-1] + phi[i];
+	
+	while (true) {
+			read(n);
+			if (!n) return 0;
+			writeln(sum[n]);	
+	}
+	
+	return 0;
+}</pre><br>            
+
+
+{% endraw %}

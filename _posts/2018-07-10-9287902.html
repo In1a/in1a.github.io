@@ -1,0 +1,72 @@
+---
+layout: post
+title: '【JSOI 2008】 球形空间产生器'
+date: 2018-07-10 11:00:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9287902.html
+cnblogs_id: 9287902
+---
+{% raw %}
+
+<p>【题目链接】</p>
+<p>             <a href="https://www.lydsy.com/JudgeOnline/problem.php?id=1013" target="_blank" rel="noopener nofollow">https://www.lydsy.com/JudgeOnline/problem.php?id=1013</a></p>
+<p>【算法】</p>
+<p>           高斯消元</p>
+<p>【代码】</p>
+<p>            </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">double</span> eps = 1e-<span style="color: rgba(128, 0, 128, 1)">8</span><span style="color: rgba(0, 0, 0, 1)">;
+ 
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,j,k,n;
+</span><span style="color: rgba(0, 0, 255, 1)">double</span> a[<span style="color: rgba(128, 0, 128, 1)">100</span>][<span style="color: rgba(128, 0, 128, 1)">100</span>],c[<span style="color: rgba(128, 0, 128, 1)">100</span>][<span style="color: rgba(128, 0, 128, 1)">100</span><span style="color: rgba(0, 0, 0, 1)">];
+</span><span style="color: rgba(0, 0, 255, 1)">double</span> b[<span style="color: rgba(128, 0, 128, 1)">100</span><span style="color: rgba(0, 0, 0, 1)">];
+</span><span style="color: rgba(0, 0, 255, 1)">double</span><span style="color: rgba(0, 0, 0, 1)"> rate;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main()
+{
+    
+    scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">n);
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n + <span style="color: rgba(128, 0, 128, 1)">1</span>; i++<span style="color: rgba(0, 0, 0, 1)">)
+    {
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= n; j++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+            scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%lf</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">a[i][j]);
+        }
+    }
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+    {
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= n; j++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+            c[i][j] </span>= <span style="color: rgba(128, 0, 128, 1)">2</span> * (a[i+<span style="color: rgba(128, 0, 128, 1)">1</span>][j] -<span style="color: rgba(0, 0, 0, 1)"> a[i][j]);
+            b[i] </span>+= a[i+<span style="color: rgba(128, 0, 128, 1)">1</span>][j] * a[i+<span style="color: rgba(128, 0, 128, 1)">1</span>][j] - a[i][j] *<span style="color: rgba(0, 0, 0, 1)"> a[i][j];
+        }
+    }
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+    {
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = i; j &lt;= n; j++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+            </span><span style="color: rgba(0, 0, 255, 1)">if</span>(fabs(c[j][i]) &gt;<span style="color: rgba(0, 0, 0, 1)"> eps)
+            {
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (k = <span style="color: rgba(128, 0, 128, 1)">1</span>; k &lt;= n; k++<span style="color: rgba(0, 0, 0, 1)">) swap(c[i][k],c[j][k]);
+                swap(b[i],b[j]);
+            }
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= n; j++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+            </span><span style="color: rgba(0, 0, 255, 1)">if</span> (i == j) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+            rate </span>= c[j][i] /<span style="color: rgba(0, 0, 0, 1)"> c[i][i];
+            </span><span style="color: rgba(0, 0, 255, 1)">for</span> (k = i; k &lt;= n; k++) c[j][k] -= c[i][k] *<span style="color: rgba(0, 0, 0, 1)"> rate;
+            b[j] </span>-= b[i] *<span style="color: rgba(0, 0, 0, 1)"> rate;
+        }
+    }
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt; n; i++) printf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%.3lf </span><span style="color: rgba(128, 0, 0, 1)">"</span>,b[i]/<span style="color: rgba(0, 0, 0, 1)">c[i][i]);
+    printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%.3lf\n</span><span style="color: rgba(128, 0, 0, 1)">"</span>,b[n]/<span style="color: rgba(0, 0, 0, 1)">c[n][n]);
+    
+    </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

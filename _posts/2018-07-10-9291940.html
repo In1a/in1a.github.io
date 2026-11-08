@@ -1,0 +1,125 @@
+---
+layout: post
+title: '【SDOI 2010】 古代猪文'
+date: 2018-07-10 22:49:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9291940.html
+cnblogs_id: 9291940
+---
+{% raw %}
+
+<p>【题目链接】</p>
+<p>           <a href="https://www.lydsy.com/JudgeOnline/problem.php?id=1951" target="_blank" rel="noopener nofollow">https://www.lydsy.com/JudgeOnline/problem.php?id=1951</a></p>
+<p>【算法】</p>
+<p>            欧拉定理+中国剩余定理 + lucas定理</p>
+<p>【代码】</p>
+<p>         </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXD 40000<span style="color: rgba(0, 0, 0, 1)">
+typedef </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> ll;
+</span><span style="color: rgba(0, 0, 255, 1)">const</span> ll P = <span style="color: rgba(128, 0, 128, 1)">999911659</span><span style="color: rgba(0, 0, 0, 1)">;
+</span><span style="color: rgba(0, 0, 255, 1)">const</span> ll m[<span style="color: rgba(128, 0, 128, 1)">4</span>] = {<span style="color: rgba(128, 0, 128, 1)">2</span>,<span style="color: rgba(128, 0, 128, 1)">3</span>,<span style="color: rgba(128, 0, 128, 1)">4679</span>,<span style="color: rgba(128, 0, 128, 1)">35617</span><span style="color: rgba(0, 0, 0, 1)">};
+
+ll i,j,n,q,cnt,ans,x;
+ll a[</span><span style="color: rgba(128, 0, 128, 1)">10</span>],factor[<span style="color: rgba(128, 0, 128, 1)">100010</span><span style="color: rgba(0, 0, 0, 1)">];
+ll fac[MAXD</span>+<span style="color: rgba(128, 0, 128, 1)">1</span>][<span style="color: rgba(128, 0, 128, 1)">5</span><span style="color: rgba(0, 0, 0, 1)">];
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> exgcd(ll a,ll b,ll &amp;x,ll &amp;<span style="color: rgba(0, 0, 0, 1)">y)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (b == <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">)
+        {
+                x </span>= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                y </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;    
+        }    </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)">
+        {
+                exgcd(b,a</span>%<span style="color: rgba(0, 0, 0, 1)">b,y,x);
+                y </span>-= a / b *<span style="color: rgba(0, 0, 0, 1)"> x;
+        }
+} 
+inline ll CRT()
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i;
+        ll res </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">,M,T,x;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i &lt; <span style="color: rgba(128, 0, 128, 1)">4</span>; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                M </span>= (P - <span style="color: rgba(128, 0, 128, 1)">1</span>) /<span style="color: rgba(0, 0, 0, 1)"> m[i];
+                exgcd(M,m[i],T,x);
+                T </span>= (T % m[i] + m[i]) %<span style="color: rgba(0, 0, 0, 1)"> m[i];
+                res </span>= (res + (a[i] * M % (P - <span style="color: rgba(128, 0, 128, 1)">1</span>) * T % (P - <span style="color: rgba(128, 0, 128, 1)">1</span>)) % (P - <span style="color: rgba(128, 0, 128, 1)">1</span>)) % (P - <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> res;
+}
+inline ll power(ll a,ll n,ll p)
+{
+        ll b </span>= a,res = <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span><span style="color: rgba(0, 0, 0, 1)"> (n)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (n &amp; <span style="color: rgba(128, 0, 128, 1)">1</span>) res = res * b %<span style="color: rgba(0, 0, 0, 1)"> p;
+                b </span>= b * b %<span style="color: rgba(0, 0, 0, 1)"> p;
+                n </span>&gt;&gt;= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> res;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> init()
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,j;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i &lt; <span style="color: rgba(128, 0, 128, 1)">4</span>; i++) fac[<span style="color: rgba(128, 0, 128, 1)">0</span>][i] = <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= MAXD; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">0</span>; j &lt; <span style="color: rgba(128, 0, 128, 1)">4</span>; j++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        fac[i][j] </span>= fac[i-<span style="color: rgba(128, 0, 128, 1)">1</span>][j] * i %<span style="color: rgba(0, 0, 0, 1)"> m[j];
+                }
+        }
+}
+inline ll C(ll x,ll y,ll p)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (x &lt; y) <span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (y == <span style="color: rgba(128, 0, 128, 1)">0</span>) <span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> fac[x][p] * power(fac[y][p]*fac[x-y][p]%m[p],m[p]-<span style="color: rgba(128, 0, 128, 1)">2</span>,m[p]) %<span style="color: rgba(0, 0, 0, 1)"> m[p];    
+} 
+inline ll lucas(ll x,ll y,ll p)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (y == <span style="color: rgba(128, 0, 128, 1)">0</span>) <span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">else</span> <span style="color: rgba(0, 0, 255, 1)">return</span> lucas(x/m[p],y/m[p],p) * C(x%m[p],y%m[p],p) %<span style="color: rgba(0, 0, 0, 1)"> m[p]; 
+}
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() 
+{
+    
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%lld%lld</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;n,&amp;<span style="color: rgba(0, 0, 0, 1)">q);
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (q ==<span style="color: rgba(0, 0, 0, 1)"> P)
+        {
+                printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">0\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">);
+                </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        }
+        cnt </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= sqrt(n); i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (n % i == <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        factor[</span>++cnt] =<span style="color: rgba(0, 0, 0, 1)"> i;
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (i * i != n) factor[++cnt] = n /<span style="color: rgba(0, 0, 0, 1)"> i;
+                }        
+        }
+        init();
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= cnt; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">0</span>; j &lt; <span style="color: rgba(128, 0, 128, 1)">4</span>; j++<span style="color: rgba(0, 0, 0, 1)">)    
+                {
+                        a[j] </span>=<span style="color: rgba(0, 0, 0, 1)"> lucas(n,factor[i],j);    
+                }    
+                x </span>= (x + CRT()) % (P - <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+        }
+        ans </span>=<span style="color: rgba(0, 0, 0, 1)"> power(q,x,P);
+        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%lld\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,ans);
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}
+ </span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

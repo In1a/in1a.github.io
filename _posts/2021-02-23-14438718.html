@@ -1,0 +1,78 @@
+---
+layout: post
+title: '[CF1439D] INOI Final Contests'
+date: 2021-02-23 22:48:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/14438718.html
+cnblogs_id: 14438718
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p><a href="" rel="noopener nofollow">https://codeforces.com/contest/1439/problem/D</a></p>
+<p>[题解]</p>
+<p>首先解决 <span class="math inline">\(N = M\)</span> 的情况。</p>
+<p>不妨设 <span class="math inline">\(dp1_{i}\)</span> 表示 <span class="math inline">\(i\)</span> 个人 <span class="math inline">\(i\)</span> 个座位的合法方案数 ， 枚举最后一个人坐的位置。 由于左右两侧独立 ， 得到</p>
+<p><span class="math inline">\(dp1_{i}=\sum\limits_{j=1}^i [j+(i-j+1)]{i-1\choose j-1}dp1_{j-1}dp1_{i-j}\)</span></p>
+<p>设 <span class="math inline">\(dp2_{i}\)</span> 表示 <span class="math inline">\(i\)</span> 个人 <span class="math inline">\(i\)</span> 个座位 ， 所有情况的移动距离之和。 枚举最后一人的座位 ， 单独考虑其贡献 ， 得到</p>
+<p><span class="math inline">\(dp2_{i}=\sum\limits_{j=1}^i ({j\choose 2}+{i-j\choose 2}){i-1\choose j-1}dp1_{j-1}dp1_{i-j}+[j+(i-j+1)]{i-1\choose j-1}(dp2_{j-1}dp1_{i-j}+dp2_{i-j}dp1_{j-1})\)</span>。</p>
+<p>接着 ， 考虑 <span class="math inline">\(N &gt; M\)</span> 的情况。</p>
+<p>设 <span class="math inline">\(dp3_{i , j}\)</span> 表示前 <span class="math inline">\(i\)</span> 个人 ， <span class="math inline">\(j\)</span> 个座位被占用的方案数 ， 枚举末尾极长一段被连续占用的座位 ， 得到</p>
+<p><span class="math inline">\(dp3_{i,j}=dp3_{i-1,j}+\sum\limits_{l=1}^j {j\choose l}dp3_{i-l-1,j-l}\cdot dp1_{l}\)</span></p>
+<p>类似地 ， 令 <span class="math inline">\(dp_{i , j}\)</span> 表示前 <span class="math inline">\(i\)</span> 个人 ， <span class="math inline">\(j\)</span> 个座位被占用的移动距离和 ， 易知</p>
+<p><span class="math inline">\(dp4_{i,j}=dp4_{i-1,j}+\sum\limits_{l=1}^j {j\choose l}(dp4_{i-1-l,j-l}\cdot dp1_{l}+dp3_{i-1-l,j-l}dp2_l)\)</span></p>
+<p>这个做法的时间复杂度 <span class="math inline">\(O(NM)\)</span>。 事实上可以通过多项式做法优化至 <span class="math inline">\(O(NlogN)\)</span></p>
+<p>[代码]</p>
+<pre><code class="language-cpp">#include&lt;bits/stdc++.h&gt;
+ 
+using namespace std;
+ 
+typedef long long LL;
+ 
+#define rep(i , l , r) for (int i = (l); i &lt; (r); ++i)
+ 
+const int MN = 505;
+ 
+int N , M , mod , dp1[MN] , dp2[MN] , dp3[MN][MN] , dp4[MN][MN] , C[MN][MN];
+ 
+inline void inc(int &amp;x , int y) {
+	x = x + y &lt; mod ? x + y : x + y - mod; 
+}
+ 
+int main() {
+	 
+	 scanf("%d%d%d" , &amp;N , &amp;M , &amp;mod);
+	 for (int i = 0; i &lt;= 500; ++i) {
+	 	 C[i][0] = C[i][i] = 1;
+	 	 for (int j = 1; j &lt; i; ++j) C[i][j] = (C[i - 1][j] + C[i - 1][j - 1]) % mod;
+	 }
+	 dp1[0] = 1;
+	 for (int i = 1; i &lt;= 500; ++i) {
+	 	for (int j = 1; j &lt;= i; ++j)
+	 	    inc(dp1[i] , 1ll * dp1[j - 1] * dp1[i - j] % mod * C[i - 1][j - 1] % mod);
+	 	dp1[i] = 1ll * dp1[i] * (i + 1) % mod;
+	 	for (int j = 1; j &lt;= i; ++j) {
+	 		inc(dp2[i] , 1ll * (i + 1) * C[i - 1][j - 1] % mod * (1LL * dp1[j - 1] * dp2[i - j] % mod + 1LL * dp2[j - 1] * dp1[i - j] % mod) % mod);
+			inc(dp2[i] , 1ll * C[i - 1][j - 1] * dp1[j - 1] % mod * dp1[i - j] % mod * (j * (j - 1) / 2 + (i - j) * (i - j + 1) / 2) % mod); 	
+		}
+	 }
+	 dp3[0][0] = 1;
+	 for (int n = 1; n &lt;= 500; ++n) {
+	 	 for (int m = 0; m &lt; n; ++m) {
+	 	 	dp3[n][m] = dp3[n - 1][m];
+			dp4[n][m] = dp4[n - 1][m];
+			for (int i = 1; i &lt;= m; ++i) {
+				inc(dp3[n][m] , 1ll * dp3[n - i - 1][m - i] * dp1[i] % mod * C[m][i] % mod);
+				inc(dp4[n][m] , 1ll * dp3[n - i - 1][m - i] * dp2[i] % mod * C[m][i] % mod);
+				inc(dp4[n][m] , 1ll * dp4[n - i - 1][m - i] * dp1[i] % mod * C[m][i] % mod);
+			}	 
+		 }
+		 dp3[n][n] = dp1[n] , dp4[n][n] = dp2[n];
+	 }
+	 printf("%d\n" , dp4[N][M]);
+     return 0;
+}
+</code></pre>
+
+
+
+{% endraw %}

@@ -1,0 +1,129 @@
+---
+layout: post
+title: '【CTSC 2007】 数据备份'
+date: 2018-07-02 10:07:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9252503.html
+cnblogs_id: 9252503
+---
+{% raw %}
+
+<p>【题目链接】</p>
+<p>           <a href="https://www.lydsy.com/JudgeOnline/problem.php?id=1150" target="_blank" rel="noopener nofollow">https://www.lydsy.com/JudgeOnline/problem.php?id=1150</a></p>
+<p>【算法】</p>
+<p>             首先，有一个很显然的结论 ： 如果要使距离和最小，必须选择相邻的办公楼配对</p>
+<p>             问题就转化为了 ： 有一个包含(n-1)个数的序列，在这(n-1)个数中选k个，相邻的数不能选，使得和最小</p>
+<p>             考虑这个序列中最小的元素，我们发现，如果选这个数，那么与它相邻的两个数都不能选，如果不选，那么与它相邻的两个数都要选</p>
+<p>             因此， 我们可以选出序列中最小的元素Di，将Di-1和Di+1删除，将Di-1+Di+1-Di加入，问题就转化为了在现在的序列中找到(k-1)个数，相邻的数不能选，使得和最小，这样，如果没有选Di-1+Di+1-Di这个数，说明选Di是最优策略，否则说明不是最优策略，</p>
+<p>             答案正好将Di减去，加上了Di-1+Di+1</p>
+<p>             那么，堆和链表是可以解决这个问题的</p>
+<p> 【代码】</p>
+<p>           </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 200010
+<span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span> INF =<span style="color: rgba(0, 0, 0, 1)"> 1e10;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,n,k;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> pre[MAXN],nxt[MAXN];
+</span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> s[MAXN],d[MAXN];
+</span><span style="color: rgba(0, 0, 255, 1)">bool</span><span style="color: rgba(0, 0, 0, 1)"> visited[MAXN];
+</span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> ans,val;
+
+</span><span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> info
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> d;
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> pos;
+} tmp;
+
+</span><span style="color: rgba(0, 0, 255, 1)">class</span><span style="color: rgba(0, 0, 0, 1)"> Heap
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">private</span><span style="color: rgba(0, 0, 0, 1)"> :
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> tot;
+                info hp[MAXN];
+        </span><span style="color: rgba(0, 0, 255, 1)">public</span><span style="color: rgba(0, 0, 0, 1)"> :
+                inline </span><span style="color: rgba(0, 0, 255, 1)">bool</span><span style="color: rgba(0, 0, 0, 1)"> cmp(info a,info b)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">return</span> a.d &lt;<span style="color: rgba(0, 0, 0, 1)"> b.d;        
+                }        
+                inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> Up(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (x == <span style="color: rgba(128, 0, 128, 1)">1</span>) <span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)">;
+                        </span><span style="color: rgba(0, 0, 255, 1)">int</span> fa = x &gt;&gt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span><span style="color: rgba(0, 0, 0, 1)"> (cmp(hp[x],hp[fa])) 
+                        {
+                                swap(hp[x],hp[fa]);
+                                Up(fa);
+                        }
+                }
+                inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> Down(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">int</span> son = x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (son &gt; tot) <span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)">;
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> ((son + <span style="color: rgba(128, 0, 128, 1)">1</span> &lt;= tot) &amp;&amp; (cmp(hp[son+<span style="color: rgba(128, 0, 128, 1)">1</span>],hp[son]))) son++<span style="color: rgba(0, 0, 0, 1)">;
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span><span style="color: rgba(0, 0, 0, 1)"> (cmp(hp[son],hp[x]))
+                        {
+                                swap(hp[son],hp[x]);
+                                Down(son);
+                        }
+                }
+                inline </span><span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> insert(info x)
+                {
+                        hp[</span>++tot] =<span style="color: rgba(0, 0, 0, 1)"> x;
+                        Up(tot);
+                }
+                inline </span><span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> del()
+                {
+                        swap(hp[</span><span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">],hp[tot]);
+                        tot</span>--<span style="color: rgba(0, 0, 0, 1)">;
+                        Down(</span><span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+                }
+                inline info </span><span style="color: rgba(0, 0, 255, 1)">get</span><span style="color: rgba(0, 0, 0, 1)">()
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">return</span> hp[<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+                }
+} H;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() 
+{
+        
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;n,&amp;<span style="color: rgba(0, 0, 0, 1)">k);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++) scanf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%lld</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">s[i]);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt; n; i++) d[i] = s[i+<span style="color: rgba(128, 0, 128, 1)">1</span>] -<span style="color: rgba(0, 0, 0, 1)"> s[i];
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt; n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                pre[i] </span>= i - <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                nxt[i] </span>= i + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                H.insert((info){d[i],i});
+        }
+        d[</span><span style="color: rgba(128, 0, 128, 1)">0</span>] = d[n] =<span style="color: rgba(0, 0, 0, 1)"> INF;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= k; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                tmp </span>= H.<span style="color: rgba(0, 0, 255, 1)">get</span><span style="color: rgba(0, 0, 0, 1)">();
+                </span><span style="color: rgba(0, 0, 255, 1)">while</span><span style="color: rgba(0, 0, 0, 1)"> (visited[tmp.pos]) 
+                {
+                        H.del();    
+                        tmp </span>= H.<span style="color: rgba(0, 0, 255, 1)">get</span><span style="color: rgba(0, 0, 0, 1)">();
+                }
+                ans </span>+=<span style="color: rgba(0, 0, 0, 1)"> tmp.d;
+                H.del();
+                visited[pre[tmp.pos]] </span>= <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+                visited[nxt[tmp.pos]] </span>= <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+                d[tmp.pos] </span>= d[pre[tmp.pos]] + d[nxt[tmp.pos]] -<span style="color: rgba(0, 0, 0, 1)"> tmp.d;
+                nxt[pre[pre[tmp.pos]]] </span>=<span style="color: rgba(0, 0, 0, 1)"> tmp.pos;
+                pre[tmp.pos] </span>=<span style="color: rgba(0, 0, 0, 1)"> pre[pre[tmp.pos]];
+                pre[nxt[nxt[tmp.pos]]] </span>=<span style="color: rgba(0, 0, 0, 1)"> tmp.pos;
+                nxt[tmp.pos] </span>=<span style="color: rgba(0, 0, 0, 1)"> nxt[nxt[tmp.pos]];
+                H.insert((info){d[tmp.pos],tmp.pos});
+        }
+        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%lld\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,ans);
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+<p>             </p>
+
+
+{% endraw %}

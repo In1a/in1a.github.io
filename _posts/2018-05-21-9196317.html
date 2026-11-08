@@ -1,0 +1,135 @@
+---
+layout: post
+title: '【JSOI 2008】 最小生成树计数'
+date: 2018-05-21 22:54:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9196317.html
+cnblogs_id: 9196317
+---
+{% raw %}
+
+<p>【题目链接】</p>
+<p>           <a href="https://www.lydsy.com/JudgeOnline/problem.php?id=1016" rel="noopener nofollow">点击打开链接</a></p>
+<p>【算法】</p>
+<p>          笔者做这题参考了这篇博客 ：</p>
+<p>          https://blog.sengxian.com/solutions/bzoj-1016</p>
+<p>          推荐阅读</p>
+<p>          首先，我们需要知道三个定理 ：</p>
+<p>          <strong>定理1 ： 若A,B是两棵不同的最小生成树，它们的权值从小到大排列分别为 ：</strong></p>
+<p><strong>                        W(a1),W(a2),W(a3)....W(an-1)</strong></p>
+<p><strong>                        W(b1),W(b2),W(b3)....W(bn-1)</strong></p>
+<p><strong>                        那么，对于任意的i，都有W(ai) = W(bi)</strong></p>
+<p><strong>          定理2 ： 当最小生成树中所有w &lt;= w0的边被加入后，图的联通性唯一</strong></p>
+<p><strong>          定理3 ： 若A是一棵最小生成树，A中权值为v的边有k条，那么，用任意k条权值为v的边替换A中权值为v的边且不产生</strong></p>
+<p><strong>                        环的方案都是一棵最小生成树</strong></p>
+<p><strong>         </strong>证明详见笔者推荐的那篇博客</p>
+<p>         有了这三个定理，这题就很好做啦！ 首先，任意求一棵最小生成树，记录每种权值的边出现的次数，然后，对每种</p>
+<p>          权值的边做一遍深度优先搜索DFS，求出方案数，然后乘法原理，即可</p>
+<p>【代码】</p>
+<p>            注意因为进行DFS时需要回溯，所以，并查集不能路径压缩</p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 110
+<span style="color: rgba(0, 0, 255, 1)">#define</span> MAXM 1010
+<span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">int</span> MOD = <span style="color: rgba(128, 0, 128, 1)">31011</span><span style="color: rgba(0, 0, 0, 1)">;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span> n,m,i,j,ans = <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">,pos,len,sum,sx,sy;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> fa[MAXN],s[MAXN],val[MAXN],l[MAXN],r[MAXN];
+
+</span><span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> Edge
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> u,v,w;
+} e[MAXM];
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> init(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> n)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++) fa[i] =<span style="color: rgba(0, 0, 0, 1)"> i;
+}
+</span><span style="color: rgba(0, 0, 255, 1)">int</span> get_root(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (fa[x] == x) <span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> x;
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> get_root(fa[x]);
+}    
+
+</span><span style="color: rgba(0, 0, 255, 1)">bool</span><span style="color: rgba(0, 0, 0, 1)"> cmp(Edge a,Edge b)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> a.w &lt;<span style="color: rgba(0, 0, 0, 1)"> b.w;
+}
+</span><span style="color: rgba(0, 0, 255, 1)">bool</span><span style="color: rgba(0, 0, 0, 1)"> kruskal()
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> i,cnt = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">,sx,sy;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= m; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                sx </span>=<span style="color: rgba(0, 0, 0, 1)"> get_root(e[i].u);
+                sy </span>=<span style="color: rgba(0, 0, 0, 1)"> get_root(e[i].v);
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (e[i].w == val[len]) r[len]++<span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (sx !=<span style="color: rgba(0, 0, 0, 1)"> sy)
+                {
+                        fa[sx] </span>=<span style="color: rgba(0, 0, 0, 1)"> sy;
+                        cnt</span>++<span style="color: rgba(0, 0, 0, 1)">;
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (e[i].w == val[len]) s[len]++<span style="color: rgba(0, 0, 0, 1)">;
+                        </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)">
+                        {
+                                len</span>++<span style="color: rgba(0, 0, 0, 1)">;
+                                l[len] </span>= r[len] =<span style="color: rgba(0, 0, 0, 1)"> i;
+                                s[len]</span>++<span style="color: rgba(0, 0, 0, 1)">;
+                                val[len] </span>=<span style="color: rgba(0, 0, 0, 1)"> e[i].w;
+                        }
+                }
+        }            
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> cnt == n - <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;    
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> dfs(<span style="color: rgba(0, 0, 255, 1)">int</span> now,<span style="color: rgba(0, 0, 255, 1)">int</span> r,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> c)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> sx,sy;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (now &gt;<span style="color: rgba(0, 0, 0, 1)"> r)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (c == s[pos]) sum++<span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)">;
+        }
+        dfs(now</span>+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">,r,c);
+        sx </span>=<span style="color: rgba(0, 0, 0, 1)"> get_root(e[now].u);
+        sy </span>=<span style="color: rgba(0, 0, 0, 1)"> get_root(e[now].v);
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (sx !=<span style="color: rgba(0, 0, 0, 1)"> sy) 
+        {
+                fa[sx] </span>=<span style="color: rgba(0, 0, 0, 1)"> sy;
+                dfs(now</span>+<span style="color: rgba(128, 0, 128, 1)">1</span>,r,c+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+                fa[sx] </span>=<span style="color: rgba(0, 0, 0, 1)"> sx;
+        }
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() {
+        
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;n,&amp;<span style="color: rgba(0, 0, 0, 1)">m);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= m; i++) scanf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;e[i].u,&amp;e[i].v,&amp;<span style="color: rgba(0, 0, 0, 1)">e[i].w);
+        sort(e</span>+<span style="color: rgba(128, 0, 128, 1)">1</span>,e+m+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">,cmp);
+        init(n);
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!<span style="color: rgba(0, 0, 0, 1)">kruskal())
+        {
+                puts(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">);
+                </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        }
+        init(n);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= len; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                sum </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                pos </span>=<span style="color: rgba(0, 0, 0, 1)"> i;
+                dfs(l[i],r[i],</span><span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">);
+                ans </span>= (ans * sum) %<span style="color: rgba(0, 0, 0, 1)"> MOD;
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = l[i]; j &lt;= r[i]; j++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        sx </span>=<span style="color: rgba(0, 0, 0, 1)"> get_root(e[j].u);
+                        sy </span>=<span style="color: rgba(0, 0, 0, 1)"> get_root(e[j].v);
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (sx != sy) fa[sx] =<span style="color: rgba(0, 0, 0, 1)"> sy;        
+                }                    
+        }
+        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,ans);
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

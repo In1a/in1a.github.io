@@ -1,0 +1,137 @@
+---
+layout: post
+title: '【POJ 2417】 Discrete Logging'
+date: 2018-07-09 21:00:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9285987.html
+cnblogs_id: 9285987
+---
+{% raw %}
+
+<p>【题目链接】</p>
+<p>           <a href="http://poj.org/problem?id=2417" target="_blank" rel="noopener nofollow"> http://poj.org/problem?id=2417</a></p>
+<p>【算法】</p>
+<p>            Baby-Step,Giant-Step算法</p>
+<p>【代码】</p>
+<p>            </p>
+<div class="cnblogs_code">
+<pre>#include &lt;algorithm&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;bitset&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cctype&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cerrno&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;clocale&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cmath&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;complex&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cstdio&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cstdlib&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cstring&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;ctime&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;deque&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;exception&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;fstream&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;functional&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;limits&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;list&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;map&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;iomanip&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;ios&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;iosfwd&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;iostream&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;istream&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;ostream&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;queue&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;<span style="color: rgba(0, 0, 255, 1)">set</span>&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;sstream&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;stdexcept&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;streambuf&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;<span style="color: rgba(0, 0, 255, 1)">string</span>&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;utility&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;vector&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cwchar&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cwctype&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;stack&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;limits.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+typedef </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> ll;
+</span><span style="color: rgba(0, 0, 255, 1)">const</span> ll INF =<span style="color: rgba(0, 0, 0, 1)"> 1e15;
+</span><span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">int</span> MOD = 1e5 + <span style="color: rgba(128, 0, 128, 1)">7</span><span style="color: rgba(0, 0, 0, 1)">;
+
+ll B,N,P,ans,tot;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> head[MOD],nxt[MOD],v[MOD];
+ll num[MOD];
+
+inline ll power(ll a,ll n)
+{
+        ll res </span>= <span style="color: rgba(128, 0, 128, 1)">1</span>,b =<span style="color: rgba(0, 0, 0, 1)"> a;
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span><span style="color: rgba(0, 0, 0, 1)"> (n)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (n &amp; <span style="color: rgba(128, 0, 128, 1)">1</span>) res = res * b %<span style="color: rgba(0, 0, 0, 1)"> P;
+                b </span>= b * b %<span style="color: rgba(0, 0, 0, 1)"> P;
+                n </span>&gt;&gt;= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> res;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> clear()
+{
+        tot </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        memset(head,</span><span style="color: rgba(128, 0, 128, 1)">0</span>,<span style="color: rgba(0, 0, 255, 1)">sizeof</span><span style="color: rgba(0, 0, 0, 1)">(head));
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> insert(ll val,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> j)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> h = val %<span style="color: rgba(0, 0, 0, 1)"> MOD;
+        tot</span>++<span style="color: rgba(0, 0, 0, 1)">;
+        num[tot] </span>=<span style="color: rgba(0, 0, 0, 1)"> val;
+        v[tot] </span>=<span style="color: rgba(0, 0, 0, 1)"> j;
+        nxt[tot] </span>=<span style="color: rgba(0, 0, 0, 1)"> head[h];
+        head[h] </span>=<span style="color: rgba(0, 0, 0, 1)"> tot;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> query(ll val)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> i,h = val %<span style="color: rgba(0, 0, 0, 1)"> MOD;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = head[h]; i; i =<span style="color: rgba(0, 0, 0, 1)"> nxt[i])
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (num[i] ==<span style="color: rgba(0, 0, 0, 1)"> val)
+                        </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> v[i];
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> -<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+}
+inline ll Baby_Step_Giant_Step(ll B,ll N,ll P)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,j,t;
+        ll val,ans </span>=<span style="color: rgba(0, 0, 0, 1)"> INF;
+        clear();
+        B </span>%=<span style="color: rgba(0, 0, 0, 1)"> P;
+        t </span>= (<span style="color: rgba(0, 0, 255, 1)">int</span>)sqrt(P) + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">0</span>; j &lt;= t; j++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                val </span>= N * power(B,j) %<span style="color: rgba(0, 0, 0, 1)"> P;
+                insert(val,j);
+        }        
+        B </span>=<span style="color: rgba(0, 0, 0, 1)"> power(B,t);
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (B == <span style="color: rgba(128, 0, 128, 1)">0</span>) <span style="color: rgba(0, 0, 255, 1)">return</span> N == <span style="color: rgba(128, 0, 128, 1)">0</span> ? <span style="color: rgba(128, 0, 128, 1)">1</span> : -<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i &lt;= t; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                val </span>=<span style="color: rgba(0, 0, 0, 1)"> power(B,i);
+                j </span>=<span style="color: rgba(0, 0, 0, 1)"> query(val);
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (j &gt;= <span style="color: rgba(128, 0, 128, 1)">0</span> &amp;&amp; i * t - j &gt;= <span style="color: rgba(128, 0, 128, 1)">0</span>) <span style="color: rgba(0, 0, 255, 1)">return</span> i * t -<span style="color: rgba(0, 0, 0, 1)"> j;
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> -<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() 
+{
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (scanf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%lld%lld%lld</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;P,&amp;B,&amp;N) !=<span style="color: rgba(0, 0, 0, 1)"> EOF)
+        {
+                ans </span>=<span style="color: rgba(0, 0, 0, 1)"> Baby_Step_Giant_Step(B,N,P);
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (ans == -<span style="color: rgba(128, 0, 128, 1)">1</span>) printf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">no solution\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">);
+                </span><span style="color: rgba(0, 0, 255, 1)">else</span> printf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%lld\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,ans);        
+        }
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

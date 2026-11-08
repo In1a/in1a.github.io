@@ -1,0 +1,133 @@
+---
+layout: post
+title: '【POJ 3179】 Corral the Cows'
+date: 2018-06-29 14:15:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9243183.html
+cnblogs_id: 9243183
+---
+{% raw %}
+
+<p>【题目链接】</p>
+<p>           <a href="http://poj.org/problem?id=3179" target="_blank" rel="noopener nofollow">http://poj.org/problem?id=3179</a></p>
+<p>【算法】</p>
+<p>           首先，我们发现答案是具有单调性的，也就是说，如果边长为C的正方形可以，那么比边长C大的正方形也可以，因此，可以二分答案</p>
+<p>           那么，我们怎么检验呢？</p>
+<p>           每个点的坐标最大时达到10000，因此，直接二维前缀和显然是会超时的</p>
+<p>           考虑将坐标离散化，然后求二维前缀和，由于N&lt;=500，所以离散化后最多也只有1000个点</p>
+<p>           检验时，我们枚举正方形的左上角，用二分求出它的右下角，然后，判断正方形内是否有大于C的草量</p>
+<p>【代码】</p>
+<p>           </p>
+<div class="cnblogs_code">
+<pre>#include &lt;algorithm&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;bitset&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cctype&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cerrno&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;clocale&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cmath&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;complex&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cstdio&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cstdlib&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cstring&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;ctime&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;deque&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;exception&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;fstream&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;functional&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;limits&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;list&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;map&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;iomanip&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;ios&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;iosfwd&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;iostream&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;istream&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;ostream&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;queue&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;<span style="color: rgba(0, 0, 255, 1)">set</span>&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;sstream&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;stdexcept&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;streambuf&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;<span style="color: rgba(0, 0, 255, 1)">string</span>&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;utility&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;vector&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cwchar&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cwctype&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;stack&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;limits.h&gt; 
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 510
+
+<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> C,N,i,j,l,r,mid,ans,tx,ty,len;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span> tmp[MAXN&lt;&lt;<span style="color: rgba(128, 0, 128, 1)">1</span>],s[MAXN&lt;&lt;<span style="color: rgba(128, 0, 128, 1)">1</span>][MAXN&lt;&lt;<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">],x[MAXN],y[MAXN];
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">int</span> getsum(<span style="color: rgba(0, 0, 255, 1)">int</span> xa,<span style="color: rgba(0, 0, 255, 1)">int</span> ya,<span style="color: rgba(0, 0, 255, 1)">int</span> xb,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> yb)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> s[xb][yb] - s[xa-<span style="color: rgba(128, 0, 128, 1)">1</span>][yb] - s[xb][ya-<span style="color: rgba(128, 0, 128, 1)">1</span>] + s[xa-<span style="color: rgba(128, 0, 128, 1)">1</span>][ya-<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">bool</span> check(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,j,tx,ty,pos;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (x &gt;<span style="color: rgba(0, 0, 0, 1)"> tmp[len]) 
+    {
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (s[len][len] &gt;= C) <span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">else</span> <span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(0, 0, 255, 1)">false</span><span style="color: rgba(0, 0, 0, 1)">;
+    }
+    pos </span>= upper_bound(tmp+<span style="color: rgba(128, 0, 128, 1)">1</span>,tmp+len+<span style="color: rgba(128, 0, 128, 1)">1</span>,tmp[len]-x+<span style="color: rgba(128, 0, 128, 1)">1</span>) - tmp - <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= pos; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= pos; j++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        tx </span>= upper_bound(tmp+<span style="color: rgba(128, 0, 128, 1)">1</span>,tmp+len+<span style="color: rgba(128, 0, 128, 1)">1</span>,tmp[i]+x-<span style="color: rgba(128, 0, 128, 1)">1</span>) - tmp - <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                        ty </span>= upper_bound(tmp+<span style="color: rgba(128, 0, 128, 1)">1</span>,tmp+len+<span style="color: rgba(128, 0, 128, 1)">1</span>,tmp[j]+x-<span style="color: rgba(128, 0, 128, 1)">1</span>) - tmp - <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (getsum(i,j,tx,ty) &gt;= C) <span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;        
+                }        
+        }                
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(0, 0, 255, 1)">false</span><span style="color: rgba(0, 0, 0, 1)">;
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() 
+{
+        
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;C,&amp;<span style="color: rgba(0, 0, 0, 1)">N);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= N; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;x[i],&amp;<span style="color: rgba(0, 0, 0, 1)">y[i]);    
+                tmp[</span>++len] =<span style="color: rgba(0, 0, 0, 1)"> x[i];
+                tmp[</span>++len] =<span style="color: rgba(0, 0, 0, 1)"> y[i];    
+        }
+        sort(tmp</span>+<span style="color: rgba(128, 0, 128, 1)">1</span>,tmp+len+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+        len </span>= unique(tmp+<span style="color: rgba(128, 0, 128, 1)">1</span>,tmp+len+<span style="color: rgba(128, 0, 128, 1)">1</span>) - tmp - <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= N; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                tx </span>= lower_bound(tmp+<span style="color: rgba(128, 0, 128, 1)">1</span>,tmp+len+<span style="color: rgba(128, 0, 128, 1)">1</span>,x[i]) -<span style="color: rgba(0, 0, 0, 1)"> tmp;
+                ty </span>= lower_bound(tmp+<span style="color: rgba(128, 0, 128, 1)">1</span>,tmp+len+<span style="color: rgba(128, 0, 128, 1)">1</span>,y[i]) -<span style="color: rgba(0, 0, 0, 1)"> tmp;
+                s[tx][ty]</span>++<span style="color: rgba(0, 0, 0, 1)">; 
+        }
+        tmp[</span>++len] = <span style="color: rgba(128, 0, 128, 1)">10001</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= len; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= len; j++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        s[i][j] </span>= s[i-<span style="color: rgba(128, 0, 128, 1)">1</span>][j] + s[i][j-<span style="color: rgba(128, 0, 128, 1)">1</span>] - s[i-<span style="color: rgba(128, 0, 128, 1)">1</span>][j-<span style="color: rgba(128, 0, 128, 1)">1</span>] +<span style="color: rgba(0, 0, 0, 1)"> s[i][j];
+                }
+        }
+        l </span>= <span style="color: rgba(128, 0, 128, 1)">1</span>; r = <span style="color: rgba(128, 0, 128, 1)">10000</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (l &lt;=<span style="color: rgba(0, 0, 0, 1)"> r)    
+        {
+                mid </span>= (l + r) &gt;&gt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span><span style="color: rgba(0, 0, 0, 1)"> (check(mid))
+                {
+                        r </span>= mid - <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                        ans </span>=<span style="color: rgba(0, 0, 0, 1)"> mid;
+                } </span><span style="color: rgba(0, 0, 255, 1)">else</span> l = mid + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        }
+        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,ans);
+         
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

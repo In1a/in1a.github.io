@@ -1,0 +1,66 @@
+---
+layout: post
+title: '【BZOJ 1572】 工作安排'
+date: 2018-07-01 16:46:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9250514.html
+cnblogs_id: 9250514
+---
+{% raw %}
+
+<p>【题目链接】</p>
+<p>            <a href="https://www.lydsy.com/JudgeOnline/problem.php?id=1572" target="_blank" rel="noopener nofollow">https://www.lydsy.com/JudgeOnline/problem.php?id=1572</a></p>
+<p>【算法】</p>
+<p>          贪心</p>
+<p>          先将这些工作按截至时间排序</p>
+<p>          建立一个小根堆，当决策是否完成一项工作时，若堆的大小小于该工作的截止时间，则将这项工作所获得的利润放入堆，否则，将这项工作的利润与堆顶比较，如果比堆顶大，则将堆顶弹出，将这项工作的利润放入堆中</p>
+<p>【代码】</p>
+<p>            </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 100010
+
+<span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> info
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> d,p;
+} a[MAXN];
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,n;
+</span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> ans;
+priority_queue</span>&lt; <span style="color: rgba(0, 0, 255, 1)">int</span>,vector&lt;<span style="color: rgba(0, 0, 255, 1)">int</span>&gt;,greater&lt;<span style="color: rgba(0, 0, 255, 1)">int</span>&gt; &gt;<span style="color: rgba(0, 0, 0, 1)"> q;
+
+</span><span style="color: rgba(0, 0, 255, 1)">bool</span><span style="color: rgba(0, 0, 0, 1)"> cmp(info a,info b) 
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> a.d &lt;<span style="color: rgba(0, 0, 0, 1)"> b.d;
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() 
+{
+        
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">n);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++) scanf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;a[i].d,&amp;<span style="color: rgba(0, 0, 0, 1)">a[i].p);
+        sort(a</span>+<span style="color: rgba(128, 0, 128, 1)">1</span>,a+n+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">,cmp);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (q.size() &lt;<span style="color: rgba(0, 0, 0, 1)"> a[i].d) q.push(a[i].p);
+                </span><span style="color: rgba(0, 0, 255, 1)">else</span> <span style="color: rgba(0, 0, 255, 1)">if</span> (a[i].p &gt;<span style="color: rgba(0, 0, 0, 1)"> q.top()) 
+                {
+                        q.pop();
+                        q.push(a[i].p);
+                }
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (!<span style="color: rgba(0, 0, 0, 1)">q.empty())
+        {
+                ans </span>+= (<span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)">)(q.top());
+                q.pop();
+        }
+        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%lld\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,ans);
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

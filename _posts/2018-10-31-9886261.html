@@ -1,0 +1,153 @@
+---
+layout: post
+title: '[HNOI 2009] 有趣的数列'
+date: 2018-10-31 22:10:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9886261.html
+cnblogs_id: 9886261
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p>         <a href="https://www.lydsy.com/JudgeOnline/problem.php?id=1485" target="_blank" rel="noopener nofollow">https://www.lydsy.com/JudgeOnline/problem.php?id=1485</a></p>
+<p>[算法]</p>
+<p>        我们不妨从1-2N依次选取奇数项</p>
+<p>        考虑到P2n-1 &lt; P2n , 显然 ， 当1至i中 ， 不选的数 &gt; 选了的数 ， 不合法</p>
+<p>        那么 ， 当一个序列满足 ： 1-i中 ， 不选的数 &gt; 选了的数 ， 则这个序列是“有趣”的</p>
+<p>        可以把该问题转化为一个经典模型 ： 满足前i位0的个数 &lt;= 1的个数的长度为2N的二进制数有多少个 ， 答案为卡特兰数的第n项</p>
+<p>        <strong>卡特兰数的通项公式 ： Cn = C(2n , n) - C(2n , n - 1)</strong></p>
+<p>        由于答案对P取模 ， 而P不是质数 ， 逆元可能不存在 ， 我们需要在求组合数时求出每个质因子在阶乘中出现了多少次 ， 然后快速幂计算答案即可</p>
+<p>        时间复杂度 ： O(NlogN)</p>
+<p>[代码]</p>
+<p>         </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 1000010
+<span style="color: rgba(0, 0, 255, 1)">#define</span> MAXP 2000010
+
+<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> n , P , tot;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> f[MAXP] , prime[MAXP] , a[MAXP] , b[MAXP] , loc[MAXP];
+
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> chkmax(T &amp;x,T y) { x =<span style="color: rgba(0, 0, 0, 1)"> max(x,y); }
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> chkmin(T &amp;x,T y) { x =<span style="color: rgba(0, 0, 0, 1)"> min(x,y); }
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> read(T &amp;<span style="color: rgba(0, 0, 0, 1)">x)
+{
+    T f </span>= <span style="color: rgba(128, 0, 128, 1)">1</span>; x = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">char</span> c =<span style="color: rgba(0, 0, 0, 1)"> getchar();
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; !isdigit(c); c = getchar()) <span style="color: rgba(0, 0, 255, 1)">if</span> (c == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>) f = -<span style="color: rgba(0, 0, 0, 1)">f;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; isdigit(c); c = getchar()) x = (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">3</span>) + (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>) + c - <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">;
+    x </span>*=<span style="color: rgba(0, 0, 0, 1)"> f;
+}
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">int</span> exp_mod(<span style="color: rgba(0, 0, 255, 1)">int</span> a , <span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> n)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> res = <span style="color: rgba(128, 0, 128, 1)">1</span> , b =<span style="color: rgba(0, 0, 0, 1)"> a;
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (n &gt; <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (n &amp; <span style="color: rgba(128, 0, 128, 1)">1</span>) res = 1LL * res * b %<span style="color: rgba(0, 0, 0, 1)"> P;
+                b </span>= 1LL * b * b %<span style="color: rgba(0, 0, 0, 1)"> P;
+                n </span>&gt;&gt;= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> res;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">int</span> C(<span style="color: rgba(0, 0, 255, 1)">int</span> x , <span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> y)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= tot; i++) a[i] = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> k = <span style="color: rgba(128, 0, 128, 1)">1</span>; k &lt;= x; k++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span> tmp =<span style="color: rgba(0, 0, 0, 1)"> k;
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= tot &amp;&amp; 1LL * prime[i] * prime[i] &lt;= k; i++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (tmp % prime[i] == <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">)
+                        {
+                                </span><span style="color: rgba(0, 0, 255, 1)">while</span> (tmp % prime[i] == <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">) 
+                                {
+                                        tmp </span>/=<span style="color: rgba(0, 0, 0, 1)"> prime[i];
+                                        </span>++<span style="color: rgba(0, 0, 0, 1)">a[i];        
+                                }
+                        }        
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (tmp == <span style="color: rgba(128, 0, 128, 1)">1</span> || loc[tmp]) <span style="color: rgba(0, 0, 255, 1)">break</span><span style="color: rgba(0, 0, 0, 1)">;
+                }
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (tmp &gt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">int</span> pos =<span style="color: rgba(0, 0, 0, 1)"> loc[tmp];
+                        </span>++<span style="color: rgba(0, 0, 0, 1)">a[pos];
+                }
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> k = <span style="color: rgba(128, 0, 128, 1)">1</span>; k &lt;= y; k++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span> tmp =<span style="color: rgba(0, 0, 0, 1)"> k;
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= tot &amp;&amp; 1LL * prime[i] * prime[i] &lt;= k; i++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (tmp % prime[i] == <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">)
+                        {
+                                </span><span style="color: rgba(0, 0, 255, 1)">while</span> (tmp % prime[i] == <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">) 
+                                {
+                                        tmp </span>/=<span style="color: rgba(0, 0, 0, 1)"> prime[i];
+                                        </span>--<span style="color: rgba(0, 0, 0, 1)">a[i];        
+                                }
+                        }        
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (tmp == <span style="color: rgba(128, 0, 128, 1)">1</span> || loc[tmp]) <span style="color: rgba(0, 0, 255, 1)">break</span><span style="color: rgba(0, 0, 0, 1)">;
+                }
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (tmp &gt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">int</span> pos =<span style="color: rgba(0, 0, 0, 1)"> loc[tmp];
+                        </span>--<span style="color: rgba(0, 0, 0, 1)">a[pos];
+                }
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> k = <span style="color: rgba(128, 0, 128, 1)">1</span>; k &lt;= x - y; k++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span> tmp =<span style="color: rgba(0, 0, 0, 1)"> k;
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= tot &amp;&amp; 1LL * prime[i] * prime[i] &lt;= k; i++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (tmp % prime[i] == <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">)
+                        {
+                                </span><span style="color: rgba(0, 0, 255, 1)">while</span> (tmp % prime[i] == <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">) 
+                                {
+                                        tmp </span>/=<span style="color: rgba(0, 0, 0, 1)"> prime[i];
+                                        </span>--<span style="color: rgba(0, 0, 0, 1)">a[i];        
+                                }
+                        }        
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (tmp == <span style="color: rgba(128, 0, 128, 1)">1</span> || loc[tmp]) <span style="color: rgba(0, 0, 255, 1)">break</span><span style="color: rgba(0, 0, 0, 1)">;
+                }
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (tmp &gt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">int</span> pos =<span style="color: rgba(0, 0, 0, 1)"> loc[tmp];
+                        </span>--<span style="color: rgba(0, 0, 0, 1)">a[pos];
+                }
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> ans = <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= tot; i++) ans = 1LL * ans * exp_mod(prime[i] , a[i]) %<span style="color: rgba(0, 0, 0, 1)"> P;
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> ans;
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main()
+{
+        
+        read(n); read(P);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">2</span>; i &lt; MAXP; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!<span style="color: rgba(0, 0, 0, 1)">f[i])
+                {
+                        f[i] </span>=<span style="color: rgba(0, 0, 0, 1)"> i;
+                        prime[</span>++tot] =<span style="color: rgba(0, 0, 0, 1)"> i;
+                        loc[i] </span>=<span style="color: rgba(0, 0, 0, 1)"> tot;
+                }
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= tot; j++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">int</span> tmp = i *<span style="color: rgba(0, 0, 0, 1)"> prime[j];
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (tmp &gt;= MAXP) <span style="color: rgba(0, 0, 255, 1)">break</span><span style="color: rgba(0, 0, 0, 1)">;
+                        f[tmp] </span>=<span style="color: rgba(0, 0, 0, 1)"> prime[j];
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (prime[j] == f[i]) <span style="color: rgba(0, 0, 255, 1)">break</span><span style="color: rgba(0, 0, 0, 1)">;
+                }
+        }
+        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span> , (C(<span style="color: rgba(128, 0, 128, 1)">2</span> * n , n) - C(<span style="color: rgba(128, 0, 128, 1)">2</span> * n , n - <span style="color: rgba(128, 0, 128, 1)">1</span>) + P) %<span style="color: rgba(0, 0, 0, 1)"> P);
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

@@ -1,0 +1,42 @@
+---
+layout: post
+title: 'APIO2020 简要题解'
+date: 2020-09-14 17:26:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/13667929.html
+cnblogs_id: 13667929
+---
+{% raw %}
+
+<p>现场得分 <span class="math inline">\(28 + 100 + 26 = 154\)</span>。</p>
+<p><span class="math inline">\(A\)</span><br>
+首先 ， 考虑动态规划。<br>
+设 <span class="math inline">\(f_{i,j}\)</span> 表示前 <span class="math inline">\(i\)</span> 段墙壁 ， 交给第 <span class="math inline">\(j\)</span> 个及之前的承包商粉刷 ， 最多匹配的长度。<br>
+注意到 <span class="math inline">\(f_{i}\)</span> 之和 <span class="math inline">\(f_{i - 1}\)</span> 有关 ， 因此可以用滚动数组来优化空间复杂度。<br>
+这样就求出了第 <span class="math inline">\([i - m + 1 , i]\)</span> 这段区间的墙壁是否可以被某个承包商粉刷。<br>
+将所有可以的位置排序 ， 然后贪心地尽可能往后放即可。<br>
+时间复杂度 : <span class="math inline">\(O(N)\)</span><br>
+代码 : <a href="https://loj.ac/submission/922889" target="_blank" rel="noopener nofollow">https://loj.ac/submission/922889</a></p>
+<p><span class="math inline">\(B\)</span><br>
+首先考虑一个 <span class="math inline">\(O(NMlogN)\)</span> 的做法。<br>
+二分答案 <span class="math inline">\(mid\)</span> ， 保留图中权值不超过 <span class="math inline">\(mid\)</span> 的边 ， 如果图中有环或度数超过 <span class="math inline">\(2\)</span> 的点 ， 那么就符合要求。<br>
+这是因为可以让一辆车在一个节点处停留 ， 等另一辆车到达目的地后再继续开。<br>
+这样可以得到 <span class="math inline">\(37\)</span> 分。<br>
+接着 ， 考虑克鲁斯卡尔重构树 ， 对于重构树上每个节点记一个权值 ， 代表的是这个联通块最早符合要求是什么时候。<br>
+回答询问时 ， 先求出 <span class="math inline">\(u\)</span> 和 <span class="math inline">\(v\)</span> 的最近公共祖先 。 再倍增至第一个权值非空的节点 ， 即可。<br>
+时间复杂度 : <span class="math inline">\(O((N + M)logN)\)</span>。<br>
+代码在考场上。</p>
+<p><span class="math inline">\(C\)</span></p>
+<p>首先找出这棵树的重心。 这需要花费 <span class="math inline">\(2M\)</span> 次操作。<br>
+注意到每个点的度数不超过 <span class="math inline">\(3\)</span>。<br>
+如果重心的度数为 <span class="math inline">\(2\)</span> ， 由重心的性质 ， 两棵子树大小差不超过 <span class="math inline">\(1\)</span> ， 每次取不同于上次所选的那棵子树中 ， 剩下的深度最大的节点来构造出一种合法方案。<br>
+如果度数为 <span class="math inline">\(3\)</span> ， 延续刚才的思路 ， 每次取不同于上次所选的两棵子树中剩余深度最大的节点。<br>
+这样做必然有一时刻 ， 某两棵子树的大小和等于另一棵子树的大小。 其正确性在于 :<br>
+记函数 <span class="math inline">\(V = 2 \cdot max{size} - sum{size}\)</span> ， 由重心的性质得到函数 <span class="math inline">\(V\)</span> 的初值小于 <span class="math inline">\(0\)</span>。<br>
+这个函数在每次操作后的变化量为 <span class="math inline">\(1\)</span> ， 因此一定存在某一时刻满足 <span class="math inline">\(V = 0\)</span>。<br>
+因此 ， 在这个时刻到来时 ， 将两棵较小的子树合并 ， 用度数等于 <span class="math inline">\(2\)</span> 的方法处理即可。<br>
+总操作数 <span class="math inline">\(4M\)</span>。时间复杂度 : <span class="math inline">\(O(NlogN)\)</span>。<br>
+代码 : <a href="https://loj.ac/submission/926697" target="_blank" rel="noopener nofollow">https://loj.ac/submission/926697</a></p>
+
+
+
+{% endraw %}

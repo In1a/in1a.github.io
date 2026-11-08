@@ -1,0 +1,75 @@
+---
+layout: post
+title: '【HAOI 2008】 硬币购物'
+date: 2018-05-06 22:42:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9196349.html
+cnblogs_id: 9196349
+---
+{% raw %}
+
+<p>【题目链接】</p>
+<p>          <a href="https://www.lydsy.com/JudgeOnline/problem.php?id=1042" rel="noopener nofollow">点击打开链接</a></p>
+<p>【算法】</p>
+<p>          此题是一道好题！</p>
+<p>          首先，我们发现 : 付款方法数 = 不受限制的方法数 - 受限制的方法数</p>
+<p>          那么，我们怎么求呢？</p>
+<p>          我们用dp求出不受限制的方法数（f[i]表示买i元的东西，不受硬币限制，有多少种方案），只需用01背包的</p>
+<p>          方法就可以了，实现非常简单</p>
+<p>          那么受限制的方法数怎么求呢？由容斥原理可知，受限制的方法数 = 第一种硬币超限 + 第二种硬币超限 + ... </p>
+<p>          - 第一，二，三，四种硬币超限</p>
+<p>          第一种硬币超限，其实就是先选（d1 + 1)枚第一种硬币，其他随便选，那么对应的数量就是</p>
+<p>          f[s - (d1 + 1） * c[1]]，其他情况类似，注意当减下来小于零时是不可以的</p>
+<p>          于是，这道题便迎刃而解了！</p>
+<p>  【代码】</p>
+<p>           </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXS 100010
+
+<span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> i,j,d1,d2,d3,d4,T,s;
+</span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span> c[<span style="color: rgba(128, 0, 128, 1)">5</span><span style="color: rgba(0, 0, 0, 1)">];
+</span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> ans;
+</span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> f[MAXS];
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() 
+{
+        
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%lld%lld%lld%lld%lld</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;c[<span style="color: rgba(128, 0, 128, 1)">1</span>],&amp;c[<span style="color: rgba(128, 0, 128, 1)">2</span>],&amp;c[<span style="color: rgba(128, 0, 128, 1)">3</span>],&amp;c[<span style="color: rgba(128, 0, 128, 1)">4</span>],&amp;<span style="color: rgba(0, 0, 0, 1)">T);
+        f[</span><span style="color: rgba(128, 0, 128, 1)">0</span>] = <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= <span style="color: rgba(128, 0, 128, 1)">4</span>; i++<span style="color: rgba(0, 0, 0, 1)">) 
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = c[i]; j &lt; MAXS; j++<span style="color: rgba(0, 0, 0, 1)">) 
+                {
+                        f[j] </span>+= f[j-<span style="color: rgba(0, 0, 0, 1)">c[i]];
+                }
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (T--<span style="color: rgba(0, 0, 0, 1)">) 
+        {
+                scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%lld%lld%lld%lld%lld</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;d1,&amp;d2,&amp;d3,&amp;d4,&amp;<span style="color: rgba(0, 0, 0, 1)">s);
+                ans </span>=<span style="color: rgba(0, 0, 0, 1)"> f[s];
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (s - (d1 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">1</span>] &gt;= <span style="color: rgba(128, 0, 128, 1)">0</span>) ans -= f[s - (d1 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">]];
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (s - (d2 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">2</span>] &gt;= <span style="color: rgba(128, 0, 128, 1)">0</span>) ans -= f[s - (d2 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">]];
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (s - (d3 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">3</span>] &gt;= <span style="color: rgba(128, 0, 128, 1)">0</span>) ans -= f[s - (d3 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">3</span><span style="color: rgba(0, 0, 0, 1)">]];
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (s - (d4 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">4</span>] &gt;= <span style="color: rgba(128, 0, 128, 1)">0</span>) ans -= f[s - (d4 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">4</span><span style="color: rgba(0, 0, 0, 1)">]];
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (s - (d1 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">1</span>] - (d2 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">2</span>] &gt;= <span style="color: rgba(128, 0, 128, 1)">0</span>) ans += f[s - (d1 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">1</span>] - (d2 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">]];
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (s - (d1 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">1</span>] - (d3 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">3</span>] &gt;= <span style="color: rgba(128, 0, 128, 1)">0</span>) ans += f[s - (d1 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">1</span>] - (d3 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">3</span><span style="color: rgba(0, 0, 0, 1)">]];
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (s - (d1 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">1</span>] - (d4 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">4</span>] &gt;= <span style="color: rgba(128, 0, 128, 1)">0</span>) ans += f[s - (d1 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">1</span>] - (d4 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">4</span><span style="color: rgba(0, 0, 0, 1)">]];
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (s - (d2 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">2</span>] - (d3 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">3</span>] &gt;= <span style="color: rgba(128, 0, 128, 1)">0</span>) ans += f[s - (d2 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">2</span>] - (d3 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">3</span><span style="color: rgba(0, 0, 0, 1)">]];
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (s - (d2 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">2</span>] - (d4 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">4</span>] &gt;= <span style="color: rgba(128, 0, 128, 1)">0</span>) ans += f[s - (d2 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">2</span>] - (d4 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">4</span><span style="color: rgba(0, 0, 0, 1)">]];
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (s - (d3 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">3</span>] - (d4 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">4</span>] &gt;= <span style="color: rgba(128, 0, 128, 1)">0</span>) ans += f[s - (d3 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">3</span>] - (d4 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">4</span><span style="color: rgba(0, 0, 0, 1)">]];
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (s - (d1 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">1</span>] - (d2 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">2</span>] - (d3 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">3</span>] &gt;= <span style="color: rgba(128, 0, 128, 1)">0</span>) ans -= f[s - (d1 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">1</span>] - (d2 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">2</span>] - (d3 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">3</span><span style="color: rgba(0, 0, 0, 1)">]];
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (s - (d1 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">1</span>] - (d2 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">2</span>] - (d4 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">4</span>] &gt;= <span style="color: rgba(128, 0, 128, 1)">0</span>) ans -= f[s - (d1 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">1</span>] - (d2 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">2</span>] - (d4 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">4</span><span style="color: rgba(0, 0, 0, 1)">]];
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (s - (d1 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">1</span>] - (d3 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">3</span>] - (d4 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">4</span>] &gt;= <span style="color: rgba(128, 0, 128, 1)">0</span>) ans -= f[s - (d1 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">1</span>] - (d3 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">3</span>] - (d4 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">4</span><span style="color: rgba(0, 0, 0, 1)">]];
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (s - (d2 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">2</span>] - (d3 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">3</span>] - (d4 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">4</span>] &gt;= <span style="color: rgba(128, 0, 128, 1)">0</span>) ans -= f[s - (d2 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">2</span>] - (d3 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">3</span>] - (d4 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">4</span><span style="color: rgba(0, 0, 0, 1)">]];
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (s - (d1 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">1</span>] - (d2 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">2</span>] - (d3 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">3</span>] - (d4 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">4</span>] &gt;= <span style="color: rgba(128, 0, 128, 1)">0</span>) ans += f[s - (d1 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">1</span>] - (d2 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">2</span>] - (d3 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">3</span>] - (d4 + <span style="color: rgba(128, 0, 128, 1)">1</span>) * c[<span style="color: rgba(128, 0, 128, 1)">4</span><span style="color: rgba(0, 0, 0, 1)">]];
+                printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%lld\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,ans);    
+        } 
+    
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

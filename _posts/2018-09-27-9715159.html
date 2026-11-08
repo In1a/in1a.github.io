@@ -1,0 +1,76 @@
+---
+layout: post
+title: '[Codeforces 650A] Watchmen'
+date: 2018-09-27 19:42:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9715159.html
+cnblogs_id: 9715159
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p>       <a href="https://codeforces.com/problemset/problem/650/A" target="_blank" rel="noopener nofollow"> https://codeforces.com/problemset/problem/650/A</a></p>
+<p>[算法]</p>
+<p>        显然 ， 只有横坐标 / 纵坐标相等的点 ， 才会满足 : <img class="tex-formula lazyload" alt="" align="middle" data-src="https://codeforces.com/predownloaded/17/4e/174ed1e664f2b86a8f22a95dbe2cd5c152110eeb.png" src="https://codeforces.com/predownloaded/17/4e/174ed1e664f2b86a8f22a95dbe2cd5c152110eeb.png" loading="lazy">.    = | xi - xj | + | yi - yj |<span class="lower-index"><span class="lower-index"><span class="lower-index"><span class="lower-index"><em><br></em></span></span></span></span></p>
+<p>        如果有n个点的横 / 纵坐标相等 ， 那么它们将会对答案产生n(n - 1) / 2的贡献</p>
+<p>        不妨维护三个std :: map ， 分别记录横坐标相同 ， 纵坐标相同和重点的个数 </p>
+<p>        时间复杂度 ： O(NlogN)</p>
+<p>[代码]</p>
+<p>         </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">int</span> MAXN = 1e5 + <span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> n;
+</span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> ans;
+map</span>&lt;<span style="color: rgba(0, 0, 255, 1)">int</span>,<span style="color: rgba(0, 0, 255, 1)">int</span>&gt;<span style="color: rgba(0, 0, 0, 1)"> a,b;
+map</span>&lt;pair&lt;<span style="color: rgba(0, 0, 255, 1)">int</span>,<span style="color: rgba(0, 0, 255, 1)">int</span>&gt;,<span style="color: rgba(0, 0, 255, 1)">int</span>&gt;<span style="color: rgba(0, 0, 0, 1)"> c;
+
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> read(T &amp;<span style="color: rgba(0, 0, 0, 1)">x)
+{
+    T f </span>= <span style="color: rgba(128, 0, 128, 1)">1</span>; x = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">char</span> c =<span style="color: rgba(0, 0, 0, 1)"> getchar();
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; !isdigit(c); c = getchar()) <span style="color: rgba(0, 0, 255, 1)">if</span> (c == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>) f = -<span style="color: rgba(0, 0, 0, 1)">f;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; isdigit(c); c = getchar()) x = (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">3</span>) + (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>) + c - <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">;
+    x </span>*=<span style="color: rgba(0, 0, 0, 1)"> f;
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main()
+{
+        
+        read(n);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">) 
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x , y;
+                read(x); read(y);
+                a[x]</span>++; b[y]++<span style="color: rgba(0, 0, 0, 1)">;
+                c[make_pair(x,y)]</span>++<span style="color: rgba(0, 0, 0, 1)">;
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (map&lt; <span style="color: rgba(0, 0, 255, 1)">int</span>,<span style="color: rgba(0, 0, 255, 1)">int</span> &gt; :: iterator it = a.begin(); it != a.end(); it++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span> value = it -&gt;<span style="color: rgba(0, 0, 0, 1)"> second;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (value == <span style="color: rgba(128, 0, 128, 1)">1</span>) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                ans </span>+= 1ll * value * (value - <span style="color: rgba(128, 0, 128, 1)">1</span>) / <span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">;        
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (map&lt; <span style="color: rgba(0, 0, 255, 1)">int</span>,<span style="color: rgba(0, 0, 255, 1)">int</span> &gt; ::iterator it = b.begin(); it != b.end(); it++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span> value = it -&gt;<span style="color: rgba(0, 0, 0, 1)"> second;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (value == <span style="color: rgba(128, 0, 128, 1)">1</span>) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                ans </span>+= 1ll * value * (value - <span style="color: rgba(128, 0, 128, 1)">1</span>) / <span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">;
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (map&lt; pair&lt;<span style="color: rgba(0, 0, 255, 1)">int</span>,<span style="color: rgba(0, 0, 255, 1)">int</span>&gt;,<span style="color: rgba(0, 0, 255, 1)">int</span> &gt; :: iterator it = c.begin(); it != c.end(); it++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span> value = it -&gt;<span style="color: rgba(0, 0, 0, 1)"> second;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (value == <span style="color: rgba(128, 0, 128, 1)">1</span>) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                ans </span>-= 1ll * value * (value - <span style="color: rgba(128, 0, 128, 1)">1</span>) / <span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">;
+        }
+        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%I64d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,ans);
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

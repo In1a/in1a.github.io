@@ -1,0 +1,64 @@
+---
+layout: post
+title: '【HDU 2176】 取(m堆)石子游戏'
+date: 2018-07-12 21:15:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9301950.html
+cnblogs_id: 9301950
+---
+{% raw %}
+
+<p>【题目链接】</p>
+<p>           <a href="http://acm.hdu.edu.cn/showproblem.php?pid=2176" target="_blank" rel="noopener nofollow">http://acm.hdu.edu.cn/showproblem.php?pid=2176</a></p>
+<p>【算法】</p>
+<p>           Nim博弈</p>
+<p>           当石子数异或和不为0时，先手必胜，否则先手必败</p>
+<p>           设石子异或和为S</p>
+<p>           如果S xor ai &lt;= ai，那么，第一步就可以从第i堆石子中取走(S xor ai)个石子</p>
+<p>【代码】</p>
+<p>           </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXM 200010
+
+<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,m,k,sum;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> a[MAXM];
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() 
+{
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (scanf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;m) &amp;&amp;<span style="color: rgba(0, 0, 0, 1)"> m)
+        {
+                sum </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= m; i++<span style="color: rgba(0, 0, 0, 1)">)    
+                {
+                        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">a[i]);
+                        sum </span>^=<span style="color: rgba(0, 0, 0, 1)"> a[i];        
+                }    
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (sum != <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">Yes\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">);
+                        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">20</span>; i &gt;= <span style="color: rgba(128, 0, 128, 1)">0</span>; i--<span style="color: rgba(0, 0, 0, 1)">)
+                        {
+                                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (sum &amp; (<span style="color: rgba(128, 0, 128, 1)">1</span> &lt;&lt;<span style="color: rgba(0, 0, 0, 1)"> i))
+                                {
+                                        k </span>=<span style="color: rgba(0, 0, 0, 1)"> i;
+                                        </span><span style="color: rgba(0, 0, 255, 1)">break</span><span style="color: rgba(0, 0, 0, 1)">;
+                                }
+                        }
+                        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= m; i++<span style="color: rgba(0, 0, 0, 1)">)
+                        {
+                                </span><span style="color: rgba(0, 0, 255, 1)">if</span> ((sum ^ a[i]) &lt;=<span style="color: rgba(0, 0, 0, 1)"> a[i])
+                                        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d %d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span>,a[i],sum^<span style="color: rgba(0, 0, 0, 1)">a[i]);
+                        }
+                } </span><span style="color: rgba(0, 0, 255, 1)">else</span> printf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">No\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">);
+        }
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

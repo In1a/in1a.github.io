@@ -1,0 +1,104 @@
+---
+layout: post
+title: '[SCOI 2014] 方伯伯的玉米田'
+date: 2019-02-10 21:52:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/10360374.html
+cnblogs_id: 10360374
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p>          <a href="https://www.lydsy.com/JudgeOnline/problem.php?id=3594" target="_blank" rel="noopener nofollow">https://www.lydsy.com/JudgeOnline/problem.php?id=3594</a></p>
+<p>[算法]</p>
+<p>        首先有一个结论 : 每次选择的区间右端点一定是n  </p>
+<p>        根据这个结论 ， 设fi,j表示前i株玉米拔高j次的最长不下降子序列长度</p>
+<p>        则fi,j = max{fp,q + 1} (q &lt;= j , ap + q &lt;= ai + j)</p>
+<p>       二维树状数组优化即可</p>
+<p>       时间复杂度 : O(NKlogK ^ 2)</p>
+<p>[代码]</p>
+<p>       </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> N 10010
+<span style="color: rgba(0, 0, 255, 1)">#define</span> K 510
+<span style="color: rgba(0, 0, 255, 1)">#define</span> M 5510<span style="color: rgba(0, 0, 0, 1)">
+typedef </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> ll;
+typedef </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">double</span><span style="color: rgba(0, 0, 0, 1)"> ld;
+typedef unsigned </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> ull;
+
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> rint register int
+
+<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> n , k , m;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> a[N];
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> c[K][M];
+
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> chkmin(T &amp;x , T y) { x =<span style="color: rgba(0, 0, 0, 1)"> min(x , y); }
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> chkmax(T &amp;x , T y) { x =<span style="color: rgba(0, 0, 0, 1)"> max(x , y); }
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> read(T &amp;<span style="color: rgba(0, 0, 0, 1)">x)
+{
+   T f </span>= <span style="color: rgba(128, 0, 128, 1)">1</span>; x = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+   </span><span style="color: rgba(0, 0, 255, 1)">char</span> c =<span style="color: rgba(0, 0, 0, 1)"> getchar();
+   </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; !isdigit(c); c = getchar()) <span style="color: rgba(0, 0, 255, 1)">if</span> (c == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>) f = -<span style="color: rgba(0, 0, 0, 1)">f;
+   </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; isdigit(c); c = getchar()) x = (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">3</span>) + (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>) + c - <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">;
+   x </span>*=<span style="color: rgba(0, 0, 0, 1)"> f;
+}
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">int</span> lowbit(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x)
+{
+    </span><span style="color: rgba(0, 0, 255, 1)">return</span> x &amp; (-<span style="color: rgba(0, 0, 0, 1)">x);    
+}    
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> modify(<span style="color: rgba(0, 0, 255, 1)">int</span> x , <span style="color: rgba(0, 0, 255, 1)">int</span> y , <span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> value)
+{
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (rint i = x; i &lt;= k + <span style="color: rgba(128, 0, 128, 1)">1</span>; i +=<span style="color: rgba(0, 0, 0, 1)"> lowbit(i))
+    {
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (rint j = y; j &lt;= m; j +=<span style="color: rgba(0, 0, 0, 1)"> lowbit(j))
+        {
+            chkmax(c[i][j] , value);
+        }
+    }
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">int</span> query(<span style="color: rgba(0, 0, 255, 1)">int</span> x , <span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> y)
+{
+    </span><span style="color: rgba(0, 0, 255, 1)">int</span> ret = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (rint i = x; i; i -=<span style="color: rgba(0, 0, 0, 1)"> lowbit(i))
+    {
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (rint j = y; j; j -=<span style="color: rgba(0, 0, 0, 1)"> lowbit(j))
+        {
+            chkmax(ret , c[i][j]);
+        }
+    }
+    </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> ret;
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main()
+{
+   
+   </span><span style="color: rgba(0, 128, 0, 1)">//</span><span style="color: rgba(0, 128, 0, 1)"> f(i , j) = max{ f(p , q) + 1 } ( q &lt;= j , ap + q &lt;= ai + j }</span>
+<span style="color: rgba(0, 0, 0, 1)">   read(n); read(k);
+   </span><span style="color: rgba(0, 0, 255, 1)">int</span> mx = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+   </span><span style="color: rgba(0, 0, 255, 1)">for</span> (rint i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">) 
+   {
+           read(a[i]);
+           chkmax(mx , a[i]);
+   }
+   m </span>= k + mx + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+   </span><span style="color: rgba(0, 0, 255, 1)">int</span> ans = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+   </span><span style="color: rgba(0, 0, 255, 1)">for</span> (rint i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+   {
+           </span><span style="color: rgba(0, 0, 255, 1)">for</span> (rint j = k; ~j; j--<span style="color: rgba(0, 0, 0, 1)">)
+           {
+               </span><span style="color: rgba(0, 0, 255, 1)">int</span> tmp = query(j + <span style="color: rgba(128, 0, 128, 1)">1</span> , a[i] + j) + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+               chkmax(ans , tmp);
+            modify(j </span>+ <span style="color: rgba(128, 0, 128, 1)">1</span> , a[i] +<span style="color: rgba(0, 0, 0, 1)"> j , tmp);    
+        }
+   }
+   printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)"> , ans);
+   
+   </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

@@ -1,0 +1,75 @@
+---
+layout: post
+title: '[NOIP 2008] 传纸条'
+date: 2018-07-17 20:09:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9325604.html
+cnblogs_id: 9325604
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p>         <a href="https://www.luogu.org/problemnew/show/P1006" target="_blank" rel="noopener nofollow"> https://www.luogu.org/problemnew/show/P1006</a></p>
+<p>[算法]</p>
+<p>        设现在两条路径的前i步已确定，第一条路径的最后一步在(x1,y1),第二条路径的最后一步在(x2,y2)，则有 :</p>
+<p>        <strong>x1 + y1 = x2 + y2 = i + 2</strong></p>
+<p><strong>        </strong>因此，当i,x1,x2确定时，这5个值就都确定了</p>
+<p>        用f[i][x1][x2]表示现在两条路径都走了i步，第1条路径的最后一步的x坐标为x1,第二条路径的最后一步的x坐标为x2，dp即可</p>
+<p>[代码]</p>
+<p>       </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 55
+
+<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,j,k,m,n,p,q;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> a[MAXN][MAXN];
+</span><span style="color: rgba(0, 0, 255, 1)">int</span> f[MAXN&lt;&lt;<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">][MAXN][MAXN];
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">bool</span> valid(<span style="color: rgba(0, 0, 255, 1)">int</span> x,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> y)
+{
+    </span><span style="color: rgba(0, 0, 255, 1)">return</span> x &gt;= <span style="color: rgba(128, 0, 128, 1)">1</span> &amp;&amp; x &lt;= m &amp;&amp; y &gt;= <span style="color: rgba(128, 0, 128, 1)">1</span> &amp;&amp; y &lt;=<span style="color: rgba(0, 0, 0, 1)"> n;
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main()
+{
+    
+    scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;m,&amp;<span style="color: rgba(0, 0, 0, 1)">n);
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= m; i++<span style="color: rgba(0, 0, 0, 1)">)
+    {
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= n; j++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+            scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">a[i][j]);
+        }
+    }
+    f[</span><span style="color: rgba(128, 0, 128, 1)">0</span>][<span style="color: rgba(128, 0, 128, 1)">1</span>][<span style="color: rgba(128, 0, 128, 1)">1</span>] = a[<span style="color: rgba(128, 0, 128, 1)">1</span>][<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i &lt;= m + n - <span style="color: rgba(128, 0, 128, 1)">2</span>; i++<span style="color: rgba(0, 0, 0, 1)">)
+    {
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= m; j++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+            </span><span style="color: rgba(0, 0, 255, 1)">for</span> (k = <span style="color: rgba(128, 0, 128, 1)">1</span>; k &lt;= m; k++<span style="color: rgba(0, 0, 0, 1)">)
+            {
+                p </span>= i + <span style="color: rgba(128, 0, 128, 1)">2</span> -<span style="color: rgba(0, 0, 0, 1)"> j;
+                q </span>= i + <span style="color: rgba(128, 0, 128, 1)">2</span> -<span style="color: rgba(0, 0, 0, 1)"> k;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (valid(j,p) &amp;&amp;<span style="color: rgba(0, 0, 0, 1)"> valid(k,q))
+                {
+                    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (j == k &amp;&amp; p + <span style="color: rgba(128, 0, 128, 1)">1</span> == q + <span style="color: rgba(128, 0, 128, 1)">1</span>) f[i+<span style="color: rgba(128, 0, 128, 1)">1</span>][j][k] = max(f[i+<span style="color: rgba(128, 0, 128, 1)">1</span>][j][k],f[i][j][k] + a[j][p+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">]);
+                    </span><span style="color: rgba(0, 0, 255, 1)">else</span> f[i+<span style="color: rgba(128, 0, 128, 1)">1</span>][j][k] = max(f[i+<span style="color: rgba(128, 0, 128, 1)">1</span>][j][k],f[i][j][k] + a[j][p+<span style="color: rgba(128, 0, 128, 1)">1</span>] + a[k][q+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">]);
+                    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (j + <span style="color: rgba(128, 0, 128, 1)">1</span> == k + <span style="color: rgba(128, 0, 128, 1)">1</span> &amp;&amp; p == q) f[i+<span style="color: rgba(128, 0, 128, 1)">1</span>][j+<span style="color: rgba(128, 0, 128, 1)">1</span>][k+<span style="color: rgba(128, 0, 128, 1)">1</span>] = max(f[i+<span style="color: rgba(128, 0, 128, 1)">1</span>][j+<span style="color: rgba(128, 0, 128, 1)">1</span>][k+<span style="color: rgba(128, 0, 128, 1)">1</span>],f[i][j][k] + a[j+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">][p]);
+                    </span><span style="color: rgba(0, 0, 255, 1)">else</span> f[i+<span style="color: rgba(128, 0, 128, 1)">1</span>][j+<span style="color: rgba(128, 0, 128, 1)">1</span>][k+<span style="color: rgba(128, 0, 128, 1)">1</span>] = max(f[i+<span style="color: rgba(128, 0, 128, 1)">1</span>][j+<span style="color: rgba(128, 0, 128, 1)">1</span>][k+<span style="color: rgba(128, 0, 128, 1)">1</span>],f[i][j][k] + a[j+<span style="color: rgba(128, 0, 128, 1)">1</span>][p] + a[k+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">][q]);
+                    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (j == k + <span style="color: rgba(128, 0, 128, 1)">1</span> &amp;&amp; p + <span style="color: rgba(128, 0, 128, 1)">1</span> == q) f[i+<span style="color: rgba(128, 0, 128, 1)">1</span>][j][k+<span style="color: rgba(128, 0, 128, 1)">1</span>] = max(f[i+<span style="color: rgba(128, 0, 128, 1)">1</span>][j][k+<span style="color: rgba(128, 0, 128, 1)">1</span>],f[i][j][k] + a[j][p+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">]);
+                    </span><span style="color: rgba(0, 0, 255, 1)">else</span> f[i+<span style="color: rgba(128, 0, 128, 1)">1</span>][j][k+<span style="color: rgba(128, 0, 128, 1)">1</span>] = max(f[i+<span style="color: rgba(128, 0, 128, 1)">1</span>][j][k+<span style="color: rgba(128, 0, 128, 1)">1</span>],f[i][j][k] + a[j][p+<span style="color: rgba(128, 0, 128, 1)">1</span>] + a[k+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">][q]);
+                    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (j + <span style="color: rgba(128, 0, 128, 1)">1</span> == k &amp;&amp; p == q + <span style="color: rgba(128, 0, 128, 1)">1</span>) f[i+<span style="color: rgba(128, 0, 128, 1)">1</span>][j+<span style="color: rgba(128, 0, 128, 1)">1</span>][k] = max(f[i+<span style="color: rgba(128, 0, 128, 1)">1</span>][j+<span style="color: rgba(128, 0, 128, 1)">1</span>][k],f[i][j][k] + a[j+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">][p]);
+                    </span><span style="color: rgba(0, 0, 255, 1)">else</span> f[i+<span style="color: rgba(128, 0, 128, 1)">1</span>][j+<span style="color: rgba(128, 0, 128, 1)">1</span>][k] = max(f[i+<span style="color: rgba(128, 0, 128, 1)">1</span>][j+<span style="color: rgba(128, 0, 128, 1)">1</span>][k],f[i][j][k] + a[j+<span style="color: rgba(128, 0, 128, 1)">1</span>][p] + a[k][q+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">]);
+                }
+            }
+        }
+    }
+    printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span>,f[m+n-<span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">][m][m]);
+
+    </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

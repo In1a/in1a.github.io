@@ -1,0 +1,75 @@
+---
+layout: post
+title: '[ARC096E] Everything on It'
+date: 2021-01-24 16:26:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/14321290.html
+cnblogs_id: 14321290
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p><a href="" rel="noopener nofollow">https://atcoder.jp/contests/arc096/tasks/arc096_c</a></p>
+<p>[题解]</p>
+<p>考虑容斥原理 ， 考虑钦定 <span class="math inline">\(i\)</span> 个元素出现次数小于 <span class="math inline">\(2\)</span>。</p>
+<p>那么显然可以枚举将 <span class="math inline">\(i\)</span> 个元素分为 <span class="math inline">\(j\)</span> 组的方案数 ， 因为允许有元素没有出现 ， 所以不妨新加入一个元素 <span class="math inline">\(0\)</span> 和一个组 ， 将 <span class="math inline">\(0\)</span> 号元素所在的组内元素定义为未出现。</p>
+<p>然后考虑剩下 <span class="math inline">\((n - i)\)</span> 个元素可以组成 <span class="math inline">\(2 ^ {n - i}\)</span> 个集合 ， 那么方案数为 <span class="math inline">\(2 ^ {2 ^ {n - i}}\)</span> , 这 <span class="math inline">\((n - i)\)</span> 个元素还可以往 <span class="math inline">\(j\)</span> 个组内放 ， 方案数 <span class="math inline">\((2 ^ {n - i}) ^ j\)</span>。</p>
+<p>于是至少 <span class="math inline">\(i\)</span> 个的答案就是 <span class="math inline">\(\begin{Bmatrix}i + 1\\j + 1\end{Bmatrix} \cdot 2 ^ {2 ^ {n - i}} \cdot (2 ^ {n - i}) ^ j\)</span> ， 乘上容斥系数累加即可。</p>
+<p>时间复杂度 : <span class="math inline">\(O(N ^ 2)\)</span></p>
+<p>[代码]</p>
+<pre><code class="language-cpp">#include&lt;bits/stdc++.h&gt;
+
+using namespace std;
+
+#define rep(i , l , r) for (int i = (l); i &lt; (r); ++i)
+
+typedef long long LL;
+
+const int MN = 3005;
+
+int n , mod , s[MN][MN] , c[MN][MN] , ans;
+
+inline void inc(int &amp;x , int  y) {
+	  x = x + y &lt; mod ? x + y : x + y - mod;
+} 
+inline void dec(int &amp;x , int y) {
+	  x = x - y &gt;= 0 ? x - y : x - y + mod;
+}
+inline int qPow(int a , int b , int mod) {
+		int c = 1;
+		for (; b; b &gt;&gt;= 1 , a = 1ll * a * a % mod) if (b &amp; 1) c = 1ll * c * a % mod;
+		return c;
+}
+inline void init() {
+		s[0][0] = c[0][0] = 1;
+		for (int i = 1; i &lt;= n + 1; ++i) {
+				c[i][0] = 1;
+				for (int j = 1; j &lt;= i; ++j) {
+						s[i][j] = (s[i - 1][j - 1] + 1ll * s[i - 1][j] * j % mod) % mod;
+						c[i][j] = (c[i - 1][j - 1] + c[i - 1][j]) % mod;
+				}
+		}
+		return;
+}
+
+int main() {
+		
+		scanf("%d%d" , &amp;n , &amp;mod); init();
+		for (int i = 0; i &lt;= n; ++i) {
+				int one = qPow(2 , n - i , mod);
+				int coef = i &amp; 1 ? mod - 1 : 1 , res = 0;
+				coef = 1ll * coef * c[n][i] % mod * qPow(2 , qPow(2 , n - i , mod - 1) , mod)	% mod;
+				int cur = 1;
+				for (int j = 0; j &lt;= i; ++j) {
+						inc(res , 1ll * s[i + 1][j + 1] * cur % mod);
+						cur = 1ll * cur * one % mod;
+				}
+				inc(ans , 1ll * coef * res % mod);
+		}
+		printf("%d\n" , ans);
+	  return 0;
+}
+</code></pre>
+
+
+
+{% endraw %}

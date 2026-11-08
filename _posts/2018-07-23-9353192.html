@@ -1,0 +1,65 @@
+---
+layout: post
+title: '[POI 2007] 堆积木'
+date: 2018-07-23 10:06:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9353192.html
+cnblogs_id: 9353192
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p>          <a href="https://www.lydsy.com/JudgeOnline/problem.php?id=1109" target="_blank" rel="noopener nofollow">https://www.lydsy.com/JudgeOnline/problem.php?id=1109</a></p>
+<p>[算法]</p>
+<p>          DP</p>
+<p>[代码]</p>
+<p>          </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 100010
+
+<span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> info
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x,y;
+} b[MAXN];
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,n,m,cnt,pos;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> a[MAXN],q[MAXN];
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">bool</span><span style="color: rgba(0, 0, 0, 1)"> cmp(info a,info b)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> a.x == b.x ? a.y &lt; b.y : a.x &lt;<span style="color: rgba(0, 0, 0, 1)"> b.x;
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() 
+{
+        
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">n);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">) 
+        {
+                scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">a[i]);
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (i - a[i] &lt; <span style="color: rgba(128, 0, 128, 1)">0</span>) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                b[</span>++m].x = i -<span style="color: rgba(0, 0, 0, 1)"> a[i];
+                b[m].y </span>=<span style="color: rgba(0, 0, 0, 1)"> a[i];
+        }
+        sort(b</span>+<span style="color: rgba(128, 0, 128, 1)">1</span>,b+m+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">,cmp);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= m; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (i == <span style="color: rgba(128, 0, 128, 1)">1</span> || b[i].y &gt; q[cnt]) q[++cnt] =<span style="color: rgba(0, 0, 0, 1)"> b[i].y;
+                </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)">
+                {
+                        pos </span>= lower_bound(q+<span style="color: rgba(128, 0, 128, 1)">1</span>,q+cnt+<span style="color: rgba(128, 0, 128, 1)">1</span>,b[i].y) -<span style="color: rgba(0, 0, 0, 1)"> q;
+                        q[pos] </span>=<span style="color: rgba(0, 0, 0, 1)"> b[i].y;
+                }         
+        }
+        
+        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,cnt);
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

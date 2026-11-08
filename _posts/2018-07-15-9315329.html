@@ -1,0 +1,188 @@
+---
+layout: post
+title: '【HNOI 2004】宠物收养所'
+date: 2018-07-15 22:42:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9315329.html
+cnblogs_id: 9315329
+---
+{% raw %}
+
+<p>【题目链接】</p>
+<p>           <a href="https://www.lydsy.com/JudgeOnline/problem.php?id=1208" target="_blank" rel="noopener nofollow">https://www.lydsy.com/JudgeOnline/problem.php?id=1208</a></p>
+<p>【算法】</p>
+<p>            建两棵平衡树维护领养者和宠物的特点值，这两棵平衡树支持 插入删除，查询前驱和后继</p>
+<p>            笔者的平衡树选用的是Treap，当然，Splay，Set等数据结构也是可以完成这个任务的</p>
+<p>【代码】</p>
+<p>            </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 80010<span style="color: rgba(0, 0, 0, 1)">
+typedef </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> ll;
+</span><span style="color: rgba(0, 0, 255, 1)">const</span> ll INF =<span style="color: rgba(0, 0, 0, 1)"> 1e15;
+</span><span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">int</span> P = <span style="color: rgba(128, 0, 128, 1)">1000000</span><span style="color: rgba(0, 0, 0, 1)">;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,n,ans,a;
+ll p,q,b;
+
+</span><span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> Treap
+{
+    </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> root,total;
+    </span><span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> Node
+    {
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> l,r;
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> priority;
+        ll val;    
+    } a[MAXN];
+    inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> new_node(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> pos,ll x)
+    {
+        a[pos].priority </span>=<span style="color: rgba(0, 0, 0, 1)"> rand();
+        a[pos].val </span>=<span style="color: rgba(0, 0, 0, 1)"> x;    
+    }
+    inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> zig(<span style="color: rgba(0, 0, 255, 1)">int</span> &amp;<span style="color: rgba(0, 0, 0, 1)">p)
+    {
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> q =<span style="color: rgba(0, 0, 0, 1)"> a[p].l;
+        a[p].l </span>= a[q].r; a[q].r =<span style="color: rgba(0, 0, 0, 1)"> p; 
+        p </span>=<span style="color: rgba(0, 0, 0, 1)"> q;    
+    }
+    inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> zag(<span style="color: rgba(0, 0, 255, 1)">int</span> &amp;<span style="color: rgba(0, 0, 0, 1)">p)    
+    {
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> q =<span style="color: rgba(0, 0, 0, 1)"> a[p].r;
+        a[p].r </span>= a[q].l; a[q].l =<span style="color: rgba(0, 0, 0, 1)"> p;
+        p </span>=<span style="color: rgba(0, 0, 0, 1)"> q;
+    }
+    inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> insert(<span style="color: rgba(0, 0, 255, 1)">int</span> &amp;<span style="color: rgba(0, 0, 0, 1)">x,ll val)
+    {
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> now;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!<span style="color: rgba(0, 0, 0, 1)">root)
+        {
+            new_node(</span>++<span style="color: rgba(0, 0, 0, 1)">total,val);
+            root </span>=<span style="color: rgba(0, 0, 0, 1)"> total;
+            </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)">;
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (val &lt;<span style="color: rgba(0, 0, 0, 1)"> a[x].val)
+        {
+            </span><span style="color: rgba(0, 0, 255, 1)">if</span><span style="color: rgba(0, 0, 0, 1)"> (a[x].l) 
+            {
+                insert(a[x].l,val);
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (a[a[x].l].priority &gt;<span style="color: rgba(0, 0, 0, 1)"> a[x].priority) zig(x);    
+            } </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)"> 
+            {    
+                new_node(</span>++<span style="color: rgba(0, 0, 0, 1)">total,val);
+                a[x].l </span>=<span style="color: rgba(0, 0, 0, 1)"> total;
+            }
+        } </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)">
+        {
+            </span><span style="color: rgba(0, 0, 255, 1)">if</span><span style="color: rgba(0, 0, 0, 1)"> (a[x].r)
+            {
+                insert(a[x].r,val);
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (a[a[x].r].priority &gt;<span style="color: rgba(0, 0, 0, 1)"> a[x].priority) zag(x);
+            } </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)">
+            {
+                new_node(</span>++<span style="color: rgba(0, 0, 0, 1)">total,val);
+                a[x].r </span>=<span style="color: rgba(0, 0, 0, 1)"> total;
+            }
+        }
+    }
+    inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> erase(<span style="color: rgba(0, 0, 255, 1)">int</span> &amp;<span style="color: rgba(0, 0, 0, 1)">x,ll val)
+    {
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (x == <span style="color: rgba(128, 0, 128, 1)">0</span>) <span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (a[x].val ==<span style="color: rgba(0, 0, 0, 1)"> val)
+        {
+            </span><span style="color: rgba(0, 0, 255, 1)">if</span> (a[x].l ||<span style="color: rgba(0, 0, 0, 1)"> a[x].r)
+            {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (a[x].r == <span style="color: rgba(128, 0, 128, 1)">0</span> || a[a[x].l].priority &gt;<span style="color: rgba(0, 0, 0, 1)"> a[a[x].r].priority) 
+                {
+                    zig(x);
+                    erase(a[x].r,val);
+                } </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)">
+                {
+                    zag(x);
+                    erase(a[x].l,val);
+                }
+            } </span><span style="color: rgba(0, 0, 255, 1)">else</span> x = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        } </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)">
+        {
+            </span><span style="color: rgba(0, 0, 255, 1)">if</span> (val &lt;<span style="color: rgba(0, 0, 0, 1)"> a[x].val) erase(a[x].l,val);
+            </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)"> erase(a[x].r,val);
+        }
+    }
+    inline ll pred(</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x,ll val)
+    {
+        ll t;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!x) <span style="color: rgba(0, 0, 255, 1)">return</span> -<span style="color: rgba(0, 0, 0, 1)">INF;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (a[x].val == val) <span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> val;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (val &gt;<span style="color: rgba(0, 0, 0, 1)"> a[x].val) 
+        {
+            t </span>=<span style="color: rgba(0, 0, 0, 1)"> pred(a[x].r,val);
+            </span><span style="color: rgba(0, 0, 255, 1)">return</span> (t == -INF) ?<span style="color: rgba(0, 0, 0, 1)"> a[x].val : t; 
+        } </span><span style="color: rgba(0, 0, 255, 1)">else</span> <span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> pred(a[x].l,val);
+    }
+    inline ll succ(</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x,ll val)
+    {
+        ll t;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!x) <span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> INF;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (a[x].val == val) <span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> val;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (val &lt;<span style="color: rgba(0, 0, 0, 1)"> a[x].val)
+        {
+            t </span>=<span style="color: rgba(0, 0, 0, 1)"> succ(a[x].l,val);
+            </span><span style="color: rgba(0, 0, 255, 1)">return</span> (t == INF) ?<span style="color: rgba(0, 0, 0, 1)"> a[x].val : t;
+        } </span><span style="color: rgba(0, 0, 255, 1)">else</span> <span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> succ(a[x].r,val);
+    }
+} T1,T2;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main()
+{
+    
+    srand(</span><span style="color: rgba(128, 0, 128, 1)">123456</span><span style="color: rgba(0, 0, 0, 1)">);
+    scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">n);
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+    {
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%lld</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;a,&amp;<span style="color: rgba(0, 0, 0, 1)">b);
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (a == <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">) 
+        {
+            </span><span style="color: rgba(0, 0, 255, 1)">if</span><span style="color: rgba(0, 0, 0, 1)"> (T2.root) 
+            {
+                 p </span>=<span style="color: rgba(0, 0, 0, 1)"> T2.pred(T2.root,b);
+                q </span>=<span style="color: rgba(0, 0, 0, 1)"> T2.succ(T2.root,b);
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (p == -INF &amp;&amp; q == INF) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (b - p &lt;= q -<span style="color: rgba(0, 0, 0, 1)"> b) 
+                {
+                    T2.erase(T2.root,p);
+                    ans </span>= (ans + b - p) %<span style="color: rgba(0, 0, 0, 1)"> P;
+                }
+                </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)"> 
+                {
+                    T2.erase(T2.root,q);
+                    ans </span>= (ans + q - b) %<span style="color: rgba(0, 0, 0, 1)"> P;
+                }
+            } </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)"> T1.insert(T1.root,b);
+        } </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)"> 
+        {
+            </span><span style="color: rgba(0, 0, 255, 1)">if</span><span style="color: rgba(0, 0, 0, 1)"> (T1.root)
+            {
+                p </span>=<span style="color: rgba(0, 0, 0, 1)"> T1.pred(T1.root,b);
+                q </span>=<span style="color: rgba(0, 0, 0, 1)"> T1.succ(T1.root,b);
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (p == -INF &amp;&amp; q == INF) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (b - p &lt;= q -<span style="color: rgba(0, 0, 0, 1)"> b) 
+                {
+                    T1.erase(T1.root,p);
+                    ans </span>= (ans + b - p) %<span style="color: rgba(0, 0, 0, 1)"> P;
+                }
+                </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)"> 
+                {
+                    T1.erase(T1.root,q);
+                    ans </span>= (ans + q - b) %<span style="color: rgba(0, 0, 0, 1)"> P;
+                }
+            } </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)"> T2.insert(T2.root,b);
+        }
+    }
+    printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,ans);
+
+    </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

@@ -1,0 +1,43 @@
+---
+layout: post
+title: '【CQOI 2009】 余数之和'
+date: 2018-07-11 13:11:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9293934.html
+cnblogs_id: 9293934
+---
+{% raw %}
+
+<p>【题目链接】</p>
+<p>            <a href="https://www.lydsy.com/JudgeOnline/problem.php?id=1257" target="_blank" rel="noopener nofollow">https://www.lydsy.com/JudgeOnline/problem.php?id=1257</a></p>
+<p>【算法】</p>
+<p>           k mod i = k - [k / i] * i</p>
+<p>           所以 (k mod 1) + (k mod 2) + ... + (k mod n) = nk - sigma([k/i] * i) (1 &lt;= i &lt;= n)</p>
+<p>           [k/i] 至多有sqrt(k)个不同的值，利用这个性质，用等差数列进行计算即可</p>
+<p>【代码】</p>
+<p>          </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+typedef </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> ll;
+
+ll n,k,x,gx,ans;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() {
+        
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%lld%lld</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;n,&amp;<span style="color: rgba(0, 0, 0, 1)">k);
+        ans </span>= n *<span style="color: rgba(0, 0, 0, 1)"> k;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (x = <span style="color: rgba(128, 0, 128, 1)">1</span>; x &lt;= n; x = gx + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">)
+        {
+                gx </span>= k / x ? min(k/(k/<span style="color: rgba(0, 0, 0, 1)">x),n) : n;
+                ans </span>-= (k / x) * (x + gx) * (gx - x + <span style="color: rgba(128, 0, 128, 1)">1</span>) / <span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">;        
+        }
+        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%lld\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,ans);
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

@@ -1,0 +1,88 @@
+---
+layout: post
+title: '【BZOJ 1602】 牧场行走'
+date: 2018-07-01 14:26:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9250013.html
+cnblogs_id: 9250013
+---
+{% raw %}
+
+<p>【题目链接】</p>
+<p>           <a href="https://www.lydsy.com/JudgeOnline/problem.php?id=1602" target="_blank" rel="noopener nofollow">https://www.lydsy.com/JudgeOnline/problem.php?id=1602</a></p>
+<p>【算法】</p>
+<p>           倍增求LCA</p>
+<p>【代码】</p>
+<p>             </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 1010
+<span style="color: rgba(0, 0, 255, 1)">#define</span> MAXLOG 20
+
+<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,n,q,u,v,w;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> sum[MAXN],anc[MAXN][MAXLOG],dep[MAXN];
+vector</span>&lt; pair&lt;<span style="color: rgba(0, 0, 255, 1)">int</span>,<span style="color: rgba(0, 0, 255, 1)">int</span>&gt; &gt;<span style="color: rgba(0, 0, 0, 1)"> e[MAXN];
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">int</span> lca(<span style="color: rgba(0, 0, 255, 1)">int</span> u,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> v)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,t;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (dep[u] &gt;<span style="color: rgba(0, 0, 0, 1)"> dep[v]) swap(u,v);
+        t </span>= dep[v] -<span style="color: rgba(0, 0, 0, 1)"> dep[u];
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i &lt; MAXLOG; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (t &amp; (<span style="color: rgba(128, 0, 128, 1)">1</span> &lt;&lt;<span style="color: rgba(0, 0, 0, 1)"> i))
+                        v </span>=<span style="color: rgba(0, 0, 0, 1)"> anc[v][i];
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (u == v) <span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> u;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = MAXLOG - <span style="color: rgba(128, 0, 128, 1)">1</span>; i &gt;= <span style="color: rgba(128, 0, 128, 1)">0</span>; i--<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (anc[u][i] !=<span style="color: rgba(0, 0, 0, 1)"> anc[v][i])
+                {
+                        u </span>=<span style="color: rgba(0, 0, 0, 1)"> anc[u][i];
+                        v </span>=<span style="color: rgba(0, 0, 0, 1)"> anc[v][i];
+                }
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> anc[u][<span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">];
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> dfs(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> u)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,v,w;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt; MAXLOG; i++) anc[u][i] = anc[anc[u][i-<span style="color: rgba(128, 0, 128, 1)">1</span>]][i-<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i &lt; e[u].size(); i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                v </span>=<span style="color: rgba(0, 0, 0, 1)"> e[u][i].first;
+                w </span>=<span style="color: rgba(0, 0, 0, 1)"> e[u][i].second;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (anc[u][<span style="color: rgba(128, 0, 128, 1)">0</span>] !=<span style="color: rgba(0, 0, 0, 1)"> v)
+                {
+                        dep[v] </span>= dep[u] + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                        sum[v] </span>= sum[u] +<span style="color: rgba(0, 0, 0, 1)"> w;
+                        anc[v][</span><span style="color: rgba(128, 0, 128, 1)">0</span>] =<span style="color: rgba(0, 0, 0, 1)"> u;
+                        dfs(v);
+                }
+        }
+}
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() 
+{
+        
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;n,&amp;<span style="color: rgba(0, 0, 0, 1)">q);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt; n; i++<span style="color: rgba(0, 0, 0, 1)">) 
+        {
+                scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;u,&amp;v,&amp;<span style="color: rgba(0, 0, 0, 1)">w);
+                e[u].push_back(make_pair(v,w));
+                e[v].push_back(make_pair(u,w));    
+        } 
+        dfs(</span><span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (q--<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;u,&amp;<span style="color: rgba(0, 0, 0, 1)">v);
+                printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span>,sum[u]+sum[v]-<span style="color: rgba(128, 0, 128, 1)">2</span>*<span style="color: rgba(0, 0, 0, 1)">sum[lca(u,v)]);        
+        }
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

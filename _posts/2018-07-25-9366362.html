@@ -1,0 +1,155 @@
+---
+layout: post
+title: '[POJ 1191] 棋盘分割'
+date: 2018-07-25 15:51:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9366362.html
+cnblogs_id: 9366362
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p>       <a href="http://poj.org/problem?id=1191" target="_blank" rel="noopener nofollow">  http://poj.org/problem?id=1191</a></p>
+<p>[算法]</p>
+<p>        f[i][j][k][l][m] 表示进行了i次切割，当前矩形的左上角左标为(j,k)，右下角坐标为(k,l) , sigma( (x - x') ^ 2 ) 的最小值</p>
+<p>[代码]</p>
+<p>       </p>
+<div class="cnblogs_code">
+<pre>#include &lt;algorithm&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;bitset&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cctype&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cerrno&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;clocale&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cmath&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;complex&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cstdio&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cstdlib&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cstring&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;ctime&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;deque&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;exception&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;fstream&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;functional&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;limits&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;list&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;map&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;iomanip&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;ios&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;iosfwd&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;iostream&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;istream&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;ostream&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;queue&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;<span style="color: rgba(0, 0, 255, 1)">set</span>&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;sstream&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;stdexcept&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;streambuf&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;<span style="color: rgba(0, 0, 255, 1)">string</span>&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;utility&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;vector&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cwchar&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;cwctype&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;stack&gt;<span style="color: rgba(0, 0, 0, 1)">  
+#include </span>&lt;limits.h&gt; 
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 15
+<span style="color: rgba(0, 0, 255, 1)">#define</span> getsum(x1,y1,x2,y2) sum[x2][y2] - sum[x1 - 1][y2] - sum[x2][y1 - 1] + sum[x1 - 1][y1 - 1]
+<span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">int</span> INF =<span style="color: rgba(0, 0, 0, 1)"> 2e9;
+
+</span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> i,j,k,x,y,t,n;
+</span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span> a[<span style="color: rgba(128, 0, 128, 1)">10</span>][<span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">];
+</span><span style="color: rgba(0, 0, 255, 1)">double</span> sum[<span style="color: rgba(128, 0, 128, 1)">10</span>][<span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">];
+</span><span style="color: rgba(0, 0, 255, 1)">double</span><span style="color: rgba(0, 0, 0, 1)"> cnt,ans;
+</span><span style="color: rgba(0, 0, 255, 1)">double</span> f[MAXN][<span style="color: rgba(128, 0, 128, 1)">10</span>][<span style="color: rgba(128, 0, 128, 1)">10</span>][<span style="color: rgba(128, 0, 128, 1)">10</span>][<span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">];
+
+</span><span style="color: rgba(0, 0, 255, 1)">double</span> min(<span style="color: rgba(0, 0, 255, 1)">double</span> x,<span style="color: rgba(0, 0, 255, 1)">double</span><span style="color: rgba(0, 0, 0, 1)"> y)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> x &lt; y ?<span style="color: rgba(0, 0, 0, 1)"> x : y;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">double</span> sqr(<span style="color: rgba(0, 0, 255, 1)">double</span><span style="color: rgba(0, 0, 0, 1)"> x)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> x *<span style="color: rgba(0, 0, 0, 1)"> x;
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() 
+{
+        
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%lld</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">n);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= <span style="color: rgba(128, 0, 128, 1)">8</span>; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= <span style="color: rgba(128, 0, 128, 1)">8</span>; j++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%lld</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">a[i][j]);
+                }
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= <span style="color: rgba(128, 0, 128, 1)">8</span>; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= <span style="color: rgba(128, 0, 128, 1)">8</span>; j++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        sum[i][j] </span>= sum[i - <span style="color: rgba(128, 0, 128, 1)">1</span>][j] + sum[i][j - <span style="color: rgba(128, 0, 128, 1)">1</span>] - sum[i - <span style="color: rgba(128, 0, 128, 1)">1</span>][j - <span style="color: rgba(128, 0, 128, 1)">1</span>] +<span style="color: rgba(0, 0, 0, 1)"> a[i][j];
+                }
+        }
+        cnt </span>= sum[<span style="color: rgba(128, 0, 128, 1)">8</span>][<span style="color: rgba(128, 0, 128, 1)">8</span>] / n * <span style="color: rgba(128, 0, 128, 1)">1.0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= <span style="color: rgba(128, 0, 128, 1)">8</span>; j++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (k = <span style="color: rgba(128, 0, 128, 1)">1</span>; k &lt;= <span style="color: rgba(128, 0, 128, 1)">8</span>; k++<span style="color: rgba(0, 0, 0, 1)">)
+                        {
+                                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (x = <span style="color: rgba(128, 0, 128, 1)">1</span>; x &lt;= <span style="color: rgba(128, 0, 128, 1)">8</span>; x++<span style="color: rgba(0, 0, 0, 1)">)
+                                {
+                                        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (y = <span style="color: rgba(128, 0, 128, 1)">1</span>; y &lt;= <span style="color: rgba(128, 0, 128, 1)">8</span>; y++<span style="color: rgba(0, 0, 0, 1)">)
+                                        {
+                                                f[i][j][k][x][y] </span>=<span style="color: rgba(0, 0, 0, 1)"> INF;
+                                        }
+                                }
+                        }
+                }
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= <span style="color: rgba(128, 0, 128, 1)">8</span>; i++) f[<span style="color: rgba(128, 0, 128, 1)">1</span>][<span style="color: rgba(128, 0, 128, 1)">1</span>][<span style="color: rgba(128, 0, 128, 1)">1</span>][i][<span style="color: rgba(128, 0, 128, 1)">8</span>] = min(f[<span style="color: rgba(128, 0, 128, 1)">1</span>][<span style="color: rgba(128, 0, 128, 1)">1</span>][<span style="color: rgba(128, 0, 128, 1)">1</span>][i][<span style="color: rgba(128, 0, 128, 1)">8</span>],sqr(getsum(i + <span style="color: rgba(128, 0, 128, 1)">1</span>,<span style="color: rgba(128, 0, 128, 1)">1</span>,<span style="color: rgba(128, 0, 128, 1)">8</span>,<span style="color: rgba(128, 0, 128, 1)">8</span>) -<span style="color: rgba(0, 0, 0, 1)"> cnt));
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= <span style="color: rgba(128, 0, 128, 1)">8</span>; i++) f[<span style="color: rgba(128, 0, 128, 1)">1</span>][i][<span style="color: rgba(128, 0, 128, 1)">1</span>][<span style="color: rgba(128, 0, 128, 1)">8</span>][<span style="color: rgba(128, 0, 128, 1)">8</span>] = min(f[<span style="color: rgba(128, 0, 128, 1)">1</span>][i][<span style="color: rgba(128, 0, 128, 1)">1</span>][<span style="color: rgba(128, 0, 128, 1)">8</span>][<span style="color: rgba(128, 0, 128, 1)">8</span>],sqr(getsum(<span style="color: rgba(128, 0, 128, 1)">1</span>,<span style="color: rgba(128, 0, 128, 1)">1</span>,i - <span style="color: rgba(128, 0, 128, 1)">1</span>,<span style="color: rgba(128, 0, 128, 1)">8</span>) -<span style="color: rgba(0, 0, 0, 1)"> cnt));
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= <span style="color: rgba(128, 0, 128, 1)">8</span>; i++) f[<span style="color: rgba(128, 0, 128, 1)">1</span>][<span style="color: rgba(128, 0, 128, 1)">1</span>][<span style="color: rgba(128, 0, 128, 1)">1</span>][<span style="color: rgba(128, 0, 128, 1)">8</span>][i] = min(f[<span style="color: rgba(128, 0, 128, 1)">1</span>][<span style="color: rgba(128, 0, 128, 1)">1</span>][<span style="color: rgba(128, 0, 128, 1)">1</span>][<span style="color: rgba(128, 0, 128, 1)">8</span>][i],sqr(getsum(<span style="color: rgba(128, 0, 128, 1)">1</span>,i + <span style="color: rgba(128, 0, 128, 1)">1</span>,<span style="color: rgba(128, 0, 128, 1)">8</span>,<span style="color: rgba(128, 0, 128, 1)">8</span>) -<span style="color: rgba(0, 0, 0, 1)"> cnt));        
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= <span style="color: rgba(128, 0, 128, 1)">8</span>; i++) f[<span style="color: rgba(128, 0, 128, 1)">1</span>][<span style="color: rgba(128, 0, 128, 1)">1</span>][i][<span style="color: rgba(128, 0, 128, 1)">8</span>][<span style="color: rgba(128, 0, 128, 1)">8</span>] = min(f[<span style="color: rgba(128, 0, 128, 1)">1</span>][<span style="color: rgba(128, 0, 128, 1)">1</span>][i][<span style="color: rgba(128, 0, 128, 1)">8</span>][<span style="color: rgba(128, 0, 128, 1)">8</span>],sqr(getsum(<span style="color: rgba(128, 0, 128, 1)">1</span>,<span style="color: rgba(128, 0, 128, 1)">1</span>,<span style="color: rgba(128, 0, 128, 1)">8</span>,i - <span style="color: rgba(128, 0, 128, 1)">1</span>) -<span style="color: rgba(0, 0, 0, 1)"> cnt));
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt; n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= <span style="color: rgba(128, 0, 128, 1)">8</span>; j++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (k = <span style="color: rgba(128, 0, 128, 1)">1</span>; k &lt;= <span style="color: rgba(128, 0, 128, 1)">8</span>; k++<span style="color: rgba(0, 0, 0, 1)">)
+                        {
+                                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (x = <span style="color: rgba(128, 0, 128, 1)">1</span>; x &lt;= <span style="color: rgba(128, 0, 128, 1)">8</span>; x++<span style="color: rgba(0, 0, 0, 1)">)
+                                {
+                                        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (y = <span style="color: rgba(128, 0, 128, 1)">1</span>; y &lt;= <span style="color: rgba(128, 0, 128, 1)">8</span>; y++<span style="color: rgba(0, 0, 0, 1)">)
+                                        {
+                                                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (t = k; t &lt; y; t++) f[i + <span style="color: rgba(128, 0, 128, 1)">1</span>][j][k][x][t] = min(f[i + <span style="color: rgba(128, 0, 128, 1)">1</span>][j][k][x][t],f[i][j][k][x][y] + sqr(getsum(j,t + <span style="color: rgba(128, 0, 128, 1)">1</span>,x,y) -<span style="color: rgba(0, 0, 0, 1)"> cnt));
+                                                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (t = y; t &gt; k; t--) f[i + <span style="color: rgba(128, 0, 128, 1)">1</span>][j][t][x][y] = min(f[i + <span style="color: rgba(128, 0, 128, 1)">1</span>][j][t][x][y],f[i][j][k][x][y] + sqr(getsum(j,k,x,t - <span style="color: rgba(128, 0, 128, 1)">1</span>) -<span style="color: rgba(0, 0, 0, 1)"> cnt));
+                                              </span><span style="color: rgba(0, 0, 255, 1)">for</span> (t = j; t &lt; x; t++) f[i + <span style="color: rgba(128, 0, 128, 1)">1</span>][j][k][t][y] = min(f[i + <span style="color: rgba(128, 0, 128, 1)">1</span>][j][k][t][y],f[i][j][k][x][y] + sqr(getsum(t + <span style="color: rgba(128, 0, 128, 1)">1</span>,k,x,y) -<span style="color: rgba(0, 0, 0, 1)"> cnt));
+                                              </span><span style="color: rgba(0, 0, 255, 1)">for</span> (t = x; t &gt; j; t--) f[i + <span style="color: rgba(128, 0, 128, 1)">1</span>][t][k][x][y] = min(f[i + <span style="color: rgba(128, 0, 128, 1)">1</span>][t][k][x][y],f[i][j][k][x][y] + sqr(getsum(j,k,t - <span style="color: rgba(128, 0, 128, 1)">1</span>,y) -<span style="color: rgba(0, 0, 0, 1)"> cnt));
+                                        }
+                                }
+                        }        
+                }        
+        }
+        ans </span>=<span style="color: rgba(0, 0, 0, 1)"> INF;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= <span style="color: rgba(128, 0, 128, 1)">8</span>; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= <span style="color: rgba(128, 0, 128, 1)">8</span>; j++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (x = <span style="color: rgba(128, 0, 128, 1)">1</span>; x &lt;= <span style="color: rgba(128, 0, 128, 1)">8</span>; x++<span style="color: rgba(0, 0, 0, 1)">)
+                        {
+                                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (y = <span style="color: rgba(128, 0, 128, 1)">1</span>; y &lt;= <span style="color: rgba(128, 0, 128, 1)">8</span>; y++<span style="color: rgba(0, 0, 0, 1)">)
+                                {
+                                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (f[n - <span style="color: rgba(128, 0, 128, 1)">1</span>][i][j][x][y] !=<span style="color: rgba(0, 0, 0, 1)"> INF)
+                                                ans </span>= min(ans,f[n - <span style="color: rgba(128, 0, 128, 1)">1</span>][i][j][x][y] + sqr(getsum(i,j,x,y) -<span style="color: rgba(0, 0, 0, 1)"> cnt));
+                                }
+                        }
+                }
+        }
+        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%.3lf\n</span><span style="color: rgba(128, 0, 0, 1)">"</span>,<span style="color: rgba(128, 0, 128, 1)">1.0</span> * sqrt(ans /<span style="color: rgba(0, 0, 0, 1)"> n));
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

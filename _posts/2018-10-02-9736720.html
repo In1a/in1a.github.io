@@ -1,0 +1,142 @@
+---
+layout: post
+title: '[Codeforces 666B] World Tour'
+date: 2018-10-02 11:53:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9736720.html
+cnblogs_id: 9736720
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p>         <a href="https://codeforces.com/contest/666/problem/B" target="_blank" rel="noopener nofollow">https://codeforces.com/contest/666/problem/B</a></p>
+<p>[算法]</p>
+<p>       首先 ， 用BFS求出任意两点的最短路径</p>
+<p>       然后 ， 我们用f[i][0-2]表示从i出发到达的最远三点 ， g[i][0-2]表示到i距离最远的三个点</p>
+<p>       枚举b和c ， 然后在枚举3 * 3个点对 ， 从中选出最优的a和d即可</p>
+<p>       时间复杂度 ： O(N^2)</p>
+<p>[代码]</p>
+<p>         </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 3010
+<span style="color: rgba(0, 0, 255, 1)">#define</span> MAXM 5010
+<span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">int</span> inf =<span style="color: rgba(0, 0, 0, 1)"> 2e9;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> tot , n , m;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> head[MAXN];
+</span><span style="color: rgba(0, 0, 255, 1)">int</span> f[MAXN][<span style="color: rgba(128, 0, 128, 1)">3</span>],g[MAXN][<span style="color: rgba(128, 0, 128, 1)">3</span><span style="color: rgba(0, 0, 0, 1)">],dist[MAXN][MAXN];
+
+</span><span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> info
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> a , b , c , d;
+} res;
+</span><span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> edge
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> to , nxt;
+} e[MAXM];
+
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> chkmax(T &amp;x,T y) { x =<span style="color: rgba(0, 0, 0, 1)"> max(x,y); }
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> chkmin(T &amp;x,T y) { x =<span style="color: rgba(0, 0, 0, 1)"> min(x,y); }
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> read(T &amp;<span style="color: rgba(0, 0, 0, 1)">x)
+{
+    T f </span>= <span style="color: rgba(128, 0, 128, 1)">1</span>; x = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">char</span> c =<span style="color: rgba(0, 0, 0, 1)"> getchar();
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; !isdigit(c); c = getchar()) <span style="color: rgba(0, 0, 255, 1)">if</span> (c == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>) f = -<span style="color: rgba(0, 0, 0, 1)">f;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; isdigit(c); c = getchar()) x = (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">3</span>) + (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>) + c - <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">;
+    x </span>*=<span style="color: rgba(0, 0, 0, 1)"> f;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> addedge(<span style="color: rgba(0, 0, 255, 1)">int</span> u,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> v)
+{
+        tot</span>++<span style="color: rgba(0, 0, 0, 1)">;
+        e[tot] </span>=<span style="color: rgba(0, 0, 0, 1)"> (edge){v,head[u]};
+        head[u] </span>=<span style="color: rgba(0, 0, 0, 1)"> tot;
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main()
+{
+        
+        read(n); read(m);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= m; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> u , v;
+                read(u); read(v);
+                addedge(u,v);
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= n; j++) dist[i][j] =<span style="color: rgba(0, 0, 0, 1)"> inf;
+                queue</span>&lt; <span style="color: rgba(0, 0, 255, 1)">int</span> &gt;<span style="color: rgba(0, 0, 0, 1)"> q;
+                q.push(i);        
+                dist[i][i] </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">while</span> (!<span style="color: rgba(0, 0, 0, 1)">q.empty())
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">int</span> cur =<span style="color: rgba(0, 0, 0, 1)"> q.front();
+                        q.pop();
+                        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> j = head[cur]; j; j =<span style="color: rgba(0, 0, 0, 1)"> e[j].nxt)
+                        {
+                                </span><span style="color: rgba(0, 0, 255, 1)">int</span> v =<span style="color: rgba(0, 0, 0, 1)"> e[j].to;
+                                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (dist[i][cur] + <span style="color: rgba(128, 0, 128, 1)">1</span> &lt;<span style="color: rgba(0, 0, 0, 1)"> dist[i][v])
+                                {
+                                        dist[i][v] </span>= dist[i][cur] + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                                        q.push(v);
+                                }
+                        }
+                }
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= n; j++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (i == j || dist[i][j] == inf) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                        </span><span style="color: rgba(0, 0, 255, 1)">int</span> pos =<span style="color: rgba(0, 0, 0, 1)"> j;
+                        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> k = <span style="color: rgba(128, 0, 128, 1)">0</span>; k &lt; <span style="color: rgba(128, 0, 128, 1)">3</span>; k++<span style="color: rgba(0, 0, 0, 1)">)
+                        {
+                                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (f[i][k] == <span style="color: rgba(128, 0, 128, 1)">0</span> || dist[i][pos] &gt;<span style="color: rgba(0, 0, 0, 1)"> dist[i][f[i][k]])
+                                        swap(pos,f[i][k]);
+                        }
+                }
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= n; j++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (i == j || dist[j][i] == inf) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                        </span><span style="color: rgba(0, 0, 255, 1)">int</span> pos =<span style="color: rgba(0, 0, 0, 1)"> j;
+                        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> k = <span style="color: rgba(128, 0, 128, 1)">0</span>; k &lt; <span style="color: rgba(128, 0, 128, 1)">3</span>; k++<span style="color: rgba(0, 0, 0, 1)">)
+                        {
+                                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (g[i][k] == <span style="color: rgba(128, 0, 128, 1)">0</span> || dist[pos][i] &gt;<span style="color: rgba(0, 0, 0, 1)"> dist[g[i][k]][i])
+                                        swap(pos,g[i][k]);
+                        }
+                }
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> ans = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> b = <span style="color: rgba(128, 0, 128, 1)">1</span>; b &lt;= n; b++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> c = <span style="color: rgba(128, 0, 128, 1)">1</span>; c &lt;= n; c++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (b == c || dist[b][c] == inf) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> t1 = <span style="color: rgba(128, 0, 128, 1)">0</span>; t1 &lt; <span style="color: rgba(128, 0, 128, 1)">3</span>; t1++<span style="color: rgba(0, 0, 0, 1)">)
+                        {
+                                </span><span style="color: rgba(0, 0, 255, 1)">int</span> a =<span style="color: rgba(0, 0, 0, 1)"> g[b][t1];
+                                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (a == <span style="color: rgba(128, 0, 128, 1)">0</span> || a == c) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> t2 = <span style="color: rgba(128, 0, 128, 1)">0</span>; t2 &lt; <span style="color: rgba(128, 0, 128, 1)">3</span>; t2++<span style="color: rgba(0, 0, 0, 1)">)
+                                {
+                                        </span><span style="color: rgba(0, 0, 255, 1)">int</span> d =<span style="color: rgba(0, 0, 0, 1)"> f[c][t2];
+                                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (d == <span style="color: rgba(128, 0, 128, 1)">0</span> || d == b || d == a) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (dist[a][b] + dist[b][c] + dist[c][d] &gt;<span style="color: rgba(0, 0, 0, 1)"> ans)
+                                        {
+                                                ans </span>= dist[a][b] + dist[b][c] +<span style="color: rgba(0, 0, 0, 1)"> dist[c][d];
+                                                res </span>=<span style="color: rgba(0, 0, 0, 1)"> (info){a,b,c,d};
+                                        }
+                                }    
+                        }        
+                }
+        }
+        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d %d %d %d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,res.a,res.b,res.c,res.d);
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

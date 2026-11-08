@@ -1,0 +1,130 @@
+---
+layout: post
+title: '博弈论 学习笔记'
+date: 2021-01-02 21:33:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/14224023.html
+cnblogs_id: 14224023
+---
+{% raw %}
+
+<p><span style="font-size: 20px">基础概念</span></p>
+<p>     <span class="math inline">\(P-Position\)</span> : 必胜的位置</p>
+<p>     <span class="math inline">\(N-Position\)</span> : 必败的位置</p>
+<p>性质 ： 对于一个 <span class="math inline">\(N-Position\)</span> , 其转移边指向的都是 <span class="math inline">\(P-Position\)</span> , 而对于一个 <span class="math inline">\(P-Position\)</span> , 其转移边至少可以到达一个 <span class="math inline">\(N-Position\)</span>。</p>
+<p><span style="font-size: 20px">模型</span>  ：</p>
+<p>巴什博弈</p>
+<p>     有一堆石子 ，总个数是 <span class="math inline">\(N\)</span>，两名玩家轮流在石子堆中拿石子，每次至少取 <span class="math inline">\(1\)</span> 个，至多取 <span class="math inline">\(M\)</span> 个。取走最后一个石子的玩家为胜者。判定先手和后手谁胜。</p>
+<p>     结论 ： 若 <span class="math inline">\((M + 1) | N\)</span> , 先手必败 ， 否则必胜</p>
+<p>     简要证明 ： 若 <span class="math inline">\((M + 1) | N\)</span> ， 无论先手拿了多少个 （假设为 <span class="math inline">\(X\)</span>) , 后手必然可以拿 (<span class="math inline">\(M + 1 - X\)</span>) 个。 这样就能把空决策集合留给先手。 否则 ， 先拿走余数个即可。</p>
+<p>威佐夫博弈</p>
+<p>     结论 ： 先手必败的状态一定形如 <span class="math inline">\(([i * \phi] , [i * ϕ ^ 2])\)</span>。其中 <span class="math inline">\(\phi = \frac{ \sqrt{5} + 1}{2}\)</span>。</p>
+<p>     证明略。</p>
+<p>尼姆博弈</p>
+<p>     有 <span class="math inline">\(N\)</span> 堆石子 <span class="math inline">\(x_{1} , x_{2} , x_{3} , ... , x_{n}\)</span>，两人轮流取 ，每次可以从任意一堆石子中取走至少一个石子 ，问先后手谁胜。</p>
+<p>     结论 ： 若 <span class="math inline">\(x_{1} \oplus x_{2} \oplus x_{3} ..... \oplus x_{n} = 0\)</span> , 先手必败 ， 否则必胜。</p>
+<p>     证明 ： 首先当没有石子的时候，先手必败，此时所有石子的异或和为 <span class="math inline">\(0\)</span> ，这个是P状态。接下来证明任意一个 <span class="math inline">\(N\)</span> 状态至少能够达到一个 <span class="math inline">\(P\)</span> 状态。</p>
+<p>     假设当前所有石子个数的异或和为 <span class="math inline">\(K\)</span> ，那么 ，必定存在一个 <span class="math inline">\(x_{i}\)</span> 满足 <span class="math inline">\(x_{i}\)</span> 二进制位上存在k的最高位，并且不难证明 <span class="math inline">\(x_{i} \oplus K &lt; x_{i}\)</span> ，那么，将 <span class="math inline">\(x_{i}\)</span> 异或上 <span class="math inline">\(K\)</span> 之后，剩下所有的数的异;</p>
+<p>     或和恰好为 <span class="math inline">\(0\)</span> ，又回到了一个 <span class="math inline">\(P\)</span>状态。 而一个 <span class="math inline">\(P\)</span> 状态的异或和为 <span class="math inline">\(0\)</span>，任何一个数减小之后异或和一定不为 <span class="math inline">\(0\)</span>，所以可以证明任何一个 <span class="math inline">\(P\)</span> 状态的后继状态都是 <span class="math inline">\(N\)</span> 状态。</p>
+<p>     综上 ，异或和为 <span class="math inline">\(0\)</span> 的状态先手必败，其他情况先手必胜。</p>
+<p>     变形 ：</p>
+<p>     石子上限为 <span class="math inline">\(M\)</span>。</p>
+<p>     解法 ： 这个问题相当于 <span class="math inline">\(Bash\)</span> 博弈和 <span class="math inline">\(Nim\)</span> 博弈的综合。 直接对每堆石子取模按照 <span class="math inline">\(Nim\)</span> 做就可以解决了。</p>
+<p>阶梯博弈 ：</p>
+<p>     博弈在阶梯上进行 ，每次可以将一堆的若干石子移动到上一阶去 ，决策集合为空者输。</p>
+<p>     结论 ： 忽略偶数编号的阶梯 ， 对奇数编号阶梯做 <span class="math inline">\(Nim\)</span> 博弈即可。</p>
+<p>     证明 ： 首先终止态是 <span class="math inline">\(0\)</span> 号阶梯 ， 是一个偶数阶梯 ， 因此若对方移动了偶数阶梯的石子 ， 那么直接移动等量的到上一层去 ， 并不会造成影响。 如果移动了奇数级阶梯 ， 那么相当于普通尼姆博弈。</p>
+<p>树的删边游戏 ：</p>
+<p>     给定一个 <span class="math inline">\(N\)</span> 个节点的有根树，两人轮流删边，删去边之后，不和根节点联通的部分都会被移除。不能操作者输，判断胜负。</p>
+<p>     结论 ： 定义叶子节点的 <span class="math inline">\(SG\)</span> 值为 <span class="math inline">\(0\)</span> ，其他所有节点的 <span class="math inline">\(SG\)</span> 值为它所有儿子的 <span class="math inline">\(SG\)</span> 值加 <span class="math inline">\(1\)</span> 后的异或和。</p>
+<p>     证明 ： <a href="" rel="noopener nofollow">https://wenku.baidu.com/view/379e8baaa58da0116d174924.html</a></p>
+<p><span class="math inline">\(SG\)</span> 函数 ：</p>
+<p>     <span class="math inline">\(SG\)</span> 定理 ： 对于当前游戏 <span class="math inline">\(X\)</span> ，它可以拆分成若干个子游戏 <span class="math inline">\(x_{1} , x_{2} , x_{3} , ... , x_{n}\)</span> 。那么 <span class="math inline">\(SG(X) = SG(x_{1}) \oplus SG(x_{2}) .... \oplus \ SG(x_{n})\)</span>。</p>
+<p>     对于一个子游戏的某个状态而言 ， 若其无转移边 ， 其 <span class="math inline">\(SG\)</span> 值为 <span class="math inline">\(0\)</span> , 否则为 <span class="math inline">\(mex \{SG(y) | (x , y) \in E\}\)</span>。 <span class="math inline">\(mex\)</span> 运算表示一个集合最小未出现的整数。</p>
+<p>     <span class="math inline">\(SG\)</span> 函数非 <span class="math inline">\(0\)</span> 的位置为必胜点。</p>
+<p><span style="font-size: 20px">例题</span> ：</p>
+<p><span class="math inline">\(P3185\)</span></p>
+<p><img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210102191608500-1120627243.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210102191608500-1120627243.png"></p>
+<p>     来自湖南 <span class="math inline">\(2007\)</span> 省选。</p>
+<p>     题解 ：</p>
+<p>     不难发现每件物品其实是独立的 ， 因此暴力求解每颗石子的 <span class="math inline">\(SG\)</span> 值 ， 异或起来即可。</p>
+<p>     时间复杂度 : <span class="math inline">\(O(N ^ 3)\)</span>。</p>
+<p><span class="math inline">\(CF1149E\)</span></p>
+<p><img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210102192613117-1231628681.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210102192613117-1231628681.png"></p>
+<p>题解 ：</p>
+<p>     注意到原图是一张 <span class="math inline">\(DAG\)</span> , 那么不妨直接将没有出度的点的 <span class="math inline">\(SG\)</span> 值设为 <span class="math inline">\(0\)</span> , 求解每个节点的 <span class="math inline">\(SG\)</span> 函数值。</p>
+<p>     定义数组 <span class="math inline">\(s\)</span> , 其中 <span class="math inline">\(s_{i}\)</span> 表示 <span class="math inline">\(SG\)</span> 值为 <span class="math inline">\(i\)</span> 的点的权值异或和。</p>
+<p>     结论 ： 当 <span class="math inline">\(s_{1} \oplus s_{2} \oplus s_{3} .... \oplus s_{m} = 0\)</span> 时必败 ， 否则必胜。</p>
+<p>     证明 ：</p>
+<p>     首先最后的 <span class="math inline">\(N - Position\)</span> 满足该条件。</p>
+<p>     不妨按照定义证明 ： 对于一个 <span class="math inline">\(N - Position\)</span> , 其必然会走到一个 <span class="math inline">\(P - Position\)</span> ， 或者直接宣告失败。 而对于一个 <span class="math inline">\(P - Position\)</span> , 必然满足一个 <span class="math inline">\(s_{i}\)</span> 使得 <span class="math inline">\(s_{i} \neq 0\)</span> , 找到满足该条件最大的 <span class="math inline">\(i\)</span> ， 在该点对应的集合中必然能找</p>
+<p>     到一个 <span class="math inline">\(a_{j} \oplus s_{i} &lt; a_{j}\)</span>。 将其修改 ， 接着枚举其转移边 （因为是最大的 ， 所以每种权值都能被枚举到） ， 修改每个转移边的 <span class="math inline">\(a\)</span> 值 ， 这样就到达了一个 <span class="math inline">\(N - Position\)</span> 。</p>
+<p>     时间复杂度 : <span class="math inline">\(O(N + M)\)</span></p>
+<p><span class="math inline">\(CF1037G\)</span></p>
+<p><img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210102193425713-753991608.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210102193425713-753991608.png"></p>
+<p>题解 :</p>
+<p>     预处理每个后缀 ， 前缀 ， 每种字母相邻间隔的 <span class="math inline">\(SG\)</span> 值。</p>
+<p>     这样就可以方便地算出任意一段区间的 <span class="math inline">\(SG\)</span> 函数值。</p>
+<p>     附一段代码 ：</p>
+<p><img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210102193710193-1855349849.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210102193710193-1855349849.png"></p>
+<p>     时间复杂度 : <span class="math inline">\(O(N * ALPHA)\)</span></p>
+<p><span class="math inline">\(CF1091H\)</span></p>
+<p><img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210102194047679-18676855.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210102194047679-18676855.png"></p>
+<p>题解 ：</p>
+<p>     首先这不是 <span class="math inline">\(ICG\)</span>。因为双方的决策不一样 ， 因此无法直接用 <span class="math inline">\(SG\)</span> 函数做。</p>
+<p>     不妨考虑转化 ， 由于关心的仅仅是相邻两数之差 ， 因此可以用二元组 <span class="math inline">\((a , b)\)</span> 表示状态。</p>
+<p>     这样对于一个 <span class="math inline">\((a , b)\)</span> , 只会转移到 <span class="math inline">\((a - k , b)\)</span> 或 <span class="math inline">\((a , b - k)\)</span>。</p>
+<p>     那么这就是一个近似于 <span class="math inline">\(Nim\)</span> 的游戏了。 只是取的数有限制而已。</p>
+<p>     用筛法预处理所有的 "好" 数。 这会花费 <span class="math inline">\(O(N)\)</span> 的时间。</p>
+<p>     观察到 <span class="math inline">\(2 * 10 ^ 5\)</span> 以内的 <span class="math inline">\(SG\)</span> 值不超过 <span class="math inline">\(100\)</span> ,  因此不妨对于每种 <span class="math inline">\(SG\)</span> 值维护一个 <span class="math inline">\(bitset\)</span> , 表示能否转移到某个位置。</p>
+<p>     这样做的时间复杂度是 <span class="math inline">\(O(\frac{N ^ 2}{w})\)</span> 的。</p>
+<p><span class="math inline">\(LOJ3114\)</span></p>
+<p><img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210102204407454-1249931022.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210102204407454-1249931022.png"></p>
+<p>题解 ：</p>
+<p>     来自山东 <span class="math inline">\(2019\)</span> 省选。</p>
+<p>     不妨将空位看成石子 ， 将 “金币” 看成隔板 ， 那么移动一件物品相当于将移动了某堆中的若干石子到前面一堆石子中。</p>
+<p>     不难发现这实质上是一个阶梯博弈问题。 阶梯博弈的一般解法是忽略偶数堆的石子 ，计算奇数堆石子的 <span class="math inline">\(Nim\)</span> 和。</p>
+<p>     对于这题而言 ，我们并不关心 “隔板” 的具体位置。只关心每堆石子的数量。</p>
+<p>     所以要求的就是一个形如 <span class="math inline">\(N\)</span> 枚石子分为 <span class="math inline">\(M\)</span> 堆 ， 且奇数堆异或起来是 <span class="math inline">\(0\)</span> 的方案数的问题。</p>
+<p>     不妨按位枚举 ， 并记 <span class="math inline">\(dp_{i , j}\)</span> 表示前 <span class="math inline">\(i\)</span> 为 ， 用了 <span class="math inline">\(j\)</span> 枚石子 ，异或起来是 <span class="math inline">\(0\)</span> 的方案数。 这样直接转移即可。</p>
+<p>     具体实现时需要用到一些组合数学的知识 ， 不赘述了。</p>
+<p>     时间复杂度 : <span class="math inline">\(O(NMlogN)\)</span></p>
+<p><span class="math inline">\(AGC016F\)</span></p>
+<p><img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210102210953585-224856832.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210102210953585-224856832.png"></p>
+<p>题解 ：</p>
+<p>     首先补集转化 ， 计算两个点的 <span class="math inline">\(SG\)</span> 值不同的方案数。</p>
+<p>     枚举边集不太可做 ， 考虑枚举点集。</p>
+<p>     记 <span class="math inline">\(f_{S}\)</span> 表示只考虑集合 <span class="math inline">\(S\)</span> 内的点 ， <span class="math inline">\(1\)</span> 和 <span class="math inline">\(2\)</span> 号点的 <span class="math inline">\(SG\)</span> 值相同的方案数。</p>
+<p>     考虑枚举子集 <span class="math inline">\(T\)</span> , 使得 <span class="math inline">\(T\)</span> 集合中的 <span class="math inline">\(SG\)</span> 值都不为 <span class="math inline">\(0\)</span> ， 并令 <span class="math inline">\(U\)</span> 为 <span class="math inline">\(T\)</span> 补集。</p>
+<p>     转移可以分 <span class="math inline">\(4\)</span> 类讨论。不赘述了。</p>
+<p>     时间复杂度 : <span class="math inline">\(O(3 ^ N * N ^ 2)\)</span></p>
+<p><span class="math inline">\(AGC043C\)</span></p>
+<p><img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210102211734370-1888092687.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210102211734370-1888092687.png"></p>
+<p>题解 ：</p>
+<p>     一个节点的价值的底数 <span class="math inline">\(10 ^ {18}\)</span> 可以看做 <span class="math inline">\(+\infty\)</span>。 也就是说 ， 贪心策略就是优先选取权值较大的点。</p>
+<p>     那么就有一个 <span class="math inline">\(O(N ^ 3)\)</span> 的做法了 ， 从大到小枚举 <span class="math inline">\(S\)</span> , 依次选点。</p>
+<p>     调整边的顺序 ， 将权值小的点连向大的 ， 这样就构成了一张有向无环图 (<span class="math inline">\(DAG\)</span>)。</p>
+<p>     我们重新梳理算法流程 ：</p>
+<p>     按权值倒着选点 ， 如果这个点的所有出边都未选 ， 将这个点标记为已选 ， 否则将这个点标记为 "不可选中"。</p>
+<p>     不难发现这个过程就是博弈的过程 ， 前者代表着 <span class="math inline">\(N-Position\)</span> , 而后者代表着 <span class="math inline">\(P-Position\)</span>。</p>
+<p>     进一步地 ， 发现每个点的坐标每次只有一维会变动 ， 因此这是一个 <span class="math inline">\(ICG\)</span> , 可以拆分为三个游戏的游戏和。</p>
+<p>     因此要求的就是 <span class="math inline">\(\sum_{i}\sum_{j}\sum_{k}{[i \oplus j \oplus k = 0]10 ^ {18(i + j + k)}}\)</span>。</p>
+<p>     可以用 <span class="math inline">\(FWT\)</span> 进行异或卷积 ， 也可以通过观察得到 <span class="math inline">\(SG\)</span> 函数值不超过 <span class="math inline">\(500\)</span> , 暴力枚举计算答案。</p>
+<p>     时间复杂度 : <span class="math inline">\(O(N + M)\)</span></p>
+<p><img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210108230024581-539074836.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210108230024581-539074836.png"></p>
+<p>题解 ：</p>
+<p>     首先不妨将棋盘黑白染色。</p>
+<p>     一个结论是 : 后手必胜当且仅当存在最大匹配不包括当前节点。</p>
+<p>     为什么是这样呢？ 当存在一组最大匹配不包含起点 <span class="math inline">\(u\)</span> 时 ，先手从 <span class="math inline">\(u\)</span> 出发 ，先随便走一条非匹配边 ，此时后手一定往下走一条匹配边 ，先手再走一条非匹配边 ，如此往复直到最后先手无边可走 。此时后手必胜 。为什</p>
+<p>么后手总能找到下一条匹配边 ？因为否则它们走出的路径就由非匹配边开头 ，非匹配边结束——这是一条增广路！显然不符合 "最大匹配" 这一条件。</p>
+<p>     把 <span class="math inline">\(u\)</span> 去掉 ， 看原图是否能增广 ， 若能 ， 说明找到了新的最大匹配。 否则不能。</p>
+<p>     时间复杂度 ： <span class="math inline">\(O(N ^ 4)\)</span></p>
+<p><span class="math inline">\(CF1451F\)</span></p>
+<p><img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210108233719891-47236257.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210108233719891-47236257.png"></p>
+<p>题解 ：</p>
+<p>     如图 ，<br>
+<img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210108233858545-749408066.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210108233858545-749408066.png"></p>
+<p>     若干条对角线将棋盘分割为若干个类似于 <span class="math inline">\(Nim\)</span> 的游戏和。 具体做法类似于 <span class="math inline">\(CF1149E\)</span>。 时间复杂度 : <span class="math inline">\(O(NM)\)</span></p>
+
+
+
+{% endraw %}

@@ -1,0 +1,112 @@
+---
+layout: post
+title: '[CF1404C] Fixed Point Removal'
+date: 2020-11-23 20:29:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/14026829.html
+cnblogs_id: 14026829
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p><a href="" rel="noopener nofollow">https://codeforces.com/contest/1404/problem/C</a></p>
+<p>[题解]</p>
+<p>忽略多组询问 ， 首先考虑如果只有一组询问怎么做。</p>
+<p>对于每个数 ， 若 <span class="math inline">\(a_{i} &gt; i\)</span> , 那么该数无论怎样调整都不会改变被移除。 否则该数在前面删去 <span class="math inline">\((i - a_{i})\)</span> 个数后也会变得可以删去。 不妨定义新权值 <span class="math inline">\(a'_{i} = i - a_{i}\)</span>。</p>
+<p>率先删去靠后的数必然不劣 ， 因为不会影响到前面的数。</p>
+<p>那么用数据结构维护 <span class="math inline">\(a'\)</span> 序列 ， 需要支持查询区间减和最小值 ， 最小值的个数。 可以用线段树实现。</p>
+<p>下面考虑有询问的情况 ： 将询问离线 ， 按右端点从大到小排序 ， 按照上面的做法 ， 在删去一个数的时候 ， 在另一个数据结构 (如树状数组) 上的对应位置 <span class="math inline">\(+1\)</span> ， 询问的就是某个前缀的贡献和。</p>
+<p>时间复杂度 : <span class="math inline">\(O((N + Q)logN)\)</span></p>
+<p>[代码]</p>
+<pre><code class="language-cpp">#include &lt;bits/stdc++.h&gt;
+
+using namespace std;
+
+typedef long long LL;
+
+const int MN = 3e5 + 5;
+const int INF = 2e9;
+
+struct node {
+	int l , r , home;
+} q[MN];
+
+int N , Q; 
+int mn[MN &lt;&lt; 2] , tag[MN &lt;&lt; 2] , c[MN] , ans[MN] , val[MN] , a[MN];
+
+inline bool cmp(node a , node b) {
+	return a.l &gt; b.l;
+}
+inline void pushup(int now) {
+	mn[now] = min(mn[now &lt;&lt; 1] , mn[now &lt;&lt; 1 | 1]);
+}
+inline void pushdown(int now) {
+	if (tag[now] != 0) {
+		mn[now &lt;&lt; 1] += tag[now]; tag[now &lt;&lt; 1] += tag[now];
+		mn[now &lt;&lt; 1 | 1] += tag[now]; tag[now &lt;&lt; 1 | 1] += tag[now];
+		tag[now] = 0;
+	}
+}
+inline void dec(int now , int l , int r , int ql , int qr) {
+	if (ql &gt; qr) return;
+	if (l == ql &amp;&amp; r == qr) {
+		--mn[now]; --tag[now];
+		return;
+	}
+	int mid = l + r &gt;&gt; 1; pushdown(now);
+	if (mid &gt;= qr) dec(now &lt;&lt; 1 , l , mid , ql , qr);
+	else if (mid + 1 &lt;= ql) dec(now &lt;&lt; 1 | 1 , mid + 1 , r , ql , qr);
+	else dec(now &lt;&lt; 1 , l , mid , ql , mid) , dec(now &lt;&lt; 1 | 1 , mid + 1 , r , mid + 1 , qr);
+	pushup(now);
+}
+inline int query(int now , int l , int r , int x) {
+	if (l == r) return mn[now] &gt; 0 ? INF : l;
+	int mid = l + r &gt;&gt; 1; pushdown(now);
+	if (mid &lt; x) return query(now &lt;&lt; 1 | 1 , mid + 1 , r , x);
+	else if (mn[now &lt;&lt; 1 | 1] == 0) return query(now &lt;&lt; 1 | 1 , mid + 1 , r , x);
+	else return query(now &lt;&lt; 1 , l , mid , x);
+}
+inline void change(int now , int l , int r , int x , int val) {
+	if (l == r) {
+		mn[now] = val;
+		return;
+	}
+	int mid = l + r &gt;&gt; 1; pushdown(now);
+	if (mid &gt;= x) change(now &lt;&lt; 1 , l , mid , x , val);
+	else change(now &lt;&lt; 1 | 1 , mid + 1 , r , x , val);
+	pushup(now);
+}
+inline void add(int x) { 
+	for (int i = x; i &lt;= N; i += i &amp; -i) ++c[i];	
+}
+inline int qry(int x) {
+	int res = 0;
+	for (int i = x; i; i -= i &amp; -i) res += c[i];
+	return res;
+}
+
+int main() {
+	 
+	 scanf("%d%d" , &amp;N , &amp;Q);
+	 for (int i = 1; i &lt;= 4 * N; ++i) mn[i] = INF;
+	 for (int i = 1; i &lt;= N; ++i) scanf("%d" , &amp;a[i]);
+	 for (int i = 1; i &lt;= Q; ++i) scanf("%d%d" , &amp;q[i].l , &amp;q[i].r) , q[i].home = i;
+	 sort(q + 1 , q + 1 + Q , cmp);
+	 int cur = 1;
+	 for (int i = N; i; --i) {
+	 	 change(1 , 1 , N , i , a[i] &gt; i ? 1e9 : i - a[i]);
+	 	 while (mn[1] == 0) {
+	 	 	 int x = query(1 , 1 , N , i); if (x &gt; N) break;
+			 add(x) , change(1 , 1 , N , x , INF) , dec(1 , 1 , N , x + 1 , N);	
+		 }
+		 while (cur &lt;= Q &amp;&amp; q[cur].l == i - 1) {
+		 	 ans[q[cur].home] = qry(N - q[cur].r);
+		 	 ++cur;
+		 }
+	 }
+	 for (int i = 1; i &lt;= Q; ++i) printf("%d\n" , ans[i]);
+	 return 0;
+}</code></pre>
+
+
+
+{% endraw %}

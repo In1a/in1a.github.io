@@ -1,0 +1,56 @@
+---
+layout: post
+title: '[CF1375E] Inversion SwapSort'
+date: 2021-01-24 19:35:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/14321998.html
+cnblogs_id: 14321998
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p><a href="" rel="noopener nofollow">https://codeforces.ml/contest/1375/problem/E</a></p>
+<p>[题解]</p>
+<p>从小到大考虑 ， 对于当前位置 ， 找出所有 <span class="math inline">\(j\)</span> 使得 <span class="math inline">\(A_{j} &lt; A_{i}\)</span>。</p>
+<p>将其按照权值为第一关键字 ， 下标为第二关键字降序排列。</p>
+<p>那么依次交换即可。</p>
+<p>这个构造的正确性在于每次将排名为 <span class="math inline">\(i\)</span> 的数恰好放在了 <span class="math inline">\(i\)</span> 号位置 ， 并且使得其它位置相对大小关系不变。</p>
+<p>时间复杂度 : <span class="math inline">\(O(N ^ 2logN)\)</span></p>
+<p>[代码]</p>
+<pre><code class="language-cpp">#include&lt;bits/stdc++.h&gt;
+
+using namespace std;
+
+#define rep(i , l , r) for (int i = (l); i &lt; (r); ++i)
+#define mp make_pair
+
+typedef long long LL;
+
+const int MN = 3e6 + 5;
+
+int N , A[MN];
+
+int main() {
+		
+		scanf("%d" , &amp;N);
+		vector &lt; pair &lt; int , int &gt; &gt; ans;
+		for (int i = 1; i &lt;= N; ++i) scanf("%d" , &amp;A[i]);
+		for (int i = 1; i &lt;= N; ++i) {
+				vector &lt; int &gt; p;
+				for (int j = i + 1; j &lt;= N; ++j)
+						if (A[j] &lt; A[i]) p.emplace_back(j);
+				sort(p.begin() , p.end() , [&amp;] (int x , int y) {
+					  if (A[x] != A[y]) return A[x] &gt; A[y];
+						else return x &gt; y;
+				}); 
+				for (auto x : p) ans.emplace_back(mp(i , x));
+		}
+		printf("%d\n" , (int) (ans.size()));
+		for (int i = 0; i &lt; ans.size(); ++i) 
+				printf("%d %d\n" , ans[i].first , ans[i].second);
+	  return 0;
+}
+</code></pre>
+
+
+
+{% endraw %}

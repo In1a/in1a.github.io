@@ -1,0 +1,78 @@
+---
+layout: post
+title: '【NOIP 2002】 字串变换'
+date: 2018-07-07 22:52:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9278746.html
+cnblogs_id: 9278746
+---
+{% raw %}
+
+<p>【题目链接】</p>
+<p>           <a href="https://www.luogu.org/problemnew/show/P1032" target="_blank" rel="noopener nofollow">https://www.luogu.org/problemnew/show/P1032</a></p>
+<p>【算法】</p>
+<p>           广度优先搜索</p>
+<p>           用stl库里的map来判重</p>
+<p>【代码】</p>
+<p>           </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> n;
+</span><span style="color: rgba(0, 0, 255, 1)">string</span><span style="color: rgba(0, 0, 0, 1)"> A,B;
+</span><span style="color: rgba(0, 0, 255, 1)">string</span> s1[<span style="color: rgba(128, 0, 128, 1)">30</span>],s2[<span style="color: rgba(128, 0, 128, 1)">30</span><span style="color: rgba(0, 0, 0, 1)">];
+map</span>&lt;<span style="color: rgba(0, 0, 255, 1)">string</span>,<span style="color: rgba(0, 0, 255, 1)">bool</span>&gt;<span style="color: rgba(0, 0, 0, 1)"> mp;
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">bool</span><span style="color: rgba(0, 0, 0, 1)"> bfs()
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,pos;
+        queue</span>&lt; pair&lt;<span style="color: rgba(0, 0, 255, 1)">string</span>,<span style="color: rgba(0, 0, 255, 1)">int</span>&gt; &gt;<span style="color: rgba(0, 0, 0, 1)"> q;
+        pair</span>&lt;<span style="color: rgba(0, 0, 255, 1)">string</span>,<span style="color: rgba(0, 0, 255, 1)">int</span>&gt;<span style="color: rgba(0, 0, 0, 1)"> cur;
+        </span><span style="color: rgba(0, 0, 255, 1)">string</span><span style="color: rgba(0, 0, 0, 1)"> tmp;
+        q.push(make_pair(A,</span><span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">));
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (!<span style="color: rgba(0, 0, 0, 1)">q.empty())
+        {
+                cur </span>=<span style="color: rgba(0, 0, 0, 1)"> q.front();
+                q.pop();
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (cur.second &gt; <span style="color: rgba(128, 0, 128, 1)">10</span>) <span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(0, 0, 255, 1)">false</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (cur.first ==<span style="color: rgba(0, 0, 0, 1)"> B)
+                {
+                        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,cur.second);
+                        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+                }
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)    
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (cur.first.find(s1[i]) == <span style="color: rgba(0, 0, 255, 1)">string</span> :: npos) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                        pos </span>=<span style="color: rgba(0, 0, 0, 1)"> cur.first.find(s1[i]);
+                        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (<span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">)
+                        {
+                                tmp </span>=<span style="color: rgba(0, 0, 0, 1)"> cur.first;
+                                tmp.replace(pos,s1[i].length(),s2[i]);
+                                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!<span style="color: rgba(0, 0, 0, 1)">mp[tmp])
+                                {
+                                        q.push(make_pair(tmp,cur.second</span>+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">));
+                                        mp[tmp] </span>= <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+                                }
+                                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (cur.first.find(s1[i],pos+<span style="color: rgba(128, 0, 128, 1)">1</span>) == <span style="color: rgba(0, 0, 255, 1)">string</span> :: npos) <span style="color: rgba(0, 0, 255, 1)">break</span><span style="color: rgba(0, 0, 0, 1)">;
+                                pos </span>= cur.first.find(s1[i],pos+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+                        }
+                }    
+        }        
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() 
+{
+        
+        cin </span>&gt;&gt; A &gt;&gt;<span style="color: rgba(0, 0, 0, 1)"> B;
+        n </span>= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (cin &gt;&gt; s1[n] &gt;&gt; s2[n]) n++<span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!bfs()) printf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">NO ANSWER!\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">);
+                
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

@@ -1,0 +1,54 @@
+---
+layout: post
+title: '卡特兰数 学习笔记'
+date: 2021-01-23 19:27:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/14318668.html
+cnblogs_id: 14318668
+---
+{% raw %}
+
+<p>                          <span style="font-size: 25px"> Catalan 数</span></p>
+<p><span style="font-size: 20px">基础概念</span> ：</p>
+<p>     一个长度为 <span class="math inline">\(2n\)</span> 的序列 ， 其中有 <span class="math inline">\(n\)</span> 个 <span class="math inline">\(1\)</span> 和 <span class="math inline">\(n\)</span> 个 <span class="math inline">\(-1\)</span> , 求有多少中排列方法使得任意前缀和大于等于 <span class="math inline">\(0\)</span> ?</p>
+<p>     答案为卡特兰数 <span class="math inline">\(Cat_{n} = \frac{{2n \choose n}}{n + 1}\)</span>。</p>
+<p>     推导过程 ：</p>
+<p>     考虑容斥 ， 首先没有限制的方案数显然是 <span class="math inline">\({2n \choose n}\)</span>。 对于不合法的情况 ，将第一次到达 <span class="math inline">\(-1\)</span> 及其后面部分沿直线 <span class="math inline">\(y = -1\)</span> 翻折。 那么就相当于将终点对应到了 <span class="math inline">\((2N , -2)\)</span> ， 进一步地 ， 发现不合法方</p>
+<p>     案数和从原点到 <span class="math inline">\((2N , -2)\)</span> 的方案数构成双射。 方案数为 <span class="math inline">\({2n \choose n + 1}\)</span>。所以总方案数 <span class="math inline">\({2n \choose n} - {2n \choose n + 1}\)</span> , 进一步化简得到答案是 <span class="math inline">\(\frac{{2n \choose n}}{n + 1}\)</span>。</p>
+<p>     如图 (有一个 "线" 字打错了)</p>
+<p><img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210109090354001-1370381322.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210109090354001-1370381322.png"></p>
+<p>     注意也可以通过范德蒙德卷积公式把 <span class="math inline">\({2n \choose n}\)</span> 展开。 为 <span class="math inline">\(\sum{{n \choose i}^2}\)</span>。</p>
+<p>     另外还存在两个递推式 ：</p>
+<p>     <span class="math inline">\(Cat_{n + 1} = \frac{4n - 2}{n + 2}Cat_{n}\)</span></p>
+<p>     <span class="math inline">\(Cat_{n} = \sum{Cat_{i}Cat_{n - i - 1}}\)</span></p>
+<p>     卡特兰数前 <span class="math inline">\(6\)</span> 项 ： <span class="math inline">\(1 , 1 , 2 , 5 , 14 , 42 , 132\)</span></p>
+<p>     应用 ：</p>
+<p>      <span class="math inline">\(n\)</span> 对括号的合法配对方案数量</p>
+<p>      <span class="math inline">\(n\)</span> 个节点的二叉树的形态数</p>
+<p>      <span class="math inline">\(n + 1\)</span> 个叶子 (<span class="math inline">\(n\)</span> 个非叶节点) 的满二叉树的形态数 , 走到左儿子 <span class="math inline">\(+1\)</span> , 走到右儿子 <span class="math inline">\(-1\)</span> , 类似于括号匹配</p>
+<p>      <span class="math inline">\(n\)</span> 个数入栈后出栈的排列总数</p>
+<p><span style="font-size: 20px">例题</span> ：</p>
+<p><span class="math inline">\(AGC021E\)</span></p>
+<p><img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210109091435981-1726300692.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210109091435981-1726300692.png"></p>
+<p>题解 ：</p>
+<p>      首先对于一条蛇而言 ， 符合要求当且仅当满足两个条件之一 ：</p>
+<p>      <span class="math inline">\(1.\)</span> 得到的最后一个求是蓝色的且它在整个过程中得到的红蓝球个数相等。 <span class="math inline">\(2.\)</span> 得到的红球比蓝球多。</p>
+<p>      设红球个数为 <span class="math inline">\(R\)</span> , 蓝球为 <span class="math inline">\(B = K - R\)</span>。</p>
+<p>      对于 <span class="math inline">\(R &lt; B\)</span> 的情况 ， 显然答案为 <span class="math inline">\(0\)</span>。 <span class="math inline">\(R = B\)</span> 的情况相对棘手 ， 但注意到最后一个球必然是蓝色的 ， 所以转化为 <span class="math inline">\((R , B - 1)\)</span> 的情况。</p>
+<p>      对于 <span class="math inline">\(R \geq B + N\)</span> 的情况 ， 显然答案是 <span class="math inline">\({R + B \choose R}\)</span>。</p>
+<p>      因此只需考虑 <span class="math inline">\(B &lt; R &lt; B + N\)</span> 的情况。</p>
+<p>      首先 ， 对于这种情况 ， 必然存在 <span class="math inline">\((N - (R - B))\)</span> 条蛇 ， 使得它们得到的红球和蓝球个数一样多 ， 且最后一个球是蓝球。 而对于一条这样的蛇 ， 如果其长度大于 <span class="math inline">\(2\)</span> ， 那么将其保留最后一个蓝球与前面一个红</p>
+<p>      球必然优 ， 所以对于这样的蛇得到球的顺序就是 <span class="math inline">\(RB\)</span> , 问题转化为求是否能找到 <span class="math inline">\((N - (R - B))\)</span> 对 <span class="math inline">\(RB\)</span> , 进一步转化就是每个前缀满足蓝球至多比红球多 <span class="math inline">\((R - N)\)</span> 个。</p>
+<p>      不妨定义红球为向右走 ， 蓝球为向上走 ， 那么就是要求的就是走到 <span class="math inline">\((R , B)\)</span> 且经过点都在直线 <span class="math inline">\(y = x + R - N\)</span> 下面的方案数。</p>
+<p>      考虑容斥 ， 总数显然是 <span class="math inline">\({R + B \choose R}\)</span> , 而对于不合法的情况可以用近似于卡特兰数证明的方法 ， 翻转直线 ， 因为所有不合法的折线与任意的走到 <span class="math inline">\((B − R + n − 1 , 2R − N + 1)\)</span> 的折线之间建立了双</p>
+<p>      射。方案数为 <span class="math inline">\({R + B \choose 2R - N - 1}\)</span>。 故方案数是 <span class="math inline">\({R + B \choose R} - {R + B \choose 2R - N - 1}\)</span>。 时间复杂度 : <span class="math inline">\(O(NlogN)\)</span> (瓶颈在于求组合数)</p>
+<p><span class="math inline">\(P3974\)</span></p>
+<p><img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210109105704798-1652423841.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210109105704798-1652423841.png"></p>
+<p>题解 ：</p>
+<p>      首先总数是卡特兰数 <span class="math inline">\(Cat_{N}\)</span></p>
+<p>      对于一棵 <span class="math inline">\(N\)</span> 个节点的树 ， 其删去一个叶子节点会对应一棵 <span class="math inline">\((N - 1)\)</span> 个点的树 ， 而对于一棵 <span class="math inline">\((N - 1)\)</span> 个点的无根树 ， 其加上一个点又对应着 <span class="math inline">\(N\)</span> 个点的无根树。 这两者是一一对应关系。 故方案数 <span class="math inline">\(NCat_{N - 1}\)</span>。 化简得到答案为 <span class="math inline">\(\frac{N(N + 1)}{4N - 2}\)</span>。 时间复杂度 <span class="math inline">\(O(1)\)</span></p>
+<p>      其实还有生成函数的推导方法</p>
+<p><img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210109111030788-1069021922.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210109111030788-1069021922.png"></p>
+
+
+
+{% endraw %}

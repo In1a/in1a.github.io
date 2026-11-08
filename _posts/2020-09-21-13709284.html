@@ -1,0 +1,44 @@
+---
+layout: post
+title: '山东省队集训整理'
+date: 2020-09-21 22:55:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/13709284.html
+cnblogs_id: 13709284
+---
+{% raw %}
+
+<p><span class="math inline">\(LOJ6059\)</span></p>
+<p>首先考虑一个数位 <span class="math inline">\(DP\)</span> 的思路。<span class="math inline">\(f_{i , j , k}\)</span> 表示前 <span class="math inline">\(i\)</span> 位 ， 模 <span class="math inline">\(p\)</span> 的值为 <span class="math inline">\(j\)</span> , 每位之和为 <span class="math inline">\(k\)</span> 的方案数。<br>
+发现 <span class="math inline">\(n\)</span> 很大 ， 那么倍增优化即可。<br>
+时间复杂度 : <span class="math inline">\(O(mplogmlogn)\)</span></p>
+<p><span class="math inline">\(LOJ6060\)</span><br>
+记整个集合的异或和为 <span class="math inline">\(S\)</span>。<br>
+对于 <span class="math inline">\(S\)</span> 中为 <span class="math inline">\(0\)</span> 的位 , 我们希望其在两个集合中都是 <span class="math inline">\(1\)</span> ， 而对于 <span class="math inline">\(S\)</span> 中为 <span class="math inline">\(1\)</span> 的位就不需要考虑了 ， 但按照题目中所说的 ， 要使第 <span class="math inline">\(1\)</span> 个集合的异或和尽可能小。<br>
+因此将为 <span class="math inline">\(0\)</span> 的位从大到小放在前面 ， 为 <span class="math inline">\(1\)</span> 的位从大到小放在后面 ， 插入线性基即可。<br>
+时间复杂度 : <span class="math inline">\(O(NlogN)\)</span></p>
+<p><span class="math inline">\(LOJ6062\)</span><br>
+考虑霍尔定理 ， 线段树维护即可。<br>
+时间复杂度 : <span class="math inline">\(O(NlogN)\)</span>。</p>
+<p><span class="math inline">\(LOJ6066\)</span><br>
+首先二分答案。<br>
+将树写成括号序列后用可持久化线段树维护哈希值。 并使用平衡树记录哈希值的集合。<br>
+时间复杂度 : <span class="math inline">\(O(Nlog^2N)\)</span>。</p>
+<p><span class="math inline">\(LOJ6068\)</span><br>
+考虑行联通块对列联通块连边 ， 这样建出了一个二分图模型。<br>
+将行 / 列的边权定义为差分值 <span class="math inline">\({i(i + 1)} \over {2}\)</span> - <span class="math inline">\({i(i-1)} \over {2}\)</span> = <span class="math inline">\(i\)</span>。<br>
+直接运行费用流即可。<br>
+时间复杂度 : <span class="math inline">\(O(CostFlow(N ^ 2 , N ^ 2))\)</span>。</p>
+<p><span class="math inline">\(LOJ6066\)</span><br>
+首先得到一个排列 <span class="math inline">\(P\)</span> ， 设 <span class="math inline">\(S = \sum{\max(P_{i - 1} , P_{i})}\)</span> ， 那么 <span class="math inline">\(S + 1\)</span> 就是紧密排列起来的长度。<br>
+还剩下的 <span class="math inline">\(l - (S + 1)\)</span> 个格子 ， 将其插入在剩余的空位中 ， 其方案数为 <span class="math inline">\({l - S - 1 + n \choose n}\)</span>。<br>
+因此要求的是 <span class="math inline">\(S = k\)</span> 的方案数。<br>
+这是个经典问题 ， 设 <span class="math inline">\(dp_{i , j , k}\)</span> 表示前 <span class="math inline">\(i\)</span> 个数 ， 整个序列分为 <span class="math inline">\(j\)</span> 个联通块 ， 排列总长度为 <span class="math inline">\(k\)</span> 的方案数。 直接转移即可。<br>
+现在问题转化为求 <span class="math inline">\({L \choose 0..n}\)</span> ， 注意到 <span class="math inline">\(L\)</span> 很大 ， 但 <span class="math inline">\(n\)</span> 很小 ， 因此矩阵快速幂即可。<br>
+时间复杂度 : <span class="math inline">\(O(N ^ 3logL)\)</span></p>
+<p><span class="math inline">\(LOJ6072\)</span><br>
+生成树计数 ， 二项式反演 ， 折半搜索。<br>
+具体不赘述了。 时间复杂度 : <span class="math inline">\(O(2 ^ N(n+m))\)</span>。</p>
+
+
+
+{% endraw %}

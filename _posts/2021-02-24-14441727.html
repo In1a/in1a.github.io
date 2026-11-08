@@ -1,0 +1,146 @@
+---
+layout: post
+title: '[WC2021] 表达式求值'
+date: 2021-02-24 15:31:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/14441727.html
+cnblogs_id: 14441727
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p><a href="" rel="noopener nofollow">https://loj.ac/p/3463</a></p>
+<p>[题解]</p>
+<p>首先让我们解决一个简单的问题 :</p>
+<p><img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202102/1424311-20210224152221334-1934635559.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202102/1424311-20210224152221334-1934635559.png"></p>
+<p>注意到 <span class="math inline">\(K\)</span> 很小 ， 那么不妨维护 <span class="math inline">\(f_{i , S}\)</span> 表示 <span class="math inline">\(i\)</span> 号生物的每个位置是否都比 <span class="math inline">\(S\)</span> 中每个元素的值大。</p>
+<p>用 <span class="math inline">\(bitset\)</span> 维护 <span class="math inline">\(f\)</span> ， 查询时 ， 从大到小枚举值即可。</p>
+<p>时间复杂度 : <span class="math inline">\(O(\frac{Q2 ^ {K}}{w})\)</span></p>
+<p>解决这个问题的关键是 : 每个位置的值都是由 <span class="math inline">\(K\)</span> 个初始数组中的元素得到的 ， 而 <span class="math inline">\(K\)</span> 又很小 ， 因此可以通过压缩状态之类的方法求解。</p>
+<p>回到本题 ， 首先不妨建出表达式树。这是一棵高度为 <span class="math inline">\(O(N)\)</span> 的树 ， 叶子节点维护的是位置 ， 而非叶节点则为操作。( 详见 [代码] )</p>
+<p>令 <span class="math inline">\(f_{u , S}\)</span> 表示 <span class="math inline">\(u\)</span> 节点的值严格大于 <span class="math inline">\(S\)</span> 中每个数的方案数。转移只需分别讨论两个儿子节点的情况。</p>
+<p>回答询问时进行容斥即可。</p>
+<p>时间复杂度 <span class="math inline">\(O(N2 ^ {M})\)</span></p>
+<p>[代码]</p>
+<pre><code class="language-cpp">#include &lt;bits/stdc++.h&gt;
+
+using namespace std;
+
+typedef long long LL;
+
+#define rep(i , l , r) for (int i = (l); i &lt; (r); ++i)
+
+const int MN = 5e4 + 5, mod = 1e9 + 7;
+
+typedef pair &lt; int, int &gt; pii;
+#define mp make_pair
+
+int N, M, cnt, top, len, stk[MN], pre[MN], f[MN][2], g[1 &lt;&lt; 12], a[12][MN], size,
+    val[MN], child[MN][2];
+char s[MN];
+
+inline void inc(int &amp;x, int y) {
+    x = x + y &lt; mod ? x + y : x + y - mod;
+}
+inline void dec(int &amp;x, int y) {
+    x = x - y &gt;= 0 ? x - y : x - y + mod;
+}
+
+inline int get(int x) {
+    if (s[x] == '&lt;')
+        return -1;
+
+    if (s[x] == '&gt;')
+        return -2;
+
+    return -3;
+}
+inline int build(int l, int r) {
+    int cur = ++size;
+
+    if (s[r] == ')' &amp;&amp; pre[r] == l)
+        ++l, --r;
+
+    if (l == r)
+        return val[cur] = s[l] - '0', cur;
+
+    if (s[r] == ')') {
+        val[cur] = get(pre[r] - 1);
+        child[cur][0] = build(l, pre[r] - 2);
+        child[cur][1] = build(pre[r], r);
+    } else {
+        val[cur] = get(r - 1);
+        child[cur][0] = build(l, r - 2), child[cur][1] = build(r, r);
+    }
+
+    return cur;
+}
+
+int main() {
+
+    scanf("%d%d", &amp;N, &amp;M);
+
+    for (int i = 0; i &lt; M; ++i)
+        for (int j = 1; j &lt;= N; ++j)
+            scanf("%d", &amp;a[i][j]);
+
+    scanf("%s", s + 1);
+    len = strlen(s + 1);
+
+    for (int i = 1; i &lt;= len; ++i)
+        if (s[i] == '(')
+            stk[++top] = i;
+        else if (s[i] == ')')
+            pre[i] = stk[top--];
+
+    build(1, len);
+
+    for (int s = 0; s &lt; (1 &lt;&lt; M); ++s) {
+        for (int u = size; u &gt;= 1; --u) {
+            f[u][0] = f[u][1] = 0;
+
+            if (val[u] &gt;= 0)
+                f[u][s &gt;&gt; val[u] &amp; 1] = 1;
+            else {
+                if (val[u] != -2) {
+                    inc(f[u][0], 1ll * (f[child[u][0]][0] + f[child[u][0]][1]) * (f[child[u][1]][0] + f[child[u][1]][1]) % mod);
+                    dec(f[u][0], 1ll * f[child[u][0]][1] * f[child[u][1]][1] % mod);
+                    inc(f[u][1], 1ll * f[child[u][0]][1] * f[child[u][1]][1] % mod);
+                }
+
+                if (val[u] != -1) {
+                    inc(f[u][1], 1ll * (f[child[u][0]][0] + f[child[u][0]][1]) * (f[child[u][1]][0] + f[child[u][1]][1]) % mod);
+                    dec(f[u][1], 1ll * f[child[u][0]][0] * f[child[u][1]][0] % mod);
+                    inc(f[u][0], 1ll * f[child[u][0]][0] * f[child[u][1]][0] % mod);
+                }
+            }
+        }
+
+        g[s] = f[1][0];
+    }
+
+    int ans = 0;
+
+    for (int i = 1; i &lt;= N; ++i) {
+        vector &lt; pii &gt; vec;
+
+        for (int j = 0; j &lt; M; ++j)
+            vec.emplace_back(mp(a[j][i], j));
+
+        sort(vec.begin(), vec.end());
+        int s = (1 &lt;&lt; M) - 1;
+
+        for (int j = 0; j &lt; M; ++j) {
+            int ns = s ^ (1 &lt;&lt; vec[j].second);
+            inc(ans, 1ll * (g[ns] + mod - g[s]) * vec[j].first % mod);
+            s = ns;
+        }
+    }
+
+    printf("%d\n", ans);
+    return 0;
+}
+</code></pre>
+
+
+
+{% endraw %}

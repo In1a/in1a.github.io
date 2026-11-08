@@ -1,0 +1,96 @@
+---
+layout: post
+title: '[NOIP2013] 火柴排队'
+date: 2018-09-02 22:05:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9575678.html
+cnblogs_id: 9575678
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p>       <a href="https://loj.ac/problem/2609" target="_blank" rel="noopener nofollow"> https://loj.ac/problem/2609</a></p>
+<p>[算法]</p>
+<p>         首先将式子化简 :</p>
+<p>         sigma( (ai - bi) ^ 2) = sigma( ai^2 + bi^2 - 2aibi ) </p>
+<p>         显然 ， 只需最大化aibi就能最小化“距离”</p>
+<p>         考虑贪心 ， 将a中最小元素与b中最小元素组合 ， a中第二小与b中第二小组合 ... , 不难证明这样是最优的 ，</p>
+<p>         因为 ： 设a &lt; b , c &lt; d ， 将a与c组合 ， b与d组合比a与d组合 ， b与c组合更优。</p>
+<p>         不妨先将a和b升序排序 ，记录每个元素的初始位置 ， 构造新序列p， 令p[a[i].id] = b[i].id , 问题就转化为了 ， 每次可以交换相邻两个元素 ， 要求用最少的次数时p按升序排列。</p>
+<p>         只需求出逆序对数即可。 可以用归并排序或树状数组实现 ， 笔者使用的是树状数组</p>
+<p>         时间复杂度 ：O(NlogN)</p>
+<p>[代码]</p>
+<p>        </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 100010
+<span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">int</span> P = <span style="color: rgba(128, 0, 128, 1)">99999997</span><span style="color: rgba(0, 0, 0, 1)">;
+
+</span><span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> info
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> value;
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> id;
+} a[MAXN],b[MAXN];
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> n,ans;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> c[MAXN];
+
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> read(T &amp;<span style="color: rgba(0, 0, 0, 1)">x)
+{
+    </span><span style="color: rgba(0, 0, 255, 1)">int</span> f = <span style="color: rgba(128, 0, 128, 1)">1</span>; x = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">char</span> c =<span style="color: rgba(0, 0, 0, 1)"> getchar();
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; !isdigit(c); c = getchar()) <span style="color: rgba(0, 0, 255, 1)">if</span> (c == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>) f = -<span style="color: rgba(0, 0, 0, 1)">f; 
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; isdigit(c); c = getchar()) x = (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">3</span>) + (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>) + c - <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">;
+    x </span>*=<span style="color: rgba(0, 0, 0, 1)"> f;
+}
+</span><span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> Binary_Indexed_Tree
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> c[MAXN];    
+        inline </span><span style="color: rgba(0, 0, 255, 1)">int</span> lowbit(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">return</span> x &amp; (-<span style="color: rgba(0, 0, 0, 1)">x);
+        }
+        inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> modify(<span style="color: rgba(0, 0, 255, 1)">int</span> pos,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> val)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = pos; i &lt;= n; i += lowbit(i)) c[i] = (c[i] + val) %<span style="color: rgba(0, 0, 0, 1)"> P;
+        }
+        inline </span><span style="color: rgba(0, 0, 255, 1)">int</span> query(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> pos)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span> ret = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = pos; i; i -= lowbit(i)) ret = (ret + c[i]) %<span style="color: rgba(0, 0, 0, 1)"> P;
+                </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> ret;
+        }
+} BIT;
+inline </span><span style="color: rgba(0, 0, 255, 1)">bool</span> cmp(info a,info b) { <span style="color: rgba(0, 0, 255, 1)">return</span> a.value &lt;<span style="color: rgba(0, 0, 0, 1)"> b.value; }
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() 
+{
+        
+        read(n);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">) 
+        {
+                read(a[i].value);
+                a[i].id </span>=<span style="color: rgba(0, 0, 0, 1)"> i;
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">) 
+        {
+                read(b[i].value);
+                b[i].id </span>=<span style="color: rgba(0, 0, 0, 1)"> i;
+        }
+        sort(a </span>+ <span style="color: rgba(128, 0, 128, 1)">1</span>,a + n + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">,cmp);
+        sort(b </span>+ <span style="color: rgba(128, 0, 128, 1)">1</span>,b + n + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">,cmp);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++) c[a[i].id] =<span style="color: rgba(0, 0, 0, 1)"> b[i].id;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                ans </span>= (ans + (i - BIT.query(c[i] - <span style="color: rgba(128, 0, 128, 1)">1</span>) - <span style="color: rgba(128, 0, 128, 1)">1</span>) % P + P) %<span style="color: rgba(0, 0, 0, 1)"> P;
+                BIT.modify(c[i],</span><span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);        
+        }
+        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,ans);
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

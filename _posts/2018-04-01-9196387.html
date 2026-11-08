@@ -1,0 +1,95 @@
+---
+layout: post
+title: '【Codeforces 20C】 Dijkstra？'
+date: 2018-04-01 19:36:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9196387.html
+cnblogs_id: 9196387
+---
+{% raw %}
+
+<p>【题目链接】</p>
+<p>           <a href="http://codeforces.com/contest/20/problem/C" rel="noopener nofollow">点击打开链接</a></p>
+<p>【算法】</p>
+<p>          dijkstra</p>
+<p>【代码】</p>
+<p>         </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+typedef </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> ll;
+</span><span style="color: rgba(0, 0, 255, 1)">const</span> ll INF =<span style="color: rgba(0, 0, 0, 1)"> 1e15;
+</span><span style="color: rgba(0, 0, 255, 1)">const</span> ll MAXN =<span style="color: rgba(0, 0, 0, 1)"> 1e5;
+
+ll n,m,u,v,w,i,p,to,cost,x;
+ll dist[MAXN</span>+<span style="color: rgba(128, 0, 128, 1)">10</span>],vis[MAXN+<span style="color: rgba(128, 0, 128, 1)">10</span>],last[MAXN+<span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">];
+priority_queue</span>&lt; pair&lt;ll,ll&gt; &gt;<span style="color: rgba(0, 0, 0, 1)"> q;
+vector</span>&lt; pair&lt;ll,ll&gt; &gt; E[MAXN+<span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">];
+vector</span>&lt;ll&gt;<span style="color: rgba(0, 0, 0, 1)"> path;
+
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> read(T &amp;<span style="color: rgba(0, 0, 0, 1)">x) {
+        ll f </span>= <span style="color: rgba(128, 0, 128, 1)">1</span>; x = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">char</span> c =<span style="color: rgba(0, 0, 0, 1)"> getchar();
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; !isdigit(c); c = getchar()) { <span style="color: rgba(0, 0, 255, 1)">if</span> (c == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>) f = -<span style="color: rgba(0, 0, 0, 1)">f; }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; isdigit(c); c = getchar()) x = (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">3</span>) + (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>) + c - <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">;
+        x </span>*=<span style="color: rgba(0, 0, 0, 1)"> f;
+}
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> write(T x) {
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (x &lt; <span style="color: rgba(128, 0, 128, 1)">0</span>) { x = -x; putchar(<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">); }
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (x &gt; <span style="color: rgba(128, 0, 128, 1)">9</span>) write(x/<span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">);
+        putchar(x</span>%<span style="color: rgba(128, 0, 128, 1)">10</span>+<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">);    
+}
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> writeln(T x) {
+        write(x);
+        puts(</span><span style="color: rgba(128, 0, 0, 1)">""</span><span style="color: rgba(0, 0, 0, 1)">);    
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() {
+    
+    read(n); read(m);
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= m; i++<span style="color: rgba(0, 0, 0, 1)">) {
+            read(u); read(v); read(w);
+            E[u].push_back(make_pair(v,w));
+            E[v].push_back(make_pair(u,w));
+    }
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">2</span>; i &lt;= n; i++) dist[i] =<span style="color: rgba(0, 0, 0, 1)"> INF;
+    q.push(make_pair(</span><span style="color: rgba(128, 0, 128, 1)">0</span>,<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">));
+    </span><span style="color: rgba(0, 0, 255, 1)">while</span> (!<span style="color: rgba(0, 0, 0, 1)">q.empty()) {
+            x </span>=<span style="color: rgba(0, 0, 0, 1)"> q.top().second; q.pop();
+            </span><span style="color: rgba(0, 0, 255, 1)">if</span> (vis[x]) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;    
+            vis[x] </span>= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+            </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i &lt; E[x].size(); i++<span style="color: rgba(0, 0, 0, 1)">) {
+                    to </span>=<span style="color: rgba(0, 0, 0, 1)"> E[x][i].first;
+                    cost </span>=<span style="color: rgba(0, 0, 0, 1)"> E[x][i].second;
+                    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (dist[x] + cost &lt;<span style="color: rgba(0, 0, 0, 1)"> dist[to]) {
+                            dist[to] </span>= dist[x] +<span style="color: rgba(0, 0, 0, 1)"> cost;
+                            q.push(make_pair(</span>-<span style="color: rgba(0, 0, 0, 1)">dist[to],to));
+                            last[to] </span>=<span style="color: rgba(0, 0, 0, 1)"> x;
+                    }
+            }
+    }
+    
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (dist[n] ==<span style="color: rgba(0, 0, 0, 1)"> INF) {
+            puts(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">-1</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">);
+            </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    }
+    
+    p </span>=<span style="color: rgba(0, 0, 0, 1)"> n;
+    </span><span style="color: rgba(0, 0, 255, 1)">while</span><span style="color: rgba(0, 0, 0, 1)"> (p) {
+            path.push_back(p);
+            p </span>=<span style="color: rgba(0, 0, 0, 1)"> last[p];
+    }
+    
+    reverse(path.begin(),path.end());
+    
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i &lt; path.size(); i++<span style="color: rgba(0, 0, 0, 1)">) {
+            write(path[i]);
+            </span><span style="color: rgba(0, 0, 255, 1)">if</span> (i &lt; path.size() - <span style="color: rgba(128, 0, 128, 1)">1</span>) putchar(<span style="color: rgba(128, 0, 0, 1)">'</span> <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">);    
+    }
+    
+    </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

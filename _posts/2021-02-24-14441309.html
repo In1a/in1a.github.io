@@ -1,0 +1,97 @@
+---
+layout: post
+title: '[CF1342E] Placing Rooks'
+date: 2021-02-24 14:35:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/14441309.html
+cnblogs_id: 14441309
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p><a href="" rel="noopener nofollow">http://codeforces.com/contest/1342/problem/E</a></p>
+<p>[题解]</p>
+<p>首先当 <span class="math inline">\(K \geq N\)</span> 时答案显然为 <span class="math inline">\(0\)</span>。</p>
+<p>一个观察是 : 要么每行都有车 ， 要么每列都有。</p>
+<p>这两者是独立的 ， 只需考虑一种最后将答案乘 <span class="math inline">\(2\)</span> 即可。</p>
+<p>也就是要将 <span class="math inline">\(N\)</span> 个棋子放入 <span class="math inline">\((N - K)\)</span> 个不同的列中。</p>
+<p>方案数为 <span class="math inline">\({N \choose K} \cdot (N - K)! \cdot {N \brace K}\)</span></p>
+<p>可以通过容斥求斯特林数。</p>
+<p>时间复杂度 : <span class="math inline">\(O(N)\)</span></p>
+<p>[代码]</p>
+<pre><code class="language-cpp">#include&lt;bits/stdc++.h&gt;
+ 
+using namespace std;
+ 
+typedef long long LL;
+ 
+#define rep(i , l , r) for (int i = (l); i &lt; (r); ++i)
+ 
+const int MN = 2e5 + 5 , mod = 998244353;
+ 
+int fac[MN] , ifac[MN] , pw[MN] , pr[MN] , N , K;
+ 
+inline void inc(int &amp;x , int y) {
+	x = x + y &lt; mod ? x + y : x + y - mod;
+}
+inline void dec(int &amp;x , int y) {
+	x = x - y &gt;= 0 ? x - y : x - y + mod;
+}
+inline int qPow(int a , int b) {
+	int c = 1;
+	for (; b; b &gt;&gt;= 1 , a = 1ll * a * a % mod) if (b &amp; 1) c = 1ll * c * a % mod;
+	return c;
+}
+inline void init(int n) {
+	fac[0] = 1;
+	for (int i = 1; i &lt;= n; ++i) fac[i] = 1ll * fac[i - 1] * i % mod;
+	ifac[n] = qPow(fac[n] , mod - 2);
+	for (int i = n - 1; i &gt;= 0; --i) ifac[i] = 1ll * ifac[i + 1] * (i + 1) % mod;
+	return;
+}
+inline void sieve(int n , int k) {
+	int cnt = 0;
+	pw[1] = 1;
+	for (int i = 2; i &lt;= n; ++i) {
+		if (!pw[i]) {
+			pr[++cnt] = i;
+			pw[i] = qPow(i , k);
+		}
+		for (int j = 1; j &lt;= cnt &amp;&amp; i * pr[j] &lt;= n; ++j) {
+			pw[i * pr[j]] = 1ll * pw[i] * pw[pr[j]] % mod;
+			if (i % pr[j] == 0) break;
+		}
+	}
+}
+inline int S(int n , int m) {
+	sieve(m , n);
+	int res = 0;
+	for (int i = 1; i &lt;= m; ++i) {
+		int val = 1ll * pw[i] * ifac[i] % mod * ifac[m - i] % mod;
+		if ((m - i) &amp; 1) dec(res , val); else inc(res , val);
+	}
+	return res;
+}
+ 
+int main() {
+	 LL _K;
+	 scanf("%d%lld" , &amp;N , &amp;_K);
+	 if (_K &gt;= N) {
+	 	 printf("0\n");
+	 	 return 0;
+	 }
+	 K = _K;
+	 init(N - K);
+	 if (K == 0) {
+	 	printf("%d\n" , fac[N]);
+	 	return 0;
+	 }
+	 int ans = 2LL * S(N , N - K) % mod;
+	 for (int i = N; i &gt; K; --i) ans = 1LL * ans * i % mod;
+	 printf("%d\n" , ans);
+     return 0;
+}
+</code></pre>
+
+
+
+{% endraw %}

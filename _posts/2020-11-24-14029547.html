@@ -1,0 +1,103 @@
+---
+layout: post
+title: '[CF1326F] Wise Men (Hard Version)'
+date: 2020-11-24 12:11:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/14029547.html
+cnblogs_id: 14029547
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p><a href="" rel="noopener nofollow">https://codeforces.com/contest/1326/problem/F2</a></p>
+<p>[题解]</p>
+<p>首先因为有 <span class="math inline">\(0\)</span> 和 <span class="math inline">\(1\)</span> 两种关系不好处理。 考虑容斥 ， 记 <span class="math inline">\(ans(s)\)</span> 表示至少有 <span class="math inline">\(s\)</span> 的方案数。 最后就只需要做一个逆高维前缀和就能求出 <span class="math inline">\(f(s)\)</span> 了。</p>
+<p>考虑设 <span class="math inline">\(f_{s , i}\)</span> 表示集合 <span class="math inline">\(s\)</span> 组成一条最后一个节点为 <span class="math inline">\(i\)</span> 的方案数。 <span class="math inline">\(g_{s}\)</span> 表示集合 <span class="math inline">\(s\)</span> 组成一条链的方案数。 <span class="math inline">\(f\)</span> 可以用简单的状压动态规划求得。 而 <span class="math inline">\(g_{s}\)</span> 就是 <span class="math inline">\(\sum{f_{s , i}}\)</span>。</p>
+<p>那么有 <span class="math inline">\(ans_{s} = \sum{\prod_{g_{t_{i}}}}\)</span> , 其中 <span class="math inline">\(t_{i}\)</span> 表示每个连续段由哪些点组成。 满足 <span class="math inline">\(t_{1} \bigcup t_{2} \bigcup .... t_{m} = U\)</span> (<span class="math inline">\(U\)</span> 为全集)。</p>
+<p>直接枚举 <span class="math inline">\(t\)</span> 不可行 ， 一个重要性质是 : 对于组成情况相同的两个串 <span class="math inline">\(s1\)</span> , <span class="math inline">\(s2\)</span> , 有 <span class="math inline">\(ans(s1) = ans(s2)\)</span>。</p>
+<p><span class="math inline">\(18\)</span> 的拆分数为 <span class="math inline">\(385\)</span> , 并不大 ， 于是直接枚举串的组成情况 ， 设长度大小关系 <span class="math inline">\(|t_{1}| \leq |t_{2}| \leq |t_{3}| .... \leq |t_{m}|\)</span> , 在枚举的时候将 <span class="math inline">\(FMT\)</span> 得到的点值乘起来 ， 最后 <span class="math inline">\(IFMT\)</span> 回去 ， 其对这样组成情况的串的贡献就是第 <span class="math inline">\(2 ^ {n} - 1\)</span> 次项的系数。 具体实现的时候可以不 <span class="math inline">\(IFMT\)</span> ， 直接根据现实意义容斥即可。</p>
+<p>时间复杂度 : <span class="math inline">\(O(2 ^ {N}\rho(n))\)</span> 的。</p>
+<p>[代码]</p>
+<pre><code class="language-cpp">#include&lt;bits/stdc++.h&gt;
+
+using namespace std;
+
+typedef long long LL;
+
+const int MN = 20;
+
+#define all(a) (a).begin() , (a).end()
+
+int N;
+char s[MN];
+int bitcnt[1 &lt;&lt; MN];
+LL ans[1 &lt;&lt; MN] , g[MN][1 &lt;&lt; MN] , f[MN][1 &lt;&lt; MN];
+map &lt; vector &lt; int &gt; , vector &lt; int &gt; &gt; qs;
+vector &lt; int &gt; E[MN];
+
+inline void inc(LL &amp;x , LL y) {
+	x += y;
+}
+inline void dec(LL &amp;x , LL y) {
+    x -= y;
+}
+inline void dfs(int r , const std::vector&lt;int&gt; &amp;l, const std::vector&lt;LL&gt; &amp;s) {
+	if (!r) {
+		LL res = 0; int msk = (1 &lt;&lt; N) - 1;
+		for (int i = 0; i &lt; (1 &lt;&lt; N); ++i)
+			if (bitcnt[msk ^ i] &amp; 1) dec(res , s[i]);
+			else inc(res , s[i]);
+		 for (int o : qs[l]) inc(ans[o] , res);
+		 return;
+	}
+	int lst = l.empty() ? 1 : l.back();
+	for (int k = lst; k &lt;= r; ++k) {
+		if (k &lt; r &amp;&amp; r - k &lt; k) continue;
+		vector &lt; LL &gt; ns(s); vector &lt; int &gt; nl(l);
+		nl.emplace_back(k);
+		for (int i = 0; i &lt; (1 &lt;&lt; N); ++i) ns[i] *= g[k - 1][i];
+		dfs(r - k , nl , ns);
+	}
+}
+
+int main() {
+	
+	scanf("%d" , &amp;N);
+	for (int i = 0; i &lt; N; ++i) {
+		scanf("%s" , s);
+		for (int j = 0; j &lt; N; ++j) 
+			if (s[j] == '1') E[i].emplace_back(j);
+	}	
+	bitcnt[0] = 0;
+	for (int i = 1; i &lt; (1 &lt;&lt; N); ++i) bitcnt[i] = bitcnt[i &gt;&gt; 1] + (i &amp; 1);
+	for (int i = 0; i &lt; N; ++i) f[i][1 &lt;&lt; i] = 1;
+	for (int S = 1; S &lt; (1 &lt;&lt; N); ++S) 
+	for (int i = 0; i &lt; N; ++i)
+		if (f[i][S]) {
+			inc(g[bitcnt[S] - 1][S] , f[i][S]);
+			for (int v : E[i]) if ((S &gt;&gt; v &amp; 1) == 0) inc(f[v][S | (1 &lt;&lt; v)] , f[i][S]);
+		}
+	for (int k = 0; k &lt; N; ++k)
+	for (int i = 0; i &lt; N; ++i)
+	for (int S = 0; S &lt; (1 &lt;&lt; N); ++S)
+		if (S &gt;&gt; i &amp; 1) inc(g[k][S] , g[k][S ^ (1 &lt;&lt; i)]);
+	for (int S = 0; S &lt; (1 &lt;&lt; (N - 1)); ++S) {
+		vector &lt; int &gt; a; int x = 1;
+		for (int i = 0; i &lt; N - 1; ++i)
+			if (S &gt;&gt; i &amp; 1) ++x;
+			else a.emplace_back(x) , x = 1;
+		a.emplace_back(x); sort(all(a));
+		qs[a].emplace_back(S);
+	}
+	dfs(N , vector &lt; int &gt; () , vector&lt; LL &gt; (1 &lt;&lt; N , 1));
+	for (int i = 0; i &lt; N - 1; ++i)
+	for (int S = 0; S &lt; (1 &lt;&lt; (N - 1)); ++S)
+		if (S &gt;&gt; i &amp; 1) dec(ans[S ^ (1 &lt;&lt; i)] , ans[S]);
+	for (int S = 0; S &lt; (1 &lt;&lt; (N - 1)); ++S) printf("%lld " , ans[S]);
+	printf("\n");
+	return 0;
+}
+</code></pre>
+
+
+
+{% endraw %}

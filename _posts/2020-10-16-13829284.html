@@ -1,0 +1,148 @@
+---
+layout: post
+title: '《欧拉图相关的生成与计数问题探究》 学习笔记'
+date: 2020-10-16 23:07:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/13829284.html
+cnblogs_id: 13829284
+---
+{% raw %}
+
+<p><span class="math inline">\(1.\)</span> 基本定义</p>
+<p>定义 <span class="math inline">\(1.1\)</span> : 图 <span class="math inline">\(G\)</span> 中经过每条边恰一次的回路称为欧拉回路，经过每条边恰一次的路径称为欧拉路径。</p>
+<p>定义 <span class="math inline">\(1.2\)</span> : 存在欧拉回路的图称为欧拉图 ，存在欧拉路径但不存在欧拉回路的图称为半欧拉图。</p>
+<p><span class="math inline">\(2.\)</span> 欧拉图的判定</p>
+<p>定理 <span class="math inline">\(2.1\)</span> : 无孤立点的无向图 <span class="math inline">\(G\)</span> 为欧拉图 ， 当且仅当图 <span class="math inline">\(G\)</span> 联通且每个顶点度数是偶数。</p>
+<p>证明 ： 先证必要性 ， 首先这张图显然是联通图。 如果存在回路 <span class="math inline">\(v_{0} , v_{1} , v_{2} , ... v_{m - 1} , v_{0}\)</span> , 那么对于每个顶点 ， 一条连入的边就对应着一条连出的边 ， 故每个点的度数都是偶数。 接着证明充分性 ， 从图 <span class="math inline">\(G\)</span> 中任意节点 <span class="math inline">\(v_{0}\)</span> 出发 ， 经关联的边 <span class="math inline">\(e_{1}\)</span> 进入 <span class="math inline">\(v_{1}\)</span> ， 因为 <span class="math inline">\(v_{1}\)</span> 的度数是偶数 ， 所以必然有一条向外连的边 ， 故一直重复这个过程必然能走出一个圈 <span class="math inline">\(c\)</span> , 如果圈 <span class="math inline">\(c\)</span> 恰好为图 <span class="math inline">\(G\)</span> , 那么命题得证。 否则在图中去掉 <span class="math inline">\(c\)</span> 剩下图 <span class="math inline">\(G'\)</span> , 显然 ， 图 <span class="math inline">\(G'\)</span> 也是联通的 ， 且每个顶点的度数都是偶数 ， 那么一定可以形成另外一个圈 <span class="math inline">\(c'\)</span> , 且两个圈有一个公共顶点 ， 那么将它们合并就可以得到一个新的大圈。 重复上述过程 ， 最终一定能拼出图 <span class="math inline">\(G\)</span>。</p>
+<p>定理 <span class="math inline">\(2.2\)</span> ： 如果无向联通图有 <span class="math inline">\(2k\)</span> 个奇顶点 ， 则图 <span class="math inline">\(G\)</span> 可以用 <span class="math inline">\(k\)</span> 条路径将每条边覆盖一次。 且至少要用 <span class="math inline">\(k\)</span> 条路径。</p>
+<p>证明 ：首先证明路径条数的下界 ， 设图 <span class="math inline">\(G\)</span> 可以分解为 <span class="math inline">\(h\)</span> 条链 ， 每条链上至多两个奇顶点 ， 所以有 <span class="math inline">\(2h \geq 2k\)</span> , 故 <span class="math inline">\(h \geq k\)</span>。因此 ， 路径数量的下限是 <span class="math inline">\(k\)</span>。</p>
+<p>接下来只需构造一组方案 ， 就可以证明这个结论的正确性了。 把这 <span class="math inline">\(2k\)</span> 个奇顶点分成 <span class="math inline">\(k\)</span> 组 <span class="math inline">\((v_{1} , v_{1}') , (v_{2} , v_{2}') .... (v_{k} , v_{k}')\)</span> , 在每组点间连边 ， 得到新图 <span class="math inline">\(G'\)</span> , 显然 <span class="math inline">\(G'\)</span> 存在欧拉回路。 求出欧拉回路后 ， 再把 <span class="math inline">\(k\)</span> 条新添的边从回路中去掉 ， 这样这个圈就被分成了至多 <span class="math inline">\(k\)</span> 段。 于是得到了 <span class="math inline">\(k\)</span> 条链。</p>
+<p>定理 <span class="math inline">\(2.3\)</span> : 无孤立顶点的无向图 <span class="math inline">\(G\)</span> 为半欧拉图 ， 当且仅当图 <span class="math inline">\(G\)</span> 联通且 <span class="math inline">\(G\)</span> 的奇顶点个数为 <span class="math inline">\(2\)</span>。 并且此时两个奇顶点分别为欧拉路径的起点终点。</p>
+<p>证明 : 类似于定理 <span class="math inline">\(2.1\)</span>。</p>
+<p>下面的定理是关于有向欧拉图的 ：</p>
+<p>定理 <span class="math inline">\(2.4\)</span> : 无孤立点的有向图 <span class="math inline">\(G\)</span> 为欧拉图 ， 当且仅当 <span class="math inline">\(G\)</span> 弱联通且所有入度等于出度。</p>
+<p>定理 <span class="math inline">\(2.5\)</span> ： 对于联通有向图 <span class="math inline">\(G\)</span> ， 若所有顶点入度与出度差的绝对值之和为 <span class="math inline">\(2k\)</span> ，则图 <span class="math inline">\(G\)</span> 可以用 <span class="math inline">\(k\)</span> 条路径将图 <span class="math inline">\(G\)</span> 的每一条边经过一次，且至少要使用 <span class="math inline">\(k\)</span> 条路径。</p>
+<p>证明 ： 类似于定理 <span class="math inline">\(2.2\)</span>。</p>
+<p>定理 <span class="math inline">\(2.6\)</span> : 无孤立点的有向图 <span class="math inline">\(G\)</span> 为半欧拉图，当且仅当图 <span class="math inline">\(G\)</span> 弱连通，且恰有一个顶点 <span class="math inline">\(u\)</span> 入度比出度小 <span class="math inline">\(1\)</span> ，一个顶点 <span class="math inline">\(v\)</span> 入度比出度大 <span class="math inline">\(1\)</span> ， 其余顶点入度等于出度。此时存在 <span class="math inline">\(u\)</span> 作为起点 ，<span class="math inline">\(v\)</span> 作为终点的欧拉路径。</p>
+<p>证明 : 类似于定理 <span class="math inline">\(2.1\)</span>。</p>
+<p><span class="math inline">\(3.\)</span> 欧拉回路的生成</p>
+<p><span class="math inline">\(Fluery\)</span> 算法</p>
+<p>算法大意 ： 每次选出一条不是桥的边 ， 深度优先搜索。 该算法可以在存在欧拉回路时构造出一组方案 ， 否则构造一条欧拉路径。时间复杂度 <span class="math inline">\(O(N + M)\)</span></p>
+<p>具体实现 ， 这里给出我的一段代码 ：</p>
+<p><img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202010/1424311-20201016224148507-962595271.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202010/1424311-20201016224148507-962595271.png"></p>
+<p><span class="math inline">\(Hierholzer\)</span> 算法 ：</p>
+<p>算法大意 ： 与定理 <span class="math inline">\(1.1\)</span> 的证明是相同的 ， 任选一点深度优先搜索找圈 ， 然后递归地求解子问题合并。时间复杂度 <span class="math inline">\(O(N + M)\)</span>。</p>
+<p>具体实现 ： 一段伪代码如下 ：</p>
+<p><img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202010/1424311-20201016224536012-49571045.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202010/1424311-20201016224536012-49571045.png"></p>
+<p><span class="math inline">\(4.\)</span> 欧拉图与相关性质 ：</p>
+<p>定理 <span class="math inline">\(4.1\)</span> ： 对于任意无向连通图 <span class="math inline">\(G\)</span> ，一定存在回路使得每条边经过恰好两次。进一步地，存在回路使得每条边的两个方向各经过一次。</p>
+<p>证明 ： 将每条边重复 <span class="math inline">\(2\)</span> 次 ， 得到了无向图 <span class="math inline">\(G1\)</span> ， <span class="math inline">\(G1\)</span> 是联通图且每个点度数必然是偶数 ， 因此 <span class="math inline">\(G1\)</span> 是欧拉图 ， 存在欧拉回路。<br>
+同理，若把图 <span class="math inline">\(G\)</span> 的每条无向边变为两条反向的有向边，得到有向图 <span class="math inline">\(G2\)</span> 。<span class="math inline">\(G2\)</span> 也存在欧拉回路，满足图 <span class="math inline">\(G\)</span> 每条边的两个方向各经过一次。</p>
+<p>定理 <span class="math inline">\(4.2\)</span> : 对于无向图 <span class="math inline">\(G\)</span> ，所有顶点的度都是偶数等价于图 <span class="math inline">\(G\)</span> 有圈分解。圈分解即为用若干个圈（不重复经过顶点的回路）使图 <span class="math inline">\(G\)</span> 的每一条边恰经过一次。</p>
+<p>证明 ： 同定理 <span class="math inline">\(2.1\)</span>。</p>
+<p>定理 <span class="math inline">\(4.3\)</span> : 对于不存在欧拉回路的图 <span class="math inline">\(G\)</span> , 若最少用 <span class="math inline">\(a\)</span> 条路径将图 <span class="math inline">\(G\)</span> 的每一条边经过一次 ， 若最少在图 <span class="math inline">\(G\)</span> 中加入 <span class="math inline">\(b\)</span> 条有向边使之成为欧拉图，则 <span class="math inline">\(a\)</span> 一定等于 <span class="math inline">\(b\)</span>。</p>
+<p>证明 ： 同定理 <span class="math inline">\(2.2\)</span>。</p>
+<p><span class="math inline">\(5.\)</span> 欧拉图的生成问题</p>
+<p><span class="math inline">\(5.1\)</span> ： 混合图欧拉回路</p>
+<p>问题大意 ： 给定包含有向边与无向边的弱连通图 <span class="math inline">\(G\)</span> ，判断图 <span class="math inline">\(G\)</span> 是否为欧拉图。若存在 ，求出一条欧拉回路。</p>
+<p>解决办法 ： 判定混合图是否是欧拉图是复杂的 ， 但如果能将无向边全部转化为有向边。 接着运用 "入度 = 出度" ， 问题就很方便解决了。 不妨记 <span class="math inline">\(s_{u} = outdeg_{u} - indeg_{u}\)</span> 。 钦定所有边都是正向 (<span class="math inline">\(u -&gt; v\)</span>) 连的 ， 那么反转一条这样的边 ， 就会使 <span class="math inline">\(s_{u}\)</span> 减小 <span class="math inline">\(2\)</span> ， <span class="math inline">\(s_{v}\)</span> 增大 <span class="math inline">\(2\)</span>。 而最终的要求是所有点 <span class="math inline">\(s_{u} = 0\)</span>。</p>
+<p>考虑网络流 ， 不妨将正权点看作 "供给" ， 而负权点看作 "需求" ， 每条边有容量上限。 那么有如下的建图 ：</p>
+<p>对于正权点 <span class="math inline">\(u\)</span> , 从源点向 <span class="math inline">\(u\)</span> 连流量为 <span class="math inline">\(|\frac{s_{u}}{2}|\)</span> 的边。</p>
+<p>对于负权点 <span class="math inline">\(u\)</span> ， 从 <span class="math inline">\(u\)</span> 向汇点连流量为 <span class="math inline">\(|\frac{s_{u}}{2}|\)</span> 的边。</p>
+<p>对于原图中的边 <span class="math inline">\(u -&gt; v\)</span> ， 从 <span class="math inline">\(u\)</span> 向 <span class="math inline">\(v\)</span> 连流量为 <span class="math inline">\(1\)</span> 的边。</p>
+<p>求解这张图的最大流 ， 若不能满流 ， 则说明构造失败。 否则就有如下构造 ：</p>
+<p>若无向边 <span class="math inline">\((u , v)\)</span> 对应的边在最大流中流量为 <span class="math inline">\(1\)</span> ，则将原来指定的方向 <span class="math inline">\(u -&gt; v\)</span> 改为 <span class="math inline">\(v -&gt; u\)</span>。这样 ，就得到了图 <span class="math inline">\(G\)</span> 的欧拉定向，满足所有点的入度等于出度。利用有向图欧拉回路生成算法即可求出图<span class="math inline">\(G\)</span>的欧拉回路。</p>
+<p>时间复杂度 : <span class="math inline">\(O(MaxFlow(N , M))\)</span>。</p>
+<p><span class="math inline">\(5.2.1\)</span> ： 中国邮递员问题</p>
+<p>问题大意 ： 给定有向带权连通图 <span class="math inline">\(G\)</span> ，求出一条总边权和最小的回路 ，使得经过每一条边至少一次。</p>
+<p>解决办法 ： 首先发现 “每条边经过至少一次” 可以转化为 ： 添加若干条边 ， 使得图中存在欧拉回路。 仿照 <span class="math inline">\(5.1\)</span> 问题的解法 ，同样记 <span class="math inline">\(s_{u} = outdeg_{u} - indeg_{u}\)</span>。</p>
+<p>每将一条边重复一次 ， 等价于将 <span class="math inline">\(s_{u}\)</span> 增加了 <span class="math inline">\(1\)</span> ， 而将 <span class="math inline">\(s_{v}\)</span> 减小了 <span class="math inline">\(1\)</span>。 同时产生了边权的代价。</p>
+<p>于是用费用流计算最小代价即可。 建图方式类似 <span class="math inline">\(5.1\)</span> ， 只不过每条边多了费用 ， 需要用 <span class="math inline">\(Edmonds \ Karp\)</span> 算法求解。</p>
+<p>最后根据残量网络算出每条边重复了几次 ， <span class="math inline">\(Fluery\)</span> 算法求欧拉回路即可。</p>
+<p>时间复杂度 : <span class="math inline">\(O(CostFlow(N , M))\)</span>。</p>
+<p><span class="math inline">\(5.2.2\)</span> : 中国邮递员问题 <span class="math inline">\(2\)</span></p>
+<p>问题大意 ： <span class="math inline">\(5.2.1\)</span> 的无向图版本</p>
+<p>解决办法 ： 类比有向图的做法 ， 在图中重复一些边 ， 使每个顶点度数变为偶数 ， 那么每两个点的度数变为偶数花费的代价就是它们之间的最短路 ， 首先求出最短路 ， 然后一般图最小权完美匹配即可。</p>
+<p>时间复杂度 : <span class="math inline">\(O(CostFlow(N , M))\)</span>。</p>
+<p><span class="math inline">\(6.\)</span> 欧拉图计数问题</p>
+<p><span class="math inline">\(6.1.1\)</span> : 图计数 <span class="math inline">\(1\)</span></p>
+<p>问题大意 ： 给定 <span class="math inline">\(n\)</span> ，求包含 <span class="math inline">\(n\)</span> 个点的所有点度为偶数的有标号简单无向图个数。</p>
+<p>解决办法 ： 设 <span class="math inline">\(f_{n}\)</span> 表示 <span class="math inline">\(n\)</span> 个点的答案 ， 那么加入第 <span class="math inline">\(n\)</span> 个点 ， 其必须和前 <span class="math inline">\((n - 1)\)</span> 个度数为奇数的点连边 ， 而因为度数为奇数的点一定是偶数个 ， 因此答案就是 <span class="math inline">\((n - 1)\)</span> 个点的无向联通图的个数 ， 故 <span class="math inline">\(f_{n} = 2 ^ {{n - 1 \choose 2}}\)</span>。</p>
+<p><span class="math inline">\(6.1.2\)</span> : 图计数 <span class="math inline">\(2\)</span></p>
+<p>问题大意 ： 给定 <span class="math inline">\(n\)</span> ，求包含 <span class="math inline">\(n\)</span> 个点的所有简单联通欧拉图个数。</p>
+<p>解决办法 ： 根据 <span class="math inline">\(6.1.1\)</span> 的做法已经得知了偶数的做法 , 那么欧拉图的限制无非就是加上了 "联通" 这个限制 ， 不妨设 <span class="math inline">\(g_{n}\)</span> 表示 <span class="math inline">\(n\)</span> 个点的答案 ， 这类问题有个经典的转移方式 ， 考虑枚举 <span class="math inline">\(1\)</span> 号联通块的大小 ， 有 ：</p>
+<p><span class="math inline">\(g_{n} = f_{n} - \sum_{i = 1}^{n - 1}{{n - 1 \choose i - 1}f_{i}s_{n - i}}\)</span></p>
+<p>那么分治 <span class="math inline">\(FFT\)</span> 就可以解决这个问题了 ， 多项式求逆可以进一步优化到 <span class="math inline">\(O(NlogN)\)</span>。</p>
+<p><span class="math inline">\(6.2.1\)</span> : 图计数 <span class="math inline">\(3\)</span></p>
+<p>问题大意 ： 给定一个无向联通图 <span class="math inline">\(G\)</span> ，求有多少个支撑子图 <span class="math inline">\(G'\)</span> ，满足每个顶点的度都是偶数。</p>
+<p>解决办法 ： 首先有一个高斯消元求解线性方程组的做法 ， 对每条边记一个变量 <span class="math inline">\(x_{i}\)</span> , 那么对于每个点有限制 : <span class="math inline">\(x_{e_{1}} \oplus x_{e_{2}} \oplus x_{e_{3}} .... x_{e_{d}} = 0\)</span>。 答案即为 <span class="math inline">\(2 ^ {这个方程组的自由元个数}\)</span> ， 时间复杂度 <span class="math inline">\(O(N ^ 2M)\)</span>。考虑优化这个做法 ， 首先用任意一种方法求得图 <span class="math inline">\(G\)</span> 的任意一棵生成树 ， 容易发现 ，对于任意一种非树边的选法 ， 树边的选法是唯一的（从叶子节点开始向上考虑）。 故满足条件的子图个数 <span class="math inline">\(2 ^ {m - n + 1}\)</span>。 事实上也可以仿照线性基求最大路径异或 ， 得到同样的结论。</p>
+<p><span class="math inline">\(6.2.2\)</span> : 图计数 <span class="math inline">\(5\)</span></p>
+<p>问题大意 ： 给定一个无向图 <span class="math inline">\(G\)</span> ，求有多少个支撑子图 <span class="math inline">\(G'\)</span> ，满足每个顶点的度都是偶数。</p>
+<p>解决方法 ： 每个联通块是独立的 ， 根据 <span class="math inline">\(6.2.1\)</span> 的推论 ， 可知答案为 <span class="math inline">\(2 ^ {m - n + c}\)</span>。</p>
+<p><span class="math inline">\(6.3\)</span> : <span class="math inline">\(BEST\)</span> 定理</p>
+<p>欧拉图 <span class="math inline">\(G\)</span> 中欧拉回路的数量为 <span class="math inline">\(T_{1} \prod_{i=1}^{N}{(d_{i} - 1)!}\)</span>。 其中 <span class="math inline">\(T_{1}\)</span> 表示以 <span class="math inline">\(1\)</span> 为根的内向树个数 ， 具体实现时可以用 <span class="math inline">\(Matrix - Tree\)</span> 定理 , 求解矩阵的行列式。</p>
+<p><span class="math inline">\(7.\)</span> 论文中出现的例题和题解 ：</p>
+<p><span class="math inline">\(7.1\)</span></p>
+<p>题目描述 ：</p>
+<p><img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202010/1424311-20201017135124232-1944407967.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202010/1424311-20201017135124232-1944407967.png"></p>
+<p>题解：<br>
+首先将每条边重复两遍得到 <span class="math inline">\(G'\)</span> , 那么现在要做的就是在 <span class="math inline">\(G'\)</span> 中删去两条边 ， 使其存在欧拉路径（奇顶点数为 <span class="math inline">\(0\)</span> 或 <span class="math inline">\(2\)</span>） 。 那么只有 <span class="math inline">\(3\)</span> 种可能的情况 ：<span class="math inline">\((1).\)</span> 删去的两条边都是自环 <span class="math inline">\((2).\)</span> 删去两条边恰有一条是自环 <span class="math inline">\((3).\)</span> 删去两条边都不是自环 ， 但有公共点。 分别讨论即可。 时间复杂度 <span class="math inline">\(O(N + M)\)</span></p>
+<p><span class="math inline">\(7.2\)</span></p>
+<p>题目描述 ：<br>
+<img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202010/1424311-20201017140734085-879649796.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202010/1424311-20201017140734085-879649796.png"></p>
+<p>题解 ：<br>
+根据定理 <span class="math inline">\(4.2\)</span> , 首先需要满足的条件是黑边构成的联通子图中每个点的度数是偶数。 否则必然无解。<br>
+一个结论是 ： 答案为这张图包含黑边的联通分量个数 ， 其理由在于对于每个包含黑边的联通块 ， 让黑边经过 <span class="math inline">\(1\)</span> 次 ， 白边经过 <span class="math inline">\(2\)</span> 次 ， 用欧拉回路构造即可。<br>
+时间复杂度 : <span class="math inline">\(O(N + M)\)</span></p>
+<p><span class="math inline">\(7.3\)</span></p>
+<p>题目描述：<br>
+<img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202010/1424311-20201017141753950-839113103.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202010/1424311-20201017141753950-839113103.png"></p>
+<p>题解：</p>
+<p>首先直接做是困难的 ， 不妨转化问题 ， <strong>考虑这个图需要几条路径才能使每一条边经过一次</strong>。<br>
+不包含奇顶点的联通分量存在欧拉回路 ， 只需 <span class="math inline">\(1\)</span> 条即可。 而包含奇顶点的则需要 <span class="math inline">\(\frac{奇顶点个数}{2}\)</span> 条路径。 故对每个联通分量分别讨论即可 ， 注意 <span class="math inline">\(1\)</span> 为孤立点要单独考虑。 时间复杂度 <span class="math inline">\(O(N + M)\)</span>。</p>
+<p><span class="math inline">\(8.\)</span> 补充例题 ：</p>
+<p><span class="math inline">\(8.1\)</span> :</p>
+<p><img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202010/1424311-20201017143826540-1968386317.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202010/1424311-20201017143826540-1968386317.png"></p>
+<p>题解 ：</p>
+<p>来自 <span class="math inline">\(2020\)</span> 年国家集训队作业。</p>
+<p>首先给出结论 ： 一张无向图能够给边定向且出入度都是偶数当且仅当 <span class="math inline">\(M\)</span> 为偶数且存在欧拉回路。</p>
+<p>必要性 ： 首先因为每个点的出度和入度都是偶数 ， 所以所有点的度数相加一定也是偶数。 因此边数为偶数。如果不存在欧拉回路 ，那么必然有一个点的度数是奇数 ， 矛盾。</p>
+<p>充分性 ： 考虑直接构造欧拉回路 ， 路径上的边方向交替定向 ， 这样一个点的入度 / 出度在回路序列中就被相邻的点贡献了两次。因此这样每个点的入度和出度都是偶数。</p>
+<p>那么考虑这道题的解法 ， 不妨将度数为奇数的点两两配对 ， 如果还有剩余就加上一个自环 ， 再求一遍欧拉回路 ， 就构造出了方案。</p>
+<p>时间复杂度 : <span class="math inline">\(O(N + M)\)</span>。</p>
+<p><span class="math inline">\(8.2\)</span> :</p>
+<p><img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202010/1424311-20201017163150982-234555968.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202010/1424311-20201017163150982-234555968.png"></p>
+<p>题解 ：</p>
+<p>来自 <span class="math inline">\(2020\)</span> 年国家集训队作业。</p>
+<p>首先建一张二分图 ， 将 左侧的 <span class="math inline">\(X\)</span> 和 右侧的 <span class="math inline">\(Y\)</span> 连边。 这样只要交错染色即可。</p>
+<p>发现可能有若干个度数为奇数的点 ， 那么将其两两配对即可。 并不会对正确性造成影响。</p>
+<p>时间复杂度 : <span class="math inline">\(O(N + M)\)</span></p>
+<p><span class="math inline">\(8.3.1\)</span></p>
+<p>引入 ：</p>
+<p><img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202010/1424311-20201018135436421-1857105390.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202010/1424311-20201018135436421-1857105390.png"></p>
+<p>题解 ：</p>
+<p>首先有 <span class="math inline">\(Burnside\)</span> 引理 ：</p>
+<p><span class="math inline">\(L = \frac{1}{|G|}\sum_{g \in G}{M(g)}\)</span></p>
+<p>考虑枚举点的置换 ， 因为点的置换和边的置换构成双射 ， 因此只需计算其边等价类个数。</p>
+<p>将置换拆成若干个循环的乘积形式 ， 分两类边进行考虑 ：</p>
+<p>第一类 ： 边的两个端点位于同一个环中 ， 容易发现两条一类边在不同的等价类中当且仅当其距离不同 ， 因此长度为 <span class="math inline">\(b\)</span> 的循环有 <span class="math inline">\(\lfloor \frac{b}{2} \rfloor\)</span> 个等价类。</p>
+<p>第二类 ： 边的两个端点不在同一个环中 ， 设它们的环长分别为 <span class="math inline">\(b_{i} , b_{j}\)</span> ， 容易发现共有 <span class="math inline">\(gcd(b_{i} , b_{j})\)</span> 种不同的边等价类。</p>
+<p>故不同等价类共有 : <span class="math inline">\(\sum{\lfloor \frac{b_{i}}{2} \rfloor} + \sum_{i &lt; j}{gcd(b_{i} , b_{j})}\)</span> 个。</p>
+<p>接着对置换进行统计。 显然不能枚举每个置换 ， 但发现对于 <span class="math inline">\(b\)</span> 相同的置换答案也相同。 考虑枚举 <span class="math inline">\(b\)</span> , 即本质不同的不相交循环长度的可重集。这相当于 <span class="math inline">\(n\)</span> 的整数分拆 ， 由于 <span class="math inline">\(n \leq 53\)</span> , 拆分数并不大 ， 所以复杂度在可接受范围内。</p>
+<p>设 <span class="math inline">\(b_{1} \leq b_{2} \leq b_{3} \leq .... \leq b_{n}\)</span> , 其中 <span class="math inline">\(\sum{b_{i}} = n\)</span> ， 那么其对应着多少个置换呢？</p>
+<p>考虑 <span class="math inline">\(1\)</span> 到 <span class="math inline">\(n\)</span> 的每个点 ， 分配它们到一个置换中 ， 其方案数 <span class="math inline">\(\frac{n!}{\prod{b_{i}!}}\)</span> , 发现这样会算重 ， 因为可能存在相同的 <span class="math inline">\(b_{i}\)</span> ， 因此正确的答案是 <span class="math inline">\(\frac{n!}{\prod{b_{i}!c_{i}!}}\)</span>。</p>
+<p>化简后 ， 求得答案为 <span class="math inline">\(\sum{\frac{1}{\prod{b_{i}!c_{i}!}}m^{\sum{\lfloor \frac{b_{i}}{2} \rfloor} + \sum_{i &lt; j}{gcd(b_{i} , b_{j})}}}\)</span></p>
+<p>时间复杂度 : <span class="math inline">\(O(log N \sum_{p \in Partition(n)}{len(p) ^ 2})\)</span>。</p>
+<p><span class="math inline">\(8.3.2\)</span></p>
+<p><img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202010/1424311-20201018142132184-57952416.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202010/1424311-20201018142132184-57952416.png"></p>
+<p>题解 ：</p>
+<p>前面的推导是一模一样的。</p>
+<p>考虑方案数如何计算 ， 对于在相同置换中的边 ， 当且仅当 <span class="math inline">\(l_{i}\)</span> 为偶数 ， 且边的距离为 <span class="math inline">\(\frac{l_{i}}{2}\)</span>。</p>
+<p>对于不同置换中的边 ， 可以通过 <span class="math inline">\(\frac{l_{i}}{gcd(l_{i} , l_{j})}\)</span> , 以及 <span class="math inline">\(\frac{l_{j}}{gcd(l_{i} , l_{j})}\)</span> 的奇偶性得到。</p>
+<p>那么问题就简化为 ：</p>
+<p>给定 <span class="math inline">\(k\)</span> 个点和若干条边，每个点的初始点权为 <span class="math inline">\(0\)</span> ，每个点 <span class="math inline">\(x\)</span> 可以有 <span class="math inline">\(cntp_{x}\)</span> 次机会使点权异或 <span class="math inline">\(1\)</span>，每条边 <span class="math inline">\((x , y)\)</span> 可以有 <span class="math inline">\(cnte_{x , y}\)</span> 次机会使 <span class="math inline">\(x , y\)</span> 两个端点的点权同时异或 <span class="math inline">\(1\)</span> ，询问使得每个点最终的点权仍然都为 <span class="math inline">\(0\)</span> 的方案数。</p>
+<p>任取一棵生成树 ， 容易发现在点和非树边固定的情况下 ， 方案是唯一确定的。</p>
+<p>其余和上题类似。</p>
+
+
+
+{% endraw %}

@@ -1,0 +1,60 @@
+---
+layout: post
+title: '[CF1098D] Eels'
+date: 2021-03-02 14:57:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/14468970.html
+cnblogs_id: 14468970
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p><a href="" rel="noopener nofollow">http://codeforces.com/contest/1098/problem/D</a></p>
+<p>[题解]</p>
+<p>首先 , 记满足 <span class="math inline">\(\sum_{i = 1}^{i - 1}{a_{j}} &gt; 2 * a_{i}\)</span> 的 <span class="math inline">\(i\)</span> 的个数为 <span class="math inline">\(S\)</span>。</p>
+<p>不难发现答案的上界是 <span class="math inline">\((N - S)\)</span>。</p>
+<p>考虑如何取到这个上界 ， 不妨每次取出最小的两个元素 <span class="math inline">\(a\)</span> 和 <span class="math inline">\(b\)</span> ， 将 <span class="math inline">\(a\)</span> , <span class="math inline">\(b\)</span> 分别删除 ， 再将 <span class="math inline">\((a + b)\)</span> 插入集合。</p>
+<p>如果 <span class="math inline">\(a , b\)</span> 合并操作不是 "危险" 的 , 那么必然满足 <span class="math inline">\(b\)</span> 没有被合并过。因为如果 <span class="math inline">\(b\)</span> 被合并过 , 令 <span class="math inline">\(b = c + d\)</span> <span class="math inline">\((c \geq d)\)</span> , 那么 <span class="math inline">\(d \geq \frac{b}{2} &gt; a\)</span> , 故 <span class="math inline">\(d\)</span> 必然被合并过 ， 矛盾。</p>
+<p>那么对 <span class="math inline">\([2^0,2^1),[2^1,2^2),[2^2,2^3),\cdots,[2^{29},2^{30})\)</span> 分别维护区间和及 <span class="math inline">\(multiset\)</span> 即可。</p>
+<p>时间复杂度 : <span class="math inline">\(O(NlogN)\)</span></p>
+<p>[代码]</p>
+<pre><code class="language-cpp">#include&lt;bits/stdc++.h&gt;
+ 
+using namespace std;
+ 
+typedef long long LL;
+ 
+#define rep(i , l , r) for (int i = (l); i &lt; (r); ++i)
+ 
+LL q , ans , sum[60];
+multiset &lt; LL &gt; s[60];
+char ch[60];
+ 
+int main() {
+	 
+	 int q; scanf("%d" , &amp;q);
+	 while (q--) {
+	 	 LL x , bit = 0;
+	 	 scanf("%s%lld" , ch , &amp;x);
+	 	 for (bit = 1; (1 &lt;&lt; bit) &lt;= x; ++bit); --bit;
+	 	 if (ch[0] == '+') {
+	 	 	 sum[bit] += x;
+			 s[bit].insert(x);	 
+		 } else {
+		 	 sum[bit] -= x;
+		 	 s[bit].erase(s[bit].find(x));
+		 }
+		 LL siz = 0 , ans = 0;
+		 for (int i = 0; i &lt; 30; ++i) {
+		 	 if (!s[i].size()) continue;
+		 	 ans += (s[i].size() - ((*s[i].begin()) &gt; 2 * siz));
+		 	 siz += sum[i];
+		 }
+		 printf("%lld\n" , ans);
+	 } 
+     return 0;
+}
+</code></pre>
+
+
+
+{% endraw %}

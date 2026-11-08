@@ -1,0 +1,56 @@
+---
+layout: post
+title: 'Educational Codeforces Round 94 简要题解'
+date: 2020-08-26 12:37:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/13564436.html
+cnblogs_id: 13564436
+---
+{% raw %}
+
+<p>比赛链接<br>
+<a href="https://codeforces.com/contest/1400" target="_blank" rel="noopener nofollow">https://codeforces.com/contest/1400</a></p>
+<p>题解</p>
+<p><span class="math inline">\(A.String Similarity\)</span></p>
+<p>有很多种构造方式。<br>
+最简单的一种是<span class="math inline">\(s_ns_ns_n....s_n\)</span> 时间复杂度 : <span class="math inline">\(O(N)\)</span><br>
+代码 : <a href="https://codeforces.com/contest/1400/submission/90913221" target="_blank" rel="noopener nofollow">https://codeforces.com/contest/1400/submission/90913221</a></p>
+<p><span class="math inline">\(B. RPG Protagonist\)</span></p>
+<p>注意到 <span class="math inline">\(cnts \leq 2 * 10 ^ 5\)</span> , 那么可以枚举一个人选了多少个 <span class="math inline">\(swords\)</span>。<br>
+贪心即可。 时间复杂度 : <span class="math inline">\(O(N)\)</span><br>
+代码 : <a href="https://codeforces.com/contest/1400/submission/90929076" target="_blank" rel="noopener nofollow">https://codeforces.com/contest/1400/submission/90929076</a></p>
+<p><span class="math inline">\(C. Binary String Reconstruction\)</span></p>
+<p>对于<span class="math inline">\(s\)</span>中的每个<span class="math inline">\(0\)</span> ， 可以知道 <span class="math inline">\(w_{i-x} , w_{i+x}\)</span> 都为<span class="math inline">\(0\)</span><br>
+将其它的值都赋为<span class="math inline">\(1\)</span> ， 最后判断是否符合要求。 即可。<br>
+还有一个做法是 <span class="math inline">\(2-SAT\)</span> , 不过太麻烦了。<br>
+时间复杂度 : <span class="math inline">\(O(N)\)</span><br>
+代码 : <a href="https://codeforces.com/contest/1400/submission/90935046" target="_blank" rel="noopener nofollow">https://codeforces.com/contest/1400/submission/90935046</a></p>
+<p><span class="math inline">\(D. Zigzags\)</span><br>
+枚举<span class="math inline">\(i , k\)</span> , 用乘法原理计算贡献。<br>
+具体实现时只要维护两个数组 , <span class="math inline">\(in , out\)</span> 即可。<br>
+时间复杂度 : <span class="math inline">\(O(N^2)\)</span><br>
+代码 : <a href="https://codeforces.ml/contest/1400/submission/90943961" target="_blank" rel="noopener nofollow">https://codeforces.ml/contest/1400/submission/90943961</a></p>
+<p><span class="math inline">\(E. Clear the Multiset\)</span><br>
+首先考虑没有<span class="math inline">\(2\)</span>操作怎么做。<br>
+这是个经典问题。 对于所有的 <span class="math inline">\(a_i &gt; a_{i-1}\)</span> , 都对答案造成了 <span class="math inline">\(a_i - a_{i-1}\)</span> 的贡献。<br>
+那么如果有<span class="math inline">\(2\)</span>操作怎么做呢？<br>
+考虑动态规划。 设 <span class="math inline">\(dp_{i,j}\)</span> 表示前 <span class="math inline">\(i\)</span>个数 ， 第 <span class="math inline">\(i\)</span> 个数是原数组中第 <span class="math inline">\(j\)</span> 个数的代价和最小值。<br>
+直接转移即可。<br>
+时间复杂度 : <span class="math inline">\(O(N ^ 2)\)</span><br>
+代码 : <a href="https://codeforces.ml/contest/1400/submission/90959792" target="_blank" rel="noopener nofollow">https://codeforces.ml/contest/1400/submission/90959792</a></p>
+<p><span class="math inline">\(F.x-prime Substrings\)</span><br>
+将所有 "<span class="math inline">\(x-prime Substrings\)</span>" 插入 <span class="math inline">\(AC\)</span> 自动机。这个复杂度是可以接受的。<br>
+然后就是一个朴素的动态规划了。<br>
+记 <span class="math inline">\(dp_{i,j}\)</span> 表示第前 <span class="math inline">\(i\)</span> 个字符 ， 当前在 <span class="math inline">\(j\)</span> 号节点的最小值。<br>
+时间复杂度 : <span class="math inline">\(O(NM)\)</span> ( <span class="math inline">\(M\)</span> 为自动机节点数)<br>
+代码 : <a href="https://codeforces.ml/contest/1400/submission/91011980" target="_blank" rel="noopener nofollow">https://codeforces.ml/contest/1400/submission/91011980</a></p>
+<p><span class="math inline">\(G.Mercenaries\)</span><br>
+首先考虑没有 <span class="math inline">\(M\)</span> 个限制怎么做。<br>
+枚举选了多少个 ，假设选了 <span class="math inline">\(N\)</span> 个 ， 记 <span class="math inline">\(Li \leq N , Ri \geq N\)</span>的有<span class="math inline">\(K\)</span>个。 那么贡献即为 <span class="math inline">\(N \choose K\)</span>。<br>
+如果有 <span class="math inline">\(M\)</span> 个限制怎么做呢？<br>
+考虑直接容斥原理。 用至少<span class="math inline">\(0\)</span>个不满足 - 至少<span class="math inline">\(1\)</span>个不满足 + 至少<span class="math inline">\(2\)</span>个不满足 - .... + ...<br>
+预处理一些组合数的前缀和。 就可以做到 <span class="math inline">\(O(2^M * M + NM)\)</span> 的复杂度。<br>
+代码 : <a href="https://codeforces.ml/contest/1400/submission/91009317" target="_blank" rel="noopener nofollow">https://codeforces.ml/contest/1400/submission/91009317</a></p>
+
+
+
+{% endraw %}

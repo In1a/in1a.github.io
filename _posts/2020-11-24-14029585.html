@@ -1,0 +1,62 @@
+---
+layout: post
+title: '[CF1229C] Konrad and Company Evaluation'
+date: 2020-11-24 12:25:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/14029585.html
+cnblogs_id: 14029585
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p><a href="" rel="noopener nofollow">https://codeforces.com/contest/1229/problem/C</a></p>
+<p>[题解]</p>
+<p>维护每个点的可达集合 ， 每个点的贡献是 <span class="math inline">\(in_{u} \cdot out_{u}\)</span> , 在更新时直接维护这个值即可。</p>
+<p>这样为什么复杂度正确呢？ 考虑势能分析。</p>
+<p>将每个点的势能定义为其度数。 将度数不超过 <span class="math inline">\(\sqrt{N}\)</span> 的点集称为 <span class="math inline">\(A\)</span> 集 ， 其余称为 <span class="math inline">\(B\)</span> 集。 显然 <span class="math inline">\(|B| \leq \sqrt{N}\)</span>。</p>
+<p>如果操作的点在 <span class="math inline">\(A\)</span> 集中 ， 那么转移的势能不超过 <span class="math inline">\(\sqrt{N}\)</span>。</p>
+<p>如果操作的点在 <span class="math inline">\(B\)</span> 集中 ， 对 <span class="math inline">\(B\)</span> 集转移的势能是 <span class="math inline">\(\sqrt{N}\)</span> (<span class="math inline">\(|B| \leq \sqrt{N}\)</span>)。</p>
+<p>而对 <span class="math inline">\(A\)</span> 集转移的势能必然和 <span class="math inline">\(A\)</span> 给 <span class="math inline">\(B\)</span> 的势能同级。 总转移量不超过 <span class="math inline">\(N \sqrt{N}\)</span>。</p>
+<p>故时间复杂度 ： <span class="math inline">\(O(N \sqrt{N})\)</span></p>
+<p>[代码]</p>
+<pre><code class="language-cpp">#include &lt;bits/stdc++.h&gt;
+
+using namespace std;
+
+typedef long long LL;
+
+const int MN = 1e6 + 5;
+
+int N , M , deg[MN];
+vector &lt; int &gt; g[MN];
+
+inline LL get(int u) {
+	return (LL) (g[u].size()) * (deg[u] - g[u].size());
+}
+int main() {
+	
+	scanf("%d%d" , &amp;N , &amp;M);
+	for (int i = 0; i &lt; M; ++i) {
+		int v , u; scanf("%d%d" , &amp;v , &amp;u);
+		if (v &gt; u) swap(v , u);
+		g[v].emplace_back(u); ++deg[u]; ++deg[v];
+	}
+	LL ANS = 0;
+	for (int i = 1; i &lt;= N; ++i) ANS += get(i);
+	printf("%lld\n" , ANS);
+	int Q; scanf("%d" , &amp;Q);
+	while (Q--) {
+		int v; scanf("%d" , &amp;v);
+		while (!g[v].empty()) {
+			int u = g[v].back();
+			ANS -= get(u) + get(v);
+			g[v].pop_back(); g[u].emplace_back(v);
+			ANS += get(u) + get(v);
+		}
+		printf("%lld\n" , ANS);
+	}
+	return 0; 
+}</code></pre>
+
+
+
+{% endraw %}

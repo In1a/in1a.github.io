@@ -1,0 +1,36 @@
+---
+layout: post
+title: 'vim 常用命令'
+date: 2023-07-06 21:50:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/17533443.html
+cnblogs_id: 17533443
+---
+{% raw %}
+
+<p>vim 进入vim<br>
+i : command -&gt; edit<br>
+esc: edit -&gt; command<br>
+:wq a.cpp 保存 -&gt; 退出 (文件名: a.cpp)<br>
+:syntax on: 高亮<br>
+:set number 显示行号<br>
+:q! 不保存 -&gt; 退出<br>
+vim ~/.vimrc<br>
+命令模式下:<br>
+w 跳过下一个单词<br>
+h 左 j 上 k 下 l 右<br>
+b 往回跳一个单词<br>
+ctrl+f 往下翻页<br>
+ctrl+b 往上翻页<br>
+x+gg 跳到第x行<br>
+x + h/j/k/l 往上/下/左/右跳x<br>
+esc 撤销<br>
+/word 查word n跳下一个 shift+n 上一个<br>
+cc 剪切当前行 u 恢复<br>
+cxc 连续剪切x行 p 粘贴<br>
+v 进入 visual 模式 c+p 复制粘贴<br>
+yy 复制当前行<br>
+ctrl+n 代码自动补全</p>
+
+
+
+{% endraw %}

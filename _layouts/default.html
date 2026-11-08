@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{% if page.title %}{{ page.title | escape }} · {% endif %}{{ site.title }}</title>
+  <meta name="description" content="{{ page.description | default: site.description | escape }}">
+  <link rel="stylesheet" href="{{ '/assets/style.css' | relative_url }}">
+  {% seo %}
+  {% feed_meta %}
+  <script>window.MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']]},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+</head>
+<body>
+  <header class="masthead"><div class="wrap headrow"><a class="brand" href="{{ '/' | relative_url }}">evenbao<span class="dot">.</span></a><nav><a href="{{ '/' | relative_url }}">文章</a><a href="{{ '/about/' | relative_url }}">关于</a><a href="https://www.cnblogs.com/evenbao" target="_blank" rel="noopener">博客园 ↗</a></nav></div></header>
+  <main class="wrap">{{ content }}</main>
+  <footer class="wrap footer">© {{ 'now' | date: '%Y' }} evenbao · <a href="{{ '/feed.xml' | relative_url }}">RSS</a> · 原文保留归属及来源链接</footer>
+</body>
+</html>

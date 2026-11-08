@@ -1,0 +1,71 @@
+---
+layout: post
+title: '《解决树上连通块问题的一些技巧和工具》 学习笔记'
+date: 2020-10-16 17:44:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/13827758.html
+cnblogs_id: 13827758
+---
+{% raw %}
+
+<p>参考 ：<span class="math inline">\(2018\)</span> 中国国家侯选队论文集。</p>
+<p><span class="math inline">\(1.\)</span> 两类问题</p>
+<p>计数问题 ： 给出一棵树 <span class="math inline">\(T\)</span> , 问多少联通块满足一个性质 <span class="math inline">\(A\)</span>。</p>
+<p>最优化问题 ： 给出一棵树和一个函数 ， 求树 <span class="math inline">\(T\)</span> 中所有满足某性质的联通块的最大收益。</p>
+<p><span class="math inline">\(2.\)</span> 树上联通块的动态规划问题 ：</p>
+<p>朴素做法 :</p>
+<p>对于一般的联通块问题 ， 可以运用一个朴素做法 ： 设 <span class="math inline">\(dp_{x}\)</span> 表示在 <span class="math inline">\(x\)</span> 的子树中选择一个包含 <span class="math inline">\(x\)</span> 的联通块的最优答案 ， 那么合并答案的时候只需要遍历子树枚举是否取就可以了。 如果合并儿子节点复杂度为 <span class="math inline">\(O(1)\)</span> ， 则总复杂度 <span class="math inline">\(O(N)\)</span>。 如果合并儿子节点复杂度 <span class="math inline">\(O(size_{a} \cdot size_{b})\)</span> , 那么总复杂度 <span class="math inline">\(O(N ^ 2)\)</span>。 其理由在于每两个节点都会在其 <span class="math inline">\(LCA\)</span> 产生 <span class="math inline">\(O(1)\)</span> 的复杂度。</p>
+<p>按照 <span class="math inline">\(DFS\)</span> 序转移与点分治 :</p>
+<p>对于一类树上联通块问题 ， 如果合并信息不够高效 ， 但加入单点的复杂度并不大 ， 那么就可以按照 <span class="math inline">\(DFS\)</span> 序加点 ， 把合并子树变成添加单点。 这类问题中常见的有树上背包问题。 假设体积为 <span class="math inline">\(V\)</span> ， 那么就可以将 <span class="math inline">\(O(V ^ 2)\)</span> 的合并复杂度优化至 <span class="math inline">\(O(V)\)</span>。 具体方法如下：</p>
+<p>先假定选出的联通块包含根节点 ， 求出整棵树的 <span class="math inline">\(DFS\)</span> 序 ， 一个包含根的联通块必然是整棵树去掉若干个互不相交的子树。 换言之就是去掉了若干个 <span class="math inline">\(DFS\)</span> 序列上的连续段。<br>
+设 <span class="math inline">\(dp_{i}\)</span> 表示 <span class="math inline">\(DFS\)</span> 序后 <span class="math inline">\(i\)</span> 个节点的最优答案。 那么就有两种转移 ：</p>
+<p><span class="math inline">\(1.\)</span> 选择第 <span class="math inline">\(i\)</span> 个节点 ， 转移到了 <span class="math inline">\(dp_{i + 1}\)</span></p>
+<p><span class="math inline">\(2.\)</span> 不选择第 <span class="math inline">\(i\)</span> 个节点 ， 转移到了 <span class="math inline">\(dp_{j}\)</span> ， 其中 <span class="math inline">\(j\)</span> 为以 <span class="math inline">\(i\)</span> 为根的子树的 <span class="math inline">\(DFS\)</span> 序右端点 <span class="math inline">\(+1\)</span>。表示去掉了整棵子树。</p>
+<p>这样每次只是往背包中添加一个物品而非合并两个子树 ， 故复杂度由 <span class="math inline">\(O(NM ^ 2)\)</span> 优化至 <span class="math inline">\(O(NM)\)</span>。</p>
+<p>而对于选出的联通块不包括根的情况 ， 运用点分治 ， 每个联通块递归做即可。</p>
+<p>“点树 <span class="math inline">\(-\)</span> 边数” :</p>
+<p>对于一棵树 ， 点树 <span class="math inline">\(-\)</span> 边数恒为 <span class="math inline">\(1\)</span>。 可以通过这个等式来统计某性质的联通块个数。记枚举每个点 / 每条边 ， 用包含每个点的联通块个数减去包含每条边的联通块个数 ， 这样每个联通块恰好被计算了一遍。 因此是正确的。</p>
+<p>这个技巧常用于求若干个树上联通块交的方案数 ， 因为若干个树上联通块的交集仍然是一个联通块。</p>
+<p>线段树合并维护整体 <span class="math inline">\(DP\)</span> :</p>
+<p>有这样一类问题 ： 每个点的 <span class="math inline">\(DP\)</span> 数组维护 <span class="math inline">\(M\)</span> 个值 ， 合并两个子树时将对应位置合并 ， 添加一个点时对某个位置进行修改。</p>
+<p>考虑线段树合并 ， 把每个点的 <span class="math inline">\(DP\)</span> 值用一棵线段树合并 ， 添加一个点时在线段树中修改 ， 而合并子树时用线段树合并来批量完成转移。 线段树中插入总点数是不超过 <span class="math inline">\(O(NlogN)\)</span> 的 ， 而线段树合并复杂度不会超过其插入复杂度。</p>
+<p>链分治维护动态 <span class="math inline">\(DP\)</span> :</p>
+<p>一个树上联通块必然是至多 <span class="math inline">\(O(logN)\)</span> 条重链及其轻儿子的交集。</p>
+<p>大体就是用动态 <span class="math inline">\(DP\)</span> 里广义矩阵乘法的方法。</p>
+<p>论文中的例题 ：</p>
+<p><span class="math inline">\(1.\)</span></p>
+<p><img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202010/1424311-20201016174023784-1420802880.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202010/1424311-20201016174023784-1420802880.png"></p>
+<p>题解 ：</p>
+<p>来自 <span class="math inline">\(2018\)</span> 年集训队互测。 作者是梁晏成。</p>
+<p>能对一个连通块进行测试的点形成了一个树上联通块。 而若干个树上联通块的交同样是一个树上联通块。</p>
+<p>考虑 “点减边” 容斥 ， 即统计能被某个点 <span class="math inline">\(x\)</span> 测试的完美集合个数 ，减去能同时被某条边两个端点测试的完美集合个数。</p>
+<p>考虑计算能被点 <span class="math inline">\(x\)</span> 测试的完美集合个数 ， 不妨令 <span class="math inline">\(x\)</span> 为树的根 ， 去除不满足条件中的点 ， 接着 ， 进行树形 <span class="math inline">\(DP\)</span> , 这相当于问树上有多少联通块满足其重量和不超过 <span class="math inline">\(M\)</span> 且价值和最大。 这是一个经典的最优化背包问题。 只要在背包记录最优值的同时再记录达到最优值的方案数就可以了。 注意到合并儿子节点的复杂度是 <span class="math inline">\(O(M ^ 2)\)</span> 的。 但用 <span class="math inline">\(DFS\)</span> 序优化就可以做到 <span class="math inline">\(O(M)\)</span>。</p>
+<p>本题还涉及一个组合数取模的问题 ： 首先发现模数是 <span class="math inline">\(5 ^ {23}\)</span>。 而组合数取模有一个多项式做法 ：</p>
+<p>显然 ， 可以维护出 <span class="math inline">\(N!\)</span> , <span class="math inline">\(K!\)</span> , <span class="math inline">\((N - K)!\)</span> 中非 <span class="math inline">\(5\)</span> 倍数的乘积和因子 <span class="math inline">\(5\)</span> 的个数 ， 然后合并即可。</p>
+<p>非 <span class="math inline">\(5\)</span> 倍数的乘积可用多项式 <span class="math inline">\(f_{n}(x) = \prod_{i \mod 5 \neq 0}{(x + i)}\)</span> 的常数项得到。</p>
+<p>因为 <span class="math inline">\(f_{10k}(x) = f_{5k}(5k + x)\)</span> , 因为模数是 <span class="math inline">\(5 ^ {23}\)</span> , 故多项式只需保留 <span class="math inline">\(23\)</span> 项即可。在合并的时候可以暴力卷积。</p>
+<p>对于 <span class="math inline">\(5\)</span> 的倍数 ， 可以在 <span class="math inline">\(O(log(N))\)</span> 的时间内计算得到。</p>
+<p>时间复杂度 : <span class="math inline">\(O(N ^ 2M)\)</span>。</p>
+<p><span class="math inline">\(2.\)</span></p>
+<p><img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202010/1424311-20201016195123181-654650557.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202010/1424311-20201016195123181-654650557.png"></p>
+<p>题解 ：</p>
+<p>来自清华大学冬令营 <span class="math inline">\(2018\)</span>。</p>
+<p>记 <span class="math inline">\(f(x , c)\)</span> 表示在 <span class="math inline">\(x\)</span> 的子树中选一个联通块 ， 两种（一种）颜色分别为 <span class="math inline">\(col_{x}\)</span> 和 <span class="math inline">\(c\)</span> 的方案数。</p>
+<p>枚举儿子节点 <span class="math inline">\(y\)</span> ， 如果 <span class="math inline">\(y\)</span> 与 <span class="math inline">\(x\)</span> 的颜色相同 ， 那么直接将 <span class="math inline">\(f(y , ?) + 1\)</span> 乘给 <span class="math inline">\(f(x , ?)\)</span> , 否则将 <span class="math inline">\(f(y , col_{x}) + 1\)</span> 乘给 <span class="math inline">\(f(x , col_{y})\)</span>。</p>
+<p>第二种转移总共只会用到 <span class="math inline">\(O(N)\)</span> 个状态 ， 而对于第一种转移线段树合并即可。</p>
+<p>时间复杂度 : <span class="math inline">\(O(NlogN)\)</span>。</p>
+<p>补充题目 ：</p>
+<p><span class="math inline">\(NOI2020\)</span> 一试 <span class="math inline">\(B\)</span></p>
+<p>线段树合并即可。 之前写过题解 ， 故不再赘述。</p>
+<p>时间复杂度 : <span class="math inline">\(O(Nlog ^ 2N)\)</span></p>
+<p><span class="math inline">\(LOJ3053\)</span></p>
+<p><span class="math inline">\(2019\)</span> 年十二省联考压轴题。</p>
+<p>容易 ，中心能够存在的位置是树上的一个连通块 ，一个方案合法当且仅当该联通块大小非零。</p>
+<p>考虑"点减边"容斥 ， 答案即为 <span class="math inline">\(\sum{f(x) ^ k - g(x) ^ k}\)</span>。</p>
+<p>不妨进行树形 <span class="math inline">\(DP\)</span> , 记 <span class="math inline">\(f_{i , x}\)</span> 表示以 <span class="math inline">\(i\)</span> 为根的子树中 ， 包含 <span class="math inline">\(i\)</span> ， 且距离 <span class="math inline">\(i\)</span> 不超过 <span class="math inline">\(x\)</span> 的联通块数量。</p>
+<p>同理再对边进行一遍 <span class="math inline">\(DP\)</span> 即可。</p>
+<p>这样就可以拿到约 <span class="math inline">\(60\)</span> 分左右的高分。</p>
+<p>满分做法还需要再这个做法的基础上用长链剖分和可回退化数据结构优化做到 <span class="math inline">\(O(N)\)</span> ， 比较复杂 ， 不赘述了。</p>
+
+
+
+{% endraw %}

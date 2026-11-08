@@ -1,0 +1,82 @@
+---
+layout: post
+title: '【SCOI 2005】 互不侵犯'
+date: 2018-05-09 19:24:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9196346.html
+cnblogs_id: 9196346
+---
+{% raw %}
+
+<p>【题目链接】</p>
+<p>           <a href="https://www.lydsy.com/JudgeOnline/problem.php?id=1087" rel="noopener nofollow">点击打开链接</a></p>
+<p>【算法】</p>
+<p>         和HDU2167类似</p>
+<p>         先搜出一行内符合的状态，然后,f[i][j][k]表示第i行，第j种状态，放了k个，合法的方案，DP即可</p>
+<p>【代码】</p>
+<p>         </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 10
+<span style="color: rgba(0, 0, 255, 1)">#define</span> MAXK 85
+<span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">int</span> MAXS = <span style="color: rgba(128, 0, 128, 1)">1024</span><span style="color: rgba(0, 0, 0, 1)">;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,j,x,y,tot,n,k,tmp,MASK;
+</span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> f[MAXN][MAXS][MAXK];
+</span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> ans;
+
+</span><span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> info 
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x,s;
+} ST[MAXS];
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span> calc(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> s)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> i,ret = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i &lt; n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (s &amp; (<span style="color: rgba(128, 0, 128, 1)">1</span> &lt;&lt;<span style="color: rgba(0, 0, 0, 1)"> i))
+                        ret</span>++<span style="color: rgba(0, 0, 0, 1)">;
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> ret;    
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main()
+{
+    
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;n,&amp;<span style="color: rgba(0, 0, 0, 1)">k);
+        MASK </span>= (<span style="color: rgba(128, 0, 128, 1)">1</span> &lt;&lt; n) - <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i &lt;= MASK; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (i &amp; (i &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>)) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                tmp </span>=<span style="color: rgba(0, 0, 0, 1)"> calc(i);
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (tmp &lt;= k) ST[++tot] =<span style="color: rgba(0, 0, 0, 1)"> (info){i,tmp};
+                f[</span><span style="color: rgba(128, 0, 128, 1)">1</span>][tot][tmp] = <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        }    
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">2</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= tot; j++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (x = ST[j].s; x &lt;= k; x++<span style="color: rgba(0, 0, 0, 1)">)
+                        {
+                            </span><span style="color: rgba(0, 0, 255, 1)">for</span> (y = <span style="color: rgba(128, 0, 128, 1)">1</span>; y &lt;= tot; y++<span style="color: rgba(0, 0, 0, 1)">)
+                            {
+                                    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (ST[j].x &amp; ST[y].x) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                                    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (ST[j].x &amp; (ST[y].x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>)) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                                    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (ST[j].x &amp; (ST[y].x &gt;&gt; <span style="color: rgba(128, 0, 128, 1)">1</span>)) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                                    f[i][j][x] </span>+= f[i-<span style="color: rgba(128, 0, 128, 1)">1</span>][y][x -<span style="color: rgba(0, 0, 0, 1)"> ST[j].s];
+                            }        
+                        }
+                }    
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= tot; i++) ans +=<span style="color: rgba(0, 0, 0, 1)"> f[n][i][k];
+        
+        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%lld\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,ans);
+    
+    </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

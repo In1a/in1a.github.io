@@ -1,0 +1,164 @@
+---
+layout: post
+title: '【SDOI2009】SuperGCD'
+date: 2018-03-18 20:47:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9196400.html
+cnblogs_id: 9196400
+---
+{% raw %}
+
+<p>【题目链接】</p>
+<p>           <a href="http://www.lydsy.com/JudgeOnline/problem.php?id=1876" rel="noopener nofollow">点击打开链接</a></p>
+<p>【算法】</p>
+<p>          <strong>1.关于求最大公约数的算法</strong></p>
+<p>          若使用辗转相除法，那么显然会超时</p>
+<p>          不妨这样思考 ：</p>
+<p>          要求gcd(a,b),</p>
+<p>          若a为偶数，b为偶数，则gcd(a,b) = 2 * gcd(a/2,b/2)</p>
+<p>          若a为偶数，b为奇数，则gcd(a,b) = gcd(a/2,b)</p>
+<p>          若a为奇数，b为偶数，则gcd(a,b) = gcd(a,b/2)</p>
+<p>          若a为奇数，b为奇数，则gcd(a,b) = gcd(b,a-b)</p>
+<p>          这个算法的时间复杂度是log级别的</p>
+<p>          <strong>2.高精度计算</strong></p>
+<p><strong>          </strong>由于a,b&lt;=10^100，所以要用高精度</p>
+<p>          如果每一位存一个数会超时，所以我们每一位可以多位，例如9位，这样既省时间又省空间</p>
+<p>【代码】</p>
+<p>         </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 10000
+<span style="color: rgba(0, 0, 255, 1)">#define</span> MAXL 1250
+<span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">int</span> BASE =<span style="color: rgba(0, 0, 0, 1)"> 1e9;
+ 
+</span><span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> INT { 
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> len;
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> num[MAXL+<span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">]; 
+} A,B,ans;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,n;
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">bool</span><span style="color: rgba(0, 0, 0, 1)"> odd(INT x) { 
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> sta=<span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (!x.num[sta]) sta++<span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> x.num[sta+x.len-<span style="color: rgba(128, 0, 128, 1)">1</span>] % <span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">;    
+}
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">bool</span><span style="color: rgba(0, 0, 0, 1)"> zero(INT x) {
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i &lt;= MAXL; i++<span style="color: rgba(0, 0, 0, 1)">) {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (x.num[i] != <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">)
+                        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(0, 0, 255, 1)">false</span><span style="color: rgba(0, 0, 0, 1)">;
+        }    
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+}
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> read(INT &amp;<span style="color: rgba(0, 0, 0, 1)">x) {
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,l,s;
+        </span><span style="color: rgba(0, 0, 255, 1)">char</span><span style="color: rgba(0, 0, 0, 1)"> ch[MAXN];
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%s</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,ch);
+        x.len </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        l </span>=<span style="color: rgba(0, 0, 0, 1)"> strlen(ch);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i &lt; l % <span style="color: rgba(128, 0, 128, 1)">9</span>; i++) x.num[<span style="color: rgba(128, 0, 128, 1)">0</span>] = (x.num[<span style="color: rgba(128, 0, 128, 1)">0</span>] &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">3</span>) + (x.num[<span style="color: rgba(128, 0, 128, 1)">0</span>] &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>) + ch[i] - <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (l % <span style="color: rgba(128, 0, 128, 1)">9</span> != <span style="color: rgba(128, 0, 128, 1)">0</span>) x.len = <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        s </span>= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = l % <span style="color: rgba(128, 0, 128, 1)">9</span>; i &lt; l; i++<span style="color: rgba(0, 0, 0, 1)">) {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (s == <span style="color: rgba(128, 0, 128, 1)">10</span>) { x.len++; s = <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">; }
+                x.num[x.len] </span>= (x.num[x.len] &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">3</span>) + (x.num[x.len] &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>) + ch[i] - <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">;
+                s</span>++<span style="color: rgba(0, 0, 0, 1)">;
+        } 
+        x.len</span>++<span style="color: rgba(0, 0, 0, 1)">;
+}
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> print(INT x) {
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> i,sta=<span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (!x.num[sta]) sta++<span style="color: rgba(0, 0, 0, 1)">;
+        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,x.num[sta]);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = sta + <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt; sta + x.len; i++) printf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%09d</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,x.num[i]);
+        puts(</span><span style="color: rgba(128, 0, 0, 1)">""</span><span style="color: rgba(0, 0, 0, 1)">);    
+}
+
+INT </span><span style="color: rgba(0, 0, 255, 1)">operator</span> -= (INT &amp;<span style="color: rgba(0, 0, 0, 1)">a,INT b) {
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> i,sta1=<span style="color: rgba(128, 0, 128, 1)">0</span>,sta2=<span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">static</span><span style="color: rgba(0, 0, 0, 1)"> INT res;
+        res.len </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        memset(res.num,</span><span style="color: rgba(128, 0, 128, 1)">0</span>,<span style="color: rgba(0, 0, 255, 1)">sizeof</span><span style="color: rgba(0, 0, 0, 1)">(res.num));
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (!a.num[sta1]) sta1++<span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (!b.num[sta2]) sta2++<span style="color: rgba(0, 0, 0, 1)">;
+        reverse(a.num,a.num</span>+sta1+<span style="color: rgba(0, 0, 0, 1)">a.len);
+        reverse(b.num,b.num</span>+sta2+<span style="color: rgba(0, 0, 0, 1)">b.len);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i &lt; max(a.len,b.len); i++<span style="color: rgba(0, 0, 0, 1)">) {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (a.num[i] &lt;<span style="color: rgba(0, 0, 0, 1)"> b.num[i]) {
+                        a.num[i] </span>+=<span style="color: rgba(0, 0, 0, 1)"> BASE;
+                        a.num[i</span>+<span style="color: rgba(128, 0, 128, 1)">1</span>]--<span style="color: rgba(0, 0, 0, 1)">;
+                } 
+                res.num[res.len</span>++] = a.num[i] -<span style="color: rgba(0, 0, 0, 1)"> b.num[i];
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (res.len &gt; <span style="color: rgba(128, 0, 128, 1)">1</span> &amp;&amp; res.num[res.len-<span style="color: rgba(128, 0, 128, 1)">1</span>] == <span style="color: rgba(128, 0, 128, 1)">0</span>) res.len--<span style="color: rgba(0, 0, 0, 1)">;
+        reverse(res.num,res.num</span>+<span style="color: rgba(0, 0, 0, 1)">res.len);
+        a </span>=<span style="color: rgba(0, 0, 0, 1)"> res;
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">bool</span> <span style="color: rgba(0, 0, 255, 1)">operator</span> &lt;<span style="color: rgba(0, 0, 0, 1)"> (INT a,INT b) {
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> i,sta1=<span style="color: rgba(128, 0, 128, 1)">0</span>,sta2=<span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (a.len &lt; b.len) <span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (b.len &lt; a.len) <span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(0, 0, 255, 1)">false</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (!a.num[sta1]) sta1++<span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (!b.num[sta2]) sta2++<span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i &lt; a.len; i++<span style="color: rgba(0, 0, 0, 1)">)    {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (a.num[sta1+i] &lt; b.num[sta2+i]) <span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (b.num[sta2+i] &lt; a.num[sta1+i]) <span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(0, 0, 255, 1)">false</span><span style="color: rgba(0, 0, 0, 1)">;
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(0, 0, 255, 1)">false</span><span style="color: rgba(0, 0, 0, 1)">;
+}
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> multipy2(INT &amp;<span style="color: rgba(0, 0, 0, 1)">x) {
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> i,sta=<span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (!x.num[sta]) sta++<span style="color: rgba(0, 0, 0, 1)">;
+        reverse(x.num</span>+sta,x.num+sta+<span style="color: rgba(0, 0, 0, 1)">x.len);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = sta; i &lt; sta + x.len; i++) x.num[i] = x.num[i] &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = sta; i &lt; sta + x.len; i++<span style="color: rgba(0, 0, 0, 1)">) {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (x.num[i] &gt;=<span style="color: rgba(0, 0, 0, 1)"> BASE) {
+                        x.num[i</span>+<span style="color: rgba(128, 0, 128, 1)">1</span>]++<span style="color: rgba(0, 0, 0, 1)">;
+                        x.num[i] </span>%=<span style="color: rgba(0, 0, 0, 1)"> BASE;
+                }
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (x.num[sta+x.len]) x.len++<span style="color: rgba(0, 0, 0, 1)">;
+        reverse(x.num</span>+sta,x.num+sta+<span style="color: rgba(0, 0, 0, 1)">x.len);
+}
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> divide2(INT &amp;<span style="color: rgba(0, 0, 0, 1)">x) {
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> i,n=<span style="color: rgba(128, 0, 128, 1)">0</span>,sta=<span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">static</span><span style="color: rgba(0, 0, 0, 1)"> INT res;
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (!x.num[sta]) sta++<span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = sta; i &lt; sta + x.len; i++<span style="color: rgba(0, 0, 0, 1)">) {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (x.num[i] &amp; <span style="color: rgba(128, 0, 128, 1)">1</span>) x.num[i+<span style="color: rgba(128, 0, 128, 1)">1</span>] +=<span style="color: rgba(0, 0, 0, 1)"> BASE;
+                x.num[i] </span>&gt;&gt;= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        }
+      </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!x.num[sta]) x.len--<span style="color: rgba(0, 0, 0, 1)">; 
+}
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() {
+        
+        read(A); read(B);
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (A &lt;<span style="color: rgba(0, 0, 0, 1)"> B) swap(A,B);
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (!<span style="color: rgba(0, 0, 0, 1)">zero(B)) {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (odd(A) &amp;&amp; odd(B)) A -=<span style="color: rgba(0, 0, 0, 1)"> B;
+                </span><span style="color: rgba(0, 0, 255, 1)">else</span> <span style="color: rgba(0, 0, 255, 1)">if</span> (!odd(A) &amp;&amp;<span style="color: rgba(0, 0, 0, 1)"> odd(B)) divide2(A);
+                </span><span style="color: rgba(0, 0, 255, 1)">else</span> <span style="color: rgba(0, 0, 255, 1)">if</span> (odd(A) &amp;&amp; !<span style="color: rgba(0, 0, 0, 1)">odd(B)) divide2(B);
+                </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)"> { 
+                        divide2(A); 
+                        divide2(B); 
+                        n</span>++<span style="color: rgba(0, 0, 0, 1)">; 
+                }    
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (A &lt;<span style="color: rgba(0, 0, 0, 1)"> B) swap(A,B);
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (n--<span style="color: rgba(0, 0, 0, 1)">) multipy2(A);
+        print(A);
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

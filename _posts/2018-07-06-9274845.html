@@ -1,0 +1,145 @@
+---
+layout: post
+title: '【POJ 3700】 Missile Defence System'
+date: 2018-07-06 17:39:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9274845.html
+cnblogs_id: 9274845
+---
+{% raw %}
+
+<p>【题目链接】</p>
+<p>           <a href="http://poj.org/problem?id=3700" target="_blank" rel="noopener nofollow"> http://poj.org/problem?id=3700</a></p>
+<p>【算法】</p>
+<p>          对于每一枚导弹，有4种决策 ：</p>
+<p>          1.新建一套递增的系统拦截它</p>
+<p>          2.新建一套递减的系统拦截它</p>
+<p>          3.在已经建好的递增拦截系统中任选一个符合条件的拦截</p>
+<p>          4.在已经建好的递减拦截系统中任选一个符合条件的拦截</p>
+<p>          如果直接搜索，复杂度显然太高，考虑剪枝 ：</p>
+<p>          1.贪心地思考这个问题，我们发现如果能用已经建好的系统拦截，那么就不需要新建了，如果有递增的符合条件的系统，在这些系统中选最近拦截高度最高的，如果有递减的符合条件的系统，在这些系统中选最近拦截高度最低的</p>
+<p>          2.显然答案是很小的，每枚导弹至少可以和另一枚导弹“配对”，用一套系统拦截，因此最劣情况下也只需25套拦截系统，不妨使用迭代加深算法</p>
+<p>【代码】</p>
+<p>           </p>
+<div class="cnblogs_code">
+<pre>#include &lt;algorithm&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;bitset&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cctype&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cerrno&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;clocale&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cmath&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;complex&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cstdio&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cstdlib&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cstring&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;ctime&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;deque&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;exception&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;fstream&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;functional&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;limits&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;list&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;map&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;iomanip&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;ios&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;iosfwd&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;iostream&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;istream&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;ostream&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;queue&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;<span style="color: rgba(0, 0, 255, 1)">set</span>&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;sstream&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;stdexcept&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;streambuf&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;<span style="color: rgba(0, 0, 255, 1)">string</span>&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;utility&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;vector&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cwchar&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cwctype&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;stack&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;limits.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,n,tota,totb,step;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span> a[<span style="color: rgba(128, 0, 128, 1)">50</span>],b[<span style="color: rgba(128, 0, 128, 1)">50</span>],h[<span style="color: rgba(128, 0, 128, 1)">50</span><span style="color: rgba(0, 0, 0, 1)">];
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">bool</span> dfs(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> dep)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,mx,mn,pos,tmp;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (tota + totb &gt; step) <span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(0, 0, 255, 1)">false</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (dep &gt; n) <span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+        pos </span>= <span style="color: rgba(128, 0, 128, 1)">0</span>; mx = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= tota; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (a[i] &lt; h[dep] &amp;&amp; a[i] &gt;<span style="color: rgba(0, 0, 0, 1)"> mx)     
+                {
+                        mx </span>=<span style="color: rgba(0, 0, 0, 1)"> a[i];
+                        pos </span>=<span style="color: rgba(0, 0, 0, 1)"> i;
+                }
+        }        
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span><span style="color: rgba(0, 0, 0, 1)"> (pos) 
+        {
+                tmp </span>=<span style="color: rgba(0, 0, 0, 1)"> a[pos];
+                a[pos] </span>=<span style="color: rgba(0, 0, 0, 1)"> h[dep];
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (dfs(dep+<span style="color: rgba(128, 0, 128, 1)">1</span>)) <span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+                a[pos] </span>=<span style="color: rgba(0, 0, 0, 1)"> tmp;
+        } </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)">
+        {
+                tota</span>++<span style="color: rgba(0, 0, 0, 1)">;
+                a[tota] </span>=<span style="color: rgba(0, 0, 0, 1)"> h[dep];
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (dfs(dep+<span style="color: rgba(128, 0, 128, 1)">1</span>)) <span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+                tota</span>--<span style="color: rgba(0, 0, 0, 1)">;                
+        }
+        pos </span>= <span style="color: rgba(128, 0, 128, 1)">0</span>; mn =<span style="color: rgba(0, 0, 0, 1)"> 2e9;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= totb; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (b[i] &gt; h[dep] &amp;&amp; b[i] &lt;<span style="color: rgba(0, 0, 0, 1)"> mn)
+                {
+                        mn </span>=<span style="color: rgba(0, 0, 0, 1)"> b[i];
+                        pos </span>=<span style="color: rgba(0, 0, 0, 1)"> i;
+                }
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span><span style="color: rgba(0, 0, 0, 1)"> (pos)
+        {
+                tmp </span>=<span style="color: rgba(0, 0, 0, 1)"> b[pos];
+                b[pos] </span>=<span style="color: rgba(0, 0, 0, 1)"> h[dep];
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (dfs(dep+<span style="color: rgba(128, 0, 128, 1)">1</span>)) <span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+                b[pos] </span>=<span style="color: rgba(0, 0, 0, 1)"> tmp;
+        } </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)">
+        {
+                totb</span>++<span style="color: rgba(0, 0, 0, 1)">;
+                b[totb] </span>=<span style="color: rgba(0, 0, 0, 1)"> h[dep];
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (dfs(dep+<span style="color: rgba(128, 0, 128, 1)">1</span>)) <span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+                totb</span>--<span style="color: rgba(0, 0, 0, 1)">;
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(0, 0, 255, 1)">false</span><span style="color: rgba(0, 0, 0, 1)">;
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() 
+{
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (scanf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;n) &amp;&amp;<span style="color: rgba(0, 0, 0, 1)"> n)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++) scanf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">h[i]);
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        memset(a,</span><span style="color: rgba(128, 0, 128, 1)">0</span>,<span style="color: rgba(0, 0, 255, 1)">sizeof</span><span style="color: rgba(0, 0, 0, 1)">(a));
+                        memset(b,</span><span style="color: rgba(128, 0, 128, 1)">0</span>,<span style="color: rgba(0, 0, 255, 1)">sizeof</span><span style="color: rgba(0, 0, 0, 1)">(b));
+                        tota </span>= totb = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                        step </span>=<span style="color: rgba(0, 0, 0, 1)"> i;
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (dfs(<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">))
+                        {
+                                printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,i);
+                                </span><span style="color: rgba(0, 0, 255, 1)">break</span><span style="color: rgba(0, 0, 0, 1)">;
+                        }
+                }        
+        }
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+<p>      </p>
+
+
+{% endraw %}

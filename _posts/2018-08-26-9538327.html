@@ -1,0 +1,430 @@
+---
+layout: post
+title: 'Codeforces Round #506 (Div. 3) 题解'
+date: 2018-08-26 19:18:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9538327.html
+cnblogs_id: 9538327
+---
+{% raw %}
+
+<p>[比赛链接]</p>
+<p>        <a href="https://codeforces.com/contest/1029" target="_blank" rel="noopener nofollow"> https://codeforces.com/contest/1029</a></p>
+<p>[比赛经历]</p>
+<p>         本想靠DIV3上点分，没想到时差没有倒过来，最后三题收场，第二天SYSTEM TEST的时候D题还被卡常了，最后只加了1rating，算是一场比较失败的比赛吧</p>
+<p>[题解]</p>
+<p>       <strong> A. Many Equal Substrings</strong></p>
+<p><strong>        </strong>[算法]</p>
+<p>                我们可以找到这个字符串中最长的后缀 = 前缀的长度（记为T) , 那么 ， 最后的答案就是S + S[T + 1..LEN] + S[T + 1..LEN] + .... + S[T + 1,LEN]（共(k - 1)个S[T + 1,LEN]) ， 最长后缀 = 前缀的长度我们可以通过kmp的next数组求出 ， 当然 ， 由于n比较小，朴素算法也是可以实现的</p>
+<p>                由于答案字符串的长度很短 ， 我们也可以直接模拟 ， 笔者在比赛时就采取了这种做法</p>
+<p>                时间复杂度 : O(N)</p>
+<p>       [代码]</p>
+<p>             </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> n,k,len;
+</span><span style="color: rgba(0, 0, 255, 1)">string</span><span style="color: rgba(0, 0, 0, 1)"> t,ans;
+
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> read(T &amp;<span style="color: rgba(0, 0, 0, 1)">x)
+{
+    </span><span style="color: rgba(0, 0, 255, 1)">int</span> f = <span style="color: rgba(128, 0, 128, 1)">1</span>; x = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">char</span> c =<span style="color: rgba(0, 0, 0, 1)"> getchar();
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; !isdigit(c); c = getchar()) { <span style="color: rgba(0, 0, 255, 1)">if</span> (c == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>) f = -<span style="color: rgba(0, 0, 0, 1)">f; }
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; isdigit(c); c = getchar()) x = (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">3</span>) + (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>) + c - <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">;
+    x </span>*=<span style="color: rgba(0, 0, 0, 1)"> f;
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() 
+{
+        
+        cin </span>&gt;&gt; n &gt;&gt;<span style="color: rgba(0, 0, 0, 1)"> k;
+        cin </span>&gt;&gt;<span style="color: rgba(0, 0, 0, 1)"> t;
+        ans </span>=<span style="color: rgba(0, 0, 0, 1)"> t;
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> sum = <span style="color: rgba(128, 0, 128, 1)">1</span> , now = <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (<span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (sum == k) <span style="color: rgba(0, 0, 255, 1)">break</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (now == (<span style="color: rgba(0, 0, 255, 1)">int</span>)ans.size()) ans +=<span style="color: rgba(0, 0, 0, 1)"> t; 
+                </span><span style="color: rgba(0, 0, 255, 1)">else</span> <span style="color: rgba(0, 0, 255, 1)">if</span> (now + n - <span style="color: rgba(128, 0, 128, 1)">1</span> &gt;= (<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)">)ans.size()) 
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (now != (<span style="color: rgba(0, 0, 255, 1)">int</span>)ans.size() &amp;&amp; ans.substr(now,(<span style="color: rgba(0, 0, 255, 1)">int</span>)ans.size() - now) != t.substr(<span style="color: rgba(128, 0, 128, 1)">0</span>,(<span style="color: rgba(0, 0, 255, 1)">int</span>)ans.size() - now)) now++<span style="color: rgba(0, 0, 0, 1)">;
+                        </span><span style="color: rgba(0, 0, 255, 1)">else</span> ans += t[(<span style="color: rgba(0, 0, 255, 1)">int</span>)ans.size() -<span style="color: rgba(0, 0, 0, 1)"> now]; 
+                } </span><span style="color: rgba(0, 0, 255, 1)">else</span> <span style="color: rgba(0, 0, 255, 1)">if</span> (ans.substr(now,n) == t.substr(<span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">,n)) 
+                {
+                        sum</span>++<span style="color: rgba(0, 0, 0, 1)">;
+                        now</span>++<span style="color: rgba(0, 0, 0, 1)">;
+                } </span><span style="color: rgba(0, 0, 255, 1)">else</span> now++<span style="color: rgba(0, 0, 0, 1)">;
+        }
+        cout</span>&lt;&lt; ans &lt;&lt;<span style="color: rgba(0, 0, 0, 1)"> endl;
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p>            <strong>B. Creating the Contest</strong></p>
+<p><strong>           </strong> [算法]</p>
+<p>                   我们可以扫描一遍数组 ， 当扫描到一个元素时 ， 我们贪心地将该元素加入满足条件的 ， 大小最大的组中 ， 如果不存在满足条件的组就新建一个 ， 最后的答案为最大的组的大小</p>
+<p>                   时间复杂度 : O(N)</p>
+<p>            [代码]</p>
+<p>                     </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">int</span> MAXN = <span style="color: rgba(128, 0, 128, 1)">2</span> * 1e5 + <span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> n,tot;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> g[MAXN],a[MAXN],sz[MAXN];
+
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> read(T &amp;<span style="color: rgba(0, 0, 0, 1)">x)
+{
+    </span><span style="color: rgba(0, 0, 255, 1)">int</span> f = <span style="color: rgba(128, 0, 128, 1)">1</span>; x = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">char</span> c =<span style="color: rgba(0, 0, 0, 1)"> getchar();
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; !isdigit(c); c = getchar()) { <span style="color: rgba(0, 0, 255, 1)">if</span> (c == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>) f = -<span style="color: rgba(0, 0, 0, 1)">f; }
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; isdigit(c); c = getchar()) x = (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">3</span>) + (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>) + c - <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">;
+    x </span>*=<span style="color: rgba(0, 0, 0, 1)"> f;
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() 
+{
+        
+        read(n);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">) read(a[i]);
+        g[tot </span>= <span style="color: rgba(128, 0, 128, 1)">1</span>] = a[<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+        sz[</span><span style="color: rgba(128, 0, 128, 1)">1</span>] = <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">2</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span> pos = -<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= tot; j++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (a[i] &lt;= g[j] * <span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">)
+                        {
+                                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (pos == -<span style="color: rgba(128, 0, 128, 1)">1</span> || sz[j] &gt;<span style="color: rgba(0, 0, 0, 1)"> sz[pos])
+                                        pos </span>=<span style="color: rgba(0, 0, 0, 1)"> j;        
+                        }
+                }        
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (pos != -<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">) 
+                {
+                        g[pos] </span>=<span style="color: rgba(0, 0, 0, 1)"> a[i];
+                        sz[pos]</span>++<span style="color: rgba(0, 0, 0, 1)">;
+                } </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)"> 
+                {
+                        g[</span>++tot] =<span style="color: rgba(0, 0, 0, 1)"> a[i];
+                        sz[tot] </span>= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                }
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> ans = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= tot; i++) ans =<span style="color: rgba(0, 0, 0, 1)"> max(ans,sz[i]);
+        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,ans);
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p>                <strong>C. Maximal Intersection</strong></p>
+<p><strong>                </strong>[算法]</p>
+<p>                        首先 ， n条线段的交集长度为[Lmax,Rmin] ， 其中Lmax为最靠右的左端点，Rmin为最靠左的右端点，若Lmax &gt; Rmin , 说明这些线段无交集 </p>
+<p>                        发现这个性质以后 ， 我们可以枚举删去哪一条线段， 在剩余线段中找到最靠右的左端点和最靠左的右端点 ，用两者的差值更新答案，具体实现时，</p>
+<p>                        我们可以记录前缀最值和后缀最值， 当然 ， STL中的multiset和线段树等数据结构也是可以完成这个任务的</p>
+<p>                       时间复杂度 : O(N) 或 O(N log N)</p>
+<p>               [代码]</p>
+<p>                       </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">int</span> MAXN = 3e5 + <span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">;
+</span><span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">int</span> inf =<span style="color: rgba(0, 0, 0, 1)"> 2e9;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> n;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> l[MAXN],r[MAXN],premn[MAXN],sufmn[MAXN],premx[MAXN],sufmx[MAXN];
+
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> read(T &amp;<span style="color: rgba(0, 0, 0, 1)">x)
+{
+    </span><span style="color: rgba(0, 0, 255, 1)">int</span> f = <span style="color: rgba(128, 0, 128, 1)">1</span>; x = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">char</span> c =<span style="color: rgba(0, 0, 0, 1)"> getchar();
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; !isdigit(c); c = getchar()) <span style="color: rgba(0, 0, 255, 1)">if</span> (c == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>) f = -<span style="color: rgba(0, 0, 0, 1)">f; 
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; isdigit(c); c = getchar()) x = (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">3</span>) + (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>) + c - <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">;
+    x </span>*=<span style="color: rgba(0, 0, 0, 1)"> f;
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() 
+{
+        
+        read(n);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">) 
+        {
+                read(l[i]);    
+                read(r[i]);
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (n == <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">)
+        {
+                printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span>,r[<span style="color: rgba(128, 0, 128, 1)">1</span>] - l[<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">]);
+                </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        }
+        premx[</span><span style="color: rgba(128, 0, 128, 1)">0</span>] = -<span style="color: rgba(0, 0, 0, 1)">inf;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++) premx[i] = max(premx[i - <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">],l[i]);
+        sufmx[n </span>+ <span style="color: rgba(128, 0, 128, 1)">1</span>] = -<span style="color: rgba(0, 0, 0, 1)">inf;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = n; i &gt;= <span style="color: rgba(128, 0, 128, 1)">1</span>; i--) sufmx[i] = max(sufmx[i + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">],l[i]);
+        premn[</span><span style="color: rgba(128, 0, 128, 1)">0</span>] =<span style="color: rgba(0, 0, 0, 1)"> inf;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++) premn[i] = min(premn[i - <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">],r[i]);
+        sufmn[n </span>+ <span style="color: rgba(128, 0, 128, 1)">1</span>] =<span style="color: rgba(0, 0, 0, 1)"> inf;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = n; i &gt;= <span style="color: rgba(128, 0, 128, 1)">1</span>; i--) sufmn[i] = min(sufmn[i + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">],r[i]);
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> ans = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++) ans = max(ans,min(premn[i - <span style="color: rgba(128, 0, 128, 1)">1</span>],sufmn[i + <span style="color: rgba(128, 0, 128, 1)">1</span>]) - max(premx[i - <span style="color: rgba(128, 0, 128, 1)">1</span>],sufmx[i + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">]));
+        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,ans);
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p>                    <strong>D.Concatenated Multiples</strong></p>
+<p><strong>                    </strong>[算法]</p>
+<p>                            不难发现 ， 所有符合条件的二元组(i,j)都满足 : 10^(len(j)) * a[i] + a[j] 是k的倍数 ，我们不妨开10个std :: map ， 其中，第m个map记录的是10^m * a[t] ( 1 &lt;= t &lt;= n)对k取模为V(0 &lt;= V &lt; k)的数的个数 ， 然后我们枚举每一个数更新答案 ， 最后 ， 我们还需将答案减去(i,i)这样的</p>
+<p>                            不合法的二元组</p>
+<p>                            时间复杂度 : O(10Nlog(N))</p>
+<p>                    [代码] </p>
+<p>                            此题时限很紧 ， 注意优化常数 ！</p>
+<p>                            </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#pragma</span> GCC optimize("O2")
+<span style="color: rgba(0, 0, 255, 1)">#pragma</span> GCC optimize("O3")
+<span style="color: rgba(0, 0, 255, 1)">#pragma</span> GCC optimize("Ofast")
+<span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">int</span> MAXN = <span style="color: rgba(128, 0, 128, 1)">2</span> * 1e5 + <span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">;
+typedef </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> ll;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> n;
+ll k,ans;
+map</span>&lt; ll,<span style="color: rgba(0, 0, 255, 1)">int</span> &gt; mp[<span style="color: rgba(128, 0, 128, 1)">11</span><span style="color: rgba(0, 0, 0, 1)">];
+ll a[MAXN];
+
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> read(T &amp;<span style="color: rgba(0, 0, 0, 1)">x)
+{
+    </span><span style="color: rgba(0, 0, 255, 1)">int</span> f = <span style="color: rgba(128, 0, 128, 1)">1</span>; x = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">char</span> c =<span style="color: rgba(0, 0, 0, 1)"> getchar();
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; !isdigit(c); c = getchar()) { <span style="color: rgba(0, 0, 255, 1)">if</span> (c == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>) f = -<span style="color: rgba(0, 0, 0, 1)">f; }
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; isdigit(c); c = getchar()) x = (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">3</span>) + (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>) + c - <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">;
+    x </span>*=<span style="color: rgba(0, 0, 0, 1)"> f;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> len(ll n)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> ret = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (n &gt; <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">)
+        {
+                ret</span>++<span style="color: rgba(0, 0, 0, 1)">;
+                n </span>/= <span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">;
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> ret;
+}
+inline ll Pow(</span><span style="color: rgba(0, 0, 255, 1)">int</span> a,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> n)
+{
+        ll ret </span>= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++) ret = 1ll * ret * a %<span style="color: rgba(0, 0, 0, 1)"> k;
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> ret;
+}
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() 
+{
+        
+        read(n); read(k);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">) read(a[i]);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= <span style="color: rgba(128, 0, 128, 1)">10</span>; j++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        mp[j][1ll </span>* Pow(<span style="color: rgba(128, 0, 128, 1)">10</span>,j) * 1ll * a[i] % k]++<span style="color: rgba(0, 0, 0, 1)">;
+                }
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++) <span style="color: rgba(0, 0, 255, 1)">if</span> (mp[len(a[i])].count((k - a[i] % k) % k)) ans += mp[len(a[i])][(k - a[i] % k) %<span style="color: rgba(0, 0, 0, 1)"> k];
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> ((1ll * Pow(<span style="color: rgba(128, 0, 128, 1)">10</span>,len(a[i])) * a[i] % k + 1ll * a[i]) % k == <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">)
+                        ans</span>--<span style="color: rgba(0, 0, 0, 1)">;
+        }
+        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%I64d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,ans);
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p>                     <strong>E. Tree with Small Distances</strong></p>
+<p><strong>                     </strong>[算法]</p>
+<p>                             首先将所有的深度大于2的点加入一个堆中 ， 每次我们找到深度最大的点 ， 将这个点从堆中弹出 ， 然后 ， 我们将这个点的父节点和1号节点连一条边 ， 在堆中删除所有与该节点父节点相连的边 </p>
+<p>                             当堆中没有元素时， 就得到了答案</p>
+<p>                             时间复杂度 : O(NlogN)</p>
+<p>                     [代码]</p>
+<p>                             </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">int</span> MAXN = 2e5 + <span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">;
+</span><span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">int</span> inf =<span style="color: rgba(0, 0, 0, 1)"> 2e9;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> n,tot,ans;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> head[MAXN],fa[MAXN],dep[MAXN];
+priority_queue</span>&lt; pair&lt;<span style="color: rgba(0, 0, 255, 1)">int</span>,<span style="color: rgba(0, 0, 255, 1)">int</span>&gt; &gt;<span style="color: rgba(0, 0, 0, 1)"> q;
+</span><span style="color: rgba(0, 0, 255, 1)">bool</span><span style="color: rgba(0, 0, 0, 1)"> visited[MAXN];
+
+</span><span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> edge
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> to,nxt;
+} e[MAXN </span>&lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> read(T &amp;<span style="color: rgba(0, 0, 0, 1)">x)
+{
+    </span><span style="color: rgba(0, 0, 255, 1)">int</span> f = <span style="color: rgba(128, 0, 128, 1)">1</span>; x = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">char</span> c =<span style="color: rgba(0, 0, 0, 1)"> getchar();
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; !isdigit(c); c = getchar()) <span style="color: rgba(0, 0, 255, 1)">if</span> (c == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>) f = -<span style="color: rgba(0, 0, 0, 1)">f; 
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; isdigit(c); c = getchar()) x = (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">3</span>) + (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>) + c - <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">;
+    x </span>*=<span style="color: rgba(0, 0, 0, 1)"> f;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> addedge(<span style="color: rgba(0, 0, 255, 1)">int</span> u,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> v)
+{
+        tot</span>++<span style="color: rgba(0, 0, 0, 1)">;
+        e[tot] </span>=<span style="color: rgba(0, 0, 0, 1)"> (edge){v,head[u]};
+        head[u] </span>=<span style="color: rgba(0, 0, 0, 1)"> tot;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">int</span> dfs(<span style="color: rgba(0, 0, 255, 1)">int</span> u,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> par)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = head[u]; i; i =<span style="color: rgba(0, 0, 0, 1)"> e[i].nxt)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span> v =<span style="color: rgba(0, 0, 0, 1)"> e[i].to;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (v == par) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                fa[v] </span>=<span style="color: rgba(0, 0, 0, 1)"> u;
+                dep[v] </span>= dep[u] + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                dfs(v,u);
+        }
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() 
+{
+        
+        read(n);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt; n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> u,v;
+                read(u); read(v);
+                addedge(u,v);
+                addedge(v,u);
+        }
+        dfs(</span><span style="color: rgba(128, 0, 128, 1)">1</span>,<span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (dep[i] &gt; <span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">)
+                        q.push(make_pair(dep[i],i));
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (!<span style="color: rgba(0, 0, 0, 1)">q.empty())
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span> u =<span style="color: rgba(0, 0, 0, 1)"> q.top().second;
+                q.pop(); 
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (visited[u]) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                visited[u </span>= fa[u]] = <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+                ans</span>++<span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = head[u]; i; i =<span style="color: rgba(0, 0, 0, 1)"> e[i].nxt)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">int</span> v =<span style="color: rgba(0, 0, 0, 1)"> e[i].to;
+                        visited[v] </span>= <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+                }
+        }
+        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,ans);
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+<p>                        <strong>F. Multicolored Markers</strong></p>
+<p><strong>                        </strong>[算法]</p>
+<p>                                  首先， 大长方形的边长一定是(a + b)的约数， 所以 ， 我们可以从1到sqrt(a + b)枚举较小的那些因子（其中，sqrt表示开根号） ， 求出(a + b）的所有约数</p>
+<p>                                  既然我们要求至少有一种颜色的格子满足这些格子也能构成长方形 ， 那么 ， 我们可以同样用上述方法求出a和b的所有因子 </p>
+<p>                                  为了方便讨论，我们假设所有红色颜色的格子能够构成长方形 </p>
+<p>                                  然后 ， 我们枚举大正方形的长d1 ,  用二分或Two Pointers求出小于d1的 ， 最大的a的约数 ， 如果((a + b) / d1 &gt;= a / d2) ， 我们就用(d1 + (a + b) / d1) * 2更新答案</p>
+<p>                                  蓝色格子同理</p>
+<p>                                  时间复杂度 : O(sqrt(a + b)) (其中 ， sqrt表示开根号 )</p>
+<p>                        [代码]</p>
+<p>                               </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">int</span> MAXD = 1e5 + <span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">;
+typedef </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> ll;
+</span><span style="color: rgba(0, 0, 255, 1)">const</span> ll inf =<span style="color: rgba(0, 0, 0, 1)"> 1e18;
+
+ll a,b,ans,lena,lenb;
+ll fa[MAXD],fb[MAXD];
+
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> read(T &amp;<span style="color: rgba(0, 0, 0, 1)">x)
+{
+    ll f </span>= <span style="color: rgba(128, 0, 128, 1)">1</span>; x = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">char</span> c =<span style="color: rgba(0, 0, 0, 1)"> getchar();
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; !isdigit(c); c = getchar()) { <span style="color: rgba(0, 0, 255, 1)">if</span> (c == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>) f = -<span style="color: rgba(0, 0, 0, 1)">f; }
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; isdigit(c); c = getchar()) x = (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">3</span>) + (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>) + c - <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">;
+    x </span>*=<span style="color: rgba(0, 0, 0, 1)"> f;
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() 
+{
+        
+        read(a); read(b);
+        ll tmp </span>= a +<span style="color: rgba(0, 0, 0, 1)"> b;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (ll i = <span style="color: rgba(128, 0, 128, 1)">1</span>; 1ll * i * i &lt;= a + b; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (tmp % i == <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        fa[</span>++lena] =<span style="color: rgba(0, 0, 0, 1)"> i;
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (1ll * i * i != a + b) fa[++lena] = (a + b) /<span style="color: rgba(0, 0, 0, 1)"> i;
+                }
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (ll i = <span style="color: rgba(128, 0, 128, 1)">1</span>; 1ll * i * i &lt;= a; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (a % i == <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        fb[</span>++lenb] =<span style="color: rgba(0, 0, 0, 1)"> i;
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (1ll * i * i != a) fb[++lenb] = a /<span style="color: rgba(0, 0, 0, 1)"> i;
+                }
+        }
+        sort(fb </span>+ <span style="color: rgba(128, 0, 128, 1)">1</span>,fb + lenb + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+        fb[</span>++lenb] =<span style="color: rgba(0, 0, 0, 1)"> inf;
+        ans </span>=<span style="color: rgba(0, 0, 0, 1)"> inf;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= lena; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                ll d1 </span>=<span style="color: rgba(0, 0, 0, 1)"> fa[i];
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span> pos = lower_bound(fb + <span style="color: rgba(128, 0, 128, 1)">1</span>,fb + lenb + <span style="color: rgba(128, 0, 128, 1)">1</span>,d1) -<span style="color: rgba(0, 0, 0, 1)"> fb;        
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (fb[pos] &gt; d1 &amp;&amp; pos == <span style="color: rgba(128, 0, 128, 1)">1</span>) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (fb[pos] &gt; d1) pos--<span style="color: rgba(0, 0, 0, 1)">;
+                ll d2 </span>=<span style="color: rgba(0, 0, 0, 1)"> fb[pos];
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> ((a + b) / d1 &gt;= a / d2) ans = min(ans,<span style="color: rgba(128, 0, 128, 1)">2</span> * (d1 + (a + b) /<span style="color: rgba(0, 0, 0, 1)"> d1));
+        }
+        lenb </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (ll i = <span style="color: rgba(128, 0, 128, 1)">1</span>; 1ll * i * i &lt;= b; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (b % i == <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        fb[</span>++lenb] =<span style="color: rgba(0, 0, 0, 1)"> i;    
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (1ll * i * i != b) fb[++lenb] = b /<span style="color: rgba(0, 0, 0, 1)"> i;
+                }
+        }
+        sort(fb </span>+ <span style="color: rgba(128, 0, 128, 1)">1</span>,fb + lenb + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+        fb[</span>++lenb] =<span style="color: rgba(0, 0, 0, 1)"> inf;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= lena; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                ll d1 </span>=<span style="color: rgba(0, 0, 0, 1)"> fa[i];
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span> pos = lower_bound(fb + <span style="color: rgba(128, 0, 128, 1)">1</span>,fb + lenb + <span style="color: rgba(128, 0, 128, 1)">1</span>,d1) -<span style="color: rgba(0, 0, 0, 1)"> fb;        
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (fb[pos] &gt; d1 &amp;&amp; pos == <span style="color: rgba(128, 0, 128, 1)">1</span>) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (fb[pos] &gt; d1) pos--<span style="color: rgba(0, 0, 0, 1)">;
+                ll d2 </span>=<span style="color: rgba(0, 0, 0, 1)"> fb[pos];
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> ((a + b) / d1 &gt;= b / d2) ans = min(ans,<span style="color: rgba(128, 0, 128, 1)">2</span> * (d1 + (a + b) /<span style="color: rgba(0, 0, 0, 1)"> d1));
+        }
+        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%I64d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,ans);
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p>                [总结]</p>
+<p>                1. 这次比赛的失利不仅是因为时差的问题 ， 我认为 ， 更多的还是我的基本功不够扎实 ， 值得反思</p>
+<p>                2. 突然发现打比赛也是一种提高水平的好方法 ， 每次比赛都能发现自己的薄弱点并订正试题 ， 查漏补缺 ， 以后要多参加这些比赛 ， 不仅提高了能力 ， 而且 ， 英语水平也能得到提高</p>
+<p>                3. 离noip2018只剩两个月了 ， 在剩下的两个月中 ， 我还需更加努力 ， 调整好心态 ， 争取最后取得理想的成绩</p>
+
+
+{% endraw %}

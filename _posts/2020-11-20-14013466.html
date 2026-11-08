@@ -1,0 +1,30 @@
+---
+layout: post
+title: '学军联赛模拟 第二十四测 题解'
+date: 2020-11-20 23:07:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/14013466.html
+cnblogs_id: 14013466
+---
+{% raw %}
+
+<p><span class="math inline">\(A\)</span></p>
+<p>考虑按位计算贡献。 预处理组合数即可。</p>
+<p>时间复杂度 : <span class="math inline">\(O(NlogN)\)</span></p>
+<p><span class="math inline">\(B\)</span></p>
+<p>设 <span class="math inline">\(dp_{i}\)</span> 表示到达 <span class="math inline">\(i\)</span> 的最小花费。</p>
+<p>枚举到达 <span class="math inline">\(i\)</span> 是从哪里走来的 , 即可完成转移。</p>
+<p>将状态转移方程合并 ， 与 <span class="math inline">\(i\)</span> , <span class="math inline">\(j\)</span> , <span class="math inline">\(ij\)</span> 有关的项合在一起 ， 可以看成一个一次函数的形式。</p>
+<p>那么用线段树维护一次函数最值即可。 另一种做法是用平衡树维护凸壳 ， 比前者节省约十倍的常数。</p>
+<p>时间复杂度 : <span class="math inline">\(O(NlogN)\)</span></p>
+<p><span class="math inline">\(C\)</span></p>
+<p>首先不妨记录给定字符串在最近的 <span class="math inline">\(M\)</span> 个串中的出现次数分别为 <span class="math inline">\(A_{1} , A_{2} ... A_{M}\)</span>。</p>
+<p>对于一次拼接操作。 首先有原来的 <span class="math inline">\(A_{2}\)</span> 变为 <span class="math inline">\(A_{1}\)</span> , 原来的 <span class="math inline">\(A_{3}\)</span> 变为 <span class="math inline">\(A_{2}\)</span> , ... <span class="math inline">\(A_{M}\)</span> 变为 <span class="math inline">\(A_{M - 1}\)</span>。</p>
+<p>这样对于 <span class="math inline">\(2 - M\)</span> 这些串相当于做了 "移位" 操作。</p>
+<p>而对于新的拼接串 ， 其出现次数为 <span class="math inline">\(A_{1} + A_{2} + ... + A_{M}\)</span> ， 还要加上拼接处的贡献。 由于拼接只可能是相邻两串的一个后缀 + 一个前缀的形式。 因此不妨记 <span class="math inline">\(C_{i , j}\)</span> 表示原排列中的 <span class="math inline">\(i\)</span> 和原排列中的 <span class="math inline">\(j\)</span> 拼在一起新产生了多少个 <span class="math inline">\(S\)</span>。</p>
+<p>于是最近 <span class="math inline">\(M\)</span> 个串的信息就可以用 <span class="math inline">\(M + M ^ 2\)</span> 个变量的值维护。</p>
+<p>进一步地 ， 用矩阵乘法优化这个过程。</p>
+<p>时间复杂度 : <span class="math inline">\(O(QM ^ 6logM)\)</span></p>
+
+
+
+{% endraw %}

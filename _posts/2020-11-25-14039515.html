@@ -1,0 +1,91 @@
+---
+layout: post
+title: '[CF1439B] Graph Subset Problem'
+date: 2020-11-25 23:05:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/14039515.html
+cnblogs_id: 14039515
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p><a href="" rel="noopener nofollow">https://codeforces.com/contest/1439/problem/B</a></p>
+<p>[题解]</p>
+<p>首先若 <span class="math inline">\(K &gt; \sqrt{2M}\)</span> , 必然无解。 这是因为无论是一个团还是一个度数均大于等于 <span class="math inline">\(K\)</span> 的联通块 ， 边数都比 <span class="math inline">\(M\)</span> 更大。</p>
+<p>考虑 <span class="math inline">\(deg(u) &lt; K - 1\)</span> 的点 ， 显然 ， 这部分点可以直接删去 ， 因为它们不可能出现在任何一个团或联通块中。</p>
+<p>考虑 <span class="math inline">\(deg(u) = K - 1\)</span> 的点 ， 对于这种情况 ， 找出其所有相邻的点 ， 将每个节点的邻接表到达的节点从小到大排序 ， 那么对于每组点在邻接表内二分判断是否存在即可。</p>
+<p>而对于 <span class="math inline">\(deg(u) \geq K\)</span> 的点 ， 这说明可以在一个度数均比 <span class="math inline">\(K\)</span> 大的联通块中。 可以直接跳过。</p>
+<p>至此得到了一个类似于拓扑排序的算法。 这个问题得到了完美地解决。</p>
+<p>这个解法的复杂度瓶颈在于判断团的存在 ， 因为最多判 <span class="math inline">\(\lfloor \frac{M}{K} \rfloor\)</span> 个团 ， 所以时间复杂度 <span class="math inline">\(O(\frac{M}{K}) \cdot O(K ^ 2) = O(MK) \leq O(M\sqrt{M})\)</span>。</p>
+<p>[代码]</p>
+<pre><code class="language-cpp">#include &lt;bits/stdc++.h&gt;
+ 
+using namespace std;
+ 
+typedef long long LL;
+ 
+const int MN = 2e5 + 5;
+ 
+int N , M , K , vis[MN] , deg[MN];
+vector &lt; int &gt; g[MN];
+ 
+inline void solve() {
+	scanf("%d%d%d" , &amp;N , &amp;M , &amp;K);
+	for (int i = 1; i &lt;= N; ++i) {
+		vis[i] = 0;
+		g[i].clear();
+	}
+	for(int i = 1 , u , v; i &lt;= M; i ++) {
+		scanf("%d%d", &amp;u, &amp;v);
+		g[u].push_back(v); g[v].push_back(u);
+	}
+	if(K * (K - 1ll) &gt; 2 * M) {
+		puts("-1"); return ;
+	}
+	for(int i = 1; i &lt;= N; i ++) {
+		sort(g[i].begin(), g[i].end());
+		deg[i] = g[i].size();
+	}
+	queue&lt;int&gt; q;
+	for(int i = 1; i &lt;= N; i ++) if(deg[i] &lt; K) q.push(i), vis[i] = 1;
+	vector&lt;int&gt; clique;
+	while(q.size()) {
+		int u = q.front(); q.pop(); vis[u] = 2;
+		if(deg[u] == K - 1 &amp;&amp; !clique.size()) {
+			vector&lt;int&gt; cur = {u};
+			for(int v : g[u]) if(2 ^ vis[v]) cur.push_back(v);
+			bool mark = 1;
+			for(int u : cur) for(int v : cur) if(u &lt; v) {
+				if(!binary_search(g[u].begin(), g[u].end(), v)){
+					mark = 0; break ;
+				}
+			}
+			if(mark) clique = cur;
+		}
+		for(int v : g[u]) {
+			if(-- deg[v] &lt; K &amp;&amp; !vis[v]) {
+				vis[v] = 1; q.push(v);
+			}
+		}
+	}
+	if (count(vis + 1 , vis + N + 1 , 0)) {
+		vector &lt; int &gt; ans;
+		for (int i = 1; i &lt;= N; ++i) if (!vis[i]) ans.push_back(i);
+		printf("1 %d\n" , (int) ans.size());
+		for (int v : ans) printf("%d " , v);
+		printf("\n");
+	} else if (clique.size()) {
+		printf("2\n");
+		for (int v : clique) printf("%d " , v);
+		printf("\n");
+	} else printf("-1\n");
+}
+int main() {
+	
+	int T; scanf("%d" , &amp;T);
+	while (T--) solve();	
+	return 0;
+}</code></pre>
+
+
+
+{% endraw %}

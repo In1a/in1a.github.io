@@ -1,0 +1,66 @@
+---
+layout: post
+title: '【NOIP 2009】 Hankson的趣味题'
+date: 2018-07-09 12:44:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9283272.html
+cnblogs_id: 9283272
+---
+{% raw %}
+
+<p>【题目链接】</p>
+<p>            <a href="https://www.luogu.org/problemnew/show/P1072" target="_blank" rel="noopener nofollow">https://www.luogu.org/problemnew/show/P1072</a></p>
+<p>【算法】</p>
+<p>            x是b1的约数</p>
+<p>            筛出b1的约数，判断是否符合条件即可</p>
+<p>【代码】</p>
+<p>           </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,a0,a1,b0,b1,cnt,ans,T;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span> factor[<span style="color: rgba(128, 0, 128, 1)">100010</span><span style="color: rgba(0, 0, 0, 1)">];
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">int</span> gcd(<span style="color: rgba(0, 0, 255, 1)">int</span> x,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> y)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (y == <span style="color: rgba(128, 0, 128, 1)">0</span>) <span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> x;
+        </span><span style="color: rgba(0, 0, 255, 1)">else</span> <span style="color: rgba(0, 0, 255, 1)">return</span> gcd(y,x%<span style="color: rgba(0, 0, 0, 1)">y);        
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">int</span> lcm(<span style="color: rgba(0, 0, 255, 1)">int</span> x,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> y)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> 1ll * x * y /<span style="color: rgba(0, 0, 0, 1)"> gcd(x,y);
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() 
+{
+        
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">T);
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (T--<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                ans </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                cnt </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;a0,&amp;a1,&amp;b0,&amp;<span style="color: rgba(0, 0, 0, 1)">b1);
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= sqrt(b1); i++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (b1 % i == <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">)
+                        {
+                                factor[</span>++cnt] =<span style="color: rgba(0, 0, 0, 1)"> i;
+                                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (i * i != b1) factor[++cnt] = b1 /<span style="color: rgba(0, 0, 0, 1)"> i;        
+                        }        
+                }
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= cnt; i++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (gcd(a0,factor[i]) == a1 &amp;&amp; lcm(b0,factor[i]) ==<span style="color: rgba(0, 0, 0, 1)"> b1)
+                                ans</span>++<span style="color: rgba(0, 0, 0, 1)">;        
+                }
+                printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,ans);
+        }
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

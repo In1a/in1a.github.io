@@ -1,0 +1,95 @@
+---
+layout: post
+title: '【Codeforces 670C】 Cinema'
+date: 2018-06-27 19:18:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9235649.html
+cnblogs_id: 9235649
+---
+{% raw %}
+
+<p>【题目链接】</p>
+<p>             <a href="http://codeforces.com/contest/670/problem/C" target="_blank" rel="noopener nofollow"> http://codeforces.com/contest/670/problem/C</a></p>
+<p>【算法】</p>
+<p>           离散化</p>
+<p>【代码】</p>
+<p>         </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 200010
+
+<span style="color: rgba(0, 0, 255, 1)">int</span> n,m,pos,mx = -<span style="color: rgba(128, 0, 128, 1)">1</span>,nx = -<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">,len,i,rkb,rkc;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span> a[MAXN],b[MAXN],c[MAXN],s[MAXN&lt;&lt;<span style="color: rgba(128, 0, 128, 1)">2</span>],tmp[MAXN&lt;&lt;<span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">];
+
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> read(T &amp;<span style="color: rgba(0, 0, 0, 1)">x)
+{
+    </span><span style="color: rgba(0, 0, 255, 1)">int</span> f = <span style="color: rgba(128, 0, 128, 1)">1</span>; x = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">char</span> c =<span style="color: rgba(0, 0, 0, 1)"> getchar();
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; !isdigit(c); c = getchar()) { <span style="color: rgba(0, 0, 255, 1)">if</span> (c == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>) f = -<span style="color: rgba(0, 0, 0, 1)">f; }
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; isdigit(c); c = getchar()) x = (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">3</span>) + (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>) + c - <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">;
+    x </span>*=<span style="color: rgba(0, 0, 0, 1)"> f;
+}
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> write(T x)
+{
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (x &lt; <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">)
+    {
+        putchar(</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">);
+        x </span>= -<span style="color: rgba(0, 0, 0, 1)">x;
+    }
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (x &gt; <span style="color: rgba(128, 0, 128, 1)">9</span>) write(x/<span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">);
+    putchar(x</span>%<span style="color: rgba(128, 0, 128, 1)">10</span>+<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">);
+}
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> writeln(T x)
+{
+    write(x);
+    puts(</span><span style="color: rgba(128, 0, 0, 1)">""</span><span style="color: rgba(0, 0, 0, 1)">);
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() 
+{
+        
+        read(n);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">) 
+        {
+                read(a[i]);
+                tmp[</span>++len] =<span style="color: rgba(0, 0, 0, 1)"> a[i];        
+        }
+        read(m);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= m; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                read(b[i]);
+                tmp[</span>++len] =<span style="color: rgba(0, 0, 0, 1)"> b[i];
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= m; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                read(c[i]);
+                tmp[</span>++len] =<span style="color: rgba(0, 0, 0, 1)"> c[i];
+        }
+        sort(tmp</span>+<span style="color: rgba(128, 0, 128, 1)">1</span>,tmp+n+<span style="color: rgba(128, 0, 128, 1)">2</span>*m+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+        len </span>= unique(tmp+<span style="color: rgba(128, 0, 128, 1)">1</span>,tmp+n+<span style="color: rgba(128, 0, 128, 1)">2</span>*m+<span style="color: rgba(128, 0, 128, 1)">1</span>) -<span style="color: rgba(0, 0, 0, 1)"> tmp;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++) s[lower_bound(tmp+<span style="color: rgba(128, 0, 128, 1)">1</span>,tmp+len+<span style="color: rgba(128, 0, 128, 1)">1</span>,a[i])-tmp]++<span style="color: rgba(0, 0, 0, 1)">; 
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= m; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                rkb </span>= lower_bound(tmp+<span style="color: rgba(128, 0, 128, 1)">1</span>,tmp+len+<span style="color: rgba(128, 0, 128, 1)">1</span>,b[i]) -<span style="color: rgba(0, 0, 0, 1)"> tmp;
+                rkc </span>= lower_bound(tmp+<span style="color: rgba(128, 0, 128, 1)">1</span>,tmp+len+<span style="color: rgba(128, 0, 128, 1)">1</span>,c[i]) -<span style="color: rgba(0, 0, 0, 1)"> tmp;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (s[rkb] &gt;<span style="color: rgba(0, 0, 0, 1)"> mx) 
+                {
+                        pos </span>=<span style="color: rgba(0, 0, 0, 1)"> i;
+                        mx </span>=<span style="color: rgba(0, 0, 0, 1)"> s[rkb];
+                        nx </span>=<span style="color: rgba(0, 0, 0, 1)"> s[rkc];        
+                }    </span><span style="color: rgba(0, 0, 255, 1)">else</span> <span style="color: rgba(0, 0, 255, 1)">if</span> (s[rkb] == mx &amp;&amp; s[rkc] &gt;<span style="color: rgba(0, 0, 0, 1)"> nx) 
+                {
+                        pos </span>=<span style="color: rgba(0, 0, 0, 1)"> i;
+                        nx </span>=<span style="color: rgba(0, 0, 0, 1)"> s[rkc];
+                }
+        }
+        writeln(pos);
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

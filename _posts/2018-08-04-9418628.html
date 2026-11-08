@@ -1,0 +1,96 @@
+---
+layout: post
+title: '[CTSC 2008] 祭祀'
+date: 2018-08-04 14:46:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9418628.html
+cnblogs_id: 9418628
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p>        <a href="https://www.lydsy.com/JudgeOnline/problem.php?id=1143" target="_blank" rel="noopener nofollow"> https://www.lydsy.com/JudgeOnline/problem.php?id=1143</a></p>
+<p>[算法]</p>
+<p>          答案为最小路径可重复点覆盖所包含的路径数，将原图G进行弗洛伊德传递闭包，得到一张新图G'，然后求出拆点二分图G2'的最大匹配，N - 最大匹配 即为答案，我们尝试证明上述结论 ：</p>
+<p>          设祭祀点集合为S，最小路径可重复点覆盖的边集为Path,由于Path覆盖了所有节点，故每条路径上至多选一个点，有 ： |S| &lt;= |Path| , 因此，如果我们能构造出一组解，使得| S | = | Path | ， 就证明了此结论，这里给出一种构造方案 ：</p>
+<p>          首先求出拆点二分图的最大匹配，设节点x在拆点二分图上分别对应左部节点x和右部节点x' ,  对于每个非匹配节点x0,我们不断访问 x0,match[x0'],match[ match[x0'] ] .. 直到最后遇到一个左部节点y0,使得其右部点y0'为非匹配点， 那么就得到了一条路径， 其中y0为起点，x0为</p>
+<p>          终点，求出这样的所有路径，就得到了| Path |的一种方案，且所有路径不相交，我们现在要将| Path |集合中的每条路径选出一个节点，构成集合| S |</p>
+<p>          首先我们将所有路径的终点构成一个集合E,根据传递闭包的性质，两个祭祀点之间无路径相连，等价于在新图G’上任意两个祭祀点之间没有边，不妨让集合E中的每个节点走一条边，构成集合Next(E),如果E和Next(E)的交集为空集，则S = E</p>
+<p>          否则，对于交集中的每个点e,我们沿着e所在的路径不断向上移动，直到e不在当前的交集中，从E中删除e，加入e',重复以上过程，直到交集为空，就求出了S的一种组成方案</p>
+<p>          可以证明，在任何时刻，我们都能找到合法的e'，因为若没有，说明e所在的路径上所有点都可以被其他路径上的点到达，我们可以找到到达e所在的的路径起点的那条路径，将其延伸，使得| Path | 减少1，并覆盖所有节点，与Path的最小性矛盾</p>
+<p>          综上所述，答案即为最小路径可重复点覆盖所包含的路径数</p>
+<p>   [代码]</p>
+<p>           </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 210
+
+<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,j,k,n,m,u,v,ans;
+</span><span style="color: rgba(0, 0, 255, 1)">bool</span><span style="color: rgba(0, 0, 0, 1)"> g[MAXN][MAXN],mp[MAXN][MAXN];
+</span><span style="color: rgba(0, 0, 255, 1)">bool</span><span style="color: rgba(0, 0, 0, 1)"> visited[MAXN];
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> match[MAXN];
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">bool</span> hungary(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> u)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> v;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (v = <span style="color: rgba(128, 0, 128, 1)">1</span>; v &lt;= n; v++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (mp[u][v] &amp;&amp; !<span style="color: rgba(0, 0, 0, 1)">visited[v])
+                {
+                        visited[v] </span>= <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!match[v] ||<span style="color: rgba(0, 0, 0, 1)"> hungary(match[v]))
+                        {
+                                match[v] </span>=<span style="color: rgba(0, 0, 0, 1)"> u;
+                                </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+                        }
+                }
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(0, 0, 255, 1)">false</span><span style="color: rgba(0, 0, 0, 1)">;
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() 
+{
+        
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;n,&amp;<span style="color: rgba(0, 0, 0, 1)">m);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++) g[i][i] = <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= m; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;u,&amp;<span style="color: rgba(0, 0, 0, 1)">v);
+                g[u][v] </span>= <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (k = <span style="color: rgba(128, 0, 128, 1)">1</span>; k &lt;= n; k++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= n; j++<span style="color: rgba(0, 0, 0, 1)">)
+                        {
+                                g[i][j] </span>|= g[i][k] &amp;<span style="color: rgba(0, 0, 0, 1)"> g[k][j];
+                        }
+                }
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= n; j++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (i != j &amp;&amp;<span style="color: rgba(0, 0, 0, 1)"> g[i][j])
+                           mp[i][j] </span>= <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+                }
+        }
+        ans </span>=<span style="color: rgba(0, 0, 0, 1)"> n;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                memset(visited,</span><span style="color: rgba(0, 0, 255, 1)">false</span>,<span style="color: rgba(0, 0, 255, 1)">sizeof</span><span style="color: rgba(0, 0, 0, 1)">(visited));
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (hungary(i)) ans--<span style="color: rgba(0, 0, 0, 1)">;
+        }
+        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,ans);
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+<p>      </p>
+<p> </p>
+
+
+{% endraw %}

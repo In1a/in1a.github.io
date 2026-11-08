@@ -1,0 +1,138 @@
+---
+layout: post
+title: '【HDU 4547】 CD操作'
+date: 2018-05-26 21:05:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9196306.html
+cnblogs_id: 9196306
+---
+{% raw %}
+
+<p>【题目链接】</p>
+<p>          <a href="http://acm.hdu.edu.cn/showproblem.php?pid=4547" rel="noopener nofollow">点击打开链接</a></p>
+<p>【算法】</p>
+<p>          分四种情况讨论 ：</p>
+<p>          1. 当前目录和目标目录是同一目录，不需要变换，答案为0</p>
+<p>          2. 当前目录是目标目录的祖先，答案为当前目录的深度 - 目标目录的深度</p>
+<p>          3. 当前目录是目标目录的孩子，答案为1</p>
+<p>          4. 当前目录和目标目录有最近公共祖先，答案为当前目录的深度 - 最近公共祖先的深度 + 1</p>
+<p>          那么，算法就很明确了，先做一遍离线tarjan，求出询问点对的最近公共祖先，然后，进行上述的分类讨论</p>
+<p>【代码】</p>
+<p>          由于目录名称是字符串，笔者用stl库里的map将这些目录重新编号</p>
+<p>          </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 100010
+<span style="color: rgba(0, 0, 255, 1)">#define</span> MAXL 45
+
+<span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> Edge
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> to,nxt;
+} e[MAXN];
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,T,tot,id,n,m,root;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> head[MAXN],dep[MAXN],f[MAXN],lca[MAXN],fa[MAXN];
+</span><span style="color: rgba(0, 0, 255, 1)">string</span><span style="color: rgba(0, 0, 0, 1)"> a,b;
+</span><span style="color: rgba(0, 0, 255, 1)">string</span><span style="color: rgba(0, 0, 0, 1)"> x[MAXN],y[MAXN];
+</span><span style="color: rgba(0, 0, 255, 1)">bool</span><span style="color: rgba(0, 0, 0, 1)"> visited[MAXN];
+map</span>&lt;<span style="color: rgba(0, 0, 255, 1)">string</span>,<span style="color: rgba(0, 0, 255, 1)">int</span>&gt;<span style="color: rgba(0, 0, 0, 1)"> mp;
+vector</span>&lt; pair&lt;<span style="color: rgba(0, 0, 255, 1)">int</span>,<span style="color: rgba(0, 0, 255, 1)">int</span>&gt; &gt;<span style="color: rgba(0, 0, 0, 1)"> query[MAXN];
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> add(<span style="color: rgba(0, 0, 255, 1)">int</span> u,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> v)
+{
+        tot</span>++<span style="color: rgba(0, 0, 0, 1)">;
+        e[tot] </span>=<span style="color: rgba(0, 0, 0, 1)"> (Edge){v,head[u]};
+        head[u] </span>=<span style="color: rgba(0, 0, 0, 1)"> tot;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> init(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> u)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,v;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = head[u]; i; i =<span style="color: rgba(0, 0, 0, 1)"> e[i].nxt)
+        {
+                v </span>=<span style="color: rgba(0, 0, 0, 1)"> e[i].to;
+                dep[v] </span>= dep[u] + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                init(v);
+        }        
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">int</span> find(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (f[x] == x) <span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> x;
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> f[x] =<span style="color: rgba(0, 0, 0, 1)"> find(f[x]);
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> tarjan(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> u)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,v,pos;
+        visited[u] </span>= <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+        f[u] </span>=<span style="color: rgba(0, 0, 0, 1)"> u;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i &lt; query[u].size(); i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+              v </span>=<span style="color: rgba(0, 0, 0, 1)"> query[u][i].first;
+              pos </span>=<span style="color: rgba(0, 0, 0, 1)"> query[u][i].second;
+              </span><span style="color: rgba(0, 0, 255, 1)">if</span> (visited[v]) lca[pos] =<span style="color: rgba(0, 0, 0, 1)"> find(v);
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = head[u]; i; i =<span style="color: rgba(0, 0, 0, 1)"> e[i].nxt)
+        {
+                v </span>=<span style="color: rgba(0, 0, 0, 1)"> e[i].to;
+                tarjan(v);
+                f[v] </span>=<span style="color: rgba(0, 0, 0, 1)"> u;
+        }
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() 
+{
+        
+        ios :: sync_with_stdio(</span><span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">);
+        cin.tie(</span><span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">);
+        
+        cin </span>&gt;&gt;<span style="color: rgba(0, 0, 0, 1)"> T;
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (T--<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                cin </span>&gt;&gt; n &gt;&gt;<span style="color: rgba(0, 0, 0, 1)"> m;
+                tot </span>= id = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                mp.clear();
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        head[i] </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                        fa[i] </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                        visited[i] </span>= <span style="color: rgba(0, 0, 255, 1)">false</span><span style="color: rgba(0, 0, 0, 1)">;
+                        query[i].clear();
+                }
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt; n; i++<span style="color: rgba(0, 0, 0, 1)">) 
+                {
+                        cin </span>&gt;&gt; a &gt;&gt;<span style="color: rgba(0, 0, 0, 1)"> b;
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!mp[a]) mp[a] = ++<span style="color: rgba(0, 0, 0, 1)">id;
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!mp[b]) mp[b] = ++<span style="color: rgba(0, 0, 0, 1)">id;    
+                        add(mp[b],mp[a]);
+                        fa[mp[a]] </span>=<span style="color: rgba(0, 0, 0, 1)"> mp[b];
+                }    
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">) 
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!<span style="color: rgba(0, 0, 0, 1)">fa[i])
+                                root </span>=<span style="color: rgba(0, 0, 0, 1)"> i;
+                }
+                dep[root] </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                init(root);
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= m; i++<span style="color: rgba(0, 0, 0, 1)">) 
+                {
+                        cin </span>&gt;&gt; x[i] &gt;&gt;<span style="color: rgba(0, 0, 0, 1)"> y[i];
+                        query[mp[x[i]]].push_back(make_pair(mp[y[i]],i));
+                        query[mp[y[i]]].push_back(make_pair(mp[x[i]],i));
+                }
+                tarjan(root);
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= m; i++<span style="color: rgba(0, 0, 0, 1)">) 
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (x[i] == y[i]) printf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span>,<span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">);
+                        </span><span style="color: rgba(0, 0, 255, 1)">else</span> <span style="color: rgba(0, 0, 255, 1)">if</span> (lca[i] == mp[x[i]]) printf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span>,<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+                        </span><span style="color: rgba(0, 0, 255, 1)">else</span> <span style="color: rgba(0, 0, 255, 1)">if</span> (lca[i] == mp[y[i]]) printf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span>,dep[mp[x[i]]]-<span style="color: rgba(0, 0, 0, 1)">dep[mp[y[i]]]);
+                        </span><span style="color: rgba(0, 0, 255, 1)">else</span> printf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span>,dep[mp[x[i]]]-dep[lca[i]]+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+                }
+        }
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

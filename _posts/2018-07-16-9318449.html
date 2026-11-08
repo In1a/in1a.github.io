@@ -1,0 +1,127 @@
+---
+layout: post
+title: '【BZOJ 2821】作诗'
+date: 2018-07-16 16:42:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9318449.html
+cnblogs_id: 9318449
+---
+{% raw %}
+
+<p>【题目链接】</p>
+<p>          <a href="https://www.lydsy.com/JudgeOnline/problem.php?id=2821" target="_blank" rel="noopener nofollow">https://www.lydsy.com/JudgeOnline/problem.php?id=2821  </a></p>
+<p>【算法】</p>
+<p>          如果不强制在线，显然莫队是可以解决此题的，那么，强制在线怎么办呢？ 分块</p>
+<p>          将这个序列分成sqrt(n)段（sqrt表示开方），预处理每段每个数出现的次数与该段“多少数出现了正偶数次”，就可以在线回答询问了</p>
+<p>【代码】</p>
+<p>             </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">int</span> MAXN = <span style="color: rgba(128, 0, 128, 1)">100005</span><span style="color: rgba(0, 0, 0, 1)">;
+</span><span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">int</span> MAXB = <span style="color: rgba(128, 0, 128, 1)">320</span><span style="color: rgba(0, 0, 0, 1)">;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,n,m,c,l,r,x,y,len,block,lastans;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> a[MAXN],belong[MAXN],cnt[MAXN],L[MAXB],R[MAXB];
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> sum[MAXB][MAXN],ans[MAXB][MAXB];
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> init()
+{
+    </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,j,k;
+    len </span>= (<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)">)sqrt(n);
+    block </span>= n /<span style="color: rgba(0, 0, 0, 1)"> len;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= block; i++<span style="color: rgba(0, 0, 0, 1)">)
+    {
+        L[i] </span>= (i - <span style="color: rgba(128, 0, 128, 1)">1</span>) * len + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        R[i] </span>= i *<span style="color: rgba(0, 0, 0, 1)"> len;
+    }
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (R[block] &lt;<span style="color: rgba(0, 0, 0, 1)"> n)
+    {
+        block</span>++<span style="color: rgba(0, 0, 0, 1)">;
+        L[block] </span>= R[block-<span style="color: rgba(128, 0, 128, 1)">1</span>] + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        R[block] </span>=<span style="color: rgba(0, 0, 0, 1)"> n;
+    }
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++) belong[i] = (i - <span style="color: rgba(128, 0, 128, 1)">1</span>) / len + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++) sum[belong[i]][a[i]]++<span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= block; i++<span style="color: rgba(0, 0, 0, 1)">) 
+    {
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= c; j++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+            sum[i][j] </span>+= sum[i-<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">][j];
+        }
+    }
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= block; i++<span style="color: rgba(0, 0, 0, 1)">)
+    {
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = i; j &lt;= block; j++<span style="color: rgba(0, 0, 0, 1)">)
+        {    
+            ans[i][j] </span>= ans[i][j-<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+            </span><span style="color: rgba(0, 0, 255, 1)">for</span> (k = L[j]; k &lt;= R[j]; k++<span style="color: rgba(0, 0, 0, 1)">)
+            {
+                cnt[a[k]]</span>++<span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (cnt[a[k]] % <span style="color: rgba(128, 0, 128, 1)">2</span> == <span style="color: rgba(128, 0, 128, 1)">0</span>) ans[i][j]++<span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">else</span> <span style="color: rgba(0, 0, 255, 1)">if</span> (cnt[a[k]] &gt; <span style="color: rgba(128, 0, 128, 1)">1</span>) ans[i][j]--<span style="color: rgba(0, 0, 0, 1)">;
+            }
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = L[i]; j &lt;= n; j++) cnt[a[j]]--<span style="color: rgba(0, 0, 0, 1)">;
+    }
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">int</span> query(<span style="color: rgba(0, 0, 255, 1)">int</span> l,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> r)
+{
+    </span><span style="color: rgba(0, 0, 255, 1)">int</span> i,ret = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">,t;
+    </span><span style="color: rgba(0, 0, 255, 1)">int</span> p =<span style="color: rgba(0, 0, 0, 1)"> belong[l],
+        q </span>=<span style="color: rgba(0, 0, 0, 1)"> belong[r];
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (p ==<span style="color: rgba(0, 0, 0, 1)"> q)
+    {
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = l; i &lt;= r; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+            cnt[a[i]]</span>++<span style="color: rgba(0, 0, 0, 1)">;
+            </span><span style="color: rgba(0, 0, 255, 1)">if</span> (cnt[a[i]] % <span style="color: rgba(128, 0, 128, 1)">2</span> == <span style="color: rgba(128, 0, 128, 1)">0</span>) ret++<span style="color: rgba(0, 0, 0, 1)">;
+            </span><span style="color: rgba(0, 0, 255, 1)">else</span> <span style="color: rgba(0, 0, 255, 1)">if</span> (cnt[a[i]] &gt; <span style="color: rgba(128, 0, 128, 1)">1</span>) ret--<span style="color: rgba(0, 0, 0, 1)">;
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = l; i &lt;= r; i++) cnt[a[i]]--<span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> ret;
+    } </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)">
+    {
+        ret </span>= ans[p+<span style="color: rgba(128, 0, 128, 1)">1</span>][q-<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = l; i &lt;= R[p]; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+            cnt[a[i]]</span>++<span style="color: rgba(0, 0, 0, 1)">;
+            t </span>= sum[q-<span style="color: rgba(128, 0, 128, 1)">1</span>][a[i]] - sum[p][a[i]] +<span style="color: rgba(0, 0, 0, 1)"> cnt[a[i]];
+            </span><span style="color: rgba(0, 0, 255, 1)">if</span> (t % <span style="color: rgba(128, 0, 128, 1)">2</span> == <span style="color: rgba(128, 0, 128, 1)">0</span>) ret++<span style="color: rgba(0, 0, 0, 1)">;
+            </span><span style="color: rgba(0, 0, 255, 1)">else</span> <span style="color: rgba(0, 0, 255, 1)">if</span> (t &gt; <span style="color: rgba(128, 0, 128, 1)">1</span>) ret--<span style="color: rgba(0, 0, 0, 1)">;
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = L[q]; i &lt;= r; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+            cnt[a[i]]</span>++<span style="color: rgba(0, 0, 0, 1)">;
+            t </span>= sum[q-<span style="color: rgba(128, 0, 128, 1)">1</span>][a[i]] - sum[p][a[i]] +<span style="color: rgba(0, 0, 0, 1)"> cnt[a[i]];
+            </span><span style="color: rgba(0, 0, 255, 1)">if</span> (t % <span style="color: rgba(128, 0, 128, 1)">2</span> == <span style="color: rgba(128, 0, 128, 1)">0</span>) ret++<span style="color: rgba(0, 0, 0, 1)">;
+            </span><span style="color: rgba(0, 0, 255, 1)">else</span> <span style="color: rgba(0, 0, 255, 1)">if</span> (t &gt; <span style="color: rgba(128, 0, 128, 1)">1</span>) ret--<span style="color: rgba(0, 0, 0, 1)">;
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = l; i &lt;= R[p]; i++) cnt[a[i]]--<span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = L[q]; i &lt;= r; i++) cnt[a[i]]--<span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> ret;
+    }
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main()
+{
+    
+    scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;n,&amp;c,&amp;<span style="color: rgba(0, 0, 0, 1)">m);
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++) scanf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">a[i]);
+    init();
+    lastans </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= m; i++<span style="color: rgba(0, 0, 0, 1)">)
+    {
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;x,&amp;<span style="color: rgba(0, 0, 0, 1)">y);
+        l </span>= (x + lastans) % n + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        r </span>= (y + lastans) % n + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (l &gt;<span style="color: rgba(0, 0, 0, 1)"> r) swap(l,r);
+        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span>,lastans =<span style="color: rgba(0, 0, 0, 1)"> query(l,r));
+    }
+
+    </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

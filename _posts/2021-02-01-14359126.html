@@ -1,0 +1,93 @@
+---
+layout: post
+title: '[CF568E] Longest Increasing Subsequence'
+date: 2021-02-01 21:27:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/14359126.html
+cnblogs_id: 14359126
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p><a href="" rel="noopener nofollow">https://codeforces.com/contest/568/problem/E</a></p>
+<p>[题解]</p>
+<p>首先注意到一个数最多出现在一个上升子序列中 ， 故可以忽略重复数字的影响。</p>
+<p>不妨令 <span class="math inline">\(l_{i} , p_{i}\)</span> 分别表示当 <span class="math inline">\(i\)</span> 非 "空" 时 ， 以 <span class="math inline">\(i\)</span> 为结尾的最长上升子序列长度和上一项的位置。</p>
+<p>接着 ， 令 <span class="math inline">\(f_{i} , g_{i}\)</span> 表示长度为 <span class="math inline">\(i\)</span> 的最长上升子序列长度和最后一项位置。</p>
+<p>从前到后以此加数 ， 假设当前加入的是第 <span class="math inline">\(i\)</span> 个数。</p>
+<p>若 <span class="math inline">\(i\)</span> 非 "空" , 考虑经典的 <span class="math inline">\(O(NlogN)\)</span> 求解 <span class="math inline">\(LIS\)</span> 做法。 设当前位置上的数为 <span class="math inline">\(x\)</span> , 那么在 <span class="math inline">\(f\)</span> 上找到 <span class="math inline">\(&lt; x\)</span> 的最大 <span class="math inline">\(f_{j}\)</span> ， 并令 <span class="math inline">\(l_{i} = j + 1\)</span> , <span class="math inline">\(p_{i} = g_{j}\)</span> , <span class="math inline">\(g_{j + 1} = i\)</span>。</p>
+<p>若该位置空缺 ， 则从大到小枚举可插入的数并更新 <span class="math inline">\(f , g\)</span> 数组。这样避免了二分的问题 ， 只需用一个指针扫描即可。</p>
+<p>这样就可以计算出最长上升子序列的长度了。</p>
+<p>接着考虑还原序列 ， 不妨倒着考虑 ， 设此时已经还原到了第 <span class="math inline">\(i\)</span> 个数 <span class="math inline">\(x\)</span> , 其在原序列中位置为 <span class="math inline">\(j\)</span>。</p>
+<p>若该位置非空 ， 则可以直接用 <span class="math inline">\(p_{j}\)</span> 找到上一个数。</p>
+<p>否则 ， 现在 <span class="math inline">\(j\)</span> 前找到第一个数 <span class="math inline">\(s\)</span> 使得 <span class="math inline">\(l_{s} = i - 1\)</span> 且 <span class="math inline">\(s\)</span> 上的数比 <span class="math inline">\(x\)</span> 小 ， 如果找不到 ， 上一个位置就是上一个空位 ， 其权值为 <span class="math inline">\(&lt; x\)</span> 的最大值。</p>
+<p>时间复杂度 : <span class="math inline">\(O(NlogN + K(N + M))\)</span></p>
+<p>[代码]</p>
+<pre><code class="language-cpp"># include &lt;bits/stdc++.h&gt;
+ 
+using namespace std;
+ 
+typedef long long LL;
+ 
+const int MN = 2e5 + 5 , INF = 2e9;
+ 
+int N , M , vis[MN] , A[MN] , F[MN] , L[MN] , G[MN] , P[MN] , ans[MN] , B[MN];
+ 
+inline void get(int i , int k , int &amp;x) {
+	int o = lower_bound(B + 1 , B + 1 + M , k) - B - 1;
+	vis[o] = 1; x = ans[i] = B[o];
+}
+ 
+int main() {
+	
+	scanf("%d" , &amp;N); 
+	for (int i = 1; i &lt;= N; ++i) scanf("%d" , &amp;A[i]) , F[i] = INF;
+	++N , A[N] = F[N] = INF;
+	scanf("%d" , &amp;M);
+	for (int i = 1; i &lt;= M; ++i) scanf("%d" , &amp;B[i]);
+	sort(B + 1 , B + 1 + M);
+	for (int i = 1; i &lt;= N; ++i) 
+		if (~A[i]) {
+			int j = lower_bound(F + 1 , F + 1 + N , A[i]) - F - 1;
+			L[i] = j + 1 , P[i] = G[j] , F[j + 1] = A[i] , G[j + 1] = i;
+	    } else {
+	    	for (int j = N , o = M; o; --o) {
+	    		while (F[j] &gt;= B[o]) --j;
+	    		F[j + 1] = B[o] , G[j + 1] = i;
+	    	}
+	    }
+	int i = L[N] , j = N , x = A[N];
+	while (i--) {
+		if (~A[j]) {
+			if (!~A[P[j]]) get(P[j] , A[j] , x);
+			else x = A[P[j]];
+			j = P[j];
+		} else {
+			bool ok = 0;
+			for (int s = j - 1; s; --s) 
+				if (~A[s] &amp;&amp; L[s] == i &amp;&amp; A[s] &lt; x) {
+					x = A[j = s] , ok = 1;
+					break;
+				}
+			if (ok) continue;
+			for (int s = j - 1; s; --s) 
+				if (!~A[s]) {
+					get(s , x , x); j = s;
+					break;
+				}
+		}
+	}
+	for (int i = 1 , j = 1; i &lt;= N; ++i) {
+		if (!~A[i]) {
+			if (ans[i]) continue;
+			while (vis[j]) ++j;
+			vis[j] = 1 , ans[i] = B[j];
+		} else ans[i] = A[i];
+	}
+	for (int i = 1; i &lt; N; ++i) printf("%d " , ans[i]);
+	printf("\n");
+    return 0;
+}</code></pre>
+
+
+
+{% endraw %}

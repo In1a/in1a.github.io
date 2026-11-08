@@ -1,0 +1,190 @@
+---
+layout: post
+title: '[POI2015] Odwiedziny'
+date: 2019-04-27 11:49:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/10778232.html
+cnblogs_id: 10778232
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p>          <a href="https://www.lydsy.com/JudgeOnline/problem.php?id=4381" rel="noopener nofollow">https://www.lydsy.com/JudgeOnline/problem.php?id=4381</a></p>
+<p>[算法]</p>
+<p>        考虑分块 ， 先设一个阈值B = 200</p>
+<p>        记Su , i表示从u节点开始 ， 每次向上跳i步 ， 所经过点的权值和 ， 可以在O(NBlogN)时间内预处理</p>
+<p>        对于每次询问 , 若k &lt;= B ， 可以通过预处理的值求出答案 ， 否则暴力处理</p>
+<p>        时间复杂度 : O(NBlogN)(取B = 200)</p>
+<p>[代码]</p>
+<p>       </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+typedef </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> ll;
+typedef </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">double</span><span style="color: rgba(0, 0, 0, 1)"> ld;
+typedef unsigned </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> ull;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> N 50010
+<span style="color: rgba(0, 0, 255, 1)">#define</span> M 250
+<span style="color: rgba(0, 0, 255, 1)">#define</span> MAXLOG 20
+
+<span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> edge {
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> to , nxt;
+} e[N </span>&lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> n , tot , MAGIC;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> a[N] , b[N] , c[N] , father[N][MAXLOG] , depth[N] , head[N];
+ll cnt[N][M];
+
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> chkmax(T &amp;<span style="color: rgba(0, 0, 0, 1)">x,T y) { 
+        x </span>=<span style="color: rgba(0, 0, 0, 1)"> max(x,y); 
+}
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> chkmin(T &amp;<span style="color: rgba(0, 0, 0, 1)">x,T y) { 
+        x </span>=<span style="color: rgba(0, 0, 0, 1)"> min(x,y); 
+}
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> read(T &amp;<span style="color: rgba(0, 0, 0, 1)">x) {
+    T f </span>= <span style="color: rgba(128, 0, 128, 1)">1</span>; x = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">char</span> c =<span style="color: rgba(0, 0, 0, 1)"> getchar();
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; !isdigit(c); c = getchar()) <span style="color: rgba(0, 0, 255, 1)">if</span> (c == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>) f = -<span style="color: rgba(0, 0, 0, 1)">f;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; isdigit(c); c = getchar()) x = (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">3</span>) + (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>) + c - <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">;
+    x </span>*=<span style="color: rgba(0, 0, 0, 1)"> f;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> addedge(<span style="color: rgba(0, 0, 255, 1)">int</span> u , <span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> v) {
+        </span>++<span style="color: rgba(0, 0, 0, 1)">tot;
+        e[tot] </span>=<span style="color: rgba(0, 0, 0, 1)"> (edge){v , head[u]};
+        head[u] </span>=<span style="color: rgba(0, 0, 0, 1)"> tot;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> work(<span style="color: rgba(0, 0, 255, 1)">int</span> u , <span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> par) {
+        father[u][</span><span style="color: rgba(128, 0, 128, 1)">0</span>] =<span style="color: rgba(0, 0, 0, 1)"> par;
+        depth[u] </span>= depth[par] + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt; MAXLOG; ++<span style="color: rgba(0, 0, 0, 1)">i) {
+                father[u][i] </span>= father[father[u][i - <span style="color: rgba(128, 0, 128, 1)">1</span>]][i - <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+        }        
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = head[u]; i; i =<span style="color: rgba(0, 0, 0, 1)"> e[i].nxt) {
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span> v =<span style="color: rgba(0, 0, 0, 1)"> e[i].to;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (v == par) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                work(v , u);
+        }
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">int</span> <span style="color: rgba(0, 0, 255, 1)">get</span>(<span style="color: rgba(0, 0, 255, 1)">int</span> u , <span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> k) {
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i &lt; MAXLOG; ++<span style="color: rgba(0, 0, 0, 1)">i) {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (k &amp; (<span style="color: rgba(128, 0, 128, 1)">1</span> &lt;&lt;<span style="color: rgba(0, 0, 0, 1)"> i))
+                      u </span>=<span style="color: rgba(0, 0, 0, 1)"> father[u][i];
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> u;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> dfs(<span style="color: rgba(0, 0, 255, 1)">int</span> u , <span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> par) {
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= MAGIC; ++<span style="color: rgba(0, 0, 0, 1)">i) {
+                cnt[u][i] </span>= a[u] + cnt[<span style="color: rgba(0, 0, 255, 1)">get</span><span style="color: rgba(0, 0, 0, 1)">(u , i)][i];
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = head[u]; i; i =<span style="color: rgba(0, 0, 0, 1)"> e[i].nxt) {
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span> v =<span style="color: rgba(0, 0, 0, 1)"> e[i].to;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (v == par) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                dfs(v , u);
+        }
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">int</span> lca(<span style="color: rgba(0, 0, 255, 1)">int</span> x , <span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> y) {
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (depth[x] &gt;<span style="color: rgba(0, 0, 0, 1)"> depth[y]) swap(x , y);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = MAXLOG - <span style="color: rgba(128, 0, 128, 1)">1</span>; i &gt;= <span style="color: rgba(128, 0, 128, 1)">0</span>; --<span style="color: rgba(0, 0, 0, 1)">i) {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (depth[father[y][i]] &gt;=<span style="color: rgba(0, 0, 0, 1)"> depth[x])
+                        y </span>=<span style="color: rgba(0, 0, 0, 1)"> father[y][i];
+        }        
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (x == y) <span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> x;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = MAXLOG - <span style="color: rgba(128, 0, 128, 1)">1</span>; i &gt;= <span style="color: rgba(128, 0, 128, 1)">0</span>; --<span style="color: rgba(0, 0, 0, 1)">i) {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (father[x][i] !=<span style="color: rgba(0, 0, 0, 1)"> father[y][i])
+                        x </span>= father[x][i] , y =<span style="color: rgba(0, 0, 0, 1)"> father[y][i];
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> father[x][<span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">];
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main()
+{
+        
+        read(n);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; ++<span style="color: rgba(0, 0, 0, 1)">i) read(a[i]);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt; n; ++<span style="color: rgba(0, 0, 0, 1)">i) {
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x , y;
+                read(x); read(y);
+                addedge(x , y);
+                addedge(y , x);
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; ++<span style="color: rgba(0, 0, 0, 1)">i) read(b[i]);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">2</span>; i &lt;= n; ++<span style="color: rgba(0, 0, 0, 1)">i) read(c[i]);
+        MAGIC </span>= (<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)">)sqrt(n);
+        work(</span><span style="color: rgba(128, 0, 128, 1)">1</span> , <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">);
+        dfs(</span><span style="color: rgba(128, 0, 128, 1)">1</span> , <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">2</span>; i &lt;= n; ++<span style="color: rgba(0, 0, 0, 1)">i) {
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span> x = b[i - <span style="color: rgba(128, 0, 128, 1)">1</span>] , y =<span style="color: rgba(0, 0, 0, 1)"> b[i];
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span> Lca =<span style="color: rgba(0, 0, 0, 1)"> lca(x , y);
+                ll ans </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (Lca ==<span style="color: rgba(0, 0, 0, 1)"> x) {
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (c[i] &lt;=<span style="color: rgba(0, 0, 0, 1)"> MAGIC) {
+                                </span><span style="color: rgba(0, 0, 255, 1)">int</span> R = (depth[y] - depth[x]) %<span style="color: rgba(0, 0, 0, 1)"> c[i];
+                                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (R &gt; <span style="color: rgba(128, 0, 128, 1)">0</span>) ans +=<span style="color: rgba(0, 0, 0, 1)"> a[y];
+                                y </span>= <span style="color: rgba(0, 0, 255, 1)">get</span><span style="color: rgba(0, 0, 0, 1)">(y , R);
+                                </span><span style="color: rgba(0, 0, 255, 1)">int</span> val = (depth[y] - depth[x]) / c[i] + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                                ans </span>+= cnt[y][c[i]] - cnt[<span style="color: rgba(0, 0, 255, 1)">get</span>(y , val *<span style="color: rgba(0, 0, 0, 1)"> c[i])][c[i]]; 
+                        } </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)"> {
+                                </span><span style="color: rgba(0, 0, 255, 1)">int</span> R = (depth[y] - depth[x]) %<span style="color: rgba(0, 0, 0, 1)"> c[i];
+                                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (R &gt; <span style="color: rgba(128, 0, 128, 1)">0</span>) ans +=<span style="color: rgba(0, 0, 0, 1)"> a[y];
+                                y </span>= <span style="color: rgba(0, 0, 255, 1)">get</span><span style="color: rgba(0, 0, 0, 1)">(y , R);
+                                </span><span style="color: rgba(0, 0, 255, 1)">while</span> (depth[y] &gt;=<span style="color: rgba(0, 0, 0, 1)"> depth[x]) {
+                                        ans </span>+=<span style="color: rgba(0, 0, 0, 1)"> a[y];
+                                        y </span>= <span style="color: rgba(0, 0, 255, 1)">get</span><span style="color: rgba(0, 0, 0, 1)">(y , c[i]);
+                                }
+                        }
+                } </span><span style="color: rgba(0, 0, 255, 1)">else</span> <span style="color: rgba(0, 0, 255, 1)">if</span> (Lca ==<span style="color: rgba(0, 0, 0, 1)"> y) {
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (c[i] &lt;=<span style="color: rgba(0, 0, 0, 1)"> MAGIC) {
+                                </span><span style="color: rgba(0, 0, 255, 1)">int</span> val = (depth[x] - depth[y]) / c[i] + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                                ans </span>+= cnt[x][c[i]] - cnt[<span style="color: rgba(0, 0, 255, 1)">get</span>(x , val *<span style="color: rgba(0, 0, 0, 1)"> c[i])][c[i]];
+                        } </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)"> {
+                                </span><span style="color: rgba(0, 0, 255, 1)">while</span> (depth[x] &gt;=<span style="color: rgba(0, 0, 0, 1)"> depth[y]) {
+                                        ans </span>+=<span style="color: rgba(0, 0, 0, 1)"> a[x];
+                                        x </span>= <span style="color: rgba(0, 0, 255, 1)">get</span><span style="color: rgba(0, 0, 0, 1)">(x , c[i]);
+                                }
+                        }
+                } </span><span style="color: rgba(0, 0, 255, 1)">else</span> <span style="color: rgba(0, 0, 255, 1)">if</span> (c[i] &lt;=<span style="color: rgba(0, 0, 0, 1)"> MAGIC) {
+                        </span><span style="color: rgba(0, 0, 255, 1)">int</span> val = (depth[x] - depth[Lca]) / c[i] + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                        ans </span>+= cnt[x][c[i]] - cnt[<span style="color: rgba(0, 0, 255, 1)">get</span>(x , val *<span style="color: rgba(0, 0, 0, 1)"> c[i])][c[i]];
+                        </span><span style="color: rgba(0, 0, 255, 1)">int</span> pre = <span style="color: rgba(0, 0, 255, 1)">get</span>(x , (val - <span style="color: rgba(128, 0, 128, 1)">1</span>) *<span style="color: rgba(0, 0, 0, 1)"> c[i]);
+                        </span><span style="color: rgba(0, 0, 255, 1)">int</span> R = (depth[pre] - depth[Lca] + depth[y] - depth[Lca]) %<span style="color: rgba(0, 0, 0, 1)"> c[i];
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (R != <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">) {
+                                </span><span style="color: rgba(0, 0, 255, 1)">int</span> now = <span style="color: rgba(0, 0, 255, 1)">get</span><span style="color: rgba(0, 0, 0, 1)">(y , R);
+                                val </span>= (depth[now] - depth[Lca]) / c[i] + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                                ans </span>+= a[y] + cnt[y][c[i]] - cnt[<span style="color: rgba(0, 0, 255, 1)">get</span>(y , val *<span style="color: rgba(0, 0, 0, 1)"> c[i])][c[i]]; 
+                        } </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)"> {
+                                val </span>= (depth[y] - depth[Lca]) / c[i] + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                                ans </span>+= cnt[y][c[i]] - cnt[<span style="color: rgba(0, 0, 255, 1)">get</span>(y , val *<span style="color: rgba(0, 0, 0, 1)"> c[i])][c[i]];
+                                </span><span style="color: rgba(0, 0, 255, 1)">if</span> ((depth[x] - depth[Lca]) % c[i] == <span style="color: rgba(128, 0, 128, 1)">0</span>) ans -=<span style="color: rgba(0, 0, 0, 1)"> a[Lca];
+                        } 
+                } </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)"> {
+                        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (depth[x] &gt;=<span style="color: rgba(0, 0, 0, 1)"> depth[Lca]) {
+                                ans </span>+=<span style="color: rgba(0, 0, 0, 1)"> a[x];
+                                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (depth[x] - c[i] &lt; depth[Lca]) <span style="color: rgba(0, 0, 255, 1)">break</span><span style="color: rgba(0, 0, 0, 1)">;
+                                </span><span style="color: rgba(0, 0, 255, 1)">else</span> x = <span style="color: rgba(0, 0, 255, 1)">get</span><span style="color: rgba(0, 0, 0, 1)">(x , c[i]);
+                        }
+                        </span><span style="color: rgba(0, 0, 255, 1)">int</span> R = (depth[x] - depth[Lca] + depth[y] - depth[Lca]) %<span style="color: rgba(0, 0, 0, 1)"> c[i];
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (R != <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">) {
+                                ans </span>+=<span style="color: rgba(0, 0, 0, 1)"> a[y];
+                                y </span>= <span style="color: rgba(0, 0, 255, 1)">get</span><span style="color: rgba(0, 0, 0, 1)">(y , R);
+                                </span><span style="color: rgba(0, 0, 255, 1)">while</span> (depth[y] &gt;=<span style="color: rgba(0, 0, 0, 1)"> depth[Lca]) {
+                                        ans </span>+=<span style="color: rgba(0, 0, 0, 1)"> a[y];
+                                        y </span>= <span style="color: rgba(0, 0, 255, 1)">get</span><span style="color: rgba(0, 0, 0, 1)">(y , c[i]);
+                                }
+                        } </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)"> {
+                                </span><span style="color: rgba(0, 0, 255, 1)">while</span> (depth[y] &gt;=<span style="color: rgba(0, 0, 0, 1)"> depth[Lca]) {
+                                        ans </span>+=<span style="color: rgba(0, 0, 0, 1)"> a[y];
+                                        y </span>= <span style="color: rgba(0, 0, 255, 1)">get</span><span style="color: rgba(0, 0, 0, 1)">(y , c[i]);
+                                }
+                                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (x == Lca) ans -=<span style="color: rgba(0, 0, 0, 1)"> a[Lca];
+                        }
+                }
+                printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%lld\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)"> , ans);
+        }
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

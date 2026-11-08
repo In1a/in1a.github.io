@@ -1,0 +1,80 @@
+---
+layout: post
+title: '【USACO】 Balanced Photo'
+date: 2018-02-14 15:58:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9196427.html
+cnblogs_id: 9196427
+---
+{% raw %}
+
+<p>【题目链接】</p>
+<p>           <a href="https://www.lydsy.com/JudgeOnline/problem.php?id=4759" rel="noopener nofollow">点击打开链接</a></p>
+<p>【算法】</p>
+<p>         树状数组</p>
+<p>【代码】</p>
+<p>        </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,N,ans,l1,l2;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span> c[<span style="color: rgba(128, 0, 128, 1)">100005</span>],val[<span style="color: rgba(128, 0, 128, 1)">100005</span>],id[<span style="color: rgba(128, 0, 128, 1)">100005</span><span style="color: rgba(0, 0, 0, 1)">];
+
+template </span>&lt;typename T&gt; <span style="color: rgba(0, 0, 255, 1)">void</span> read(T &amp;<span style="color: rgba(0, 0, 0, 1)">x) {
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> f=<span style="color: rgba(128, 0, 128, 1)">1</span>; <span style="color: rgba(0, 0, 255, 1)">char</span> c = getchar(); x=<span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; !isdigit(c); c = getchar()) { <span style="color: rgba(0, 0, 255, 1)">if</span> (c==<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>) f=-<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">; }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; isdigit(c); c = getchar()) x=x*<span style="color: rgba(128, 0, 128, 1)">10</span>+c-<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">;
+        x</span>*=<span style="color: rgba(0, 0, 0, 1)">f;
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">bool</span> cmp(<span style="color: rgba(0, 0, 255, 1)">int</span> a,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> b) {
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> val[a] &gt;<span style="color: rgba(0, 0, 0, 1)"> val[b];
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span> lowbit(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x) {
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> x &amp; -<span style="color: rgba(0, 0, 0, 1)">x;
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span> query(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x) {
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> sum=<span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (x &gt;= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">) {
+              sum </span>+=<span style="color: rgba(0, 0, 0, 1)"> c[x];
+              x </span>-=<span style="color: rgba(0, 0, 0, 1)"> lowbit(x);
+        }    
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> sum;
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">void</span> change(<span style="color: rgba(0, 0, 255, 1)">int</span> x,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> y) {
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (x &lt;=<span style="color: rgba(0, 0, 0, 1)"> N) {
+                c[x] </span>+=<span style="color: rgba(0, 0, 0, 1)"> y;
+                x </span>+=<span style="color: rgba(0, 0, 0, 1)"> lowbit(x);
+        }    
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() {
+        
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">N);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= N; i++<span style="color: rgba(0, 0, 0, 1)">) {
+                scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">val[i]);
+                id[i] </span>=<span style="color: rgba(0, 0, 0, 1)"> i;
+        }
+        sort(id</span>+<span style="color: rgba(128, 0, 128, 1)">1</span>,id+N+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">,cmp);
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= N; i++<span style="color: rgba(0, 0, 0, 1)">) {
+                l1 </span>= query(id[i]-<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+                l2 </span>= i - l1 - <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (max(l1,l2) &gt; min(l1,l2) * <span style="color: rgba(128, 0, 128, 1)">2</span>) ans++<span style="color: rgba(0, 0, 0, 1)">;
+                change(id[i],</span><span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);    
+        }
+        
+        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,ans);
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

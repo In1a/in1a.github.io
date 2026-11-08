@@ -1,0 +1,91 @@
+---
+layout: post
+title: '[CF1060F] Shrinking Tree'
+date: 2021-02-24 13:22:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/14440862.html
+cnblogs_id: 14440862
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p><a href="" rel="noopener nofollow">http://codeforces.com/contest/1060/problem/F</a></p>
+<p>[题解]</p>
+<p>首先显然可以计算以每个点为根的答案。</p>
+<p>直接求解概率比较困难 ， 但由于总排列方案数是 <span class="math inline">\((N - 1)!\)</span> , 因此不妨令 <span class="math inline">\(dp_{u , i}\)</span> 表示以 <span class="math inline">\(u\)</span> 为根的子树 ， 保留最后 <span class="math inline">\(i\)</span> 条边 ， 根的标号不变的概率之和。</p>
+<p>换言之 ， <span class="math inline">\(DP\)</span> 存的是 <span class="math inline">\(\sum_{p \ is \ sequence}{P(p)}\)</span></p>
+<p>令 <span class="math inline">\(size_{u}\)</span> 表示以 <span class="math inline">\(u\)</span> 为根的子树大小。</p>
+<p>考虑合并两棵子树 ， 一棵树 <span class="math inline">\(u\)</span> 有 <span class="math inline">\(x\)</span> 条保留边 ， 另一棵有 <span class="math inline">\(y\)</span> 条保留边。</p>
+<p>那么贡献即为 <span class="math inline">\(f_{u , x} * g_{y} * {x + y \choose x} * {s_{u} + s_{v} - x - y \choose s_{u} - x}\)</span>。 其中 , <span class="math inline">\(g_{y}\)</span> 表示子树 <span class="math inline">\(v\)</span> 保留了多少边。</p>
+<p>考虑如何计算 <span class="math inline">\(g_{i}\)</span> ， 不妨考虑 <span class="math inline">\(f_{v , j}\)</span> 对其贡献。</p>
+<p>当 <span class="math inline">\(j &gt; i\)</span> 时 ， 显然无贡献。</p>
+<p>当 <span class="math inline">\(j = i\)</span> 时 ， 说明 <span class="math inline">\((u , v)\)</span> 这条边必然在最后 <span class="math inline">\(j\)</span> 条边之前合并完了 ， 并且无需关心合并的标号问题 ， 贡献为 <span class="math inline">\((size_{v} - j) * f_{v , j}\)</span>。</p>
+<p>当 <span class="math inline">\(j &lt; i\)</span> 时 ， 说明 <span class="math inline">\((u , v)\)</span> 这条边必然在最后第 <span class="math inline">\(j\)</span> 条边之前合并 ， 且合并后标号为 <span class="math inline">\(u\)</span>。 其贡献为 <span class="math inline">\(0.5 * f_{v , j}\)</span>。</p>
+<p>这样我们就解决了合并问题 ， 那么做一个近似于树上背包的 <span class="math inline">\(DP\)</span> 即可。</p>
+<p>时间复杂度 : <span class="math inline">\(O(N ^ 3)\)</span></p>
+<p>[代码]</p>
+<pre><code class="language-cpp">#include&lt;bits/stdc++.h&gt;
+ 
+using namespace std;
+ 
+typedef long long LL;
+ 
+#define rep(i , l , r) for (int i = (l); i &lt; (r); ++i)
+ 
+const int MN = 1005;
+ 
+struct Edge {
+	int to , nxt;
+} E[MN &lt;&lt; 1];
+ 
+int N , tot , head[MN] , siz[MN];
+double fac[MN] , tmp[MN] , f[MN][MN] , g[MN];
+ 
+inline void init() {
+	fac[0] = 1;
+	for (int i = 1; i &lt;= N; ++i)
+		fac[i] = fac[i - 1] * i;
+}
+inline void AddEdge(int u , int v) {
+	E[++tot] = (Edge) {v , head[u]};
+	head[u] = tot;
+}
+inline double binom(int n , int m) {
+	return fac[n] / fac[m] / fac[n - m];
+}
+inline void DFS(int u , int fa) {
+	siz[u] = 1; f[u][0] = 1;
+	for (int i = 1; i &lt;= N; ++i) f[u][i] = 0;
+	for (int i = head[u]; i; i = E[i].nxt) {
+		int v = E[i].to; if (v == fa) continue; DFS(v , u);
+		for (int k = 0; k &lt;= N; ++k) tmp[k] = g[k] = 0;
+		for (int j = 0; j &lt;= siz[v]; ++j)
+		for (int k = 0; k &lt;= j; ++k)
+			if (k &lt; j) g[j] += 0.5 * f[v][k];
+			else g[j] += (siz[v] - k) * f[v][k];
+		for (int j = 0; j &lt; siz[u]; ++j)
+		for (int k = 0; k &lt;= siz[v]; ++k)
+			tmp[j + k] += f[u][j] * g[k] * binom(j + k , j) * binom(siz[u] - 1 - j + siz[v] - k , siz[v] - k);
+		siz[u] += siz[v];
+		for (int k = 0; k &lt; siz[u]; ++k) 
+			f[u][k] = tmp[k];  
+	}
+}
+int main() {
+	 
+	 scanf("%d" , &amp;N);
+	 for (int i = 1; i &lt; N; ++i) {
+	 	 int u , v; scanf("%d%d" , &amp;u , &amp;v);
+	 	 AddEdge(u , v) , AddEdge(v , u);
+	 }
+	 init();
+	 for (int i = 1; i &lt;= N; ++i) {
+	 	 DFS(i , 0);
+	 	 printf("%.10lf\n" , f[i][N - 1] / fac[N - 1]);
+	 }
+     return 0;
+}
+</code></pre>
+
+
+
+{% endraw %}

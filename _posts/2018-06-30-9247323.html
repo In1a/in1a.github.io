@@ -1,0 +1,87 @@
+---
+layout: post
+title: '【BZOJ 2457】 双端队列'
+date: 2018-06-30 15:37:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9247323.html
+cnblogs_id: 9247323
+---
+{% raw %}
+
+<p>【题目链接】</p>
+<p>             <a href="https://www.lydsy.com/JudgeOnline/problem.php?id=2457" target="_blank" rel="noopener nofollow">https://www.lydsy.com/JudgeOnline/problem.php?id=2457</a></p>
+<p>【算法】</p>
+<p>           贪心</p>
+<p>【代码】</p>
+<p>             </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 200010
+
+<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,n,len,last,cnt;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> d[MAXN],tmp[MAXN],mx[MAXN],nx[MAXN];
+</span><span style="color: rgba(0, 0, 255, 1)">bool</span><span style="color: rgba(0, 0, 0, 1)"> flag;
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">bool</span> cmp(<span style="color: rgba(0, 0, 255, 1)">int</span> a,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> b)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> (d[a] == d[b]) ? (a &lt; b) : (d[a] &lt;<span style="color: rgba(0, 0, 0, 1)"> d[b]);        
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() 
+{
+        
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">n);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">) 
+        {
+                scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">d[i]);
+                tmp[i] </span>=<span style="color: rgba(0, 0, 0, 1)"> i;
+        }
+        sort(tmp</span>+<span style="color: rgba(128, 0, 128, 1)">1</span>,tmp+n+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">,cmp);
+        d[</span><span style="color: rgba(128, 0, 128, 1)">0</span>] = -<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (d[tmp[i]] != d[tmp[i-<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">]]) 
+                {
+                        len</span>++<span style="color: rgba(0, 0, 0, 1)">;
+                        nx[len] </span>= mx[len] =<span style="color: rgba(0, 0, 0, 1)"> tmp[i];        
+                }    </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)"> 
+                {
+                        nx[len] </span>=<span style="color: rgba(0, 0, 0, 1)"> min(nx[len],tmp[i]);
+                        mx[len] </span>=<span style="color: rgba(0, 0, 0, 1)"> max(mx[len],tmp[i]);
+                }
+        }
+        flag </span>= <span style="color: rgba(0, 0, 255, 1)">false</span><span style="color: rgba(0, 0, 0, 1)">;
+        cnt </span>= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        last </span>= nx[<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">2</span>; i &lt;= len; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {    
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (flag &amp;&amp; nx[i] &lt;<span style="color: rgba(0, 0, 0, 1)"> last)
+                {
+                        flag </span>= <span style="color: rgba(0, 0, 255, 1)">false</span><span style="color: rgba(0, 0, 0, 1)">;
+                        cnt</span>++<span style="color: rgba(0, 0, 0, 1)">;
+                        last </span>=<span style="color: rgba(0, 0, 0, 1)"> nx[i];
+                        </span><span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                }
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!flag &amp;&amp; mx[i] &gt;<span style="color: rgba(0, 0, 0, 1)"> last)
+                {
+                        flag </span>= <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+                        last </span>=<span style="color: rgba(0, 0, 0, 1)"> mx[i];
+                        </span><span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                }
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!flag &amp;&amp; mx[i] &lt;<span style="color: rgba(0, 0, 0, 1)"> last) 
+                {
+                        last </span>=<span style="color: rgba(0, 0, 0, 1)"> nx[i];
+                        </span><span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                }
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (flag &amp;&amp; nx[i] &gt; last) last =<span style="color: rgba(0, 0, 0, 1)"> mx[i];
+        }
+        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,cnt);
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

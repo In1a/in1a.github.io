@@ -1,0 +1,91 @@
+---
+layout: post
+title: '[CF1188E] Problem from Red Panda'
+date: 2021-01-31 22:25:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/14354437.html
+cnblogs_id: 14354437
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p><a href="" rel="noopener nofollow">https://codeforces.com/contest/1188/problem/E</a></p>
+<p>[题解]</p>
+<p>记 <span class="math inline">\(x_{i}\)</span> 表示 <span class="math inline">\(i\)</span> 被选中的次数 ， 考虑 <span class="math inline">\(\{x_i\}\)</span> 合法的条件 ， 令 <span class="math inline">\(s = \sum{x_{i}}\)</span>。</p>
+<p>首先需要保证最终数组中的每个元素非负 ， 故 <span class="math inline">\(a_{i} - s + k \cdot x_{i} \geq 0\)</span> ， 也就是 <span class="math inline">\(x_i\ge\lceil\frac{\max(s-a_i,0)}k\rceil\)</span>。</p>
+<p>此外 ， 还需判断每轮后是否能使得每个元素都非负 ， 假设当前是第 <span class="math inline">\(t\)</span> 轮 ， 不妨将每个 <span class="math inline">\(a_{i}\)</span> 都减去 <span class="math inline">\(t\)</span> , 再用 <span class="math inline">\(t\)</span> 个 <span class="math inline">\(k\)</span> 填补空缺 ， 需要满足 <span class="math inline">\(\sum_{i=1}^k\lceil\frac{\max(t-a_i,0)}k\rceil\le t\)</span> ， 在第一个条件的限制下 ， 每个元素不会被加超过 <span class="math inline">\(x_{i}\)</span> 次。</p>
+<p>故一个 <span class="math inline">\(\{x_i\}\)</span> 满足条件当且仅当 :</p>
+<p>(1). <span class="math inline">\(x_i\ge\lceil\frac{\max(s-a_i,0)}k\rceil\)</span></p>
+<p>(2). 对于 <span class="math inline">\(0\le t\le s\)</span> , 都有 <span class="math inline">\(\sum_{i=1}^k\lceil\frac{\max(t-a_i,0)}k\rceil\le t\)</span>。</p>
+<p>计算 <span class="math inline">\(\sum_{i=1}^k\lceil\frac{\max(t-a_i,0)}k\rceil\le t\)</span> 是容易的 ， 只需对于 <span class="math inline">\(a_{i} &lt; s\)</span> 的部分开一个桶维护 <span class="math inline">\(a_{i} mod \ k\)</span> 即可。</p>
+<p>考虑当所有 <span class="math inline">\(x_{i}\)</span> 非负时 ， 将其全部减一本质上是同一种情况。</p>
+<p>结论 ：所有至少有一个数未操作的不同的 <span class="math inline">\(\{x_i\}\)</span> , 两两本质不同</p>
+<p>证明 ：</p>
+<p><span class="math inline">\((1).\)</span> 若操作集合相同 ， 若操作次数不同 ， 因为有数没被操作 ， 故最终得到的序列必然本质不同； 若操作次数相同 ， 则必能找到两个数使其得到的结果不同。</p>
+<p><span class="math inline">\((2).\)</span> 若操作集合不同 ， 设 <span class="math inline">\(i\)</span> 在第一个序列未被操作但在第二个序列中被操作 ， <span class="math inline">\(j\)</span> 在第一个序列被操作但在第二个序列中未被操作。 若操作次数相同 ， 那么有 <span class="math inline">\(\delta a_{i , 1} = -cnt , \delta a_{i , 2} = C \cdot k - cnt \neq \delta a_{i , 1}\)</span>。若操作次数不同 ， <span class="math inline">\(\delta a_{i , 1} = -cnt_{1} , \delta a_{j , 2} = -cnt_{2}\)</span>。 因为 <span class="math inline">\(a_{j , 1} = C \dot k - cnt_{1} = -cnt_{2}\)</span> , 所以 <span class="math inline">\(cnt_{1} &gt;cnt_{2}\)</span> , 同理又有 <span class="math inline">\(cnt_{2} &gt; cnt_{1}\)</span> , 矛盾。</p>
+<p>故我们成功地将问题转化为对 <span class="math inline">\(\{x_i\}\)</span> 计数。不难发现新问题中 <span class="math inline">\(s\)</span> 的规模被缩小至 <span class="math inline">\(max\{a_{i}\}\)</span></p>
+<p>也就是说 ， 问题变为了 ：</p>
+<p>有 <span class="math inline">\(k\)</span> 个变量 ， 其中有 <span class="math inline">\(r\)</span> 个 (<span class="math inline">\(a_{i} &lt; s\)</span> 的个数) 有一个取值下界 <span class="math inline">\(lim_{i}\)</span> 且 <span class="math inline">\(lim_{i} \geq 1\)</span> , 求这 <span class="math inline">\(k\)</span> 个变量中至少有一个为 <span class="math inline">\(0\)</span> 且总和为 <span class="math inline">\(s\)</span> 的方案数。</p>
+<p>不妨令 <span class="math inline">\(w = \sum{lim_{i}}\)</span> 。</p>
+<p>考虑容斥原理 ， 用总方案数减去至少有一个 <span class="math inline">\(0\)</span> 的方案数 ， 这两者都可以用组合数学中经典的 "插板法" 求解。</p>
+<p>答案为 <span class="math inline">\(\binom{s-w+k-1}{k-1}-\binom{s-w+r-1}{k-1}\)</span>。</p>
+<p>故时间复杂度 <span class="math inline">\(O(max\{a_{i}\} + KlogK)\)</span></p>
+<p>[代码]</p>
+<pre><code class="language-cpp">#include&lt;bits/stdc++.h&gt;
+
+using namespace std;
+
+typedef long long LL;
+
+#define rep(i , l , r) for (int i = (l); i &lt; (r); ++i)
+
+const int MN = 2e6 + 5 , mod = 998244353;
+
+int K , N , A[MN] , fac[MN] , ifac[MN] , cnt[MN];
+
+inline void inc(int &amp;x , int y) {
+	x = x + y &lt; mod ? x + y : x + y - mod;
+}
+inline void dec(int &amp;x , int y) {
+	x = x - y &gt;= 0 ? x - y : x - y + mod;
+}
+inline int qPow(int a , int b) {
+	int c = 1;
+	for (; b; b &gt;&gt;= 1 , a = 1ll * a * a % mod) if (b &amp; 1) c = 1ll * c * a % mod;
+	return c;
+}
+inline void init(int n) {
+	fac[0] = 1;
+	for (int i = 1; i &lt;= n; ++i) fac[i] = 1ll * fac[i - 1] * i % mod;
+	ifac[n] = qPow(fac[n] , mod - 2);
+	for (int i = n - 1; i &gt;= 0; --i) ifac[i] = 1ll * ifac[i + 1] * (i + 1) % mod;
+}
+inline int binom(int n , int m) {
+	if (n &lt; m) return 0;
+	else return 1ll * fac[n] * ifac[m] % mod * ifac[n - m] % mod;
+}
+
+int main() {
+	
+	 init(2e6);
+	 scanf("%d" , &amp;K); int cur = 0;
+	 for (int i = 1; i &lt;= K; ++i) scanf("%d" , &amp;A[i]) , N += A[i];
+	 sort(A + 1 , A + 1 + K); int ans = 0;
+	 for (int i = 0 , j = 1;  i &lt;= A[K]; ++i) {
+	 	  while (A[j] &lt; i) ++cnt[A[j++] % K];
+	 	  cur += cnt[(i - 1 + K) % K];
+	 	  if (cur &gt; i) {
+	 	  	  printf("%d\n" , ans);
+			  return 0;	
+		  }
+		  inc(ans , binom(i - cur + K - 1 , K - 1));
+		  if (i - cur + j - 2 &gt;= K - 1)
+		  	  dec(ans , binom(i - cur + j - 2 , K - 1));
+	 }
+	 printf("%d\n" , ans);
+     return 0;
+}
+</code></pre>
+
+
+
+{% endraw %}

@@ -1,0 +1,112 @@
+---
+layout: post
+title: '【hdu 4374】One Hundred Layer'
+date: 2018-02-12 08:59:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9196439.html
+cnblogs_id: 9196439
+---
+{% raw %}
+
+<p>【题目链接】</p>
+<p>           <a href="http://acm.hdu.edu.cn/showproblem.php?pid=4374" rel="noopener nofollow">点击打开链接</a></p>
+<p>【算法】</p>
+<p>         不难看出，这题可以用动态规划来解决</p>
+<p>         f[i][j]表示第i行第j列能够取得的最大分数</p>
+<p>         则如果向右走，状态转移方程为f[i][j]=max{f[i-1][k]+a[i][k]+a[i][k+1]+...+a[i][j]}（i-T&lt;=k&lt;=j)</p>
+<p>         如果向左走，则状态转移方程为f[i][j]=max{f[i-1][k]+a[i][k]+a[i][k-1]+...+a[i][j]}  (j&lt;=k&lt;=i+T)</p>
+<p>         用前缀和优化，s[i][j]表示第i行前j个数的和</p>
+<p>         则式子被简化为 ：</p>
+<p>         向右走 ： f[i][j] = max{f[i-1][k]+s[i][j]-s[i][k-1]} (i-T&lt;=k&lt;=j)</p>
+<p>         向左走 ： f[i][j] = max{f[i-1][k]+s[i][k]-s[i][j-1]} (j&lt;=k&lt;=i+T)</p>
+<p>         但是这样做还是会TLE，所以我们继续优化 ：</p>
+<p>         我们可以将第一个状态转移方程中s[i][j]提出，式子被写成f[i][j] = max{f[i-1][k]-s[i][k-1]}+s[i][j] (i-T&lt;=k&lt;=j)</p>
+<p>         将第二个状态转移方程中s[i][j-1]提出，式子被写成f[i][j] = max{f[i-1][k]+s[i][k]}+s[i][j-1] (j&lt;=k&lt;=i+T)</p>
+<p>         于是我们就可以用单调队列维护最值，时间复杂度 ： O（数据组数*N*M）</p>
+<p>         【代码】</p>
+<p>                   </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 100
+<span style="color: rgba(0, 0, 255, 1)">#define</span> MAXM 10000<span style="color: rgba(0, 0, 0, 1)">
+
+typedef </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> LL;
+
+</span><span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> info {
+    LL x,val;
+};
+LL i,j,N,M,X,T,tmp,ans;
+LL a[MAXN</span>+<span style="color: rgba(128, 0, 128, 1)">10</span>][MAXM+<span style="color: rgba(128, 0, 128, 1)">10</span>],s[MAXN+<span style="color: rgba(128, 0, 128, 1)">10</span>][MAXM+<span style="color: rgba(128, 0, 128, 1)">10</span>],f[MAXN+<span style="color: rgba(128, 0, 128, 1)">10</span>][MAXM+<span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">];
+deque</span>&lt;info&gt;<span style="color: rgba(0, 0, 0, 1)"> q;
+
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> read(T &amp;<span style="color: rgba(0, 0, 0, 1)">x) {
+    LL f </span>= <span style="color: rgba(128, 0, 128, 1)">1</span>; x = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">char</span> c =<span style="color: rgba(0, 0, 0, 1)"> getchar();
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; !isdigit(c); c = getchar()) { <span style="color: rgba(0, 0, 255, 1)">if</span> (c == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>) f = -<span style="color: rgba(0, 0, 0, 1)">f; }
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; isdigit(c); c = getchar()) x = x * <span style="color: rgba(128, 0, 128, 1)">10</span> + c - <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">;
+    x </span>*=<span style="color: rgba(0, 0, 0, 1)"> f;
+}
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> write(T x) {
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (x &lt; <span style="color: rgba(128, 0, 128, 1)">0</span>) { putchar(<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>); x = -<span style="color: rgba(0, 0, 0, 1)">x; }
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (x &gt; <span style="color: rgba(128, 0, 128, 1)">9</span>) write(x/<span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">);
+    putchar(x</span>%<span style="color: rgba(128, 0, 128, 1)">10</span>+<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">);    
+}
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> writeln(T x) {
+    write(x);
+    puts(</span><span style="color: rgba(128, 0, 0, 1)">""</span><span style="color: rgba(0, 0, 0, 1)">);    
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() {
+    
+    </span><span style="color: rgba(0, 0, 255, 1)">while</span> (cin &gt;&gt; N &gt;&gt; M &gt;&gt; X &gt;&gt;<span style="color: rgba(0, 0, 0, 1)"> T) {
+        ans </span>= -<span style="color: rgba(0, 0, 0, 1)">2e9;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= N; i++<span style="color: rgba(0, 0, 0, 1)">) {
+            </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= M; j++<span style="color: rgba(0, 0, 0, 1)">) {
+                read(a[i][j]);
+            }
+        }
+    
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= N; i++<span style="color: rgba(0, 0, 0, 1)">) {
+            </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= M; j++<span style="color: rgba(0, 0, 0, 1)">) {
+                s[i][j] </span>= s[i][j-<span style="color: rgba(128, 0, 128, 1)">1</span>] +<span style="color: rgba(0, 0, 0, 1)"> a[i][j];
+            }    
+        }
+    
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= N; i++<span style="color: rgba(0, 0, 0, 1)">) {
+            </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= M; j++<span style="color: rgba(0, 0, 0, 1)">) {
+                f[i][j] </span>= -<span style="color: rgba(0, 0, 0, 1)">2e9;
+            }
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = X; i &gt;= X - T; i--) f[<span style="color: rgba(128, 0, 128, 1)">1</span>][i] = s[<span style="color: rgba(128, 0, 128, 1)">1</span>][X] - s[<span style="color: rgba(128, 0, 128, 1)">1</span>][i-<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">]; 
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = X; i &lt;= X + T; i++) f[<span style="color: rgba(128, 0, 128, 1)">1</span>][i] = s[<span style="color: rgba(128, 0, 128, 1)">1</span>][i] - s[<span style="color: rgba(128, 0, 128, 1)">1</span>][X-<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+    
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">2</span>; i &lt;= N; i++<span style="color: rgba(0, 0, 0, 1)">) {
+            q.clear();
+            </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= M; j++<span style="color: rgba(0, 0, 0, 1)">) {
+                </span><span style="color: rgba(0, 0, 255, 1)">while</span> ((!q.empty()) &amp;&amp; (j - q.front().x &gt;<span style="color: rgba(0, 0, 0, 1)"> T)) q.pop_front();
+                tmp </span>= f[i-<span style="color: rgba(128, 0, 128, 1)">1</span>][j] - s[i][j-<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+                </span><span style="color: rgba(0, 0, 255, 1)">while</span> ((!q.empty()) &amp;&amp; (tmp &gt;=<span style="color: rgba(0, 0, 0, 1)"> q.back().val)) q.pop_back();
+                q.push_back((info){j,tmp});
+                f[i][j] </span>= q.front().val +<span style="color: rgba(0, 0, 0, 1)"> s[i][j];
+            }    
+            q.clear();
+            </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = M; j &gt;= <span style="color: rgba(128, 0, 128, 1)">1</span>; j--<span style="color: rgba(0, 0, 0, 1)">) {
+                </span><span style="color: rgba(0, 0, 255, 1)">while</span> ((!q.empty()) &amp;&amp; (q.front().x - j &gt;<span style="color: rgba(0, 0, 0, 1)"> T)) q.pop_front();
+                tmp </span>= f[i-<span style="color: rgba(128, 0, 128, 1)">1</span>][j] +<span style="color: rgba(0, 0, 0, 1)"> s[i][j];
+                </span><span style="color: rgba(0, 0, 255, 1)">while</span> ((!q.empty()) &amp;&amp; (tmp &gt;=<span style="color: rgba(0, 0, 0, 1)"> q.back().val)) q.pop_back();
+                q.push_back((info){j,tmp});
+                f[i][j] </span>= max(f[i][j],q.front().val-s[i][j-<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">]);
+            }
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= M; i++) ans =<span style="color: rgba(0, 0, 0, 1)"> max(ans,f[N][i]);
+        writeln(ans);
+    }
+    
+    </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

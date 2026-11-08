@@ -1,0 +1,659 @@
+---
+layout: post
+title: '联合省选 2020 (A卷) 题解'
+date: 2021-02-26 17:33:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/14453334.html
+cnblogs_id: 14453334
+---
+{% raw %}
+
+<p>[题解]</p>
+<p><span class="math inline">\(A\)</span></p>
+<p>题意等价于求一个单调不增函数和单调不降函数的第一个交点。</p>
+<p>线段树上二分即可。</p>
+<p>时间复杂度 : <span class="math inline">\(O(NlogN)\)</span></p>
+<p><span class="math inline">\(B\)</span></p>
+<p>令 <span class="math inline">\(f(k) = \sum_{i=0}^mb_i\binom{k}{i}\)</span>。</p>
+<p><span class="math inline">\(\sum_{k=0}^nf(k)\times x^k \times \binom{n}{k}=\sum_{k=0}^n\sum_{i=0}^{\min(m,k)}b_i\binom{k}{i}x^k\binom{n}{k}\\=\sum_{i=0}^mb_i\binom{n}{i}\sum_{k=i}^{n}x^k\binom{n-i}{k-i}\\=\sum_{i=0}^mb_i\binom{n}{i}x^{i}(x+1)^{n-i}\)</span></p>
+<p>时间复杂度 : <span class="math inline">\(O(MlogN)\)</span></p>
+<p><span class="math inline">\(C\)</span></p>
+<p>保序回归问题简要记录 (详见集训队论文) :</p>
+<p>定义 :</p>
+<p>对于一个正整数 <span class="math inline">\(p\)</span> , 给定一个偏序关系 (有向无环图) , 图中每个点有权值 <span class="math inline">\((w_{i} , y_{i})\)</span> , 需要给每个点分配一个权值 ， 使得回归代价 <span class="math inline">\(\sum_{i\in U} w_i|f_i-y_i|^p\)</span> 最小 ， 且一条路径上的 <span class="math inline">\(f_{i}\)</span> 递增。</p>
+<p>我们将上述问题称为 <span class="math inline">\(L_{p}\)</span> 问题。</p>
+<p><span class="math inline">\(L_{p}\)</span> 均值的定义 :</p>
+<p>我们定义 <span class="math inline">\(L_{p}\)</span> 均值是使 <span class="math inline">\(\sum\limits_{i\in U}w_i|k-y_i|^p\)</span> 最小的 <span class="math inline">\(k\)</span> , 也就是所有 <span class="math inline">\(f_{i}\)</span> 相等时的最优取值。对目标式求导 ， 解出的零点即为 <span class="math inline">\(L_{p}\)</span> ， 特别地 ， 当 <span class="math inline">\(p = 1\)</span> 时 ，<span class="math inline">\(L\)</span> 是 <span class="math inline">\(w_{i}\)</span> 的带权中位数 <span class="math inline">\(\left(\sum\limits_{i\in U}w_iy_i\right)\left/\left(\sum\limits_{i\in U}w_i\right)\right.\)</span> 而当 <span class="math inline">\(p &gt; 1\)</span> 时 ， <span class="math inline">\(L_{p}\)</span> 均值是唯一的 ， 且一定存在一组最优解 ， 使得对于每个 <span class="math inline">\(f_{i}\)</span> 都能找到某个点集使其带权中位数为 <span class="math inline">\(f_{i}\)</span>。</p>
+<p>整体二分 :</p>
+<p>运用整体二分 ， 可以求得这个问题的近似解。</p>
+<p>定义 <span class="math inline">\(solve(U , l , r)\)</span> 表示点集为 <span class="math inline">\(U\)</span> , <span class="math inline">\(f_{i}\)</span> 取值在 <span class="math inline">\([l , r]\)</span> 间的 <span class="math inline">\(L_{p}\)</span> 问题。 那么我们希望通过某种方式求出哪些点的 <span class="math inline">\(f_{i} \leq mid\)</span> , 哪些 <span class="math inline">\(&gt; mid\)</span>。 这样就可以构造两个规模减半的子问题。</p>
+<p>我们尝试构造另一个问题 ， 设开区间 <span class="math inline">\((a , b)\)</span> 被 <span class="math inline">\([l , r]\)</span> 包含 ， 且 <span class="math inline">\(U\)</span> 的任意非空子集的 <span class="math inline">\(L_{p}\)</span> 均值均不在 <span class="math inline">\((a , b)\)</span> 间 ，  这个问题保证了对于任意的子问题都满足一组最优解使得其取值都不在 <span class="math inline">\((a , b)\)</span> 间。</p>
+<p>引理 :</p>
+<p>若 <span class="math inline">\(solve(U , a , b)\)</span> 的一组最优解为 <span class="math inline">\(\tilde z\)</span> , 且满足 <span class="math inline">\(\forall i\in U,\tilde z_{i}\notin (a,b)\)</span> , 则存在 <span class="math inline">\(solve(U , l , r)\)</span> 的一组最优解 <span class="math inline">\(z\)</span> ， 使得 <span class="math inline">\(z_{i} \leq a\)</span> 当且仅当 <span class="math inline">\(\tilde z_{i} = a\)</span>。</p>
+<p>类似地有 <span class="math inline">\(z_i\geq b\Leftrightarrow \tilde z_i=b\)</span></p>
+<p>由于 <span class="math inline">\(U\)</span> 的任意非空子集的并集是有限集 ， 所以一定存在足够小的 <span class="math inline">\(\epsilon\)</span> 使得 <span class="math inline">\((mid , mid + \epsilon)\)</span>  满足条件。那么就可以由 <span class="math inline">\(solve(mid , mid + \epsilon)\)</span> 得到 ， 当 <span class="math inline">\(\epsilon\)</span> 无限趋近于 <span class="math inline">\(0\)</span> 时 ， 节点 <span class="math inline">\(i\)</span> 的权值是 <span class="math inline">\(w_i[(mid+\epsilon-y_i)^p-(mid-y_i)^p]\)</span> ， 把所有点权除以 <span class="math inline">\(\epsilon\)</span> , 权值变为 <span class="math inline">\(w_{i}(mid - y_{i})^p\)</span> 在 <span class="math inline">\((mid - y_{i})\)</span> 处的导数 ， 当 <span class="math inline">\(p = 2\)</span> 时为 <span class="math inline">\(2w_{i}(mid - y_{i})\)</span>。 偏序关系可以看做求最小权闭合子图。 至此 , <span class="math inline">\(L_{p}\)</span> 问题得到了完美的解决。</p>
+<p>回到本题 ， 题目相当于给定了 <span class="math inline">\(N\)</span> 个 <span class="math inline">\(01\)</span> 极大线性无关组 ， 从某组向量中拿去一个 ， 加入新向量 ，这两者之间构成偏序关系 ， 最后要求代价最小。 这本质上就是一个 <span class="math inline">\(L_{2}\)</span> 问题。 唯一需要注意的是 ， 本题要求的解是整数 ， 因此在 <span class="math inline">\(l + 1 = r\)</span> 时跑最小权闭合子图选择每个点即可。</p>
+<p><span class="math inline">\(D\)</span></p>
+<p>考虑如何拿到 <span class="math inline">\(60\)</span> 分 ， 不妨用 <span class="math inline">\(dp_{S}\)</span> 表示目前已经确定了集合 <span class="math inline">\(S\)</span> 的最小代价 ， 枚举下一个该放谁即可。 需要用到一些"费用提前计算" 的思想。 时间复杂度 : <span class="math inline">\(O(2 ^ NN ^ 2)\)</span>。</p>
+<p>考虑优化 ， 不妨记 <span class="math inline">\(in_{S , i}\)</span> 表示 <span class="math inline">\(S\)</span> 集合内连向点 <span class="math inline">\(i\)</span> 的边数 ， <span class="math inline">\(out_{S , i}\)</span> 表示 <span class="math inline">\(i\)</span> 连向 <span class="math inline">\(S\)</span> 集合内的边数。 由于本题空间限制较紧 ， 需要将 <span class="math inline">\(in\)</span> 拆成 <span class="math inline">\(in'\)</span> 和 <span class="math inline">\(in''\)</span> , <span class="math inline">\(out\)</span> 拆成 <span class="math inline">\(out'\)</span> 和 <span class="math inline">\(out''\)</span> , 分别算前 <span class="math inline">\(\frac{m}{2}\)</span> 位和后 <span class="math inline">\(\frac{m}{2}\)</span> 位。我们还要计算 <span class="math inline">\(g_{S}\)</span> 表示集合 <span class="math inline">\(S\)</span> 连向集合外的边数 ， 这可以通过容斥原理得到。</p>
+<p>至此 ， 我们得到了一个时间复杂度为 <span class="math inline">\(O(2 ^ M * M)\)</span> ， 空间复杂度为 <span class="math inline">\(O(2 ^ {\frac{M}{2}} * M)\)</span> 的优秀做法。具体细节见 [代码]</p>
+<p><span class="math inline">\(E\)</span></p>
+<p>考虑从根开始 <span class="math inline">\(DFS\)</span> ， 每次将节点权值加入一个数据结构中。</p>
+<p>我们要求这个数据结构能支持 :</p>
+<p><span class="math inline">\(1.\)</span> 整体加一</p>
+<p><span class="math inline">\(2.\)</span> 查询异或和</p>
+<p><span class="math inline">\(3.\)</span> 合并两个数据结构</p>
+<p>看到 ， "异或和" , 不难想到使用字典树。 但在这题中从高位到低位建字典树是不行的 ， 不妨从低位到高位建树。 这样 ， 每次加一相当于翻转了一条链上的左右子树。</p>
+<p>通过分析后得到时间复杂度为 <span class="math inline">\(O(NlogN)\)</span></p>
+<p><span class="math inline">\(F\)</span></p>
+<p>首先我们有 <span class="math inline">\(\sum_{d|x}\varphi(d)=x\)</span>。</p>
+<p>答案可以表示为 :</p>
+<p><span class="math inline">\(\sum_{T}\left(\sum_{i=1}^{n-1}w_{e_i}\right)\times\gcd(w_{e_1},w_{e_2},\dots,w_{e_{n-1}})\)</span></p>
+<p><span class="math inline">\(=\sum_{T}\left(\sum_{i=1}^{n-1}w_{e_i}\right)\times\left(\sum_{d|\gcd(w_{e_1},w_{e_2},\dots,w_{e_{n-1}})}\varphi(d)\right)\)</span></p>
+<p><span class="math inline">\(=\sum_{d=1}^{W}\varphi(d)\times\left(\sum_{\substack{T\\d|w_{e_1},\dots ,d|w_{e_{n-1}}}}\sum_{i=1}^{n-1}w_{e_i}\right)\)</span></p>
+<p>其中 <span class="math inline">\(W\)</span> 表示最大边权。</p>
+<p>后面那部分显然是所有 <span class="math inline">\(w_{e_{i}}\)</span> 是 <span class="math inline">\(d_{i}\)</span> 倍数的边组成的子图的生成树边权和。</p>
+<p>普通的矩阵树定理 ， 我们求得的是生成树的边权乘积之积。 而对于求和 ， 不妨令每条边为一个多项式 <span class="math inline">\((wx + 1)\)</span> , 运行矩阵树定理 ， 最终要求的是答案多项式中 <span class="math inline">\((N - 1)\)</span> 项的系数。</p>
+<p>时间复杂度 <span class="math inline">\(O(\frac{\sum\sigma_0(w_{e_i})}{n-1}\cdot n^3)=O(n^2\sum\sigma_0(w_{e_i}))\)</span></p>
+<p>[代码]</p>
+<p><span class="math inline">\(A\)</span></p>
+<pre><code class="language-cpp">#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS
+#endif
+
+#include&lt;bits/stdc++.h&gt;
+
+using namespace std;
+
+#ifndef LOCAL
+	  #define eprintf(...) fprintf(stderr , _VA_ARGS)
+#else
+	  #define eprintf(...) 42
+#endif
+
+// define evenbao
+#define PII pair&lt;int , int&gt;
+#define FI first
+#define SE second
+#define MP make_pair
+
+typedef long long LL;
+
+template &lt;typename T&gt; inline void chkmax(T &amp;x , T y) { x = max(x , y); }
+template &lt;typename T&gt; inline void chkmin(T &amp;x , T y) { x = min(x , y); }
+template &lt;typename T&gt; inline void read(T &amp;x) {
+    T f = 1; x = 0;
+    char c = getchar();
+    for (; !isdigit(c); c = getchar()) if (c == '-') f = -f;
+    for (; isdigit(c); c = getchar()) x = (x &lt;&lt; 3) + (x &lt;&lt; 1) + c - '0';
+    x *= f;
+}
+
+const int N = 2e6 + 10;
+
+int n , m , ans , ansp;
+int opt[N] , type[N] , b[N] , x[N] , y[N] , k[N];
+
+struct Segment_Tree {
+		int mn[N * 4] , tag[N * 4] , mx[N * 4] , mxp[N * 4];
+		inline void pushup(int now) {
+				mn[now] = min(mn[now &lt;&lt; 1] , mn[now &lt;&lt; 1 | 1]);
+				mx[now] = max(mx[now &lt;&lt; 1] , mx[now &lt;&lt; 1 | 1]);
+				if (mx[now &lt;&lt; 1 | 1] &gt;= mx[now &lt;&lt; 1]) mxp[now] = mxp[now &lt;&lt; 1 | 1];
+				else mxp[now] = mxp[now &lt;&lt; 1];
+		}
+		inline void pushdown(int now , int l , int r) {
+				int mid = (l + r) &gt;&gt; 1;
+				tag[now &lt;&lt; 1] += tag[now]; tag[now &lt;&lt; 1 | 1] += tag[now];
+				mn[now &lt;&lt; 1] += tag[now]; mn[now &lt;&lt; 1 | 1] += tag[now];
+				mx[now &lt;&lt; 1] += tag[now]; mx[now &lt;&lt; 1 | 1] += tag[now];
+				tag[now] = 0;
+				return;
+		} 
+		inline void build(int now , int l , int r) {
+				if (l == r) { mn[now] = mx[now] = 0; mxp[now] = l; return; }
+				int mid = (l + r) &gt;&gt; 1;
+				build(now &lt;&lt; 1 , l , mid); build(now &lt;&lt; 1 | 1 , mid + 1 , r);
+				pushup(now);
+		}
+		inline void modify(int now , int l , int r , int ql , int qr , int val) {
+				if (l == ql &amp;&amp; r == qr) {
+						mx[now] += val; mn[now] += val; tag[now] += val;
+						return;
+				}
+				pushdown(now , l , r);
+				int mid = (l + r) &gt;&gt; 1;
+				if (mid &gt;= qr) modify(now &lt;&lt; 1 , l , mid , ql , qr , val);
+				else if (mid + 1 &lt;= ql) modify(now &lt;&lt; 1 | 1 , mid + 1 , r , ql , qr , val);
+				else modify(now &lt;&lt; 1 , l , mid , ql , mid , val) , modify(now &lt;&lt; 1 | 1 , mid + 1 , r , mid + 1 , qr , val);
+				pushup(now);
+		}
+} ls , rs;
+
+inline void upd(int y , int x) {
+		if (y &gt; ans) ans = y , ansp = x;
+		else if (y == ans) chkmax(ansp , x);
+} 
+inline void query(int now , int l , int r) {
+		if (ls.mx[now] &lt;= rs.mn[now]) {
+				upd(ls.mx[now] , ls.mxp[now]);
+				return;
+		}
+		if (rs.mx[now] &lt;= ls.mn[now]) {
+				upd(rs.mx[now] , rs.mxp[now]);
+				return;
+		}
+		ls.pushdown(now , l , r); rs.pushdown(now , l , r);
+		int mid = (l + r) &gt;&gt; 1;
+		query(now &lt;&lt; 1 , l , mid); query(now &lt;&lt; 1 | 1 , mid + 1 , r);
+}
+
+inline void solve() {
+		ans = ansp = 0;
+		query(1 , 1 , n);
+		if (!ans) printf("Peace\n");
+		else printf("%d %d\n" , b[ansp] , ans * 2);
+}
+int main() {
+		
+		read(n);
+		for (int i = 1; i &lt;= n; ++i) {
+				read(type[i]);
+				if (type[i] == 1) {
+						read(opt[i]);
+						read(x[i]);
+						read(y[i]);
+						b[++m] = x[i];
+				} else read(k[i]);
+		}
+		sort(b + 1 , b + m + 1);
+		m = unique(b + 1 , b + m + 1) - b - 1;
+		for (int i = 1; i &lt;= n; ++i)
+				if (type[i] == 1) x[i] = lower_bound(b + 1 , b + m + 1 , x[i]) - b;
+		ls.build(1 , 1 , m); rs.build(1 , 1 , m);
+		for (int i = 1; i &lt;= n; ++i) {
+				if (type[i] == 1) {
+						if (opt[i] == 0) ls.modify(1 , 1 , m , x[i] , m , y[i]);
+						else rs.modify(1 , 1 , m , 1 , x[i] , y[i]);
+						solve();
+				} else {
+						if (opt[k[i]] == 0) ls.modify(1 , 1 , m , x[k[i]] , m , -y[k[i]]);
+						else rs.modify(1 , 1 , m , 1 , x[k[i]] , -y[k[i]]);
+						solve();
+				}
+		}
+	  return 0;
+}
+</code></pre>
+<p><span class="math inline">\(B\)</span></p>
+<pre><code class="language-cpp">#include&lt;bits/stdc++.h&gt;
+using namespace std;
+
+typedef long long LL;
+
+const int M = 2000 + 10;
+
+int n , x , m , mod;
+int S[M][M] , a[M];
+
+template &lt;typename T&gt; inline void chkmax(T &amp;x , T y) { x = max(x , y); }
+template &lt;typename T&gt; inline void chkmin(T &amp;x , T y) { x = min(x , y); }
+template &lt;typename T&gt; inline void read(T &amp;x) {
+	T f = 1; x = 0;
+	char c = getchar();
+	for (; !isdigit(c); c = getchar()) if (c == '-') f = -f;
+	for (; isdigit(c); c = getchar()) x = (x &lt;&lt; 3) + (x &lt;&lt; 1) + c - '0';
+	x *= f;
+}
+
+inline void inc(int &amp;x , int y) { x = x + y &lt; mod ? x + y : x + y - mod; }
+inline void dec(int &amp;x , int y) { x = x - y &gt;= 0 ? x - y : x - y + mod; } 
+inline int quickpow(int a , int n) {
+	int b = a , res = 1;
+	for (; n; n &gt;&gt;= 1 , a = (LL) a * a % mod)
+		if (n &amp; 1) res = (LL) res * a % mod;
+	return res;
+}
+
+int main() {
+	
+	read(n); read(x); read(mod); read(m);
+	for (int i = 0; i &lt;= m; ++i) read(a[i]);
+	S[0][0] = 1;
+	for (int i = 1; i &lt;= m; ++i)
+	for (int j = 1; j &lt;= i; ++j)
+		S[i][j] = (1LL * S[i - 1][j] * j % mod + S[i - 1][j - 1]) % mod;
+	int ans = 0;
+	for (int i = 0; i &lt;= m; ++i) {
+		int coef = 1 , res = 0;
+		for (int j = 0; j &lt;= i; ++j) {
+			if (j) coef = (LL) coef * (n - j + 1) % mod;
+			inc(res , (LL) S[i][j] * coef % mod * quickpow(x , j) % mod * quickpow(x + 1 , n - j) % mod);
+		}
+		res = (LL) res * a[i] % mod;
+		inc(ans , res);
+	}
+	printf("%d\n" , ans);
+	return 0;
+}
+</code></pre>
+<p><span class="math inline">\(C\)</span></p>
+<pre><code class="language-cpp">// XYX
+#include&lt;bits/stdc++.h&gt;
+using namespace std;
+const int MAXN = 1e3 + 5;
+const int Maxb = 64;
+typedef long long ll;
+template &lt;typename T&gt; void chkmax(T &amp;x, T y) {x = max(x, y); }
+template &lt;typename T&gt; void chkmin(T &amp;x, T y) {x = min(x, y); } 
+template &lt;typename T&gt; void read(T &amp;x) {
+	x = 0; int f = 1;
+	char c = getchar();
+	for (; !isdigit(c); c = getchar()) if (c == '-') f = -f;
+	for (; isdigit(c); c = getchar()) x = x * 10 + c - '0';
+	x *= f;
+}
+struct LinearBasis {
+	ll a[Maxb], b[Maxb];
+	void init() {
+		memset(a, 0, sizeof(a));
+		memset(b, 0, sizeof(b));
+	}
+	void ins(ll x, ll y) {
+		for (int i = Maxb - 1; i &gt;= 0; i--)
+			if (x &amp; (1ll &lt;&lt; i)) {
+				if (a[i] == 0) {
+					a[i] = x;
+					b[i] = y;
+					return;
+				} else {
+					x ^= a[i];
+					y ^= b[i];
+				}
+			}
+	}
+	ll query(ll x) {
+		ll ans = 0;
+		for (int i = Maxb - 1; i &gt;= 0; i--)
+			if (x &amp; (1ll &lt;&lt; i)) {
+				x ^= a[i];
+				ans ^= b[i];
+			}
+		return ans;
+	}
+} LB;
+namespace NetworkFlow {
+	const ll INF = 1e18;
+	const int MAXP = 1e5 + 5;
+	struct edge {
+		int dest; ll flow;
+		unsigned pos;
+	}; vector &lt;edge&gt; a[MAXP];
+	int tot, s, t, dist[MAXP];
+	unsigned curr[MAXP];
+	void init(vector &lt;int&gt; u, int n) {
+		for (auto x : u) a[x].clear();
+		a[s = n + 1].clear();
+		a[t = n + 2].clear();
+	}
+	void addedge(int x, int y, ll z) {
+		a[x].push_back((edge) {y, z, a[y].size()});
+		a[y].push_back((edge) {x, 0, a[x].size() - 1});
+	}
+	ll dinic(int pos, ll limit) {
+		if (pos == t) return limit;
+		ll used = 0, tmp;
+		for (unsigned &amp;i = curr[pos]; i &lt; a[pos].size(); i++)
+			if (a[pos][i].flow != 0 &amp;&amp; dist[pos] + 1 == dist[a[pos][i].dest] &amp;&amp; (tmp = dinic(a[pos][i].dest, min(limit - used, a[pos][i].flow)))) {
+				used += tmp;
+				a[pos][i].flow -= tmp;
+				a[a[pos][i].dest][a[pos][i].pos].flow += tmp;
+				if (used == limit) return used;
+			}
+		return used;
+	}
+	bool bfs(vector &lt;int&gt; u) {
+		static int q[MAXP];
+		int l = 0, r = 0;
+		for (auto x : u) dist[x] = 0;
+		dist[t] = 0, dist[s] = 1, q[0] = s;
+		while (l &lt;= r) {
+			int tmp = q[l];
+			for (unsigned i = 0; i &lt; a[tmp].size(); i++)
+				if (dist[a[tmp][i].dest] == 0 &amp;&amp; a[tmp][i].flow != 0) {
+					q[++r] = a[tmp][i].dest;
+					dist[q[r]] = dist[tmp] + 1;
+				}
+			l++;
+		}
+		return dist[t] != 0;
+	}
+	pair &lt;vector &lt;int&gt;, vector &lt;int&gt;&gt; flow(vector &lt;int&gt; u) {
+		while (bfs(u)) {
+			for (auto x : u) curr[x] = 0;
+			curr[s] = curr[t] = 0;
+			dinic(s, INF);
+		}
+		bfs(u);
+		vector &lt;int&gt; resx, resy;
+		for (auto x : u)
+			if (dist[x]) resx.push_back(x);
+			else resy.push_back(x);
+		return make_pair(resx, resy);
+	}
+}
+int n, m, res[MAXN]; vector &lt;int&gt; a[MAXN];
+ll c[MAXN]; int v[MAXN], x[MAXN], y[MAXN];
+void work(vector &lt;int&gt; u, int l, int r) {
+	if (l == r) {
+		for (auto x : u) res[x] = l;
+		return;
+	}
+	NetworkFlow :: init(u, n);
+	int mid = (l + r) / 2, s = n + 1, t = n + 2;
+	for (auto x : u) {
+		NetworkFlow :: addedge(x, t, 1ll * (v[x] - mid) * (v[x] - mid));
+		NetworkFlow :: addedge(s, x, 1ll * (v[x] - mid - 1) * (v[x] - mid - 1));
+		for (auto y : a[x])
+			NetworkFlow :: addedge(y, x, NetworkFlow :: INF);
+	}
+	pair &lt;vector &lt;int&gt;, vector &lt;int&gt;&gt; res = NetworkFlow :: flow(u);
+	work(res.first, l, mid), work(res.second, mid + 1, r);
+}
+int main() {
+	read(n), read(m);
+	for (int i = 1; i &lt;= n; i++)
+		read(c[i]);
+	for (int i = 1; i &lt;= n; i++)
+		read(v[i]);
+	LB.init();
+	for (int i = 1; i &lt;= m; i++) {
+		read(x[i]);
+		LB.ins(c[x[i]], 1ll &lt;&lt; (i - 1));
+	}
+	for (int i = 1; i &lt;= n; i++) {
+		ll mask = LB.query(c[i]);
+		for (int j = 1; j &lt;= m; j++)
+			if ((1ll &lt;&lt; (j - 1)) &amp; mask) a[x[j]].push_back(i);
+	}
+	LB.init();
+	for (int i = 1; i &lt;= m; i++) {
+		read(y[i]);
+		LB.ins(c[y[i]], 1ll &lt;&lt; (i - 1));
+	}
+	for (int i = 1; i &lt;= n; i++) {
+		ll mask = LB.query(c[i]);
+		for (int j = 1; j &lt;= m; j++)
+			if ((1ll &lt;&lt; (j - 1)) &amp; mask) a[i].push_back(y[j]);
+	}
+	int Max = 0; vector &lt;int&gt; u;
+	for (int i = 1; i &lt;= n; i++) {
+		chkmax(Max, v[i]);
+		u.push_back(i);
+	}
+	work(u, 0, Max);
+	ll ans = 0;
+	for (int i = 1; i &lt;= n; i++)
+		ans += 1ll * (res[i] - v[i]) * (res[i] - v[i]);
+	cout &lt;&lt; ans &lt;&lt; endl;
+	return 0;
+}
+</code></pre>
+<p><span class="math inline">\(D\)</span></p>
+<pre><code class="language-cpp">#include&lt;bits/stdc++.h&gt;
+
+using namespace std;
+
+typedef long long LL;
+
+#define rep(i , l , r) for (int i = (l); i &lt; (r); ++i)
+#define popcnt(S) __builtin_popcount(S)
+#define ctz(S) __builtin_ctz(S)
+
+const int NM = 1e5 + 51, MM = 24, MK = 1 &lt;&lt; MM, U0 = (1 &lt;&lt; 12) - 1;
+
+int c0[MM][U0 + 1], c1[MM][U0 + 1], c2[MM][U0 + 1], c3[MM][U0 + 1];
+int s[NM], g[MK], rec[MM][MM], f[MK];
+int N , M , K , U;
+
+inline int cnt1(int x , int S) {
+	int hi = S &gt;&gt; 12 , lo = S &amp; U0;
+	return c0[x][lo] + c1[x][hi]; 
+}
+inline int cnt2(int S , int x) {
+	int hi = S &gt;&gt; 12 , lo = S &amp; U0;
+	return c2[x][lo] + c3[x][hi];
+}
+
+int main() {
+	 
+	 scanf("%d%d%d" , &amp;N , &amp;M , &amp;K); U = (1 &lt;&lt; M) - 1;
+	 for (int i = 1; i &lt;= N; ++i) {
+	 	 scanf("%d" , s + i); --s[i];
+	 	 if (i &gt; 1) ++rec[s[i - 1]][s[i]];
+	 }
+	 for (int i = 0; i &lt; M; ++i)
+	 	 for (int S = 1; S &lt;= U0; ++S) {
+	 	 	 int x0 = ctz(S) , x1 = x0 + 12;
+			 c0[i][S] = c0[i][S &amp; (S - 1)] + rec[i][x0];
+			 c1[i][S] = c1[i][S &amp; (S - 1)] + rec[i][x1];
+			 c2[i][S] = c2[i][S &amp; (S - 1)] + rec[x0][i];
+			 c3[i][S] = c3[i][S &amp; (S - 1)] + rec[x1][i];  	 
+		 }
+	 for (int S = 1; S &lt;= U; ++S) {
+	 	 int S0 = S &amp; (S - 1) , x = ctz(S);
+	 	 g[S] = g[S0] + cnt1(x , U ^ S) - cnt2(S0 , x);
+	 }
+	 memset(f , 0x3f , sizeof(f));
+	 f[0] = 0;
+	 for (int S = 0; S &lt; U; ++S)
+	 	for (int i = 0; i &lt; M; ++i)
+	 		if (!((S &gt;&gt; i) &amp; 1))
+	 			f[S | (1 &lt;&lt; i)] = min(f[S | (1 &lt;&lt; i)] , f[S] + g[S] + K * (popcnt(S) + 1) * (cnt1(i, S) + cnt2(U ^ S ^ (1 &lt;&lt; i), i)));
+	 printf("%d\n" , f[U]); 	
+     return 0;
+}
+</code></pre>
+<p><span class="math inline">\(E\)</span></p>
+<pre><code class="language-cpp">#include&lt;bits/stdc++.h&gt;
+using namespace std;
+
+const int N = 6e5 + 10;
+
+struct Edge {
+	int to , nxt;
+} E[N &lt;&lt; 1];
+
+typedef long long LL;
+
+int n , tot , size;
+int val[N] , ch[N * 25][2] , sum[N * 25] , sz[N * 25] , head[N] , fa[N];
+int top = 0 , rt[N] , stk[N];
+LL ans;
+
+inline void addedge(int u , int v) {
+	E[++tot] = (Edge) {v , head[u]};
+	head[u] = tot;
+}
+inline void pushup(int now) {
+	sum[now] = ((sum[ch[now][0]] ^ sum[ch[now][1]]) &lt;&lt; 1) ^ sz[ch[now][1]];
+}
+inline int merge(int u , int v) {
+	if (!u || !v) return u + v;
+	ch[u][0] = merge(ch[u][0] , ch[v][0]);
+	ch[u][1] = merge(ch[u][1] , ch[v][1]);
+	sz[u] ^= sz[v]; sum[u] ^= sum[v];
+	return u;
+} 
+inline void upd(int now) {
+	top = 0;
+	for (int i = 0; i &lt;= 22 &amp;&amp; now; ++i) {
+		swap(ch[now][0] , ch[now][1]); stk[++top] = now;
+		now = ch[now][0]; 
+	}	
+	for (int i = top; i &gt;= 1; --i)
+		pushup(stk[i]);
+	return;
+}
+inline void insert(int now , int x) {
+	top = 0;
+	for (int i = 0; i &lt;= 22; ++i) {
+		sz[now] ^= 1; stk[++top] = now;	 
+		bool val = (x &gt;&gt; i) &amp; 1; 
+		if (!ch[now][val]) ch[now][val] = ++size; 
+		now = ch[now][val]; 
+	}
+	for (int i = top; i &gt;= 1; --i)
+		pushup(stk[i]);
+	return;
+}
+inline void solve(int u , int fa) {
+	for (int i = head[u]; i; i = E[i].nxt) {
+		int v = E[i].to; if (v == fa) continue;
+		solve(v , u); rt[u] = merge(rt[u] , rt[v]);
+	}
+	if (rt[u]) upd(rt[u]);
+	if (!rt[u]) rt[u] = ++size;
+	insert(rt[u] , val[u]); 
+	ans += (LL) sum[rt[u]];
+	return;
+}
+int main() {
+	
+	cin &gt;&gt; n;
+	for (int i = 1; i &lt;= n; ++i) cin &gt;&gt; val[i];
+	for (int i = 2; i &lt;= n; ++i) {
+		cin &gt;&gt; fa[i];
+		addedge(i , fa[i]); addedge(fa[i] , i);
+	}
+	solve(1 , 0);
+	cout &lt;&lt; ans &lt;&lt; "\n";
+	return 0;
+}
+</code></pre>
+<p><span class="math inline">\(F\)</span></p>
+<pre><code class="language-cpp">#include&lt;bits/stdc++.h&gt;
+using namespace std;
+
+typedef long long LL;
+
+const int N = 55;
+const int mod = 998244353;
+const int M = 2e5 + 10;
+
+int tot , n , m;
+int u[M] , v[M] , w[M] , pr[M] , phi[M] , cntE[M] , f[M];
+
+template &lt;typename T&gt; inline void chkmax(T &amp;x , T y) { x = max(x , y); }
+template &lt;typename T&gt; inline void chkmin(T &amp;x , T y) { x = min(x , y); }
+template &lt;typename T&gt; inline void read(T &amp;x) {
+	T f = 1; x = 0;
+	char c = getchar();
+	for (; !isdigit(c); c = getchar()) if (c == '-') f = -f;
+	for (; isdigit(c); c = getchar()) x = (x &lt;&lt; 3) + (x &lt;&lt; 1) + c - '0';
+	x *= f;
+}
+inline int quickpow(int a , int n) {
+	int res = 1;
+	for (; n; n &gt;&gt;= 1 , a = (LL) a * a % mod)
+		if (n &amp; 1) res = (LL) res * a % mod;
+	return res;
+}
+struct Func { 
+	int a , b;
+} a[N][N];
+
+Func operator + (Func a , Func b) {
+	return (Func) {(a.a + b.a) % mod , (a.b + b.b) % mod};
+}
+Func operator - (Func a , Func b) {
+	return (Func) {(a.a - b.a + mod) % mod , (a.b - b.b + mod) % mod};
+}
+Func operator * (Func a , Func b) {
+	return (Func) {1LL * a.a * b.a % mod , (1LL * a.a * b.b % mod + 1LL * a.b * b.a % mod) % mod};	
+}
+Func operator / (Func a , Func b) {
+	int Inv = quickpow(b.a , mod - 2); 
+	return (Func) {1LL * a.a * Inv % mod , 1LL * (1LL * a.b * b.a % mod - 1LL * a.a * b.b % mod + mod) % mod * 1LL * Inv % mod * 1LL * Inv % mod};
+}
+
+inline void inc(int &amp;x , int y) { x = x + y &lt; mod ? x + y : x + y - mod; }
+inline void dec(int &amp;x , int y) { x = x - y &gt;= 0 ? x - y : x - y + mod; }
+inline void init(int n) {
+	phi[1] = 1;
+	for (int i = 2; i &lt;= n; ++i) {
+		if (!f[i]) {
+			f[i] = i;
+			pr[++tot] = i;
+			phi[i] = (i - 1) % mod;
+		}
+		for (int j = 1; i * pr[j] &lt;= n &amp;&amp; j &lt;= tot; ++j) {
+			int tmp = i * pr[j]; f[tmp] = pr[j];
+			if (pr[j] == f[i]) {
+				phi[i * pr[j]] = phi[i] * pr[j];
+				break;
+			} else phi[i * pr[j]] = phi[i] * phi[pr[j]];
+		}
+	}
+}
+inline void add(int u , int v , Func w) {
+	a[u][u] = a[u][u] + w; 
+	a[u][v] = a[u][v] - w;
+}
+inline int gauss() {
+	int sign = 1; Func ans = (Func) {1 , 0};
+	for (int i = 1; i &lt;= n - 1; ++i) {
+		for (int j = i + 1; j &lt;= n - 1; ++j) 
+			if (a[j][i].a) {
+				sign = mod - sign;
+				swap(a[i] , a[j]);
+				break;
+			}
+		ans = ans * a[i][i];
+		for (int j = i + 1; j &lt;= n - 1; ++j) {
+			Func Inv = a[j][i] / a[i][i];
+			for (int k = i; k &lt;= n - 1; ++k)
+				a[j][k] = a[j][k] - a[i][k] * Inv;
+		} 
+	}
+	return 1LL * sign * ans.b % mod;
+}
+inline int solve(int D) {
+	memset(a , 0 , sizeof(a));
+	for (int i = 1; i &lt;= m; ++i) {
+		if (w[i] % D == 0) {
+			add(u[i] , v[i] , (Func) {1 , w[i]});
+			add(v[i] , u[i] , (Func) {1 , w[i]});
+		}
+	}
+	return gauss();
+}
+inline void add_factor(int x) {
+	for (int i = 1; i * i &lt;= x; ++i) {
+		if (x % i == 0) {
+			++cntE[i];
+			if (i * i != x) ++cntE[x / i];
+		}
+	}
+}
+int main() {
+	
+	read(n); read(m); int limit = 0; 
+	for (int i = 1; i &lt;= m; ++i) {
+		read(u[i]) , read(v[i]) , read(w[i]);
+		add_factor(w[i]);
+		chkmax(limit , w[i]);
+	}
+	init(limit);
+	int ans = 0;
+	for (int i = 1; i &lt;= limit; ++i) {
+		if (cntE[i] &lt; n - 1) continue;
+		inc(ans , 1LL * phi[i] * solve(i) % mod);
+	}
+	printf("%d\n" , ans);
+	return 0;
+}
+</code></pre>
+
+
+
+{% endraw %}

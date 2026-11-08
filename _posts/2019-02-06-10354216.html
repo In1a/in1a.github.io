@@ -1,0 +1,89 @@
+---
+layout: post
+title: '[APIO 2014] 序列分割'
+date: 2019-02-06 22:36:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/10354216.html
+cnblogs_id: 10354216
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p>        <a href="https://www.lydsy.com/JudgeOnline/problem.php?id=3675" target="_blank" rel="noopener nofollow"> https://www.lydsy.com/JudgeOnline/problem.php?id=3675</a></p>
+<p>[算法]</p>
+<p>         首先 ， 我们发现将一段序列切成若干段所获得的收益与顺序无关</p>
+<p>         于是我们可以用fi,j表示切i次 ， 前j个数的最大收益</p>
+<p>         令sumi表示ai的前缀和</p>
+<p>         显然 , fi,j = max{ fi-1,k + sumk * (sumj - sumk) }</p>
+<p>         斜率优化即可</p>
+<p>         此题内存限制较紧 ， 可以使用滚动数组优化空间复杂度</p>
+<p>         时间复杂度 : O(NK)</p>
+<p>[代码]</p>
+<p>       </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 100010
+<span style="color: rgba(0, 0, 255, 1)">#define</span> MAXK 210<span style="color: rgba(0, 0, 0, 1)">
+typedef </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> ll;
+typedef </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">double</span><span style="color: rgba(0, 0, 0, 1)"> ld;
+typedef unsigned </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> ull;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> n , k , l , r;
+ll X[MAXN] , Y[MAXN] , sum[MAXN] , f[</span><span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">][MAXN];
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> a[MAXN] , q[MAXN] , last[MAXK][MAXN];
+
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> chkmax(T &amp;x,T y) { x =<span style="color: rgba(0, 0, 0, 1)"> max(x,y); }
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> chkmin(T &amp;x,T y) { x =<span style="color: rgba(0, 0, 0, 1)"> min(x,y); }
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> read(T &amp;<span style="color: rgba(0, 0, 0, 1)">x)
+{
+    T f </span>= <span style="color: rgba(128, 0, 128, 1)">1</span>; x = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">char</span> c =<span style="color: rgba(0, 0, 0, 1)"> getchar();
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; !isdigit(c); c = getchar()) <span style="color: rgba(0, 0, 255, 1)">if</span> (c == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>) f = -<span style="color: rgba(0, 0, 0, 1)">f;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; isdigit(c); c = getchar()) x = (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">3</span>) + (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>) + c - <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">;
+    x </span>*=<span style="color: rgba(0, 0, 0, 1)"> f;
+}
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main()
+{
+        
+        read(n); read(k);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                read(a[i]);
+                sum[i] </span>= sum[i - <span style="color: rgba(128, 0, 128, 1)">1</span>] +<span style="color: rgba(0, 0, 0, 1)"> a[i];
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= k; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span> now = i &amp; <span style="color: rgba(128, 0, 128, 1)">1</span> , pre = now ^ <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                f[now][q[l </span>= r = <span style="color: rgba(128, 0, 128, 1)">1</span>] = <span style="color: rgba(128, 0, 128, 1)">0</span>] = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= n; j++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (l &lt; r &amp;&amp; Y[q[l + <span style="color: rgba(128, 0, 128, 1)">1</span>]] - Y[q[l]] &gt;= -sum[j] * (X[q[l + <span style="color: rgba(128, 0, 128, 1)">1</span>]] - X[q[l]])) ++<span style="color: rgba(0, 0, 0, 1)">l;
+                        f[now][j] </span>= Y[q[l]] + X[q[l]] *<span style="color: rgba(0, 0, 0, 1)"> sum[j];
+                        X[j] </span>=<span style="color: rgba(0, 0, 0, 1)"> sum[j];
+                        Y[j] </span>= f[pre][j] - sum[j] *<span style="color: rgba(0, 0, 0, 1)"> sum[j];
+                        last[i][j] </span>=<span style="color: rgba(0, 0, 0, 1)"> q[l];
+                        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (l &lt; r &amp;&amp; (Y[j] - Y[q[r]]) * (X[q[r]] - X[q[r - <span style="color: rgba(128, 0, 128, 1)">1</span>]]) &gt;= (Y[q[r]] - Y[q[r - <span style="color: rgba(128, 0, 128, 1)">1</span>]]) * (X[j] - X[q[r]])) --<span style="color: rgba(0, 0, 0, 1)">r;
+                        q[</span>++r] =<span style="color: rgba(0, 0, 0, 1)"> j; 
+                }        
+        }
+        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%lld\n</span><span style="color: rgba(128, 0, 0, 1)">"</span> , f[k &amp; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">][n]);
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> now = n , s =<span style="color: rgba(0, 0, 0, 1)"> k;
+        vector</span>&lt; <span style="color: rgba(0, 0, 255, 1)">int</span> &gt;<span style="color: rgba(0, 0, 0, 1)"> ans;
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (now &gt; <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">)
+        {
+                now </span>=<span style="color: rgba(0, 0, 0, 1)"> last[s][now];
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span><span style="color: rgba(0, 0, 0, 1)"> (now) ans.push_back(now);
+                </span>--<span style="color: rgba(0, 0, 0, 1)">s;
+        }
+        reverse(ans.begin() , ans.end());
+    
+        </span><span style="color: rgba(0, 128, 0, 1)">//</span><span style="color: rgba(0, 128, 0, 1)"> 输出方案...</span>
+
+        <span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

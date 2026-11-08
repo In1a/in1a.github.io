@@ -1,0 +1,142 @@
+---
+layout: post
+title: '[LibreOJ NOIP Round #1] 旅游路线'
+date: 2018-09-08 09:31:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9607906.html
+cnblogs_id: 9607906
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p>         <a href="https://loj.ac/problem/539" target="_blank" rel="noopener nofollow">https://loj.ac/problem/539</a></p>
+<p>[算法]</p>
+<p>        首先 ， 我们用f[u][k]表示现在在景点u ，还有k元钱 ， 最多能够走多少路</p>
+<p>        不难发现f[u][k] = max{ f[v][k - P[u]] + Dist(u,v,min(C,ci)) } ( dist(u,v,w)表示从u走到v ， 最多经过w条路 ， 最多能走多少路 ）</p>
+<p>        用倍增弗洛伊德求dist， 然后进行上述dp ， 即可</p>
+<p>        时间复杂度 : O(N^4 + N^3logN + TlogQ)</p>
+<p>[代码]</p>
+<p>       </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">int</span> inf =<span style="color: rgba(0, 0, 0, 1)"> 1e9;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 110
+<span style="color: rgba(0, 0, 255, 1)">#define</span> MAXLOG 20
+
+<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> n,m,C,T,tot;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> head[MAXN];
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> a[MAXN],b[MAXN],p[MAXN],c[MAXN];
+</span><span style="color: rgba(0, 0, 255, 1)">int</span> dis[MAXN][MAXN],f[MAXN][MAXN *<span style="color: rgba(0, 0, 0, 1)"> MAXN];
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> mat[MAXLOG][MAXN][MAXN];
+
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> read(T &amp;<span style="color: rgba(0, 0, 0, 1)">x)
+{
+    T f </span>= <span style="color: rgba(128, 0, 128, 1)">1</span>; x = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">char</span> c =<span style="color: rgba(0, 0, 0, 1)"> getchar();
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; !isdigit(c); c = getchar()) <span style="color: rgba(0, 0, 255, 1)">if</span> (c == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>) f = -<span style="color: rgba(0, 0, 0, 1)">f;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; isdigit(c); c = getchar()) x = (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">3</span>) + (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>) + c - <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">;
+    x </span>*=<span style="color: rgba(0, 0, 0, 1)"> f;
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() 
+{
+        
+        read(n); read(m); read(C); read(T);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                read(p[i]);
+                read(c[i]);
+                c[i] </span>=<span style="color: rgba(0, 0, 0, 1)"> min(c[i],C);
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= n; j++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (i !=<span style="color: rgba(0, 0, 0, 1)"> j)
+                                mat[</span><span style="color: rgba(128, 0, 128, 1)">0</span>][i][j] = -<span style="color: rgba(0, 0, 0, 1)">inf;
+                }
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= m; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> u,v,w;
+                read(u); read(v); read(w);
+                mat[</span><span style="color: rgba(128, 0, 128, 1)">0</span>][u][v] = max(mat[<span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">][u][v],w);
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt; MAXLOG; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                memcpy(mat[i],mat[i </span>- <span style="color: rgba(128, 0, 128, 1)">1</span>],<span style="color: rgba(0, 0, 255, 1)">sizeof</span><span style="color: rgba(0, 0, 0, 1)">(mat[i]));
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> k = <span style="color: rgba(128, 0, 128, 1)">1</span>; k &lt;= n; k++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> x = <span style="color: rgba(128, 0, 128, 1)">1</span>; x &lt;= n; x++<span style="color: rgba(0, 0, 0, 1)">)
+                        {
+                                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> y = <span style="color: rgba(128, 0, 128, 1)">1</span>; y &lt;= n; y++<span style="color: rgba(0, 0, 0, 1)">)
+                                {
+                                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (mat[i - <span style="color: rgba(128, 0, 128, 1)">1</span>][x][k] != -inf &amp;&amp; mat[i - <span style="color: rgba(128, 0, 128, 1)">1</span>][k][y] != -<span style="color: rgba(0, 0, 0, 1)">inf)
+                                                mat[i][x][y] </span>= max(mat[i][x][y],mat[i - <span style="color: rgba(128, 0, 128, 1)">1</span>][x][k] + mat[i - <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">][k][y]);
+                                }
+                        }
+                }
+        }        
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> x = <span style="color: rgba(128, 0, 128, 1)">1</span>; x &lt;= n; x++) a[x] = -<span style="color: rgba(0, 0, 0, 1)">inf;
+                a[i] </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> k = <span style="color: rgba(128, 0, 128, 1)">0</span>; k &lt; MAXLOG; k++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (c[i] &amp; (<span style="color: rgba(128, 0, 128, 1)">1</span> &lt;&lt;<span style="color: rgba(0, 0, 0, 1)"> k))
+                        {
+                                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> x = <span style="color: rgba(128, 0, 128, 1)">1</span>; x &lt;= n; x++) b[x] = -<span style="color: rgba(0, 0, 0, 1)">inf;
+                                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> x = <span style="color: rgba(128, 0, 128, 1)">1</span>; x &lt;= n; x++<span style="color: rgba(0, 0, 0, 1)">)
+                                {
+                                        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> y = <span style="color: rgba(128, 0, 128, 1)">1</span>; y &lt;= n; y++<span style="color: rgba(0, 0, 0, 1)">)
+                                        {
+                                                b[y] </span>= max(b[y],a[x] +<span style="color: rgba(0, 0, 0, 1)"> mat[k][x][y]);
+                                        }
+                                }
+                                memcpy(a,b,</span><span style="color: rgba(0, 0, 255, 1)">sizeof</span><span style="color: rgba(0, 0, 0, 1)">(a));
+                        }
+                }
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= n; j++) dis[i][j] =<span style="color: rgba(0, 0, 0, 1)"> a[j];
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i &lt;= n * n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {    
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= n; j++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (i &lt;<span style="color: rgba(0, 0, 0, 1)"> p[j])
+                        {
+                                f[j][i] </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                                </span><span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                        }
+                        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> k = <span style="color: rgba(128, 0, 128, 1)">1</span>; k &lt;= n; k++) f[j][i] = max(f[j][i],f[k][i - p[j]] +<span style="color: rgba(0, 0, 0, 1)"> dis[j][k]);
+                }
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (T--<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> s,q,d;
+                read(s); read(q); read(d);
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (f[s][q] &lt;<span style="color: rgba(0, 0, 0, 1)"> d)
+                {
+                        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">-1\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">);
+                        </span><span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                }
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span> l = <span style="color: rgba(128, 0, 128, 1)">0</span> , r =<span style="color: rgba(0, 0, 0, 1)"> q , mid , ans;
+                </span><span style="color: rgba(0, 0, 255, 1)">while</span> (l &lt;=<span style="color: rgba(0, 0, 0, 1)"> r)
+                {
+                        mid </span>= (l + r) &gt;&gt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (f[s][mid] &gt;=<span style="color: rgba(0, 0, 0, 1)"> d) 
+                        {
+                                ans </span>=<span style="color: rgba(0, 0, 0, 1)"> mid;
+                                r </span>= mid - <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                        } </span><span style="color: rgba(0, 0, 255, 1)">else</span> l = mid + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                }
+                printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span>,q -<span style="color: rgba(0, 0, 0, 1)"> ans);
+        }
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

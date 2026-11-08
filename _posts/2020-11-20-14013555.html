@@ -1,0 +1,34 @@
+---
+layout: post
+title: 'CSP2020 题解'
+date: 2020-11-20 23:38:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/14013555.html
+cnblogs_id: 14013555
+---
+{% raw %}
+
+<p><span class="math inline">\(A\)</span></p>
+<p>找循环节模拟即可。</p>
+<p>时间复杂度 : <span class="math inline">\(O(1)\)</span></p>
+<p><span class="math inline">\(B\)</span></p>
+<p>答案是 <span class="math inline">\(2\)</span> 的若干次方减去 <span class="math inline">\(N\)</span>。</p>
+<p>对于 <span class="math inline">\(K = 64\)</span> 的情况 ， 可能会溢出 <span class="math inline">\(long \ long\)</span> ， 注意到 <span class="math inline">\(2 ^ {64} = 18446744073709551616\)</span> (可以用计算机自带的 "计算器" 软件算出)。</p>
+<p>于是对这种情况单独特判即可。</p>
+<p>时间复杂度 : <span class="math inline">\(O(N)\)</span></p>
+<p><span class="math inline">\(C\)</span></p>
+<p>直接维护是不现实的。</p>
+<p>对于初始的值和每个 "加法" 操作 ， 其贡献必然为其值乘上后面出现的所有乘法操作的值。</p>
+<p>那么直接计算出每个操作后面的函数对它乘了多少 ， 这可以通过一遍反向拓扑排序或记忆化搜索得到。</p>
+<p>但这样做没有考虑 <span class="math inline">\(3\)</span> 操作中后面乘上的数对前面加法操作的影响。 因此不妨打上标记 ， 再做一遍正向的拓扑排序。 把这些操作的贡献一起计算。</p>
+<p>时间复杂度 : <span class="math inline">\(O(N)\)</span></p>
+<p><span class="math inline">\(D\)</span></p>
+<p>结论 : 如果最大的数减去最小的数后比次大的数还要大 ， 那么就直接减去。</p>
+<p>证明 ： 假设大小关系 <span class="math inline">\(A &lt; B &lt; C &lt; D\)</span>。 有 <span class="math inline">\(D - A \geq B\)</span>。 若 <span class="math inline">\(C\)</span> 减去了 <span class="math inline">\(B\)</span> ， 那么就有 <span class="math inline">\(C - B &lt; D - A\)</span> , 这样 <span class="math inline">\(C\)</span> 就必然会比 <span class="math inline">\(D\)</span> 先淘汰 ， 所以 <span class="math inline">\(C\)</span> 不会选择减去 <span class="math inline">\(B\)</span> , 故将 <span class="math inline">\(D\)</span> 减 <span class="math inline">\(A\)</span> 是不劣的。</p>
+<p>接着 ， 若最大的数减去最小的数后成为了最小的那个数 ， 那么问题就转化为了 <span class="math inline">\((N - 1)\)</span> 时的情形 ， 可以递归处理。 终止条件是只剩下两个数或出现了第一种情况。 在这个时刻到来时 ， 判断奇偶性即可。如果是奇数那么产生 <span class="math inline">\(1\)</span> 的贡献。</p>
+<p>最简单的维护方式是采用 <span class="math inline">\(std :: set\)</span>。 但是太慢了。</p>
+<p>考虑优化 ， 不难发现具有隐含的单调性。 也就是说 ， 如果把未使用的数放入一个队列 ， 减去后新生成的数放到另一个队列中。 那么这两个队列中元素必然都单调递增。</p>
+<p>这样做的时间复杂度 <span class="math inline">\(O(N)\)</span></p>
+
+
+
+{% endraw %}

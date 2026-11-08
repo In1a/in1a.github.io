@@ -1,0 +1,65 @@
+---
+layout: post
+title: '[NOIP 2010] 乌龟棋'
+date: 2018-07-22 11:38:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9349547.html
+cnblogs_id: 9349547
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p>         <a href="https://www.luogu.org/problemnew/show/P1541" target="_blank" rel="noopener nofollow"> https://www.luogu.org/problemnew/show/P1541</a></p>
+<p>[算法]</p>
+<p>        f[x][y][z][t]表示现在剩下x张1号卡片，y张2号卡片，z张3号卡片，t张4号卡片</p>
+<p>        我们可以通过状态算出现在所在的位置</p>
+<p>        转移十分显然</p>
+<p>[代码]</p>
+<p>        </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 360
+<span style="color: rgba(0, 0, 255, 1)">#define</span> MAXS 45
+
+<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,x,y,z,t,n,m,pos;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span> a[MAXN],cnt[<span style="color: rgba(128, 0, 128, 1)">5</span><span style="color: rgba(0, 0, 0, 1)">];
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> f[MAXS][MAXS][MAXS][MAXS];
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() 
+{
+        
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;n,&amp;<span style="color: rgba(0, 0, 0, 1)">m);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++) scanf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">a[i]);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= m; i++<span style="color: rgba(0, 0, 0, 1)">) 
+        {
+                scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;<span style="color: rgba(0, 0, 0, 1)">x);
+                cnt[x]</span>++<span style="color: rgba(0, 0, 0, 1)">;    
+        }
+        f[cnt[</span><span style="color: rgba(128, 0, 128, 1)">1</span>]][cnt[<span style="color: rgba(128, 0, 128, 1)">2</span>]][cnt[<span style="color: rgba(128, 0, 128, 1)">3</span>]][cnt[<span style="color: rgba(128, 0, 128, 1)">4</span>]] = a[<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (x = cnt[<span style="color: rgba(128, 0, 128, 1)">1</span>]; x &gt;= <span style="color: rgba(128, 0, 128, 1)">0</span>; x--<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (y = cnt[<span style="color: rgba(128, 0, 128, 1)">2</span>]; y &gt;= <span style="color: rgba(128, 0, 128, 1)">0</span>; y--<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (z = cnt[<span style="color: rgba(128, 0, 128, 1)">3</span>]; z &gt;= <span style="color: rgba(128, 0, 128, 1)">0</span>; z--<span style="color: rgba(0, 0, 0, 1)">)
+                        {
+                                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (t = cnt[<span style="color: rgba(128, 0, 128, 1)">4</span>]; t &gt;= <span style="color: rgba(128, 0, 128, 1)">0</span>; t--<span style="color: rgba(0, 0, 0, 1)">)
+                                {        
+                                        pos </span>= (cnt[<span style="color: rgba(128, 0, 128, 1)">1</span>] - x) + (cnt[<span style="color: rgba(128, 0, 128, 1)">2</span>] - y) * <span style="color: rgba(128, 0, 128, 1)">2</span> + (cnt[<span style="color: rgba(128, 0, 128, 1)">3</span>] - z) * <span style="color: rgba(128, 0, 128, 1)">3</span> + (cnt[<span style="color: rgba(128, 0, 128, 1)">4</span>] - t) * <span style="color: rgba(128, 0, 128, 1)">4</span> + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (x &gt;= <span style="color: rgba(128, 0, 128, 1)">1</span>) f[x - <span style="color: rgba(128, 0, 128, 1)">1</span>][y][z][t] = max(f[x - <span style="color: rgba(128, 0, 128, 1)">1</span>][y][z][t],f[x][y][z][t] + a[pos + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">]);
+                                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (y &gt;= <span style="color: rgba(128, 0, 128, 1)">1</span>) f[x][y - <span style="color: rgba(128, 0, 128, 1)">1</span>][z][t] = max(f[x][y - <span style="color: rgba(128, 0, 128, 1)">1</span>][z][t],f[x][y][z][t] + a[pos + <span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">]);
+                                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (z &gt;= <span style="color: rgba(128, 0, 128, 1)">1</span>) f[x][y][z - <span style="color: rgba(128, 0, 128, 1)">1</span>][t] = max(f[x][y][z - <span style="color: rgba(128, 0, 128, 1)">1</span>][t],f[x][y][z][t] + a[pos + <span style="color: rgba(128, 0, 128, 1)">3</span><span style="color: rgba(0, 0, 0, 1)">]);
+                                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (t &gt;= <span style="color: rgba(128, 0, 128, 1)">1</span>) f[x][y][z][t - <span style="color: rgba(128, 0, 128, 1)">1</span>] = max(f[x][y][z][t - <span style="color: rgba(128, 0, 128, 1)">1</span>],f[x][y][z][t] + a[pos + <span style="color: rgba(128, 0, 128, 1)">4</span><span style="color: rgba(0, 0, 0, 1)">]);
+                                }    
+                        }
+                }
+        }
+        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span>,f[<span style="color: rgba(128, 0, 128, 1)">0</span>][<span style="color: rgba(128, 0, 128, 1)">0</span>][<span style="color: rgba(128, 0, 128, 1)">0</span>][<span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">]);
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

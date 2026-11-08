@@ -1,0 +1,66 @@
+---
+layout: post
+title: '【BZOJ 3942】 Censoring'
+date: 2018-07-04 20:59:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9265290.html
+cnblogs_id: 9265290
+---
+{% raw %}
+
+<p>【题目链接】</p>
+<p>            <a href="https://www.lydsy.com/JudgeOnline/problem.php?id=3942" target="_blank" rel="noopener nofollow">https://www.lydsy.com/JudgeOnline/problem.php?id=3942</a></p>
+<p>【算法】</p>
+<p>           栈 + KMP</p>
+<p>【代码】</p>
+<p>          </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 1000010
+
+<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,pos,top,ls,lt;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> nxt[MAXN],p[MAXN];
+</span><span style="color: rgba(0, 0, 255, 1)">char</span><span style="color: rgba(0, 0, 0, 1)"> S[MAXN],T[MAXN],ans[MAXN];
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> stk[MAXN];
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() 
+{
+        
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%s%s</span><span style="color: rgba(128, 0, 0, 1)">"</span>,S+<span style="color: rgba(128, 0, 128, 1)">1</span>,T+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+        ls </span>= strlen(S+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+        lt </span>= strlen(T+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">2</span>; i &lt;= lt; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                pos </span>= nxt[i-<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+                </span><span style="color: rgba(0, 0, 255, 1)">while</span> (pos &amp;&amp; T[pos+<span style="color: rgba(128, 0, 128, 1)">1</span>] != T[i]) pos =<span style="color: rgba(0, 0, 0, 1)"> nxt[pos];
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (T[pos+<span style="color: rgba(128, 0, 128, 1)">1</span>] == T[i]) pos++<span style="color: rgba(0, 0, 0, 1)">;
+                nxt[i] </span>=<span style="color: rgba(0, 0, 0, 1)"> pos;        
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= ls; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!<span style="color: rgba(0, 0, 0, 1)">top)    
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (S[i] == T[<span style="color: rgba(128, 0, 128, 1)">1</span>]) stk[++top] = <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                        </span><span style="color: rgba(0, 0, 255, 1)">else</span> stk[++top] = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                        p[top] </span>=<span style="color: rgba(0, 0, 0, 1)"> i;
+                } </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)">
+                {
+                        pos </span>=<span style="color: rgba(0, 0, 0, 1)"> stk[top];
+                        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (pos &amp;&amp; T[pos+<span style="color: rgba(128, 0, 128, 1)">1</span>] != S[i]) pos =<span style="color: rgba(0, 0, 0, 1)"> nxt[pos];
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (T[pos+<span style="color: rgba(128, 0, 128, 1)">1</span>] == S[i]) pos++<span style="color: rgba(0, 0, 0, 1)">;
+                        stk[</span>++top] =<span style="color: rgba(0, 0, 0, 1)"> pos;
+                        p[top] </span>=<span style="color: rgba(0, 0, 0, 1)"> i;
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (pos == lt) top -=<span style="color: rgba(0, 0, 0, 1)"> lt;
+                }
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= top; i++<span style="color: rgba(0, 0, 0, 1)">) putchar(S[p[i]]);
+        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">);
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

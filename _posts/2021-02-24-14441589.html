@@ -1,0 +1,98 @@
+---
+layout: post
+title: '[WC2021] 括号路径'
+date: 2021-02-24 15:12:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/14441589.html
+cnblogs_id: 14441589
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p><a href="" rel="noopener nofollow">https://loj.ac/p/3462</a></p>
+<p>[题解]</p>
+<p>首先有一个显然的观察 : 若 <span class="math inline">\((u , v)\)</span> 合法 ， 那么 <span class="math inline">\((v , u)\)</span> 同样合法。</p>
+<p>考虑一种简单情况 :</p>
+<p><img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202102/1424311-20210224151131135-867213372.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202102/1424311-20210224151131135-867213372.png"></p>
+<p>如图 ， <span class="math inline">\(a , c\)</span> 是一条合法路径。 那么不妨将 <span class="math inline">\(a , c\)</span> 合并 ， 用并查集维护 ， 再放入一个队列中与其它点合并即可。</p>
+<p>时间复杂度 : <span class="math inline">\(O(NlogN)\)</span></p>
+<p>[代码]</p>
+<pre><code class="language-cpp">#include &lt;bits/stdc++.h&gt;
+
+using namespace std;
+
+typedef long long LL;
+
+#define rep(i , l , r) for (int i = (l); i &lt; (r); ++i)
+
+const int MN = 3e5 + 5;
+
+typedef pair &lt; int, int &gt; pii;
+#define mp make_pair
+#define F first
+#define S second
+
+int N, M, K, fa[MN], cnt[MN];
+queue &lt; pii &gt; q;
+unordered_map &lt; int, int &gt; e[MN];
+
+inline int find(int x) {
+    return fa[x] == x ? x : fa[x] = find(fa[x]);
+}
+inline void merge(int x, int y) {
+    x = find(x), y = find(y);
+
+    if (x == y)
+        return;
+
+    if (e[x].size() &lt; e[y].size())
+        swap(x, y);
+
+    for (auto it : e[y])
+        if (e[x].count(it.F))
+            q.push(mp(e[x][it.F], it.S));
+        else
+            e[x][it.F] = it.S;
+
+    fa[y] = x;
+    e[y].clear();
+}
+
+int main() {
+
+    scanf("%d%d%d", &amp;N, &amp;M, &amp;K);
+
+    for (int i = 1; i &lt;= N; ++i)
+        fa[i] = i;
+
+    for (int i = 1, u, v, w; i &lt;= M; ++i) {
+        scanf("%d%d%d", &amp;u, &amp;v, &amp;w);
+        swap(u, v);
+
+        if (e[u].count(w))
+            q.push(mp(e[u][w], v));
+        else
+            e[u][w] = v;
+    }
+
+    while (q.size()) {
+        pii x = q.front();
+        q.pop();
+        merge(x.F, x.S);
+    }
+
+    for (int i = 1; i &lt;= N; ++i)
+        ++cnt[find(i)];
+
+    LL ans = 0;
+
+    for (int i = 1; i &lt;= N; ++i)
+        ans += 1ll * cnt[i] * (cnt[i] - 1) / 2;
+
+    printf("%lld\n", ans);
+    return 0;
+}
+</code></pre>
+
+
+
+{% endraw %}

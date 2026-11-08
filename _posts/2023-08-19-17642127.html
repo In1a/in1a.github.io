@@ -1,0 +1,386 @@
+---
+layout: post
+title: '杂题选做'
+date: 2023-08-19 10:18:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/17642127.html
+cnblogs_id: 17642127
+---
+{% raw %}
+
+<p><span class="math inline">\(CF1839E\)</span> Decreasing Game</p>
+<p>考虑两个数的情况。显然，若两数不等，先手胜；否则，后手胜。</p>
+<p>不妨直接猜结论 : 如果能找出一个集合，使得集合中元素的和恰为总和的一半， 则后手胜； 否则先手胜。</p>
+<p>充分性很显然，每次先手选择一个数，后手只要在另一个集合中也选一个数即可。 这样两个集合减少的值相同；</p>
+<p>需要证明的是如果找不出这样一个集合，那么是否经过若干次操作后，仍然找不出。</p>
+<p>若一次操作两人分别选择了 <span class="math inline">\(x\)</span> 和 <span class="math inline">\(y\)</span> 且 <span class="math inline">\(x \leq y\)</span>,  假设经过这次操作后可以找出一个集合，使得其元素和为总和一半，其中 <span class="math inline">\(y - x\)</span> 所在集合的其他数总和为 <span class="math inline">\(s1\)</span>,</p>
+<p>另一个集合总和为 <span class="math inline">\(s2\)</span>，即 <span class="math inline">\((y - x) + s1 = s2\)</span>， 移项后发现 <span class="math inline">\(y + s1 = x + s2\)</span>， 矛盾。</p>
+<p>因此结论是成立的。</p>
+<p>用动态规划求解一个背包问题即可。</p>
+<p>时间复杂度 <span class="math inline">\(O(N ^ 3)\)</span></p>
+<p><span class="math inline">\(CF1748E\)</span></p>
+<p>首先发现，一个序列合法当且仅当大小关系和原序列一致。</p>
+<p>建出笛卡尔树后解一个简单的动态规划 , 即可。</p>
+<p>时间复杂度 <span class="math inline">\(O(NM)\)</span></p>
+<p><span class="math inline">\(CF1858E\)</span></p>
+<p>不妨考虑如果不支持回退怎么做。</p>
+<p>考虑这些 <span class="math inline">\(+\)</span> 和 <span class="math inline">\(-\)</span> 的操作其实可以抽象为一个树形结构。 对于每个点而言，根到其路径上的数可以还原原序列是什么样子。</p>
+<p>假设上次操作结束后所在的点为 <span class="math inline">\(u\)</span>,  如果添加一个数， 那么新建一个点 <span class="math inline">\(v\)</span> 作为 <span class="math inline">\(u\)</span> 的儿子即可。如果将序列长度减少 <span class="math inline">\(k\)</span>,  那么相当于往父亲方向跳了 <span class="math inline">\(k\)</span> 次。</p>
+<p>所以可以通过倍增实现求 <span class="math inline">\(k\)</span> 级祖先。</p>
+<p>而如果有回退怎么办呢？直接维护一个栈，栈里存储每次操作后当前点的位置。 每次回退弹出栈顶即可。</p>
+<p>现在唯一的问题是如何求答案？</p>
+<p>最简单的方式是将所有询问离线， 用一次 <span class="math inline">\(DFS\)</span> 可以很方便求出每个点到根路径上不同的数的个数。</p>
+<p>这样做可以轻松通过 <span class="math inline">\(E1\)</span>, 而无法通过 <span class="math inline">\(E2\)</span>, 因为 <span class="math inline">\(E2\)</span> 强制在线。</p>
+<p>不难发现这个祖先-后代的关系其实可以用可持久化线段树维护。 对于每个添加操作，只需要在线段树上查一查，看看能不能产生贡献即可。</p>
+<p>这样做时间复杂度是 <span class="math inline">\(O(NlogN)\)</span> 的， 足够通过本题。</p>
+<p>然而我们有更优秀的线性做法 :</p>
+<p>考虑一个数对答案有贡献，当且仅当它首次出现。</p>
+<p>维护一个长度为 <span class="math inline">\(n\)</span> 的数组 <span class="math inline">\(a\)</span>， 和一个长度为 <span class="math inline">\(N\)</span> 的数组 <span class="math inline">\(A\)</span> 其中 <span class="math inline">\(n \leq N\)</span>，并且 <span class="math inline">\(\forall i \leq n, a_{i} = A_{i}\)</span>。另外记 <span class="math inline">\(occ_{i}\)</span> 表示 <span class="math inline">\(i\)</span> 这个数第一次</p>
+<p>出现是在什么位置。我们只需要保证对于每个 <span class="math inline">\(a_{i}\)</span>，<span class="math inline">\(occ_{a_{i}}\)</span> 的值是正确的。</p>
+<p>如果新添加一个数 <span class="math inline">\(x\)</span>，如果 <span class="math inline">\(occ_{x} &gt; n\)</span> 或者 <span class="math inline">\(a_{occ_{x}} \neq x\)</span>，那么可以更新 <span class="math inline">\(occ_{x}\)</span> 的值，并将答案加一。</p>
+<p>如果将序列长度减少 <span class="math inline">\(k\)</span>， 那么直接将 <span class="math inline">\(n\)</span> 减去 <span class="math inline">\(k\)</span> 。</p>
+<p>对于回退操作， 我们像刚才描述的一样， 用堆栈记录更新操作。 每次取栈顶即可。</p>
+<p>而对于求答案， 维护一个数组 <span class="math inline">\(ans\)</span>， 要求的就是 <span class="math inline">\(ans_{n}\)</span></p>
+<p>时间复杂度 <span class="math inline">\(O(N)\)</span></p>
+<p>放一下代码</p>
+<pre><code class="language-cpp">#include &lt;bits/stdc++.h&gt;
+
+using namespace std;
+
+typedef long long LL;
+
+const int MN = 2e6 + 5;
+
+struct node {
+    int *x, val;
+    node(int *x, int val) : x(x), val(val) {}
+} ;
+
+int foo[MN], ans[MN], a[MN], tim;
+char c[2];
+stack &lt; vector &lt; node &gt; &gt; s;
+
+int main() {
+
+    int q; scanf("%d", &amp;q);
+    while (q--) {
+        scanf("%s", c);
+        if (c[0] == '+') {
+            vector &lt; node &gt; cng;
+            int x; scanf("%d", &amp;x);
+            if (foo[x] &gt; tim || a[foo[x]] != x) {
+                cng.emplace_back(node(&amp;foo[x], foo[x]));
+                foo[x] = tim + 1;
+                cng.emplace_back(node(&amp;ans[tim + 1], ans[tim + 1]));
+                ans[tim + 1] = ans[tim] + 1;
+            } else {
+                cng.emplace_back(node(&amp;ans[tim + 1], ans[tim + 1]));
+                ans[tim + 1] = ans[tim];
+            }
+            cng.emplace_back(node(&amp;a[tim + 1], a[tim + 1]));
+            a[tim + 1] = x;
+            cng.emplace_back(node(&amp;tim, tim));
+            ++tim;
+            s.push(cng);
+        } else if (c[0] == '-') {
+            vector &lt; node &gt; cng;
+            int x; scanf("%d", &amp;x);
+            cng.emplace_back(node(&amp;tim, tim));
+            tim -= x;
+            s.push(cng);
+        } else if (c[0] == '!') {
+            vector &lt; node &gt; v = s.top(); s.pop();
+            for (node e : v)
+                *e.x = e.val;
+        } else {
+            printf("%d\n", ans[tim]);
+            fflush(stdout);
+        }
+    }
+    return 0;
+}
+</code></pre>
+<p><span class="math inline">\(CF1856D\)</span></p>
+<p>考虑分治。</p>
+<p>对于一个区间 <span class="math inline">\([l, r]\)</span>，将其一分为二，求出两部分的最值，并记它们出现的位置为 <span class="math inline">\(a\)</span> 和 <span class="math inline">\(b\)</span>。</p>
+<p>如果 <span class="math inline">\(a &lt; b\)</span> ,  那么不难发现 <span class="math inline">\(b\)</span> 是整个区间最大的数， 且 <span class="math inline">\([a, b]\)</span> 逆序对数量和 <span class="math inline">\([a, b - 1]\)</span> 逆序对数量相同。</p>
+<p>而如果 <span class="math inline">\(a &gt; b\)</span>，那么 <span class="math inline">\([a, b]\)</span> 逆序对数量至少比 <span class="math inline">\([a, b - 1]\)</span> 逆序对数量大 <span class="math inline">\(1\)</span>。</p>
+<p>于是在知道了 <span class="math inline">\(a\)</span> 和 <span class="math inline">\(b\)</span> 的值后， 只要通过两次询问就可以知道 <span class="math inline">\([l, r]\)</span> 最值的出现位置。</p>
+<p>记 <span class="math inline">\(f(n)\)</span> 表示 长度为 <span class="math inline">\(n\)</span> 的区间，总共要花多少次询问。</p>
+<p><span class="math inline">\(f(n) = 2f(\frac{n}{2}) + 2(r - l)^2\)</span></p>
+<p>可以通过归纳证明 <span class="math inline">\(f(n) \leq 4n^2\)</span></p>
+<p>时间复杂度 <span class="math inline">\(O(NlogN)\)</span></p>
+<p><span class="math inline">\(CF1856E\)</span></p>
+<p>首先发现每个点是独立的。</p>
+<p>故总和最大值就是最大值的和。</p>
+<p>考虑每个点的子树，不难发现其要么全部比根小，要么全部比其大。 否则一定不是最优的 (很容易证明)。</p>
+<p>一个简单做法是，求出所有子树的大小，然后用 <span class="math inline">\(bitset\)</span> 优化背包问题。</p>
+<p>最后要求的是一个类似于 <span class="math inline">\(X(S-X)\)</span> 的东西。</p>
+<p>然而这样做的时间复杂度是 <span class="math inline">\(O(\frac{N^3}{w})\)</span> 的，只能通过 <span class="math inline">\(E1\)</span></p>
+<p>如何通过 <span class="math inline">\(E2\)</span> 呢？</p>
+<p>考虑到不同的子树大小至多 <span class="math inline">\(\sqrt{n}\)</span> 种，可以求多重背包</p>
+<p>这样时间复杂度是 <span class="math inline">\(O(\frac{n\sqrt{n}logn}{w})\)</span> 的。</p>
+<p>注意要特判重儿子大小超过一半的情况，否则复杂度会退化。</p>
+<p><span class="math inline">\(CF1860D\)</span></p>
+<p>对于一个合法的序列，其最小交换次数为与原序列不同的位置个数的一半。</p>
+<p>根据这个性质动态规划。 具体实现时用滚动数组优化一下空间。</p>
+<p>时间复杂度 <span class="math inline">\(O(N^4)\)</span></p>
+<p><span class="math inline">\(CF1854B\)</span></p>
+<p>考虑一个 <span class="math inline">\(O(N ^ 2)\)</span> 的动态规划解法。</p>
+<p>记 <span class="math inline">\(dp_{i, j}\)</span> 表示前 <span class="math inline">\(i\)</span> 个数，是否能到达 <span class="math inline">\(j\)</span></p>
+<p>不难发现这个 <span class="math inline">\(DP\)</span> 可以直接用 <span class="math inline">\(bitset\)</span> 优化。</p>
+<p>时间复杂度 <span class="math inline">\(O(\frac{N ^ 2}{w})\)</span></p>
+<p>代码很简单</p>
+<pre><code class="language-cpp">#include &lt;bits/stdc++.h&gt;
+
+using namespace std;
+
+typedef long long LL;
+
+const int MN = 2e5 + 5;
+int N, A[MN];
+LL S[MN];
+bitset &lt; MN &gt; dp, new_dp, AND;
+
+int main() {
+
+    scanf("%d", &amp;N);
+    LL TOT = 0;
+    for (int i = 1; i &lt;= N; ++i) {
+        scanf("%d", &amp;A[i]);
+        S[i] = S[i - 1] + (LL) A[i];
+    }
+    for (int i = 1; i &lt;= N - 1; ++i) AND.set(i);
+    dp.set(1);
+    for (int i = 1; i &lt;= N; ++i) {
+        new_dp = dp | ((dp &amp; AND) &lt;&lt; A[i]);
+        dp = new_dp;
+        AND.reset(i);
+    }
+    LL ANS = 0;
+    for (int i = 2 * N; i &gt;= N; --i)
+        if (dp[i]) ANS = S[N] - i + 1;
+    for (int i = 1; i &lt;= N; ++i)
+        if (dp[i]) ANS = max(ANS, S[i] - i + 1);
+    printf("%lld\n", ANS);
+    return 0;
+}
+</code></pre>
+<p><span class="math inline">\(CF702F\)</span></p>
+<p>先考虑一个简单做法。</p>
+<p>将物品以 <span class="math inline">\(P\)</span> 为第一关健字, <span class="math inline">\(C\)</span> 为第二关键字排序。</p>
+<p>那么对于每个客户，只需要从前往后扫描每个物品，如果能购买则购买。</p>
+<p>这样做的时间复杂度是 <span class="math inline">\(O(N^2)\)</span> 级别的。 不能通过本题。</p>
+<p>因为没有强制在线，不妨换个思路，考虑每个物品对询问的影响。</p>
+<p>考虑对于一个物品，我们可以找出每个超过 <span class="math inline">\(C\)</span> 的询问，将它们减去 <span class="math inline">\(C\)</span>, 并给对应的答案 <span class="math inline">\(+1\)</span>。</p>
+<p>直接这样做仍然是 <span class="math inline">\(O(N ^ 2)\)</span> 的。 然而与第一种做法不同，我们可以用数据结构加速这个过程。</p>
+<p>不妨维护一个非旋 <span class="math inline">\(treap\)</span>，将每个询问的值都加进去。</p>
+<p>每次只需通过分裂操作，分裂出 $ &lt; c$ 和 $ \geq c$ 的两棵树。对后者的根打上标记。 然后再把两棵树合并起来。</p>
+<p>求答案只需要深度优先遍历 <span class="math inline">\(treap\)</span> 进行标记下传即可。</p>
+<p>然而这样做会出现一个问题，两棵非旋 <span class="math inline">\(treap\)</span> 合并的前提条件是其中一棵树的任意权值小于或大于另一棵树的所有权值。</p>
+<p>解决这个问题有一个很巧妙的方法 :</p>
+<p>不妨考虑分裂出三棵树, 值域分别为 <span class="math inline">\([0, c), [c, 2c), [2c, +\infty]\)</span>。</p>
+<p>第一棵树显然什么都不用做。</p>
+<p>而对于第二棵树， 不妨直接将它们全部减去 <span class="math inline">\(c\)</span>， 然后暴力插入第一棵树中。</p>
+<p>然后，给第三棵树打上标记，将它和第一棵树合并。</p>
+<p>为什么这样做时间复杂度是正确的？</p>
+<p>可以观察到: 若一个数被暴力插入到一棵树中，那么这个数的值至少减少了一半。 所以每个数最多被暴力插入 <span class="math inline">\(O(logV)\)</span> 次。</p>
+<p>故总时间复杂度 <span class="math inline">\(O(NlogN)\)</span></p>
+<p>代码如下</p>
+<pre><code class="language-cpp">#include &lt;bits/stdc++.h&gt;
+
+using namespace std;
+
+typedef long long LL;
+
+constexpr int MX = 1e9;
+mt19937 rng(chrono::steady_clock::now().time_since_epoch().count());
+inline int rnd() { return rng() % MX; }
+
+const int MN = 3e5 + 5;
+
+int root, K, sz, C[MN], A[MN], B[MN], N, ord[MN], ans[MN];
+
+inline bool cmp(int x, int y) {
+    return B[x] == B[y] ? A[x] &lt; A[y] : B[x] &gt; B[y];
+}
+
+struct fhq_node {
+    int rnk;
+    int VAL, ANS;
+    int tagA, tagV;
+    int lc, rc;
+    int home;
+} treap[MN];
+
+inline int new_node(int val, int home) {
+    int u = ++sz;
+    treap[u].rnk = rand();
+    treap[u].VAL = val; 
+    treap[u].tagA = treap[u].tagV = 0;
+    treap[u].lc = treap[u].rc = 0;
+    treap[u].home = home;
+    return u;
+}
+inline void pushdown(int now) {
+    int lc = treap[now].lc, rc = treap[now].rc, 
+        vA = treap[now].tagA, vV = treap[now].tagV;
+    if (vA != 0) {
+        treap[lc].ANS += vA; treap[rc].ANS += vA;
+        treap[lc].tagA += vA; treap[rc].tagA += vA;
+    }
+    if (vV != 0) {
+        treap[lc].VAL += vV; treap[rc].VAL += vV;
+        treap[lc].tagV += vV; treap[rc].tagV += vV;
+    }
+    treap[now].tagA = 0;
+    treap[now].tagV = 0;
+    return;
+}
+inline void fhq_split(int now, int val, int &amp;x, int &amp;y) {
+    if (!now) 
+        x = y = 0;
+    else {
+        pushdown(now);
+        if (val &lt; treap[now].VAL) {
+            y = now;
+            fhq_split(treap[now].lc, val, x, treap[y].lc);
+        } else {
+            x = now;
+            fhq_split(treap[now].rc, val, treap[x].rc, y);
+        }
+    }
+}
+inline int fhq_merge(int p, int q) {
+    if (!p || !q) return p + q;
+    pushdown(p), pushdown(q);
+    if (treap[p].rnk &lt; treap[q].rnk) {
+        treap[p].rc = fhq_merge(treap[p].rc, q);
+        return p;
+    } else {
+        treap[q].lc = fhq_merge(p, treap[q].lc);
+        return q;
+    }
+}
+inline void fhq_insert(int u, int &amp;root) {
+    int x, y;
+    fhq_split(root, treap[u].VAL, x, y);
+    root = fhq_merge(fhq_merge(x, u), y);
+    return;
+}
+inline void brute_insert(int v, int &amp;u) {
+    if (!v) return;
+    pushdown(v);
+    brute_insert(treap[v].lc, u); brute_insert(treap[v].rc, u);
+    treap[v].lc = treap[v].rc = 0;
+    fhq_insert(v, u);
+    return;
+}
+inline void traverse(int u) {
+    if (!u) return;
+    pushdown(u);
+    traverse(treap[u].lc); traverse(treap[u].rc);
+    ans[treap[u].home] = treap[u].ANS;
+    return;
+}
+
+int main() {
+
+    scanf("%d", &amp;N);
+    for (int i = 1; i &lt;= N; ++i) scanf("%d%d", &amp;A[i], &amp;B[i]);
+    for (int i = 1; i &lt;= N; ++i) ord[i] = i;
+    sort(ord + 1, ord + 1 + N, cmp);
+    scanf("%d", &amp;K);
+    for (int i = 1; i &lt;= K; ++i) {
+        scanf("%d", &amp;C[i]);
+        int u = new_node(C[i], i);
+        fhq_insert(u, root);
+    }
+    for (int i = 1, x, y, z; i &lt;= N; ++i) {
+        fhq_split(root, A[ord[i]] - 1, x, y);
+        fhq_split(y, 2 * A[ord[i]] - 1, y, z);
+        if (y) {
+            treap[y].ANS += 1;
+            treap[y].VAL -= A[ord[i]];
+            treap[y].tagA += 1;
+            treap[y].tagV -= A[ord[i]];
+        }
+        if (z) {
+            treap[z].ANS += 1;
+            treap[z].VAL -= A[ord[i]];
+            treap[z].tagA += 1;
+            treap[z].tagV -= A[ord[i]];
+        }
+        brute_insert(y, x);
+        root = fhq_merge(x, z);
+    }
+    traverse(root);
+    for (int i = 1; i &lt;= K; ++i)
+        printf("%d ", ans[i]);
+    printf("\n");
+    return 0;
+}
+</code></pre>
+<p><span class="math inline">\(CF1863F\)</span></p>
+<p>考虑 <span class="math inline">\([l, r]\)</span> 这个区间的异或和 <span class="math inline">\(k\)</span>。</p>
+<p>如果 <span class="math inline">\(k = 0\)</span>， 那么可以对这个区间进行任意切割。</p>
+<p>如果 <span class="math inline">\(k \neq 0\)</span>, 考虑 <span class="math inline">\(k\)</span> 的最高位 <span class="math inline">\(b\)</span>。切割 <span class="math inline">\([l, r]\)</span> 这个区间会使两个子序列一个异或和第 <span class="math inline">\(b\)</span> 为为 <span class="math inline">\(0\)</span>， 另一个为 <span class="math inline">\(1\)</span>。 <span class="math inline">\(1\)</span> 的那一半显然会被保留下来。</p>
+<p>考虑按照区间长度从大到小进行动态规划， 直接令 <span class="math inline">\(f_{l, r}\)</span> 表示是否能切割出 <span class="math inline">\([l, r]\)</span> 这个区间。 此外记录 <span class="math inline">\(lmask_{i}\)</span> 和 <span class="math inline">\(rmask_{i}\)</span> 表示 <span class="math inline">\(i\)</span> 开始/结束的区间，    异或和哪些位为 <span class="math inline">\(1\)</span> 是合法的。</p>
+<p>当处理到 <span class="math inline">\([l, r]\)</span> 这个区间时， 如果 <span class="math inline">\(k\)</span> (异或和）和 <span class="math inline">\(lmask_{l}\)</span> 或者 <span class="math inline">\(rmask_{r}\)</span> 的 <span class="math inline">\(AND\)</span> 值为正数， 那么说明这个区间是可行的，<span class="math inline">\(f_{l, r} = 1\)</span>， 否则 <span class="math inline">\(f_{l, r} = 0\)</span>，随后我们更新 <span class="math inline">\(lmask\)</span> 和 <span class="math inline">\(rmask\)</span> 的值，细节见代码。</p>
+<p>时间复杂度 <span class="math inline">\(O(N^2)\)</span></p>
+<pre><code class="language-cpp">
+#include &lt;bits/stdc++.h&gt;
+
+using namespace std;
+
+typedef long long LL;
+
+constexpr int MX = 1e9;
+mt19937 rng(chrono::steady_clock::now().time_since_epoch().count());
+inline int rnd() { return rng() % MX; }
+
+const int MN = 100005;
+
+int N, ans[MN], P[MN], Q[MN];
+LL A[MN], L[MN], R[MN], pre[MN];
+
+inline int HBIT(LL s) {
+    return 63 - __builtin_clzll(s);
+}
+
+int main() {
+
+    int T; scanf("%d", &amp;T);
+    while (T--) {
+        scanf("%d", &amp;N);
+        for (int i = 1; i &lt;= N; ++i) scanf("%lld", &amp;A[i]);
+        for (int i = 1; i &lt;= N; ++i) pre[i] = pre[i - 1] ^ A[i];
+        for (int i = 1; i &lt;= N; ++i) P[i] = Q[i] = L[i] = R[i] = 0;
+        for (int len = N; len &gt;= 1; --len) {
+            for (int i = 1, j = len; j &lt;= N; ++i, ++j) {
+                LL s = pre[j] ^ pre[i - 1];
+                int dp_val = 0;
+                if (j - i &gt;= N - 1 || (L[i] &amp; s) || (R[j] &amp; s) || P[i] || Q[j]) 
+                    dp_val = 1;
+                if (i == j) ans[i] = dp_val;
+                if (dp_val) {
+                    if (!s) {
+                        P[i] = 1;
+                        Q[j] = 1;
+                    } else {
+                        L[i] |= 1LL &lt;&lt; HBIT(s);
+                        R[j] |= 1LL &lt;&lt; HBIT(s);
+                    }
+                }
+            }
+        }
+        for (int i = 1; i &lt;= N; ++i)
+            printf("%d", ans[i]);
+        printf("\n");
+    }
+    return 0;
+}
+</code></pre>
+
+
+
+{% endraw %}

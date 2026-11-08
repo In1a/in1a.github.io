@@ -1,0 +1,117 @@
+---
+layout: post
+title: '[CF1103D] Professional layer'
+date: 2021-03-02 15:11:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/14469057.html
+cnblogs_id: 14469057
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p><a href="" rel="noopener nofollow">http://codeforces.com/contest/1103/problem/D</a></p>
+<p>[题解]</p>
+<p>设 <span class="math inline">\(d = \gcd (a_1, a_2, \dots, a_n) = p_1^{s_1} p_2^{s_2} \dots p_m^{s_m}\)</span> , 其中 <span class="math inline">\(p_{i}\)</span> 为两两不同的质数。 因为 <span class="math inline">\(d &lt;= 10 ^ {12}\)</span> ， 所以 <span class="math inline">\(m &lt;= 11\)</span>。</p>
+<p>首先将每个 <span class="math inline">\(a_{i}\)</span> 中不属于 <span class="math inline">\(p_{1} , p_{2} , ... p_{m}\)</span> 的质数次幂去除。 剩下的元素最多有 <span class="math inline">\(M \leq 11958\)</span> 个 (这个上界当且仅当 <span class="math inline">\(d = 2 * 3 * 5 * 7 * 11 * 13\)</span>)。</p>
+<p>修改 <span class="math inline">\(a_{i}\)</span> 的目标为 : 对于任意 <span class="math inline">\(1 \leq j \leq m\)</span> , 都存在一个 <span class="math inline">\(a_{i}\)</span> 满足 <span class="math inline">\(p_j \not| a_i\)</span>。 为了最小花费 ， ，显然对任一 <span class="math inline">\(d\)</span> 的质因数 <span class="math inline">\(p_{j}\)</span>，我们只需要选择恰好一个 <span class="math inline">\(a_{i}\)</span>，将其修改为不被 <span class="math inline">\(p_{j}\)</span> 整除即可。</p>
+<p>因此我们最多用 <span class="math inline">\(M\)</span> 个 <span class="math inline">\(a_{i}\)</span>。</p>
+<p>从而真正有用的 <span class="math inline">\(a_{i}\)</span> 只有 <span class="math inline">\(e_{i}\)</span> 最小的 <span class="math inline">\(m\)</span> 个， 共有 <span class="math inline">\(mM\)</span> 个。</p>
+<p>不妨令 <span class="math inline">\(F[i][x][s]\)</span> 表示前 <span class="math inline">\(i\)</span> 个元素 ， 修改了 <span class="math inline">\(x\)</span> 个 ， 且 <span class="math inline">\(s\)</span> 描述了去除的质因子集合的最小花费。</p>
+<p>那么有 : <span class="math inline">\(F[i][x][s] = \min_{t \subseteq s, t \models a_i} \{ F[i-1][x][s], F[i-1][x-1][s-t]+e_i \}.\)</span></p>
+<p>时间复杂度 : <span class="math inline">\(O(n \log n+m M 2^m+m^2 3^m)\)</span></p>
+<p>[代码]</p>
+<pre><code class="language-cpp">#include&lt;bits/stdc++.h&gt;
+ 
+using namespace std;
+ 
+typedef long long LL;
+ 
+#define rep(i , l , r) for (int i = (l); i &lt; (r); ++i)
+ 
+const int MN = 1e6 + 5;
+const LL INF = 1e16;
+ 
+LL K;
+LL A[MN];
+int C[MN];
+ 
+int n;
+LL li[30];
+int cnt[30] , bak;
+map &lt; LL , vector &lt; int &gt; &gt; mi;
+map &lt; LL , vector &lt; LL &gt; &gt; ms;
+int cl[1 &lt;&lt; 11] , cb;
+LL dp[12][1 &lt;&lt; 11];
+ 
+inline LL gcd(LL x , LL y) {
+    return y ? gcd(y , x % y) : x;
+}
+inline LL chkmin(LL &amp;x , LL y) {
+	x = min(x , y);
+}
+inline void dfs(int S , int mask , LL now , const vector &lt; LL &gt; &amp; vl) {
+	if (now &gt; K) return;
+	if (S == bak) { cl[cb++] = mask; return; }
+	dfs(S + 1 , mask , now , vl);
+	dfs(S + 1 , mask | 1 &lt;&lt; S , now * vl[S] , vl);
+}
+ 
+int main() {
+	 
+	 scanf("%d%lld" , &amp;n , &amp;K);
+	 LL g = 0;
+	 for (int i = 1; i &lt;= n; ++i)
+	 	 scanf("%lld" , &amp;A[i]) , g = gcd(g , A[i]);
+	 for (int i = 1; i &lt;= n; ++i)
+	 	 scanf("%d" , &amp;C[i]);
+	 LL t = g;
+	 for (int i = 2; (LL) i * i &lt;= t; ++i) 
+	 	 if (t % i == 0) {
+	 	 	 int cc = 0;
+			 while (t % i == 0) t /= i , ++cc;
+			 li[bak] = i , cnt[bak++] = cc;	
+		 }
+	 if (t &gt; 1) li[bak] = t , cnt[bak++] = 1;
+	 for (int i = 1; i &lt;= n; ++i) {
+	 	 vector &lt; LL &gt; tx(bak , 1); t = 1;
+	 	 for (int j = 0; j &lt; bak; ++j)
+	 	 	 while (A[i] % li[j] == 0)
+	 	 	 	 A[i] /= li[j] , t *= li[j] , tx[j] *= li[j];
+	 	 if (!mi.count(t)) ms[t] = tx;
+	 	 mi[t].emplace_back(C[i]);
+	 }
+	 for (int i = 0; i &lt;= bak; ++i)
+	 for (int j = 0; j &lt; 1 &lt;&lt; bak; ++j)
+	 	 dp[i][j] = INF;
+	 dp[0][0] = 0LL;
+	 int U = 1 &lt;&lt; bak;
+	 for (auto t : ms) {
+	 	 dfs(0 , 0 , 1 , t.second);
+	 	 vector &lt; int &gt; &amp; lx = mi[t.first];
+	 	 sort(lx.begin() , lx.end());
+	 	 for (int T = 0; T &lt; lx.size() &amp;&amp; T &lt; bak; ++T) {
+			 for (int i = bak; i; --i) {
+			 	 for (int j = 0; j &lt; cb; ++j) {
+			 	 	 int xc = U - 1 - cl[j];
+			 	 	 for (int k = xc; ; k = (k - 1) &amp; xc) {
+			 	 	 	 if (dp[i - 1][k] != INF)
+							chkmin(dp[i][cl[j] | k] , dp[i - 1][k] + lx[T]);
+						 if (!k) break;		
+					 }
+				 }
+			 }	 	 	 
+		 }
+		 cb = 0;
+	 }
+	 LL ans = INF;
+	 for (int i = 0; i &lt;= bak; ++i)
+	 	 if (dp[i][U - 1] != INF)
+	 	 	 chkmin(ans , dp[i][U - 1] * i);
+	 if (ans == INF) ans = -1;
+	 printf("%lld\n" , ans);
+     return 0;
+}
+</code></pre>
+
+
+
+{% endraw %}

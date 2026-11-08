@@ -1,0 +1,80 @@
+---
+layout: post
+title: '[CF1456E] XOR-ranges'
+date: 2021-03-02 15:27:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/14469171.html
+cnblogs_id: 14469171
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p><a href="" rel="noopener nofollow">http://codeforces.com/contest/1456/problem/E</a></p>
+<p>[题解]</p>
+<p>考虑把所有的区间在值域 <span class="math inline">\([0 , 2 ^ k)\)</span> 的线段树上拆分成 <span class="math inline">\(O(k)\)</span> 个区间。</p>
+<p>定义线段树的根深度为 <span class="math inline">\(0\)</span> ， 那么对于任意一个第 <span class="math inline">\(i\)</span> 层的节点都对应着最高 <span class="math inline">\(i\)</span> 位固定 ， 后 <span class="math inline">\((k - i)\)</span> 位任意的一个区间。</p>
+<p>拆完区间后 ， 我们考虑对于每个 <span class="math inline">\(a_{i}\)</span> 定位到线段树上的节点计算贡献。</p>
+<p>不妨设 <span class="math inline">\(f_{i , l , r , x , y}\)</span> 表示 <span class="math inline">\(\geq i\)</span> 的的位 ， <span class="math inline">\(a_{l..r}\)</span> 所有的数都只能选择 <span class="math inline">\(\geq 2^{i}\)</span> 的子区间 , <span class="math inline">\(a_{l - 1}\)</span> 与 <span class="math inline">\(a_{r + 1}\)</span> 分别为 <span class="math inline">\(x , y\)</span> 的最小代价。</p>
+<p>若 <span class="math inline">\(a_{l..r}\)</span> 子区间长度都大于 <span class="math inline">\(2 ^ {i}\)</span></p>
+<p>有 <span class="math inline">\(f_{l,r,i,x,y}\leftarrow f_{l,r,i+1,x,y}+c_i[\lfloor\frac x{2^i}\rfloor\bmod 2\ne\lfloor\frac y{2^i}\rfloor\bmod 2]\)</span></p>
+<p>否则 <span class="math inline">\(f_{l,r,i,x,y}\leftarrow f_{l,mid-1,i,x,z}+f_{mid+1,r,i,z,y}\)</span></p>
+<p>时间复杂度 : <span class="math inline">\(O(N ^ 4)\)</span></p>
+<p>[代码]</p>
+<pre><code class="language-cpp">#include &lt;bits/stdc++.h&gt;
+ 
+using namespace std;
+ 
+typedef long long LL;
+ 
+const int MN = 55;
+const LL INF = 1e18;
+ 
+int n, k, w[MN][MN];
+LL c[MN] ,  f[MN][MN][MN][4][4];
+vector &lt; int &gt; fa[MN][MN];
+vector &lt; bool &gt; is[MN][MN];
+vector &lt; LL &gt; a[MN][MN];
+ 
+ 
+inline void change(LL l , LL r , LL s , LL e , int i , int j , int f) {
+	if (e &lt; l || s &gt; r) return;
+	a[i][j].emplace_back(l); fa[i][j].emplace_back(f); ++w[i][j];
+	if (s &lt;= l &amp;&amp; r &lt;= e) return (void) is[i][j].push_back(1);
+	else is[i][j].push_back(0);
+	LL mid = l + r &gt;&gt; 1; int tmp = w[i][j] - 1;
+	change(l , mid , s , e , i , j - 1 , tmp);
+	change(mid + 1 , r , s , e , i , j - 1 , tmp);	
+}
+inline LL dp(int l , int r , int num , int x , int y) {
+	if (num == k &amp;&amp; l &gt; r) return 0;
+	if (f[l][r][num][x][y] != -1) return f[l][r][num][x][y];
+	LL res = num &lt; k ? dp(l , r , num + 1 , fa[l - 1][num][x] , fa[r + 1][num][y]) : INF;
+	if (res &lt; INF &amp;&amp; l &gt; 1 &amp;&amp; r &lt; n &amp;&amp; ((a[l - 1][num][x] &gt;&gt; num) &amp; 1) != ((a[r + 1][num][y] &gt;&gt; num) &amp; 1)) 
+		res += c[num];
+	for (int i = l; i &lt;= r; ++i)
+	for (int j = 0; j &lt; w[i][num]; ++j) {
+		if (!is[i][num][j]) continue;
+		LL lc = dp(l , i - 1 , num , x , j) , rc = dp(i + 1 , r , num , j , y);
+		if (lc + rc &lt; res) res = lc + rc; 
+	}
+	return f[l][r][num][x][y] = res;
+}
+int main() {
+	
+	LL l , r;
+	scanf("%d%d" , &amp;n , &amp;k);
+	for (int i = 0; i &lt;= k; ++i) 
+		fa[0][i].emplace_back(0) , fa[n + 1][i].emplace_back(0);
+	for (int i = 1; i &lt;= n; ++i) {
+		LL l , r; scanf("%lld%lld" , &amp;l , &amp;r);
+		change(0 , (1LL &lt;&lt; k) - 1 , l , r , i , k , 0); 
+	}
+	for (int i = 0; i &lt; k; i++) scanf("%lld" , &amp;c[i]);
+	memset(f, -1, sizeof(f));
+	printf("%lld\n" , dp(1 , n , 0 , 0 , 0));
+	return 0;
+}
+</code></pre>
+
+
+
+{% endraw %}

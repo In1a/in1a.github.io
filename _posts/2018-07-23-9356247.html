@@ -1,0 +1,72 @@
+---
+layout: post
+title: '[SCOI 2010] 股票交易'
+date: 2018-07-23 18:35:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9356247.html
+cnblogs_id: 9356247
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p>         <a href="https://www.lydsy.com/JudgeOnline/problem.php?id=1855" target="_blank" rel="noopener nofollow">https://www.lydsy.com/JudgeOnline/problem.php?id=1855</a></p>
+<p>[算法]</p>
+<p>        单调队列优化动态规划</p>
+<p>[代码]</p>
+<p>       </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXT 2010
+
+<span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> info
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> pos,val;
+} ;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,j,ans,T,MaxP,W;
+deque</span>&lt; info &gt;<span style="color: rgba(0, 0, 0, 1)"> q;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> AP[MAXT],BP[MAXT],AS[MAXT],BS[MAXT];
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> f[MAXT][MAXT];
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() 
+{
+        
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;T,&amp;MaxP,&amp;<span style="color: rgba(0, 0, 0, 1)">W);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= T; i++) scanf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;AP[i],&amp;BP[i],&amp;AS[i],&amp;<span style="color: rgba(0, 0, 0, 1)">BS[i]);
+        memset(f,</span><span style="color: rgba(128, 0, 128, 1)">128</span>,<span style="color: rgba(0, 0, 255, 1)">sizeof</span><span style="color: rgba(0, 0, 0, 1)">(f));
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i &lt;= T; i++) f[i][<span style="color: rgba(128, 0, 128, 1)">0</span>] = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= T; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">0</span>; j &lt;= AS[i]; j++) f[i][j] = max(f[i][j],-<span style="color: rgba(128, 0, 128, 1)">1</span> * AP[i] *<span style="color: rgba(0, 0, 0, 1)"> j);
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">0</span>; j &lt;= MaxP; j++) f[i][j] = max(f[i][j],f[i - <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">][j]);
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (i - W - <span style="color: rgba(128, 0, 128, 1)">1</span> &gt;= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        q.clear();
+                        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">0</span>; j &lt;= MaxP; j++<span style="color: rgba(0, 0, 0, 1)">)
+                        {
+                                </span><span style="color: rgba(0, 0, 255, 1)">while</span> (!q.empty() &amp;&amp; q.front().pos &lt; j -<span style="color: rgba(0, 0, 0, 1)"> AS[i]) q.pop_front();
+                                </span><span style="color: rgba(0, 0, 255, 1)">while</span> (!q.empty() &amp;&amp; f[i - W - <span style="color: rgba(128, 0, 128, 1)">1</span>][j] + j * AP[i] &gt;=<span style="color: rgba(0, 0, 0, 1)"> q.back().val) q.pop_back();
+                                q.push_back((info){j,f[i </span>- W - <span style="color: rgba(128, 0, 128, 1)">1</span>][j] + j *<span style="color: rgba(0, 0, 0, 1)"> AP[i]});
+                                f[i][j] </span>= max(f[i][j],q.front().val - j *<span style="color: rgba(0, 0, 0, 1)"> AP[i]);
+                        }
+                        q.clear();
+                        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = MaxP; j &gt;= <span style="color: rgba(128, 0, 128, 1)">0</span>; j--<span style="color: rgba(0, 0, 0, 1)">)
+                        {
+                                </span><span style="color: rgba(0, 0, 255, 1)">while</span> (!q.empty() &amp;&amp; q.front().pos &gt; j +<span style="color: rgba(0, 0, 0, 1)"> BS[i]) q.pop_front();
+                                </span><span style="color: rgba(0, 0, 255, 1)">while</span> (!q.empty() &amp;&amp; f[i - W - <span style="color: rgba(128, 0, 128, 1)">1</span>][j] + j * BP[i] &gt;=<span style="color: rgba(0, 0, 0, 1)"> q.back().val) q.pop_back();
+                                q.push_back((info){j,f[i </span>- W - <span style="color: rgba(128, 0, 128, 1)">1</span>][j] + j *<span style="color: rgba(0, 0, 0, 1)"> BP[i]});
+                                f[i][j] </span>= max(f[i][j],q.front().val - j *<span style="color: rgba(0, 0, 0, 1)"> BP[i]);
+                        }
+                }
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i &lt;= MaxP; i++) ans =<span style="color: rgba(0, 0, 0, 1)"> max(ans,f[T][i]);
+        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,ans);
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

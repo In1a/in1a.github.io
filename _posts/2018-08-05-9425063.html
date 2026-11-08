@@ -1,0 +1,175 @@
+---
+layout: post
+title: '[Contest Hunter#17-C] 舞动的夜晚'
+date: 2018-08-05 12:09:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9425063.html
+cnblogs_id: 9425063
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p>          <a href="http://contest-hunter.org:83/contest/CH%20Round%20%2317/%E8%88%9E%E5%8A%A8%E7%9A%84%E5%A4%9C%E6%99%9A" target="_blank" rel="noopener nofollow">http://contest-hunter.org:83/contest/CH%20Round%20%2317/%E8%88%9E%E5%8A%A8%E7%9A%84%E5%A4%9C%E6%99%9A</a></p>
+<p>[算法]</p>
+<p>         不难发现，本题是要我们求出二分图最大匹配的不可行边，我们可以将此问题转化为求可行边的补集</p>
+<p>         那么，怎样求二分图的可行边？ 我们可以先来考虑一个简化的情况 ： 二分图的最大匹配为完备匹配 </p>
+<p>         我们求出任意一组二分图最大匹配，将匹配边(x,y)看作y到x的有向边，将非匹配(y,x)看作x到y的有向边，若x到y有增广路，则在新图G'中x到y存在路径</p>
+<p>         此时，若边(x,y)为可行边，则 ：(x,y)当前为匹配边，或当前x匹配u，y匹配v，我们让x匹配y，u和v失去匹配，但我们可以找到一条从u到v的增广路</p>
+<p>         仔细观察，我们发现(x,y)为可行边等价于在新图G'上x和y在同一个强连通分量中</p>
+<p>         在本题中，并没有保证最大匹配为完备匹配，但我们可以借助网络流的源点和汇点，不妨先运行dinic算法，然后，判定条件就变成了 ： 在残余网络上，</p>
+<p>         若x和y在同一个强连通分量内，则(x,y)为可行边</p>
+<p>         时间复杂度 : O(T * Sqrt(N + M)) （ 其中，Sqrt表示开方 )</p>
+<p>[代码]</p>
+<p>          </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 10010
+<span style="color: rgba(0, 0, 255, 1)">#define</span> MAXT 200010 
+<span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">int</span> inf =<span style="color: rgba(0, 0, 0, 1)"> 2e9;
+
+</span><span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> edge
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> to,w,id,nxt;
+} e[MAXT </span>&lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,p,n,m,t,S,T,timer,tot,cnt,scc,q,w,id,top;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span> head[MAXN &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>],u[MAXT],v[MAXT],depth[MAXN &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>],s[MAXN &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">],
+        belong[MAXN </span>&lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>],ans[MAXT],low[MAXN &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>],dfn[MAXN &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+</span><span style="color: rgba(0, 0, 255, 1)">bool</span> flag[MAXT],instack[MAXN &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> addedge(<span style="color: rgba(0, 0, 255, 1)">int</span> u,<span style="color: rgba(0, 0, 255, 1)">int</span> v,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> id)
+{
+        tot</span>++<span style="color: rgba(0, 0, 0, 1)">;
+        e[tot] </span>= (edge){v,<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">,id,head[u]};
+        head[u] </span>=<span style="color: rgba(0, 0, 0, 1)"> tot;
+        tot</span>++<span style="color: rgba(0, 0, 0, 1)">; 
+        e[tot] </span>= (edge){u,<span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">,id,head[v]};
+        head[v] </span>=<span style="color: rgba(0, 0, 0, 1)"> tot;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">bool</span><span style="color: rgba(0, 0, 0, 1)"> bfs()
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,l,r,u,v,w;
+        </span><span style="color: rgba(0, 0, 255, 1)">static</span> <span style="color: rgba(0, 0, 255, 1)">int</span> q[MAXN &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+        memset(depth,</span><span style="color: rgba(128, 0, 128, 1)">0</span>,<span style="color: rgba(0, 0, 255, 1)">sizeof</span><span style="color: rgba(0, 0, 0, 1)">(depth));
+        q[l </span>= r = <span style="color: rgba(128, 0, 128, 1)">1</span>] =<span style="color: rgba(0, 0, 0, 1)"> S;
+        depth[S] </span>= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (l &lt;=<span style="color: rgba(0, 0, 0, 1)"> r)
+        {
+                u </span>=<span style="color: rgba(0, 0, 0, 1)"> q[l];
+                l</span>++<span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = head[u]; i; i =<span style="color: rgba(0, 0, 0, 1)"> e[i].nxt)
+                {
+                        v </span>=<span style="color: rgba(0, 0, 0, 1)"> e[i].to;
+                        w </span>=<span style="color: rgba(0, 0, 0, 1)"> e[i].w;
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!depth[v] &amp;&amp;<span style="color: rgba(0, 0, 0, 1)"> w)
+                        {
+                                depth[v] </span>= depth[u] + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                                q[</span>++r] =<span style="color: rgba(0, 0, 0, 1)"> v;
+                                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (v == T) <span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+                        }
+                }
+        }        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(0, 0, 255, 1)">false</span><span style="color: rgba(0, 0, 0, 1)">;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">int</span> dinic(<span style="color: rgba(0, 0, 255, 1)">int</span> u,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> flow)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> i,v,w,rest =<span style="color: rgba(0, 0, 0, 1)"> flow,k;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (u == T) <span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> flow;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = head[u]; i &amp;&amp; rest; i =<span style="color: rgba(0, 0, 0, 1)"> e[i].nxt)
+        {
+                v </span>=<span style="color: rgba(0, 0, 0, 1)"> e[i].to;
+                w </span>=<span style="color: rgba(0, 0, 0, 1)"> e[i].w;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (depth[v] == depth[u] + <span style="color: rgba(128, 0, 128, 1)">1</span> &amp;&amp;<span style="color: rgba(0, 0, 0, 1)"> w)
+                {
+                        k </span>=<span style="color: rgba(0, 0, 0, 1)"> dinic(v,min(rest,w));
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!k) depth[v] = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                        e[i].w </span>-=<span style="color: rgba(0, 0, 0, 1)"> k;
+                        e[i </span>^ <span style="color: rgba(128, 0, 128, 1)">1</span>].w +=<span style="color: rgba(0, 0, 0, 1)"> k;
+                        rest </span>-=<span style="color: rgba(0, 0, 0, 1)"> k;
+                }
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> flow -<span style="color: rgba(0, 0, 0, 1)"> rest;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> tarjan(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> u)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,v,w;
+        low[u] </span>= dfn[u] = ++<span style="color: rgba(0, 0, 0, 1)">timer;
+        instack[u] </span>= <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+        s[</span>++top] =<span style="color: rgba(0, 0, 0, 1)"> u;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = head[u]; i; i =<span style="color: rgba(0, 0, 0, 1)"> e[i].nxt)
+        {
+                v </span>=<span style="color: rgba(0, 0, 0, 1)"> e[i].to;
+                w </span>=<span style="color: rgba(0, 0, 0, 1)"> e[i].w;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!w) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!<span style="color: rgba(0, 0, 0, 1)">dfn[v])
+                {
+                        tarjan(v);
+                        low[u] </span>=<span style="color: rgba(0, 0, 0, 1)"> min(low[u],low[v]);
+                } </span><span style="color: rgba(0, 0, 255, 1)">else</span> <span style="color: rgba(0, 0, 255, 1)">if</span> (instack[v]) low[u] =<span style="color: rgba(0, 0, 0, 1)"> min(low[u],dfn[v]);
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (dfn[u] ==<span style="color: rgba(0, 0, 0, 1)"> low[u])
+        {
+                scc</span>++<span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">do</span><span style="color: rgba(0, 0, 0, 1)">
+                {
+                        v </span>=<span style="color: rgba(0, 0, 0, 1)"> s[top]; 
+                        top</span>--<span style="color: rgba(0, 0, 0, 1)">;
+                        belong[v] </span>=<span style="color: rgba(0, 0, 0, 1)"> scc;
+                        instack[v] </span>= <span style="color: rgba(0, 0, 255, 1)">false</span><span style="color: rgba(0, 0, 0, 1)">;
+                } </span><span style="color: rgba(0, 0, 255, 1)">while</span> (v !=<span style="color: rgba(0, 0, 0, 1)"> u);
+        }
+}
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() 
+{
+        
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;n,&amp;m,&amp;<span style="color: rgba(0, 0, 0, 1)">t);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= t; i++) scanf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;u[i],&amp;<span style="color: rgba(0, 0, 0, 1)">v[i]);
+        tot </span>= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        S </span>= n + m + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        T </span>= n + m + <span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++) addedge(S,i,<span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= t; i++) addedge(u[i],v[i] +<span style="color: rgba(0, 0, 0, 1)"> n,i);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= m; i++) addedge(n + i,T,<span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">);
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span><span style="color: rgba(0, 0, 0, 1)"> (bfs())
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">while</span><span style="color: rgba(0, 0, 0, 1)"> (dinic(S,inf));    
+        }
+        memset(flag,</span><span style="color: rgba(0, 0, 255, 1)">true</span>,<span style="color: rgba(0, 0, 255, 1)">sizeof</span><span style="color: rgba(0, 0, 0, 1)">(flag));
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (p = <span style="color: rgba(128, 0, 128, 1)">1</span>; p &lt;= n; p++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = head[p]; i; i =<span style="color: rgba(0, 0, 0, 1)"> e[i].nxt)
+                {
+                        q </span>=<span style="color: rgba(0, 0, 0, 1)"> e[i].to;
+                        w </span>=<span style="color: rgba(0, 0, 0, 1)"> e[i].w;
+                        id </span>=<span style="color: rgba(0, 0, 0, 1)"> e[i].id;
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (q &gt; n &amp;&amp; q &lt;= n + m &amp;&amp; !<span style="color: rgba(0, 0, 0, 1)">w) 
+                                flag[id] </span>= <span style="color: rgba(0, 0, 255, 1)">false</span><span style="color: rgba(0, 0, 0, 1)">; 
+                }
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n + m + <span style="color: rgba(128, 0, 128, 1)">2</span>; i++<span style="color: rgba(0, 0, 0, 1)">) 
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!<span style="color: rgba(0, 0, 0, 1)">dfn[i])
+                        tarjan(i);
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= t; i++<span style="color: rgba(0, 0, 0, 1)">) 
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (belong[u[i]] == belong[v[i] +<span style="color: rgba(0, 0, 0, 1)"> n]) 
+                        flag[i] </span>= <span style="color: rgba(0, 0, 255, 1)">false</span><span style="color: rgba(0, 0, 0, 1)">;
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= t; i++<span style="color: rgba(0, 0, 0, 1)">) 
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span><span style="color: rgba(0, 0, 0, 1)"> (flag[i])
+                        ans[</span>++cnt] =<span style="color: rgba(0, 0, 0, 1)"> i;
+        }
+        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,cnt);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= cnt; i++) printf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d </span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,ans[i]);
+        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">);
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

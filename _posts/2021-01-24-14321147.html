@@ -1,0 +1,79 @@
+---
+layout: post
+title: '[ARC093F] Dark Horse'
+date: 2021-01-24 15:52:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/14321147.html
+cnblogs_id: 14321147
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p><a href="" rel="noopener nofollow">https://atcoder.jp/contests/arc093/tasks/arc093_d</a></p>
+<p>[题解]</p>
+<p>首先一个重要观察是 ， <span class="math inline">\(1\)</span> 无论在哪个位置其贡献都是一样的 ， 因此只需考虑 <span class="math inline">\(1\)</span> 在 <span class="math inline">\(1\)</span> 号位的答案 ， 最后将其乘以 <span class="math inline">\(2 ^ {N}\)</span> 就是最终的答案。</p>
+<p><span class="math inline">\(1\)</span> 在一号位时 ， 会和 <span class="math inline">\((2) , (3 , 4) , (5 , 6 , 7 , 8）....\)</span> 这些区间的最小值比较。 也就是说 ， 这 <span class="math inline">\(N\)</span> 个区间的最小值不能是给定的 <span class="math inline">\(M\)</span> 个数中的某一个。</p>
+<p>考虑容斥原理 ，用总方案数 - 至少一个区间不满足 + 至少两个区间不满足 + ......</p>
+<p>不妨将 <span class="math inline">\(M\)</span> 个数从大到小排序 ， 从前往后进行动态规划 ， 设 <span class="math inline">\(f_{S , i}\)</span> 表示 <span class="math inline">\(N\)</span> 个区间的占有情况为 <span class="math inline">\(S\)</span> , 考虑到第 <span class="math inline">\(i\)</span> 个数的方案数。 那么转移只需考虑是否用当前数 "占有" 一个区间即可 ， 需要乘上一个组合数。</p>
+<p>时间复杂度 : <span class="math inline">\(O(2 ^ NN)\)</span></p>
+<p>[代码]</p>
+<pre><code class="language-cpp">#include&lt;bits/stdc++.h&gt;
+
+using namespace std;
+
+#define rep(i , l , r) for (int i = (l); i &lt; (r); ++i)
+
+typedef long long LL;
+
+const int MN = 17 , mod = 1e9 + 7 , MS = 1 &lt;&lt; 17;
+
+int n , m , a[MN] , fac[MS] , dp[MN][MS] , ifac[MS] , cnt[MS] , all;
+
+inline bool cmp(int x , int y) {
+	  return x &gt; y;
+}
+inline void inc(int &amp;x , int y) {
+	  x = x + y &lt; mod ? x + y : x + y - mod;
+}
+inline void dec(int &amp;x , int y) {
+	  x = x - y &gt;= 0 ? x - y : x - y + mod;
+}
+inline int qPow(int a , int b) {
+	  int c = 1;
+	  for (; b; b &gt;&gt;= 1 , a = 1ll * a * a % mod) if (b &amp; 1) c = 1ll * c * a % mod;
+	  return c;
+}
+inline int binom(int n , int m) {
+	  if (n &lt; m) return 0;
+	  else return 1ll * fac[n] * ifac[m] % mod * ifac[n - m] % mod;
+}
+
+int main() {
+		
+		scanf("%d%d" , &amp;n , &amp;m);
+		for (int i = 1; i &lt;= m; ++i) scanf("%d" , &amp;a[i]);
+		sort(a + 1 , a + 1 + m , cmp);
+		fac[0] = 1; all = 1 &lt;&lt; n;
+		for (int i = 1; i &lt;= all; ++i) fac[i] = 1ll * fac[i - 1] * i % mod;
+		ifac[all] = qPow(fac[all] , mod - 2);
+		for (int i = all - 1; i &gt;= 0; --i) ifac[i] = 1ll * ifac[i + 1] * (i + 1) % mod;
+		cnt[0] = 0;
+		for (int i = 1; i &lt; all; ++i) cnt[i] = cnt[i &gt;&gt; 1] + (i &amp; 1);
+		dp[0][0] = 1;
+		for (int i = 1; i &lt;= m; ++i)
+			  for (int s = 0; s &lt; all; ++s) if (dp[i - 1][s]) {
+			  		inc(dp[i][s] , dp[i - 1][s]);
+			  		for (int j = 0; j &lt; n; ++j)
+			  				if ((s &gt;&gt; j &amp; 1) == 0) inc(dp[i][s | 1 &lt;&lt; j] , 1ll * dp[i - 1][s] * binom(all - s - a[i] , (1 &lt;&lt; j) - 1) % mod * fac[1 &lt;&lt; j] % mod);  				
+				}
+		int ans = 0;
+		for (int s = 0; s &lt; all; ++s)
+				if (cnt[s] &amp; 1) dec(ans , 1ll * dp[m][s] * fac[all - s - 1] % mod);
+				else inc(ans , 1ll * dp[m][s] * fac[all - s - 1] % mod);
+		printf("%d\n" , 1ll * ans * all % mod);
+	  return 0; 
+}
+</code></pre>
+
+
+
+{% endraw %}

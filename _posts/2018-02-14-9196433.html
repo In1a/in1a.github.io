@@ -1,0 +1,264 @@
+---
+layout: post
+title: '【扬中集训 DAY4T3】holiday'
+date: 2018-02-14 13:13:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9196433.html
+cnblogs_id: 9196433
+---
+{% raw %}
+
+<p>【题目链接】</p>
+<p>          <a href="http://oj.jzxx.net/problem.php?id=3102" rel="noopener nofollow">点击打开链接</a></p>
+<p>【算法】</p>
+<p>        建C棵线段树即可，注意要用前缀和优化</p>
+<p>【代码】</p>
+<p>        这是标程</p>
+<p>       </p>
+<div class="cnblogs_code">
+<pre>#include &lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+
+</span><span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">int</span> MAXR = <span style="color: rgba(128, 0, 128, 1)">50005</span>, MAXC = <span style="color: rgba(128, 0, 128, 1)">17</span>, MAXN = <span style="color: rgba(128, 0, 128, 1)">4</span> * MAXR + <span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> R, C, Q;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> am0[MAXC][MAXR];
+</span><span style="color: rgba(0, 0, 255, 1)">char</span><span style="color: rgba(0, 0, 0, 1)"> grid[MAXR][MAXC];
+
+</span><span style="color: rgba(0, 0, 255, 1)">bool</span><span style="color: rgba(0, 0, 0, 1)"> mark[MAXN];
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> am[MAXN][MAXC];
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> change[MAXN][MAXC];
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> split(<span style="color: rgba(0, 0, 255, 1)">int</span> at, <span style="color: rgba(0, 0, 255, 1)">int</span> l, <span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> r)
+{
+    mark[at] </span>= <span style="color: rgba(0, 0, 255, 1)">false</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= C; ++<span style="color: rgba(0, 0, 0, 1)">i)
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (change[at][i] &lt; <span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">)
+        {
+            </span><span style="color: rgba(0, 0, 255, 1)">int</span> got = am0[i][r] -<span style="color: rgba(0, 0, 0, 1)"> am0[i][l];
+            </span><span style="color: rgba(0, 0, 255, 1)">if</span> (change[at][i] == <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">)
+            got </span>= r - l -<span style="color: rgba(0, 0, 0, 1)"> got;
+            am[at][i] </span>=<span style="color: rgba(0, 0, 0, 1)"> got;
+        }
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (l + <span style="color: rgba(128, 0, 128, 1)">1</span> !=<span style="color: rgba(0, 0, 0, 1)"> r)
+    {
+        mark[at </span>* <span style="color: rgba(128, 0, 128, 1)">2</span> + <span style="color: rgba(128, 0, 128, 1)">1</span>] = <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+        mark[at </span>* <span style="color: rgba(128, 0, 128, 1)">2</span> + <span style="color: rgba(128, 0, 128, 1)">2</span>] = <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= C; ++<span style="color: rgba(0, 0, 0, 1)">i)
+            </span><span style="color: rgba(0, 0, 255, 1)">if</span> (change[at][i] &lt; <span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">)
+            {
+                change[at </span>* <span style="color: rgba(128, 0, 128, 1)">2</span> + <span style="color: rgba(128, 0, 128, 1)">1</span>][i] =<span style="color: rgba(0, 0, 0, 1)"> change[at][i];
+                change[at </span>* <span style="color: rgba(128, 0, 128, 1)">2</span> + <span style="color: rgba(128, 0, 128, 1)">2</span>][i] =<span style="color: rgba(0, 0, 0, 1)"> change[at][i];
+                change[at][i] </span>= <span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">;
+            }
+    }
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">void</span> update(<span style="color: rgba(0, 0, 255, 1)">int</span> at, <span style="color: rgba(0, 0, 255, 1)">int</span> l, <span style="color: rgba(0, 0, 255, 1)">int</span> r, <span style="color: rgba(0, 0, 255, 1)">int</span> nl, <span style="color: rgba(0, 0, 255, 1)">int</span> nr, <span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> cols[])
+{
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span><span style="color: rgba(0, 0, 0, 1)"> (mark[at])
+        split(at, l, r);
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (l == nl &amp;&amp; r ==<span style="color: rgba(0, 0, 0, 1)"> nr)
+    {
+        mark[at] </span>= <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= C; ++<span style="color: rgba(0, 0, 0, 1)">i)
+            </span><span style="color: rgba(0, 0, 255, 1)">if</span> (cols[i] &lt; <span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">)
+                change[at][i] </span>=<span style="color: rgba(0, 0, 0, 1)"> cols[i];
+        split(at, l, r);
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)">;
+    }
+    </span><span style="color: rgba(0, 0, 255, 1)">int</span> m = (l + r) / <span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (nr &lt;=<span style="color: rgba(0, 0, 0, 1)"> m)
+        update(at </span>* <span style="color: rgba(128, 0, 128, 1)">2</span> + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">, l, m, nl, nr, cols);
+    </span><span style="color: rgba(0, 0, 255, 1)">else</span> <span style="color: rgba(0, 0, 255, 1)">if</span> (m &lt;=<span style="color: rgba(0, 0, 0, 1)"> nl)
+        update(at </span>* <span style="color: rgba(128, 0, 128, 1)">2</span> + <span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">, m, r, nl, nr, cols);
+    </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)">
+    {
+        update(at </span>* <span style="color: rgba(128, 0, 128, 1)">2</span> + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">, l, m, nl, m, cols);
+        update(at </span>* <span style="color: rgba(128, 0, 128, 1)">2</span> + <span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">, m, r, m, nr, cols);
+    }
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (mark[at * <span style="color: rgba(128, 0, 128, 1)">2</span> + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">])
+        split(at </span>* <span style="color: rgba(128, 0, 128, 1)">2</span> + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">, l, m);
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (mark[at * <span style="color: rgba(128, 0, 128, 1)">2</span> + <span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">])
+        split(at </span>* <span style="color: rgba(128, 0, 128, 1)">2</span> + <span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">, m, r);
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= C; ++i) <span style="color: rgba(0, 128, 0, 1)">//</span><span style="color: rgba(0, 128, 0, 1)"> join</span>
+        am[at][i] = am[at * <span style="color: rgba(128, 0, 128, 1)">2</span> + <span style="color: rgba(128, 0, 128, 1)">1</span>][i] + am[at * <span style="color: rgba(128, 0, 128, 1)">2</span> + <span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">][i];
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> read()
+{
+    scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d %d %d</span><span style="color: rgba(128, 0, 0, 1)">"</span>, &amp;R, &amp;C, &amp;<span style="color: rgba(0, 0, 0, 1)">Q);
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i &lt; R; ++<span style="color: rgba(0, 0, 0, 1)">i)
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%s</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">, grid[i]);
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> solve()
+{
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= C; ++<span style="color: rgba(0, 0, 0, 1)">i)
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= R; ++<span style="color: rgba(0, 0, 0, 1)">j)
+        {
+            am0[i][j] </span>= am0[i][j - <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+            </span><span style="color: rgba(0, 0, 255, 1)">if</span> (grid[j - <span style="color: rgba(128, 0, 128, 1)">1</span>][i - <span style="color: rgba(128, 0, 128, 1)">1</span>] == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">)
+                </span>++<span style="color: rgba(0, 0, 0, 1)">am0[i][j];
+        }
+    </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> cols[MAXC];
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i &lt; MAXC; ++<span style="color: rgba(0, 0, 0, 1)">i)
+        cols[i] </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    update(</span><span style="color: rgba(128, 0, 128, 1)">0</span>, <span style="color: rgba(128, 0, 128, 1)">0</span>, R, <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">, R, cols);
+    </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> r1, r2, c1, c2, x;
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (mark[<span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">])
+        split(</span><span style="color: rgba(128, 0, 128, 1)">0</span>, <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">, R);
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i &lt; Q; ++<span style="color: rgba(0, 0, 0, 1)">i)
+    {
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d %d %d %d %d</span><span style="color: rgba(128, 0, 0, 1)">"</span>, &amp;r1, &amp;r2, &amp;c1, &amp;c2, &amp;<span style="color: rgba(0, 0, 0, 1)">x);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> j = <span style="color: rgba(128, 0, 128, 1)">0</span>; j &lt;= C; ++<span style="color: rgba(0, 0, 0, 1)">j)
+            </span><span style="color: rgba(0, 0, 255, 1)">if</span> (j &gt;= c1 &amp;&amp; j &lt;=<span style="color: rgba(0, 0, 0, 1)"> c2)
+                cols[j] </span>=<span style="color: rgba(0, 0, 0, 1)"> x;
+            </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)">
+                cols[j] </span>= <span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">;
+        update(</span><span style="color: rgba(128, 0, 128, 1)">0</span>, <span style="color: rgba(128, 0, 128, 1)">0</span>, R, r1 - <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">, r2, cols);
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (mark[<span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">])
+            split(</span><span style="color: rgba(128, 0, 128, 1)">0</span>, <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">, R);
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> ans = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= C; ++<span style="color: rgba(0, 0, 0, 1)">i)
+            ans </span>+= am[<span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">][i];
+        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">, ans);
+    }
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main()
+{
+    read();
+    solve();
+    </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+}</span></pre>
+</div>
+<p> </p>
+<p>这是我的程序</p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXR 50000 
+<span style="color: rgba(0, 0, 255, 1)">#define</span> MAXC 15
+<span style="color: rgba(0, 0, 255, 1)">#define</span> MAXQ 1000
+
+<span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> SegmentTree {
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> l,r,opt,sum;    
+} tree[MAXC</span>+<span style="color: rgba(128, 0, 128, 1)">10</span>][MAXR*<span style="color: rgba(128, 0, 128, 1)">4</span>+<span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">];
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,j,R,C,Q,R1,R2,C1,C2,X,ans;
+</span><span style="color: rgba(0, 0, 255, 1)">char</span><span style="color: rgba(0, 0, 0, 1)"> ch;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span> mat[MAXR+<span style="color: rgba(128, 0, 128, 1)">10</span>][MAXC+<span style="color: rgba(128, 0, 128, 1)">10</span>],sum[MAXR+<span style="color: rgba(128, 0, 128, 1)">10</span>][MAXC+<span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">];
+
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> read(T &amp;<span style="color: rgba(0, 0, 0, 1)">x) {
+    </span><span style="color: rgba(0, 0, 255, 1)">int</span> f = <span style="color: rgba(128, 0, 128, 1)">1</span>; x = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">char</span> c =<span style="color: rgba(0, 0, 0, 1)"> getchar();
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; !isdigit(c); c = getchar()) { <span style="color: rgba(0, 0, 255, 1)">if</span> (c == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>) f = -<span style="color: rgba(0, 0, 0, 1)">f; }
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; isdigit(c); c = getchar()) x = x * <span style="color: rgba(128, 0, 128, 1)">10</span> + c - <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">;
+    x </span>*=<span style="color: rgba(0, 0, 0, 1)"> f;
+}
+
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> write(T x) {
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (x &lt; <span style="color: rgba(128, 0, 128, 1)">0</span>) { putchar(<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>); x = -<span style="color: rgba(0, 0, 0, 1)">x; }
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (x &gt; <span style="color: rgba(128, 0, 128, 1)">9</span>) write(x/<span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">);
+    putchar(x</span>%<span style="color: rgba(128, 0, 128, 1)">10</span>+<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">);    
+}
+
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> writeln(T x) {
+    write(x);
+    puts(</span><span style="color: rgba(128, 0, 0, 1)">""</span><span style="color: rgba(0, 0, 0, 1)">);    
+}
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> build(<span style="color: rgba(0, 0, 255, 1)">int</span> pos,<span style="color: rgba(0, 0, 255, 1)">int</span> index,<span style="color: rgba(0, 0, 255, 1)">int</span> l,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> r) {
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> mid;
+        tree[pos][index].l </span>= l; tree[pos][index].r =<span style="color: rgba(0, 0, 0, 1)"> r;
+        tree[pos][index].sum </span>= r - l + <span style="color: rgba(128, 0, 128, 1)">1</span> - sum[r][pos] + sum[l-<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">][pos];
+        tree[pos][index].opt </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (l == r) <span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)">;
+        mid </span>= (l + r) &gt;&gt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        build(pos,index</span>*<span style="color: rgba(128, 0, 128, 1)">2</span>,l,mid); build(pos,index*<span style="color: rgba(128, 0, 128, 1)">2</span>+<span style="color: rgba(128, 0, 128, 1)">1</span>,mid+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">,r);    
+}
+
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> pushdown(<span style="color: rgba(0, 0, 255, 1)">int</span> pos,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> index) {
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> l =<span style="color: rgba(0, 0, 0, 1)"> tree[pos][index].l,
+               r </span>=<span style="color: rgba(0, 0, 0, 1)"> tree[pos][index].r;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (l == r) <span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)">;
+        tree[pos][index</span>*<span style="color: rgba(128, 0, 128, 1)">2</span>].opt =<span style="color: rgba(0, 0, 0, 1)"> tree[pos][index].opt;
+        tree[pos][index</span>*<span style="color: rgba(128, 0, 128, 1)">2</span>+<span style="color: rgba(128, 0, 128, 1)">1</span>].opt =<span style="color: rgba(0, 0, 0, 1)"> tree[pos][index].opt;
+        l </span>= tree[pos][index*<span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">].l,
+        r </span>= tree[pos][index*<span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">].r;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!tree[pos][index].opt) tree[pos][index*<span style="color: rgba(128, 0, 128, 1)">2</span>].sum = r - l + <span style="color: rgba(128, 0, 128, 1)">1</span> - sum[r][pos] + sum[l-<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">][pos];
+        </span><span style="color: rgba(0, 0, 255, 1)">else</span> tree[pos][index*<span style="color: rgba(128, 0, 128, 1)">2</span>].sum = sum[r][pos] - sum[l-<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">][pos];
+        l </span>= tree[pos][index*<span style="color: rgba(128, 0, 128, 1)">2</span>+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">].l,
+        r </span>= tree[pos][index*<span style="color: rgba(128, 0, 128, 1)">2</span>+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">].r;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!tree[pos][index].opt) tree[pos][index*<span style="color: rgba(128, 0, 128, 1)">2</span>+<span style="color: rgba(128, 0, 128, 1)">1</span>].sum = r - l + <span style="color: rgba(128, 0, 128, 1)">1</span> - sum[r][pos] + sum[l-<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">][pos];
+        </span><span style="color: rgba(0, 0, 255, 1)">else</span> tree[pos][index*<span style="color: rgba(128, 0, 128, 1)">2</span>+<span style="color: rgba(128, 0, 128, 1)">1</span>].sum = sum[r][pos] - sum[l-<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">][pos];
+}
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> pushup(<span style="color: rgba(0, 0, 255, 1)">int</span> pos,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> index) {
+        tree[pos][index].sum </span>= tree[pos][index*<span style="color: rgba(128, 0, 128, 1)">2</span>].sum + tree[pos][index*<span style="color: rgba(128, 0, 128, 1)">2</span>+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">].sum;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> ((tree[pos][index*<span style="color: rgba(128, 0, 128, 1)">2</span>].opt == -<span style="color: rgba(128, 0, 128, 1)">1</span>) || (tree[pos][index*<span style="color: rgba(128, 0, 128, 1)">2</span>+<span style="color: rgba(128, 0, 128, 1)">1</span>].opt == -<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">)) {
+                tree[pos][index].opt </span>= -<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)">;
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (tree[pos][index*<span style="color: rgba(128, 0, 128, 1)">2</span>].opt != tree[pos][index*<span style="color: rgba(128, 0, 128, 1)">2</span>+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">].opt) {
+                tree[pos][index].opt </span>= -<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)">;
+        }
+        tree[pos][index].opt </span>= tree[pos][index*<span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">].opt;
+}
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> modify(<span style="color: rgba(0, 0, 255, 1)">int</span> pos,<span style="color: rgba(0, 0, 255, 1)">int</span> index,<span style="color: rgba(0, 0, 255, 1)">int</span> l,<span style="color: rgba(0, 0, 255, 1)">int</span> r,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> val) {
+         </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> mid;
+         </span><span style="color: rgba(0, 0, 255, 1)">if</span> (tree[pos][index].opt != -<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">) pushdown(pos,index);
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> ((tree[pos][index].l == l) &amp;&amp; (tree[pos][index].r ==<span style="color: rgba(0, 0, 0, 1)"> r)) {
+                tree[pos][index].opt </span>=<span style="color: rgba(0, 0, 0, 1)"> val;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!val) tree[pos][index].sum = r - l + <span style="color: rgba(128, 0, 128, 1)">1</span> - sum[r][pos] + sum[l-<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">][pos];
+                </span><span style="color: rgba(0, 0, 255, 1)">else</span> tree[pos][index].sum = sum[r][pos] - sum[l-<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">][pos]; 
+        }    </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)"> {
+                mid </span>= (tree[pos][index].l + tree[pos][index].r) &gt;&gt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">; 
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (mid &gt;= r) modify(pos,index*<span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">,l,r,val);
+                </span><span style="color: rgba(0, 0, 255, 1)">else</span> <span style="color: rgba(0, 0, 255, 1)">if</span> (mid + <span style="color: rgba(128, 0, 128, 1)">1</span> &lt;= l) modify(pos,index*<span style="color: rgba(128, 0, 128, 1)">2</span>+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">,l,r,val);
+                </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)"> {
+                        modify(pos,index</span>*<span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">,l,mid,val);
+                        modify(pos,index</span>*<span style="color: rgba(128, 0, 128, 1)">2</span>+<span style="color: rgba(128, 0, 128, 1)">1</span>,mid+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">,r,val);
+                }
+                pushup(pos,index);
+        }
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() {
+
+        read(R); read(C); read(Q); 
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= R; i++<span style="color: rgba(0, 0, 0, 1)">) {
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= C; j++<span style="color: rgba(0, 0, 0, 1)">) {
+                        ch </span>=<span style="color: rgba(0, 0, 0, 1)"> getchar();
+                        mat[i][j] </span>= ch - <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">;
+                }
+                getchar();
+        }
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= C; i++<span style="color: rgba(0, 0, 0, 1)">) {
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= R; j++<span style="color: rgba(0, 0, 0, 1)">) {
+                        sum[j][i] </span>= sum[j-<span style="color: rgba(128, 0, 128, 1)">1</span>][i] +<span style="color: rgba(0, 0, 0, 1)"> mat[j][i];
+                }
+        }
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= C; i++) build(i,<span style="color: rgba(128, 0, 128, 1)">1</span>,<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">,R);
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (Q--<span style="color: rgba(0, 0, 0, 1)">) {
+             ans </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+             read(R1); read(R2); read(C1); read(C2); read(X); 
+             </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = C1; i &lt;= C2; i++) modify(i,<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">,R1,R2,X);    
+             </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= C; i++) ans += tree[i][<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">].sum;
+             writeln(ans);
+        }
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

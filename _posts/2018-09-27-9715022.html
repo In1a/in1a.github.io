@@ -1,0 +1,81 @@
+---
+layout: post
+title: '[Codeforces 140C] New Year Snowmen'
+date: 2018-09-27 19:10:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9715022.html
+cnblogs_id: 9715022
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p>        <a href="https://codeforces.com/problemset/problem/140/C" target="_blank" rel="noopener nofollow"> https://codeforces.com/problemset/problem/140/C</a></p>
+<p>[算法]</p>
+<p>        显然 ， 我们每次应优先考虑数量多的雪球</p>
+<p>        将雪球个数加入堆中 ， 每次取出数量前三大的雪球 ， 贪心地将它们分到一个组中即可</p>
+<p>        时间复杂度 ： O(N log N)</p>
+<p>[代码]</p>
+<p>       </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">int</span> MAXN = 1e5 + <span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">;
+
+</span><span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> info
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> v1 , v2 , v3;
+} ans[MAXN];
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> n , tot;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> r[MAXN];
+map</span>&lt; <span style="color: rgba(0, 0, 255, 1)">int</span>,<span style="color: rgba(0, 0, 255, 1)">int</span> &gt;<span style="color: rgba(0, 0, 0, 1)"> mp;
+priority_queue</span>&lt; pair&lt;<span style="color: rgba(0, 0, 255, 1)">int</span>,<span style="color: rgba(0, 0, 255, 1)">int</span>&gt; &gt;<span style="color: rgba(0, 0, 0, 1)"> q;
+
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> read(T &amp;<span style="color: rgba(0, 0, 0, 1)">x)
+{
+    T f </span>= <span style="color: rgba(128, 0, 128, 1)">1</span>; x = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">char</span> c =<span style="color: rgba(0, 0, 0, 1)"> getchar();
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; !isdigit(c); c = getchar()) <span style="color: rgba(0, 0, 255, 1)">if</span> (c == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>) f = -<span style="color: rgba(0, 0, 0, 1)">f;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; isdigit(c); c = getchar()) x = (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">3</span>) + (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>) + c - <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">;
+    x </span>*=<span style="color: rgba(0, 0, 0, 1)"> f;
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main()
+{
+        
+        read(n);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                read(r[i]);
+                mp[r[i]]</span>++<span style="color: rgba(0, 0, 0, 1)">;
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (map&lt; <span style="color: rgba(0, 0, 255, 1)">int</span>,<span style="color: rgba(0, 0, 255, 1)">int</span> &gt; :: iterator it = mp.begin(); it != mp.end(); it++) q.push(make_pair(it -&gt; second,it -&gt;<span style="color: rgba(0, 0, 0, 1)"> first));
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> ((<span style="color: rgba(0, 0, 255, 1)">int</span>)q.size() &gt;= <span style="color: rgba(128, 0, 128, 1)">3</span><span style="color: rgba(0, 0, 0, 1)">)
+        {
+                pair</span>&lt;<span style="color: rgba(0, 0, 255, 1)">int</span>,<span style="color: rgba(0, 0, 255, 1)">int</span>&gt; a =<span style="color: rgba(0, 0, 0, 1)"> q.top();
+                q.pop();
+                pair</span>&lt;<span style="color: rgba(0, 0, 255, 1)">int</span>,<span style="color: rgba(0, 0, 255, 1)">int</span>&gt; b =<span style="color: rgba(0, 0, 0, 1)"> q.top();
+                q.pop();
+                pair</span>&lt;<span style="color: rgba(0, 0, 255, 1)">int</span>,<span style="color: rgba(0, 0, 255, 1)">int</span>&gt; c =<span style="color: rgba(0, 0, 0, 1)"> q.top();
+                q.pop();
+                ans[</span>++tot] =<span style="color: rgba(0, 0, 0, 1)"> (info){a.second,b.second,c.second};
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (a.first &gt; <span style="color: rgba(128, 0, 128, 1)">1</span>) q.push(make_pair(a.first - <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">,a.second));
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (b.first &gt; <span style="color: rgba(128, 0, 128, 1)">1</span>) q.push(make_pair(b.first - <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">,b.second));
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (c.first &gt; <span style="color: rgba(128, 0, 128, 1)">1</span>) q.push(make_pair(c.first - <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">,c.second));
+        }
+        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,tot);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= tot; i++<span style="color: rgba(0, 0, 0, 1)">) 
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (ans[i].v1 &lt;<span style="color: rgba(0, 0, 0, 1)"> ans[i].v2) swap(ans[i].v1,ans[i].v2);
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (ans[i].v1 &lt;<span style="color: rgba(0, 0, 0, 1)"> ans[i].v3) swap(ans[i].v1,ans[i].v3);
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (ans[i].v2 &lt;<span style="color: rgba(0, 0, 0, 1)"> ans[i].v3) swap(ans[i].v2,ans[i].v3);
+                printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d %d %d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,ans[i].v1,ans[i].v2,ans[i].v3);
+        }
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

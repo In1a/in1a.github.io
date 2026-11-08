@@ -1,0 +1,397 @@
+---
+layout: post
+title: 'Codeforces Round 612 题解'
+date: 2021-03-10 06:23:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/14509286.html
+cnblogs_id: 14509286
+---
+{% raw %}
+
+<p>[比赛链接]</p>
+<p><a href="" rel="noopener nofollow">http://codeforces.com/contest/1286</a></p>
+<p>[题解]</p>
+<p><span class="math inline">\(A\)</span></p>
+<p>不妨令 <span class="math inline">\(dp_{i , j , 0 / 1}\)</span> 表示用了 <span class="math inline">\(i\)</span> 个奇数 ， <span class="math inline">\(j\)</span> 个偶数 ， 上一位奇数 / 偶数的最小值。</p>
+<p>考虑当前位置奇数的情况 ， 有</p>
+<p><span class="math inline">\(dp_{i , j , 0} = min\{dp_{i - 1 , j , 0} , dp_{i - 1 , j , 1} + 1\}\)</span>。</p>
+<p>偶数同理。</p>
+<p>时间复杂度 <span class="math inline">\(O(N ^ 3)\)</span></p>
+<p><span class="math inline">\(B\)</span></p>
+<p>最简单的方式是构造一个排列。</p>
+<p>从根开始 <span class="math inline">\(DFS\)</span> , 暴力合并子树 ， 并将当前节点插入集合。</p>
+<p>时间复杂度 <span class="math inline">\(O(N)\)</span></p>
+<p><span class="math inline">\(C\)</span></p>
+<p>首先不难发现 ：</p>
+<p><span class="math inline">\(1.\)</span> 把一个子串中字符乱序相当于给定了出现次数</p>
+<p><span class="math inline">\(2.\)</span> 对于同一个询问得到的两个子串，只有按照它们的长度才能把它们区分开。</p>
+<p>先来考虑简单版本的问题 ， 考虑 <span class="math inline">\([1 , N]\)</span> 所有长度为 <span class="math inline">\(i\)</span> 的子串和 <span class="math inline">\([2 , N]\)</span> 所有长度为 <span class="math inline">\(i\)</span> 的子串 , 将各个字符做差 ， 就得到了 <span class="math inline">\([1 , i]\)</span> 每个字符出现的次数 ， 进一步将其与 <span class="math inline">\([1 , i - 1]\)</span> 做差 ， 就得到了第 <span class="math inline">\(i\)</span> 位的字符。</p>
+<p>这样的子串个数是 <span class="math inline">\({N \choose 2} + {N + 1 \choose 2} = N ^ 2\)</span>。</p>
+<p>接着考虑困难版。</p>
+<p>不难发现 ， 当 <span class="math inline">\(i\le\lceil\frac N2\rceil\)</span> 时 ， 原串每个字符贡献了 <span class="math inline">\(min\{j , N - i + 1 , i\}\)</span> 次。而长度变为 <span class="math inline">\(i - 1\)</span> 时 ， 贡献变化当且仅当 <span class="math inline">\(\min(j,N-j+1)\ge i\)</span> , 也就是 <span class="math inline">\(j\in[i , N - i + 1]\)</span>。</p>
+<p>于是长度为 <span class="math inline">\(i\)</span> 的所有子串之和减去长度为 <span class="math inline">\(i − 1\)</span> 的所有子串之和即为子串 <span class="math inline">\([i , N − i + 1]\)</span> ，可以直观理解成两个梯形的面积相减。</p>
+<p>然后再进行差分 ， 就得到了 <span class="math inline">\(i\)</span> 和 <span class="math inline">\((N - i + 1)\)</span> 位置上的字符可能是哪两个。</p>
+<p>这时就只需要知道前一半和后一半了。</p>
+<p>子串个数 <span class="math inline">\(\binom{n+1}2+(\frac n2)^2&lt;0.75(n+1)^2\)</span>。</p>
+<p><span class="math inline">\(D\)</span></p>
+<p>首先注意到一次碰撞必然发生在相邻的球之间 (相向而行、往左追击，往右追击)。</p>
+<p>把这 <span class="math inline">\(2(N - 1)\)</span> 种情况预处理出来 ， 并按照时间从小到大排序。</p>
+<p>这样 ， 第 <span class="math inline">\(i\)</span> 个碰撞作为第一次碰撞的概率即为前 <span class="math inline">\((i - 1)\)</span> 次都没发生 , 而第 <span class="math inline">\(i\)</span> 次碰撞发生了的概率。</p>
+<p>那么每次相当于禁掉一个方向 ， 而对于 <span class="math inline">\(i\)</span> 禁了三个方向。</p>
+<p>记 <span class="math inline">\(dp_{i , 0 / 1}\)</span> 表示前 <span class="math inline">\(i\)</span> 个位置 ， 上一个位置是向左 / 右的概率。</p>
+<p>直接转移是 <span class="math inline">\(O(N ^ 2)\)</span> 的。 但可以用线段树维护矩阵优化。详见 [代码]</p>
+<p>时间复杂度 <span class="math inline">\(O(NlogN)\)</span></p>
+<p><span class="math inline">\(E\)</span></p>
+<p>考虑维护 <span class="math inline">\(Border\)</span> 集合.</p>
+<p>在添加字符时不妨顺带维护 <span class="math inline">\(fail\)</span> 数组 , 还可以记一个 <span class="math inline">\(anc_{i}\)</span> 表示 <span class="math inline">\(fail\)</span> 树上最近的祖先满足 <span class="math inline">\(s_{x + 1} \neq s_{fail_{i} + 1}\)</span>.</p>
+<p>这样便可以在 <span class="math inline">\(O(1)\)</span> 的时间内找出一个不合法的 <span class="math inline">\(Border\)</span> 进行删除.</p>
+<p>既然要计算贡献 , 那么额外维护一个单调栈计算后缀最值即可.</p>
+<p>时间复杂度 <span class="math inline">\(O(NlogN)\)</span> (均摊分析)</p>
+<p><span class="math inline">\(F\)</span></p>
+<p>每次使用操作二时 , 不妨在 <span class="math inline">\(i\)</span> 和 <span class="math inline">\(j\)</span> 间连一条无向边 , 这样就得到了图 <span class="math inline">\(G\)</span>.</p>
+<p>如果 <span class="math inline">\(G\)</span> 中有环 , 那么还不如对环上每个点进行操作一.</p>
+<p>故 <span class="math inline">\(G\)</span> 是一片森林. 而要做的便是最大化森林中树的棵数.</p>
+<p>考虑判断一个集合是否能连成一棵树?</p>
+<p>假设每次边的两个端点都是减去 <span class="math inline">\(x\)</span> , 任选一点为根 , 那么每个点对根的贡献之和其深度有关.</p>
+<p>故满足条件当且仅当奇数深度点权和 = 偶数深度点权和.</p>
+<p>下面考虑可以给某些点 <span class="math inline">\(+1\)</span> , 那么也就是 <span class="math inline">\(|奇数点权和 - 偶数点权和| &lt; |S|\)</span> 且奇偶性相同.</p>
+<p>直接枚举子集可以做到 <span class="math inline">\(O(3 ^ N)\)</span>.</p>
+<p>不难发现可以枚举大的那一半 , 时间复杂度 <span class="math inline">\(O((1 + \sqrt{2})^N)\)</span></p>
+<p>预处理完了以后便可以状压 <span class="math inline">\(DP\)</span> 了 , 总时间复杂度 <span class="math inline">\(O((1 + \sqrt{2})^N + \log{N} \cdot N^2 \cdot 2^N)\)</span></p>
+<p>[代码]</p>
+<p><span class="math inline">\(A\)</span></p>
+<pre><code class="language-cpp">
+
+    #include&lt;bits/stdc++.h&gt;
+     
+    using namespace std;
+     
+    typedef long long LL;
+     
+    #define rep(i , l , r) for (int i = (l); i &lt; (r); ++i)
+     
+    const int MN = 105;
+     
+    int N , A[MN] , dp[MN][MN][MN];
+     
+    int main() {
+    	 
+    	 scanf("%d" , &amp;N);
+    	 for (int i = 1; i &lt;= N; ++i) scanf("%d" , &amp;A[i]);
+    	 memset(dp , 0x3f , sizeof(dp));
+    	 dp[0][0][0] = dp[0][0][1] = 0;
+    	 for (int i = 1; i &lt;= N; ++i)
+    	 for (int j = 0; j &lt;= i; ++j) {
+    	 	 if (A[i] % 2 || !A[i]) dp[i][j][1] = min(dp[i - 1][j][0] + 1 , dp[i - 1][j][1]);
+    	 	 if (A[i] % 2 == 0 &amp;&amp; j) dp[i][j][0] = min(dp[i - 1][j - 1][0] , dp[i - 1][j - 1][1] + 1);
+    	 }
+    	 printf("%d\n" , min(dp[N][N / 2][0] , dp[N][N / 2][1]));
+         return 0; 
+    }
+</code></pre>
+<p><span class="math inline">\(B\)</span></p>
+<pre><code class="language-cpp">    #include&lt;bits/stdc++.h&gt;
+     
+    using namespace std;
+     
+    typedef long long LL;
+     
+    #define rep(i , l , r) for (int i = (l); i &lt; (r); ++i)
+     
+    const int MN = 2005;
+     
+    int N , c[MN] , ans[MN];
+    vector &lt; int &gt; e[MN] , res;
+     
+    #define sz(a) (int)(a.size())
+     
+    inline int solve(int x) {
+    	int ans = x &gt; 0;
+    	for (auto y : e[x]) ans += solve(y);
+    	if (x) {
+    		if (c[x] &gt;= ans) {
+    			printf("NO\n");
+    			exit(0);
+    		}
+    		res.insert(res.begin() + c[x] , x);
+    	}
+    	return ans;
+    }
+     
+    int main() {
+    	
+    	 scanf("%d" , &amp;N);
+    	 for (int i = 1; i &lt;= N; ++i) {
+    	 	 int par; 
+    	 	 scanf("%d%d" , &amp;par , &amp;c[i]);
+    	 	 e[par].emplace_back(i);
+    	 }
+    	 solve(0);
+    	 printf("YES\n");
+    	 for (int i = 0; i &lt; sz(res); ++i)
+    	 	 ans[res[i]] = i + 1;
+    	 for (int i = 1; i &lt;= N; ++i)
+    	 	 printf("%d " , ans[i]);
+         return 0;
+    }
+
+</code></pre>
+<p><span class="math inline">\(C\)</span></p>
+<pre><code class="language-cpp">    #include &lt;bits/stdc++.h&gt;
+     
+    using namespace std;
+     
+    typedef long long LL;
+     
+    int n;
+     
+    auto query(int l , int r) {
+        multiset &lt; string &gt; s;
+        cout &lt;&lt; "? " &lt;&lt; l + 1 &lt;&lt; " " &lt;&lt; r &lt;&lt; "\n";
+        for (int i = 0; i &lt; (r - l) * (r - l + 1) / 2; ++i) {
+        	string t;
+        	cin &gt;&gt; t;
+        	sort(t.begin() , t.end());
+        	s.insert(t);
+        }
+        return s;
+    }
+     
+    int main() {
+        
+        cin &gt;&gt; n;
+        if (n &lt;= 3) {
+            string s;
+            for (int i = 0; i &lt; n; ++i)
+                s += *query(i , i + 1).begin();
+            cout &lt;&lt; "! " &lt;&lt; s &lt;&lt; "\n";
+            return 0;
+        }
+        int m = (n + 1) / 2;
+        auto s = query(0 , m) , t = query(1 , m);
+        for (auto &amp;&amp;i : t)
+        	s.erase(s.find(i));
+        vector &lt; string &gt; pre(s.begin() , s.end());
+        sort(pre.begin() , pre.end() , [&amp;](const auto &amp;lhs , const auto &amp;rhs) {
+        	return lhs.length() &lt; rhs.length();
+        });
+        string hf = pre[0];
+        for (int i = 1; i &lt; m; ++i) {
+            vector &lt; int &gt; cnt(26);
+            for (char c : pre[i])
+                ++cnt[c - 'a'];
+            for (char c : pre[i - 1])
+                --cnt[c - 'a'];
+            for (int j = 0; j &lt; 26; ++j)
+                if (cnt[j] == 1)
+                	hf += 'a' + j;
+        }
+        string ans(n , 'a');
+        auto f = query(0 , n);
+        vector &lt; vector &lt; string &gt; &gt; sl(n);
+        for (auto s : f)
+        	sl[s.size() - 1].emplace_back(s);
+        for (int i = 0; i &lt; m; ++i)
+        	ans[i] = hf[i];
+        for (int i = 0; i &lt; n / 2; ++i) {
+            vector &lt; int &gt; cnt(26);
+            for (auto &amp;t : sl[n - i - 2])
+                for (char c : t)
+                	++cnt[c - 'a'];
+            for (int j = 0; j &lt;= i; ++j)
+                cnt[ans[j] - 'a'] -= j + 1;
+            for (int j = n - i; j &lt; n; ++j)
+                cnt[ans[j] - 'a'] -= n - j;
+            for (int j = 0; j &lt; 26; ++j)
+                if (cnt[j] % (i + 2) != 0)
+                	ans[n - 1 - i] = 'a' + j;
+        }
+        cout &lt;&lt; "! " &lt;&lt; ans &lt;&lt; "\n";
+        return 0;
+    }
+</code></pre>
+<p><span class="math inline">\(D\)</span></p>
+<pre><code class="language-cpp">    #include &lt;bits/stdc++.h&gt;
+     
+    using namespace std;
+     
+    typedef long long LL;
+     
+    const int MN = 1e5 + 5 , mod = 998244353;
+     
+    inline int qPow(int a , int b) {
+        int c = 1;
+        for (; b; b &gt;&gt;= 1 , a = 1ll * a * a % mod) if (b &amp; 1) c = 1ll * c * a % mod;
+        return c;
+    } 
+     
+    const int inv = qPow(100 , mod - 2);
+     
+    struct node {
+        int x , a , b , s , v;
+    } C[MN * 2];
+     
+    int N;
+    bool ban[MN][2][2];
+    int idx[MN &lt;&lt; 2] , val[MN &lt;&lt; 2][2][2] , foo[MN][2] , md[MN &lt;&lt; 2] , A[MN] , B[MN];
+     
+    inline void inc(int &amp;x , int y) {
+        x = x + y &lt; mod ? x + y : x + y - mod;
+    }
+    inline bool cmp(node a , node b) {
+        return 1LL * a.s * b.v &lt; 1LL * a.v * b.s;
+    }
+    inline void pushup(int now) {
+        for (int i = 0; i &lt; 2; ++i) {
+            for (int j = 0; j &lt; 2; ++j) {
+                val[now][i][j] = 0; 
+                for (int x = 0; x &lt; 2; ++x)
+                for (int y = 0; y &lt; 2; ++y) {
+                	if (!ban[md[now]][x][y]) 
+                	   inc(val[now][i][j] , 1ll * val[now &lt;&lt; 1][i][x] * val[now &lt;&lt; 1 | 1][y][j] % mod);            	   
+                }
+            }
+        }
+    }
+    inline void build(int now , int l , int r) {
+        if (l == r) {
+            val[now][0][0] = foo[l][0];
+            val[now][1][1] = foo[l][1];
+            return;
+        }
+        int mid = l + r &gt;&gt; 1;
+        md[now] = mid , idx[mid] = now;
+        build(now &lt;&lt; 1 , l , mid) , build(now &lt;&lt; 1 | 1 , mid + 1 , r);
+        pushup(now);
+    }
+     
+    int main() {
+        
+        scanf("%d" , &amp;N);
+        for (int i = 1; i &lt;= N; ++i) {
+            scanf("%d%d%d" , &amp;A[i] , &amp;B[i] , &amp;foo[i][1]);
+            foo[i][1] = 1LL * foo[i][1] * inv % mod;
+            foo[i][0] = (1 - foo[i][1] + mod) % mod;
+        }
+        build(1 , 1 , N);
+        int M = 0;
+        for (int i = 2; i &lt;= N; ++i) {
+            C[M++] = (node) {i - 1 , 1 , 0 , A[i] - A[i - 1] , B[i] + B[i - 1]};
+            if (B[i] &lt; B[i - 1]) C[M++] = (node) {i - 1 , 1 , 1 , A[i] - A[i - 1] , B[i - 1] - B[i]};
+            if (B[i] &gt; B[i - 1]) C[M++] = (node) {i - 1 , 0 , 0 , A[i] - A[i - 1] , B[i] - B[i - 1]};
+        }
+        sort(C , C + M , cmp);
+        int ans = 0 , lst = 1;
+        for (int i = 0; i &lt; M; ++i) {
+            ban[C[i].x][C[i].a][C[i].b] = 1;
+            for (int now = idx[C[i].x]; now; now &gt;&gt;= 1) pushup(now);
+            int cur = (((val[1][0][0] + val[1][0][1]) % mod) + ((val[1][1][0] + val[1][1][1]) % mod)) % mod;
+            inc(ans , 1ll * C[i].s * qPow(C[i].v , mod - 2) % mod * (((lst - cur + mod) % mod) % mod) % mod); 
+            lst = cur;
+        }
+        printf("%d\n" , ans);
+        return 0;
+    }
+</code></pre>
+<p><span class="math inline">\(E\)</span></p>
+<pre><code class="language-cpp">    #include&lt;bits/stdc++.h&gt;
+     
+    using namespace std;
+     
+    typedef long long LL;
+     
+    #define rep(i , l , r) for (int i = (l); i &lt; (r); ++i)
+     
+    const int MN = 6e5 + 5, M = 1 &lt;&lt; 30;
+    const LL mod = 1e18;
+     
+    map&lt;int , int&gt; cnt;
+    int N , w[MN], fail[MN], anc[MN], st[MN], top;
+    LL res; 
+    char s[MN];
+     
+    struct BigInt {
+    	LL a , b;
+    	inline void operator += (const LL &amp;x) {
+    		if ((b += x) &gt;= mod) b -= mod , ++a;
+    	}
+    	inline void output() {
+    		if (a) printf("%lld%018lld\n" , a , b);
+    		else printf("%lld\n" , b);
+    	}
+    	inline int val(int P) {
+    		return (a * (mod % P) + b) % P;
+    	}
+    } ans;
+     
+    int main() {
+    	 
+    	 scanf("%d" , &amp;N);
+    	 for (int i = 1 , j = 0; i &lt;= N; ++i) {
+    	 	 scanf("%s%d" , s + i , &amp;w[i]);
+    	 	 s[i] = (s[i] - 'a' + ans.val(26)) % 26 + 'a'; w[i] ^= ans.val(M) &amp; (M - 1);
+    		 anc[i - 1] = s[fail[i - 1] + 1] == s[i] ? anc[fail[i - 1]] : fail[i - 1];
+    		 while (j &amp;&amp; s[j + 1] != s[i]) j = fail[j];
+    	 	 if (i &gt; 1 &amp;&amp; s[j + 1] == s[i]) ++j;
+    		 fail[i] = j;
+    		 for (int now = i - 1 , val; now;)
+    		 	 if (s[now + 1] == s[i]) now = anc[now];
+    		 	 else val = w[*lower_bound(st + 1 , st + top + 1 , i - now)] , (--cnt[val] == 0) ? cnt.erase(val) : 0 , res -= val , now = fail[now];
+    		 while (top &amp;&amp; w[st[top]] &gt; w[i]) --top;
+    		 st[++top] = i;
+    		 if (s[i] == s[1]) ++cnt[w[i]] , res += w[i];
+    		 for (auto it = cnt.upper_bound(w[i]) , nxt = it; it != cnt.end(); ++it , cnt.erase(nxt) , nxt = it)
+    		 	cnt[w[i]] += it -&gt; second , res -= 1ll * it -&gt; second * (it -&gt; first - w[i]);
+    		 ans += res; ans.output();	 
+    	 }
+         return 0;
+    }
+</code></pre>
+<pre><code class="language-cpp">    #include &lt;bits/stdc++.h&gt;
+     
+    using namespace std;
+     
+    typedef long long LL;
+     
+    const int MN = 21;
+     
+    int N , Log[1 &lt;&lt; MN] , chk[1 &lt;&lt; MN] , f[1 &lt;&lt; MN] , siz[1 &lt;&lt; MN];
+    LL A[MN] , sum[1 &lt;&lt; MN];
+     
+    inline void chkmax(int &amp;x , int y) {
+    	x = max(x , y);
+    }
+     
+    int main() {
+    	
+    	scanf("%d" , &amp;N);
+    	for (int i = 0; i &lt; N; ++i) {
+    		scanf("%lld" , &amp;A[i]); Log[1 &lt;&lt; i] = i;
+    		if (!A[i]) --i , --N;
+    	}
+    	for (int i = 1; i &lt; (1 &lt;&lt; N); ++i)
+    		sum[i] = sum[i ^ (i &amp; (-i))] + A[Log[i &amp; (-i)]];
+    	for (int i = 0; i &lt; (1 &lt;&lt; N); ++i) {
+    		siz[i] = siz[i &gt;&gt; 1] + (i &amp; 1);
+    		if (siz[i] == 1) continue;
+    		for (int j = (i - 1) &amp; i; (2 * j &gt;= i) &amp;&amp; j; j = (j - 1) &amp; i)
+    			if (abs(sum[j] - sum[i ^ j]) &lt; siz[i] &amp;&amp; ((abs(sum[j] - sum[i ^ j]) &amp; 1) != (siz[i] &amp; 1))) {
+    				chk[i] = true;
+    				break;
+    			}
+    	}
+    	for (int s = 1; s &lt; (1 &lt;&lt; N); ++s) {
+    		if (chk[s]) {
+    			int k = ((1 &lt;&lt; N) - 1) ^ s; f[s] = max(f[s] , 1);
+    			for (int t = k; t; t = (t - 1) &amp; k) chkmax(f[s | t] , f[t] + 1);
+    		}
+    	}
+    	int ans = 0;
+    	for (int s = 0; s &lt; (1 &lt;&lt; N); ++s) chkmax(ans , f[s]);
+    	printf("%d\n" , N - ans);
+    	return 0;
+    }
+</code></pre>
+
+
+
+{% endraw %}

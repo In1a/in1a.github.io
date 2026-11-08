@@ -1,0 +1,57 @@
+---
+layout: post
+title: '[NOIP 2015] 子串'
+date: 2018-08-17 15:28:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9493526.html
+cnblogs_id: 9493526
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p>             <a href="http://uoj.ac/problem/149" target="_blank" rel="noopener nofollow"> http://uoj.ac/problem/149</a></p>
+<p>[算法]</p>
+<p>         动态规划</p>
+<p>         f[i][j][k][0 / 1]表示在A的前i位中选j个互不重叠的子串，与B的前k位相同，第i位选 / 不选的方案数</p>
+<p>         可以用滚动数组优化空间复杂度</p>
+<p>[代码]</p>
+<p>        </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 1010
+<span style="color: rgba(0, 0, 255, 1)">#define</span> MAXM 210
+<span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">int</span> P =  <span style="color: rgba(128, 0, 128, 1)">1000000007</span><span style="color: rgba(0, 0, 0, 1)">;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,j,k,x,n,m,t;
+</span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span> f[<span style="color: rgba(128, 0, 128, 1)">2</span>][MAXM][MAXM][<span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">];
+</span><span style="color: rgba(0, 0, 255, 1)">char</span><span style="color: rgba(0, 0, 0, 1)"> a[MAXN],b[MAXM];
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() 
+{
+        
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;n,&amp;m,&amp;<span style="color: rgba(0, 0, 0, 1)">t);
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%s%s</span><span style="color: rgba(128, 0, 0, 1)">"</span>,a + <span style="color: rgba(128, 0, 128, 1)">1</span>,b + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+        f[</span><span style="color: rgba(128, 0, 128, 1)">0</span>][<span style="color: rgba(128, 0, 128, 1)">0</span>][<span style="color: rgba(128, 0, 128, 1)">0</span>][<span style="color: rgba(128, 0, 128, 1)">0</span>] = <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span>  (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">0</span>; j &lt;= min(i,t); j++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (k = <span style="color: rgba(128, 0, 128, 1)">0</span>; k &lt;= m; k++<span style="color: rgba(0, 0, 0, 1)">)
+                        {
+                                f[i </span>&amp; <span style="color: rgba(128, 0, 128, 1)">1</span>][j][k][<span style="color: rgba(128, 0, 128, 1)">0</span>] = f[i &amp; <span style="color: rgba(128, 0, 128, 1)">1</span>][j][k][<span style="color: rgba(128, 0, 128, 1)">1</span>] = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                                f[i </span>&amp; <span style="color: rgba(128, 0, 128, 1)">1</span>][j][k][<span style="color: rgba(128, 0, 128, 1)">0</span>] = (1ll * f[(i - <span style="color: rgba(128, 0, 128, 1)">1</span>) &amp; <span style="color: rgba(128, 0, 128, 1)">1</span>][j][k][<span style="color: rgba(128, 0, 128, 1)">0</span>] + 1ll * f[(i - <span style="color: rgba(128, 0, 128, 1)">1</span>) &amp; <span style="color: rgba(128, 0, 128, 1)">1</span>][j][k][<span style="color: rgba(128, 0, 128, 1)">1</span>]) %<span style="color: rgba(0, 0, 0, 1)"> P;
+                                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (j == <span style="color: rgba(128, 0, 128, 1)">0</span> || k == <span style="color: rgba(128, 0, 128, 1)">0</span>) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (a[i] == b[k]) f[i &amp; <span style="color: rgba(128, 0, 128, 1)">1</span>][j][k][<span style="color: rgba(128, 0, 128, 1)">1</span>] = (1ll * f[(i - <span style="color: rgba(128, 0, 128, 1)">1</span>) &amp; <span style="color: rgba(128, 0, 128, 1)">1</span>][j - <span style="color: rgba(128, 0, 128, 1)">1</span>][k - <span style="color: rgba(128, 0, 128, 1)">1</span>][<span style="color: rgba(128, 0, 128, 1)">0</span>] + 1ll * f[(i - <span style="color: rgba(128, 0, 128, 1)">1</span>) &amp; <span style="color: rgba(128, 0, 128, 1)">1</span>][j - <span style="color: rgba(128, 0, 128, 1)">1</span>][k - <span style="color: rgba(128, 0, 128, 1)">1</span>][<span style="color: rgba(128, 0, 128, 1)">1</span>] + 1ll * f[(i - <span style="color: rgba(128, 0, 128, 1)">1</span>) &amp; <span style="color: rgba(128, 0, 128, 1)">1</span>][j][k - <span style="color: rgba(128, 0, 128, 1)">1</span>][<span style="color: rgba(128, 0, 128, 1)">1</span>]) %<span style="color: rgba(0, 0, 0, 1)"> P;
+                        }
+                }        
+        } 
+        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%lld\n</span><span style="color: rgba(128, 0, 0, 1)">"</span>,(f[n &amp; <span style="color: rgba(128, 0, 128, 1)">1</span>][t][m][<span style="color: rgba(128, 0, 128, 1)">0</span>] + f[n &amp; <span style="color: rgba(128, 0, 128, 1)">1</span>][t][m][<span style="color: rgba(128, 0, 128, 1)">1</span>]) %<span style="color: rgba(0, 0, 0, 1)"> P);
+         
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

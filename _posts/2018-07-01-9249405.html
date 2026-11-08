@@ -1,0 +1,96 @@
+---
+layout: post
+title: '【BZOJ 2160】 拉拉队排练'
+date: 2018-07-01 09:31:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9249405.html
+cnblogs_id: 9249405
+---
+{% raw %}
+
+<p>【题目链接】</p>
+<p>            <a href="https://www.lydsy.com/JudgeOnline/problem.php?id=2160" target="_blank" rel="noopener nofollow">https://www.lydsy.com/JudgeOnline/problem.php?id=2160</a></p>
+<p>【算法】</p>
+<p>           先简化题意 ： 给定一个字符串，求最长的k个奇回文子串长度的乘积</p>
+<p>           先运行Manacher算法，对于每个位置i，我们知道以i为中心的回文串的最长半径为pi，那么i这个位置对半径为1-p[i]的回文串的个数都产生了1的”贡献“</p>
+<p>           因此，我们可以用差分求出任意半径的回文串个数，然后统计答案即可，注意要用快速幂</p>
+<p>【代码】</p>
+<p>           </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 1000010
+<span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">int</span> P = <span style="color: rgba(128, 0, 128, 1)">19930726</span><span style="color: rgba(0, 0, 0, 1)">;
+typedef </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> ll;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,len,n;
+ll sum,ans,k;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> p[MAXN];
+ll cnt[MAXN];
+</span><span style="color: rgba(0, 0, 255, 1)">char</span><span style="color: rgba(0, 0, 0, 1)"> s[MAXN];
+
+inline ll power(ll a,ll n)
+{
+        ll ans </span>= <span style="color: rgba(128, 0, 128, 1)">1</span>,b =<span style="color: rgba(0, 0, 0, 1)"> a;
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span><span style="color: rgba(0, 0, 0, 1)"> (n)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (n &amp; <span style="color: rgba(128, 0, 128, 1)">1</span>) ans = 1ll * ans * b %<span style="color: rgba(0, 0, 0, 1)"> P;
+                n </span>&gt;&gt;= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                b </span>= 1ll * b * b %<span style="color: rgba(0, 0, 0, 1)"> P;
+        }    
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> ans;
+}
+    
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> Manacher()
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> i,pos = <span style="color: rgba(128, 0, 128, 1)">0</span>,mx = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= len; i++<span style="color: rgba(0, 0, 0, 1)">)    
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (mx &gt; i)    p[i] = min(p[<span style="color: rgba(128, 0, 128, 1)">2</span>*pos-i],mx-<span style="color: rgba(0, 0, 0, 1)">i);
+                </span><span style="color: rgba(0, 0, 255, 1)">else</span> p[i] = <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">while</span> (i - p[i] &gt;= <span style="color: rgba(128, 0, 128, 1)">1</span> &amp;&amp; i + p[i] &lt;= len &amp;&amp; s[i-p[i]] == s[i+p[i]]) p[i]++<span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (i + p[i] - <span style="color: rgba(128, 0, 128, 1)">1</span> &gt;<span style="color: rgba(0, 0, 0, 1)"> mx)
+                {
+                        mx </span>= i + p[i] - <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                        pos </span>=<span style="color: rgba(0, 0, 0, 1)"> i;        
+                } 
+        }    
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() 
+{
+        
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%lld%s</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;n,&amp;k,s+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+        len </span>= strlen(s+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+        Manacher();
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= len; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                cnt[</span><span style="color: rgba(128, 0, 128, 1)">1</span>]++<span style="color: rgba(0, 0, 0, 1)">;
+                cnt[p[i]</span>+<span style="color: rgba(128, 0, 128, 1)">1</span>]--<span style="color: rgba(0, 0, 0, 1)">;        
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= (len + <span style="color: rgba(128, 0, 128, 1)">1</span>) / <span style="color: rgba(128, 0, 128, 1)">2</span>; i++) cnt[i] += cnt[i-<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+        sum </span>= <span style="color: rgba(128, 0, 128, 1)">0</span>; ans = <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = (len + <span style="color: rgba(128, 0, 128, 1)">1</span>) / <span style="color: rgba(128, 0, 128, 1)">2</span>; i &gt;= <span style="color: rgba(128, 0, 128, 1)">1</span>; i--<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (cnt[i] &lt;= <span style="color: rgba(128, 0, 128, 1)">0</span>) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (sum + cnt[i] &lt;<span style="color: rgba(0, 0, 0, 1)"> k) 
+                {
+                        sum </span>+=<span style="color: rgba(0, 0, 0, 1)"> cnt[i];
+                        ans </span>= 1ll * ans * power(<span style="color: rgba(128, 0, 128, 1)">2</span>*i-<span style="color: rgba(128, 0, 128, 1)">1</span>,cnt[i]) %<span style="color: rgba(0, 0, 0, 1)"> P;
+                } </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)">
+                {
+                        ans </span>= 1ll * ans * power(<span style="color: rgba(128, 0, 128, 1)">2</span>*i-<span style="color: rgba(128, 0, 128, 1)">1</span>,k-sum) %<span style="color: rgba(0, 0, 0, 1)"> P;
+                        sum </span>+=<span style="color: rgba(0, 0, 0, 1)"> cnt[i];
+                        </span><span style="color: rgba(0, 0, 255, 1)">break</span><span style="color: rgba(0, 0, 0, 1)">; 
+                }
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (sum &lt; k) printf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">-1\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">);
+        </span><span style="color: rgba(0, 0, 255, 1)">else</span> printf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%lld\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,ans);
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+     
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

@@ -1,0 +1,160 @@
+---
+layout: post
+title: '【JSOI 2014】序列维护'
+date: 2018-03-03 18:47:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9196412.html
+cnblogs_id: 9196412
+---
+{% raw %}
+
+<p>【题目链接】</p>
+<p>           <a href="http://www.lydsy.com/JudgeOnline/problem.php?id=5039" rel="noopener nofollow">点击打开链接</a></p>
+<p>【算法】</p>
+<p>         线段树</p>
+<p>         注意标记下传</p>
+<p>【代码】</p>
+<p>          </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 500000<span style="color: rgba(0, 0, 0, 1)">
+
+typedef </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> LL;
+
+</span><span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> SegTreeNode {
+    LL l,r,sum,lazya,lazyb;    
+}tree[MAXN</span>+<span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">];
+
+LL i,N,P,Q,l,r,x,opt;
+LL a[MAXN</span>+<span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">];
+
+template </span>&lt;typename T&gt; <span style="color: rgba(0, 0, 255, 1)">void</span> read(T &amp;<span style="color: rgba(0, 0, 0, 1)">x) {
+    LL f</span>=<span style="color: rgba(128, 0, 128, 1)">1</span>; <span style="color: rgba(0, 0, 255, 1)">char</span> c = getchar(); x=<span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; !isdigit(c); c = getchar()) { <span style="color: rgba(0, 0, 255, 1)">if</span> (c==<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>) f=-<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">; }
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; isdigit(c); c = getchar()) x=x*<span style="color: rgba(128, 0, 128, 1)">10</span>+c-<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">;
+    x</span>*=<span style="color: rgba(0, 0, 0, 1)">f;
+}
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> write(LL x) {
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (x &lt; <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">) {
+        putchar(</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">);
+        x </span>= -<span style="color: rgba(0, 0, 0, 1)">x;
+    }
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (x / <span style="color: rgba(128, 0, 128, 1)">10</span> &gt; <span style="color: rgba(128, 0, 128, 1)">0</span>) write(x/<span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">);
+    putchar(x</span>%<span style="color: rgba(128, 0, 128, 1)">10</span>+<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">);    
+} 
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> pushup(LL index) {
+    tree[index].sum </span>= (tree[index*<span style="color: rgba(128, 0, 128, 1)">2</span>].sum + tree[index*<span style="color: rgba(128, 0, 128, 1)">2</span>+<span style="color: rgba(128, 0, 128, 1)">1</span>].sum) %<span style="color: rgba(0, 0, 0, 1)"> P;    
+}
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> pushdown(LL index) { 
+    tree[index</span>*<span style="color: rgba(128, 0, 128, 1)">2</span>].sum = (tree[index*<span style="color: rgba(128, 0, 128, 1)">2</span>].sum * tree[index].lazya + tree[index].lazyb * (tree[index*<span style="color: rgba(128, 0, 128, 1)">2</span>].r - tree[index*<span style="color: rgba(128, 0, 128, 1)">2</span>].l + <span style="color: rgba(128, 0, 128, 1)">1</span>)) %<span style="color: rgba(0, 0, 0, 1)"> P;
+    tree[index</span>*<span style="color: rgba(128, 0, 128, 1)">2</span>+<span style="color: rgba(128, 0, 128, 1)">1</span>].sum = (tree[index*<span style="color: rgba(128, 0, 128, 1)">2</span>+<span style="color: rgba(128, 0, 128, 1)">1</span>].sum * tree[index].lazya + tree[index].lazyb * (tree[index*<span style="color: rgba(128, 0, 128, 1)">2</span>+<span style="color: rgba(128, 0, 128, 1)">1</span>].r - tree[index*<span style="color: rgba(128, 0, 128, 1)">2</span>+<span style="color: rgba(128, 0, 128, 1)">1</span>].l + <span style="color: rgba(128, 0, 128, 1)">1</span>)) %<span style="color: rgba(0, 0, 0, 1)"> P;
+    tree[index</span>*<span style="color: rgba(128, 0, 128, 1)">2</span>].lazya = (tree[index*<span style="color: rgba(128, 0, 128, 1)">2</span>].lazya * tree[index].lazya) %<span style="color: rgba(0, 0, 0, 1)"> P;
+    tree[index</span>*<span style="color: rgba(128, 0, 128, 1)">2</span>+<span style="color: rgba(128, 0, 128, 1)">1</span>].lazya = (tree[index*<span style="color: rgba(128, 0, 128, 1)">2</span>+<span style="color: rgba(128, 0, 128, 1)">1</span>].lazya * tree[index].lazya) %<span style="color: rgba(0, 0, 0, 1)"> P;
+    tree[index</span>*<span style="color: rgba(128, 0, 128, 1)">2</span>].lazyb = (tree[index*<span style="color: rgba(128, 0, 128, 1)">2</span>].lazyb * tree[index].lazya + tree[index].lazyb) %<span style="color: rgba(0, 0, 0, 1)"> P;
+    tree[index</span>*<span style="color: rgba(128, 0, 128, 1)">2</span>+<span style="color: rgba(128, 0, 128, 1)">1</span>].lazyb = (tree[index*<span style="color: rgba(128, 0, 128, 1)">2</span>+<span style="color: rgba(128, 0, 128, 1)">1</span>].lazyb * tree[index].lazya + tree[index].lazyb) %<span style="color: rgba(0, 0, 0, 1)"> P;
+    tree[index].lazya </span>= <span style="color: rgba(128, 0, 128, 1)">1</span>; tree[index].lazyb = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+}
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> build(LL index,LL l,LL r) {
+    LL mid;
+    tree[index].l </span>=<span style="color: rgba(0, 0, 0, 1)"> l;
+    tree[index].r </span>=<span style="color: rgba(0, 0, 0, 1)"> r;
+    tree[index].lazya </span>= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">; 
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (l == r) tree[index].sum = a[l] %<span style="color: rgba(0, 0, 0, 1)"> P;
+    </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)"> {
+        mid </span>= (l + r) &gt;&gt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        build(index</span>*<span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">,l,mid);
+        build(index</span>*<span style="color: rgba(128, 0, 128, 1)">2</span>+<span style="color: rgba(128, 0, 128, 1)">1</span>,mid+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">,r);
+        pushup(index);
+    }    
+}
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> changea(<span style="color: rgba(0, 0, 255, 1)">int</span> index,<span style="color: rgba(0, 0, 255, 1)">int</span> l,<span style="color: rgba(0, 0, 255, 1)">int</span> r,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x) {
+    LL mid;
+    pushdown(index);
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> ((tree[index].l == l) &amp;&amp; (tree[index].r ==<span style="color: rgba(0, 0, 0, 1)"> r)) {
+        tree[index].sum </span>= tree[index].sum * x %<span style="color: rgba(0, 0, 0, 1)"> P; 
+        tree[index].lazya </span>= (tree[index].lazya * x) %<span style="color: rgba(0, 0, 0, 1)"> P;  
+        tree[index].lazyb </span>= (tree[index].lazyb * x) %<span style="color: rgba(0, 0, 0, 1)"> P;
+    }</span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)"> {
+            </span><span style="color: rgba(0, 0, 255, 1)">if</span> (tree[index].l == tree[index].r) <span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)">;
+        mid </span>= (tree[index].l + tree[index].r) &gt;&gt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+           </span><span style="color: rgba(0, 0, 255, 1)">if</span> (r &lt;= mid) changea(index*<span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">,l,r,x);
+        </span><span style="color: rgba(0, 0, 255, 1)">else</span> <span style="color: rgba(0, 0, 255, 1)">if</span> (l &gt;= mid + <span style="color: rgba(128, 0, 128, 1)">1</span>) changea(index*<span style="color: rgba(128, 0, 128, 1)">2</span>+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">,l,r,x);
+        </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)"> {
+            changea(index</span>*<span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">,l,mid,x);
+            changea(index</span>*<span style="color: rgba(128, 0, 128, 1)">2</span>+<span style="color: rgba(128, 0, 128, 1)">1</span>,mid+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">,r,x);
+        }
+        pushup(index);
+    } 
+}
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> changeb(LL index,LL l,LL r,LL x) {
+    LL mid;
+    pushdown(index);
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> ((tree[index].l == l) &amp;&amp; (tree[index].r ==<span style="color: rgba(0, 0, 0, 1)"> r)) {
+        tree[index].sum </span>= (tree[index].sum + x * (tree[index].r - tree[index].l + <span style="color: rgba(128, 0, 128, 1)">1</span>)) %<span style="color: rgba(0, 0, 0, 1)"> P;
+        tree[index].lazyb </span>= (tree[index].lazyb + x) %<span style="color: rgba(0, 0, 0, 1)"> P;  
+    }</span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)"> {
+            </span><span style="color: rgba(0, 0, 255, 1)">if</span> (tree[index].l == tree[index].r) <span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)">;
+        mid </span>= (tree[index].l + tree[index].r) &gt;&gt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (r &lt;= mid) changeb(index*<span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">,l,r,x);
+        </span><span style="color: rgba(0, 0, 255, 1)">else</span> <span style="color: rgba(0, 0, 255, 1)">if</span> (l &gt;= mid + <span style="color: rgba(128, 0, 128, 1)">1</span>) changeb(index*<span style="color: rgba(128, 0, 128, 1)">2</span>+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">,l,r,x);
+        </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)"> {
+            </span><span style="color: rgba(0, 0, 255, 1)">if</span> (tree[index].l == tree[index].r) <span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)">;
+            changeb(index</span>*<span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">,l,mid,x);
+            changeb(index</span>*<span style="color: rgba(128, 0, 128, 1)">2</span>+<span style="color: rgba(128, 0, 128, 1)">1</span>,mid+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">,r,x);
+        }
+        pushup(index);
+    } 
+}
+
+inline LL query(LL index,LL l,LL r) {
+    LL mid;
+    pushdown(index);
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> ((tree[index].l == l) &amp;&amp; (tree[index].r == r)) <span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> tree[index].sum;  
+    </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)"> {
+            </span><span style="color: rgba(0, 0, 255, 1)">if</span> (tree[index].l == tree[index].r) <span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        mid </span>= (tree[index].l + tree[index].r) &gt;&gt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (r &lt;= mid) <span style="color: rgba(0, 0, 255, 1)">return</span> query(index*<span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">,l,r);
+        </span><span style="color: rgba(0, 0, 255, 1)">else</span> <span style="color: rgba(0, 0, 255, 1)">if</span> (l &gt;= mid + <span style="color: rgba(128, 0, 128, 1)">1</span>) <span style="color: rgba(0, 0, 255, 1)">return</span> query(index*<span style="color: rgba(128, 0, 128, 1)">2</span>+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">,l,r);
+        </span><span style="color: rgba(0, 0, 255, 1)">else</span> <span style="color: rgba(0, 0, 255, 1)">return</span> (query(index*<span style="color: rgba(128, 0, 128, 1)">2</span>,l,mid) + query(index*<span style="color: rgba(128, 0, 128, 1)">2</span>+<span style="color: rgba(128, 0, 128, 1)">1</span>,mid+<span style="color: rgba(128, 0, 128, 1)">1</span>,r)) %<span style="color: rgba(0, 0, 0, 1)"> P;
+    }
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() {
+    
+    read(N); read(P);
+    
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= N; i++<span style="color: rgba(0, 0, 0, 1)">) read(a[i]);
+    
+    build(</span><span style="color: rgba(128, 0, 128, 1)">1</span>,<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">,N);
+    
+    read(Q);
+    
+    </span><span style="color: rgba(0, 0, 255, 1)">while</span> (Q--<span style="color: rgba(0, 0, 0, 1)">) {
+        read(opt);
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (opt == <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">) {
+            read(l); read(r); read(x);
+            changea(</span><span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">,l,r,x);
+        }</span><span style="color: rgba(0, 0, 255, 1)">else</span> <span style="color: rgba(0, 0, 255, 1)">if</span> (opt == <span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">) {
+            read(l); read(r); read(x);
+            changeb(</span><span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">,l,r,x);
+        }</span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)"> {
+            read(l); read(r);
+            write(query(</span><span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">,l,r));
+            puts(</span><span style="color: rgba(128, 0, 0, 1)">""</span><span style="color: rgba(0, 0, 0, 1)">);    
+        }
+    }    
+    
+    </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+} </span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

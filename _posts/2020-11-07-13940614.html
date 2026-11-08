@@ -1,0 +1,102 @@
+---
+layout: post
+title: '[CF1214H] Tiles Placement'
+date: 2020-11-07 12:26:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/13940614.html
+cnblogs_id: 13940614
+---
+{% raw %}
+
+<p>[题目链接] :</p>
+<p><a href="" rel="noopener nofollow">https://codeforces.com/contest/1214/problem/H</a></p>
+<p>[题解] ：</p>
+<p>首先判断不合法的情况 ：</p>
+<p><img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202011/1424311-20201107121033712-1102840133.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202011/1424311-20201107121033712-1102840133.png"></p>
+<p>如图 ， 若 <span class="math inline">\(a + b \geq k - 1 , b + c \geq k - 1 , a + c \geq k - 1\)</span> , 显然没有任何一种方案可以满足条件。</p>
+<p>这种情况可以通过动态规划判断。</p>
+<p>可以证明 ， 除了这种情况 ， 其它情况都是合法的。 下面给出一种具体的构造方案。</p>
+<p><span class="math inline">\(1.\)</span> 找出树的直径。</p>
+<p><span class="math inline">\(2.\)</span> 将树的直径平均分为两部分。</p>
+<p><span class="math inline">\(3.\)</span> 将直径上的点用 <span class="math inline">\(1 , 2 , 3 , ... k , 1 , 2 , 3 , ... k\)</span> 交替染色。 不在直径上的点 ， 如果在直径的左侧部分 ， 那</p>
+<p>么就用 <span class="math inline">\(k , k - 1 , ... 1\)</span> 递减染色 ， 否则用 <span class="math inline">\(2 , 3 , ... k\)</span> 递增染色。</p>
+<p>如图 ：</p>
+<p><img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202011/1424311-20201107121845048-990687858.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202011/1424311-20201107121845048-990687858.png"></p>
+<p>下面证明这个构造的正确性 ， 考虑反证 ， 设有一条路径不合法。</p>
+<p><img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202011/1424311-20201107121539066-1748755112.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202011/1424311-20201107121539066-1748755112.png"></p>
+<p>情况 <span class="math inline">\(1\)</span> : 不合法的路径与直径不交 ， 如图 ， 由直径的性质 ， 蓝色部分的长度比 <span class="math inline">\(v\)</span> 左右两侧的路径都要长。 因此这样的情况</p>
+<p>根本不存在。</p>
+<p><img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202011/1424311-20201107121953569-1950197562.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202011/1424311-20201107121953569-1950197562.png"></p>
+<p>情况 <span class="math inline">\(2\)</span> : 不合法的路径与直径一侧有交。 这样的情况也不存在 ， 和情况 <span class="math inline">\(1\)</span> 类似。</p>
+<p><img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202011/1424311-20201107122112402-1944317855.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202011/1424311-20201107122112402-1944317855.png"></p>
+<p>情况 <span class="math inline">\(3\)</span> ： 不合法的路径跨过直径的两部分 ， 那么根据刚才的染色方案 ， 这样的情况不可能发生。</p>
+<p>时间复杂度 : <span class="math inline">\(O(N)\)</span></p>
+<p>[代码]</p>
+<pre><code class="language-cpp">#include&lt;bits/stdc++.h&gt;
+
+using namespace std;
+
+typedef long long LL;
+
+#define rep(i , l , r) for (int i = (l); i &lt; (r); ++i)
+
+const int MN = 5e5 + 5;
+
+struct Edge {
+	int to , nxt;
+} E[MN &lt;&lt; 1];
+
+int N , K , r1 , r2 , d1 , d2 , tot;
+int head[MN] , s1[MN] , s2[MN];
+
+inline void AddEdge(int u , int v) {
+	E[++tot] = (Edge) {v , head[u]};
+	head[u] = tot;
+}
+inline void dfs1(int x , int fa , int dep) {
+	if (dep &gt; d1) r1 = x , d1 = dep;
+	for (int i = head[x]; i; i = E[i].nxt) if (E[i].to != fa)
+		dfs1(E[i].to , x , dep + 1);
+}
+inline void dfs2(int x) {
+	if (s1[x] &gt; s1[r2]) r2 = x;
+	for (int i = head[x]; i; i = E[i].nxt) if (!s1[E[i].to]) {
+		s1[E[i].to] = s1[x] + 1;
+		dfs2(E[i].to);
+	}
+} 
+inline void dfs3(int x) {
+	for (int i = head[x]; i; i = E[i].nxt) if (!s2[E[i].to]) {
+		s2[E[i].to] = s2[x] - 1;
+		dfs3(E[i].to);
+	}
+}
+
+int main() {
+	 
+	 scanf("%d%d" , &amp;N , &amp;K);
+	 for (int i = 1; i &lt; N; ++i) {
+	 	 int u , v;
+	 	 scanf("%d%d" , &amp;u , &amp;v);
+	 	 AddEdge(u , v); AddEdge(v , u); 
+	 }	 
+	 dfs1(1 , 0 , 1);
+	 s1[r1] = 1; dfs2(r1);
+	 s2[r2] = s1[r2]; dfs3(r2);
+	 for (int i = 1; i &lt;= N; ++i)
+	 	 if (s1[i] &gt;= K &amp;&amp; s2[r2] - s2[i] + 1 &gt;= K &amp;&amp; s1[i] % K != s2[i] % K) {
+			puts("No");
+			return 0;
+		}
+	 puts("Yes");
+	 for (int i = 1; i &lt;= N; ++i) {
+		 if (s1[i] &gt;= s2[r2] - s2[i] + 1) printf("%d" , (s1[i] - 1) % K + 1);
+		 else printf("%d" , (s2[i] - 1) % K + 1);
+		 putchar((i == N) ? '\n' : ' ');
+	 } 
+     return 0;
+}
+`</code></pre>
+
+
+
+{% endraw %}

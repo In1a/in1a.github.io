@@ -1,0 +1,129 @@
+---
+layout: post
+title: '[CF1464F] My Beautiful Madness'
+date: 2021-03-02 16:43:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/14469744.html
+cnblogs_id: 14469744
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p><a href="" rel="noopener nofollow">http://codeforces.com/contest/1464/problem/F</a></p>
+<p>[题解]</p>
+<p>判断一个集合是复杂的 ， 考虑如何选择一个点 ， 只需判断这个点是否满足条件即可。</p>
+<p>结论 : 此点为深度最大的 <span class="math inline">\(LCA\)</span> 的 <span class="math inline">\(d\)</span> 级祖先 <span class="math inline">\(u\)</span> 。</p>
+<p>显然子树内的路径满足条件。</p>
+<p>下面只需考虑子树外的。</p>
+<p>不妨求出 <span class="math inline">\(u\)</span> 的 <span class="math inline">\(d\)</span> 级祖先 <span class="math inline">\(v\)</span> ， 显然所有路径要么在 <span class="math inline">\(v\)</span> 的子树内 ， 要么穿过 <span class="math inline">\(v\)</span>。</p>
+<p>求出树的 <span class="math inline">\(DFS\)</span> 序 ， 树上差分 + 线段树维护路径数量。</p>
+<p>由于离一个点最远的点必然是直径的两个端点之一 ， 故线段树维护直径 ， 找出 <span class="math inline">\(v\)</span> 子树中离 <span class="math inline">\(u\)</span> 最远的点 ， 判断与 <span class="math inline">\(x\)</span> 的大小关系即可。</p>
+<p>时间复杂度 : <span class="math inline">\(O(NlogN)\)</span></p>
+<p>[代码]</p>
+<pre><code class="language-cpp">#include&lt;bits/stdc++.h&gt;
+ 
+using namespace std;
+ 
+typedef long long LL;
+ 
+#define rep(i , l , r) for (int i = (l); i &lt; (r); ++i)
+ 
+typedef pair &lt; int , int &gt; pii;
+ 
+const int MN = 4e5 + 5 , LOG = 20;
+ 
+int N , Q , o[MN] , id[MN] , eid[MN] , dfn , dep[MN] , cnt[MN];
+vector &lt; int &gt; g[MN];
+int ID[MN] , lg[MN &lt;&lt; 1] , tot , st[MN &lt;&lt; 1][LOG] , up[MN][LOG] , fa[MN];
+ 
+inline void dfs(int u) {
+	o[id[u] = ++dfn] = u; st[ID[u] = ++tot][0] = u;
+	up[u][0] = fa[u];
+	for (int i = 1; i &lt; LOG; ++i) up[u][i] = up[up[u][i - 1]][i - 1];
+	for (int v : g[u]) if (v != fa[u]) {
+		fa[v] = u , dep[v] = dep[u] + 1;
+	    dfs(v) , st[++tot][0] = u;
+	}
+	eid[u] = dfn;
+}
+inline int cmp(int x, int y) {return dep[x] &gt; dep[y] ? y : x;}
+inline void build(int n) {
+  for (int i = 2; i &lt;= n; ++i) lg[i] = lg[i &gt;&gt; 1] + 1;
+  for (int k = 1; k &lt; LOG; ++k)
+    for (int i = 1; i &lt;= n - (1 &lt;&lt; k) + 1; ++i) 
+      st[i][k] = cmp(st[i][k - 1], st[i + (1 &lt;&lt; k - 1)][k - 1]);
+}
+inline int LCA(int u, int v) {
+  if (id[u] &gt; id[v]) swap(u, v);
+  u = ID[u], v = ID[v]; int t = lg[v - u + 1];
+  return cmp(st[u][t], st[v - (1 &lt;&lt; t) + 1][t]);
+}
+inline int dist(int u , int v) {
+	return (u &amp;&amp; v) ? dep[u] + dep[v] - 2 * dep[LCA(u, v)] : -1;
+}
+inline int jump(int u , int d) {
+  if (dep[u] &lt;= d) return 1;
+  for (; d; d &amp;= d - 1) u = up[u][__builtin_ctz(d)];
+  return u;
+}
+struct BIT {
+  int sum[MN];
+  inline void add(int x, int y) {for (; x &lt;= N; x += x &amp; -x) sum[x] += y;}
+  inline int query(int x) {int res = 0; for (; x; x -= x &amp; -x) res += sum[x]; return res;}
+  inline int query(int l, int r) { return query(r) - query(l - 1);}
+} tr;
+ 
+struct node {
+  int x, y, z;
+  node(int _x = 0, int _y = 0) {x = _x, y = _y, z = dist(x, y);}
+  inline friend bool operator &lt; (const node &amp;A, const node &amp;B) { return A.z &lt; B.z; }
+  inline friend node operator ^ (const node &amp;A, const node &amp;B) { return std::max({A, B, node(A.x, B.x), node(A.x, B.y), node(A.y, B.x), node(A.y, B.y)});}
+} diam[MN &lt;&lt; 2];
+ 
+void modify(int p, int l, int r, int pos, bool tp) {
+  if (l == r) return void(diam[p] = node(tp * o[pos], tp * o[pos]));
+  int mid = l + r &gt;&gt; 1; mid &gt;= pos ? modify(p &lt;&lt; 1, l, mid, pos, tp) : modify(p &lt;&lt; 1 | 1, mid + 1, r, pos, tp);
+  diam[p] = diam[p &lt;&lt; 1] ^ diam[p &lt;&lt; 1 | 1];
+}
+node query(int p, int l, int r, int L, int R) {
+  if (l &gt;= L &amp;&amp; r &lt;= R) return diam[p];
+  int mid = l + r &gt;&gt; 1;
+  if (mid &gt;= L &amp;&amp; mid &lt; R) return query(p &lt;&lt; 1, l, mid, L, R) ^ query(p &lt;&lt; 1 | 1, mid + 1, r, L, R);
+  if (mid &gt;= L) return query(p &lt;&lt; 1, l, mid, L, R);
+  return query(p &lt;&lt; 1 | 1, mid + 1, r, L, R);
+}
+ 
+set &lt; pii &gt; S;
+ 
+int main() {
+ 	 
+	 scanf("%d%d" , &amp;N , &amp;Q);
+	 for (int i = 1 , u , v; i &lt; N; ++i) {
+	 	 scanf("%d%d" , &amp;u , &amp;v);
+	 	 g[u].emplace_back(v) , g[v].emplace_back(u);
+	 }
+	 dfs(1) , build(tot);
+	 for (int i = 1 , op , x , y , c = 0; i &lt;= Q; ++i) {
+	 	 scanf("%d%d" , &amp;op , &amp;x);
+	 	 if (op == 3) {
+	 	 	int v = jump(S.rbegin()-&gt;second, x), v1 = jump(v, x);
+	        if (tr.query(id[v1], eid[v1]) != c) {puts("No"); continue;}
+	        node tmp = query(1 , 1 , N , id[v1] , eid[v1]);
+	        puts(std::max(dist(tmp.x, v), dist(tmp.y, v)) &gt; x ? "No" : "Yes"); 
+		 } else {
+		 	 scanf("%d", &amp;y); int z = LCA(x, y);
+	         if (op == 1) {
+	       		 ++c; if (!cnt[z]++) S.insert({dep[z], z}), modify(1, 1, N, id[z], 1);
+	        	 tr.add(id[x], 1), tr.add(id[y], 1), tr.add(id[z], -1);
+	      	 } else {
+	        	--c; if (!--cnt[z]) S.erase({dep[z], z}), modify(1, 1, N, id[z], 0);
+	        	tr.add(id[x], -1), tr.add(id[y], -1), tr.add(id[z], 1);
+	         }
+		 }
+	 }
+     return 0;
+}
+</code></pre>
+
+
+
+{% endraw %}

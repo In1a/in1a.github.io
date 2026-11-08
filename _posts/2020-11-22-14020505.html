@@ -1,0 +1,116 @@
+---
+layout: post
+title: '[CF1442 C] Graph Transpositions'
+date: 2020-11-22 19:11:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/14020505.html
+cnblogs_id: 14020505
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p><a href="" rel="noopener nofollow">https://codeforces.com/contest/1442/problem/C</a></p>
+<p>[题解]</p>
+<p>首先考虑最朴素的做法。</p>
+<p>记 <span class="math inline">\(f_{i , j}\)</span> 表示现在在 <span class="math inline">\(i\)</span> ， 经过 <span class="math inline">\(j\)</span> 次翻转操作的最小值。 这是个简单的分层图最短路问题。</p>
+<p>问题在于 <span class="math inline">\(j\)</span> 的范围是 <span class="math inline">\(O(N)\)</span> 级别的。</p>
+<p>但考虑每次翻转的花费 <span class="math inline">\(2 ^ {K}\)</span> 在 <span class="math inline">\(K \geq 18\)</span> 时就会超过 <span class="math inline">\(N\)</span> , 不妨先对所有 <span class="math inline">\(j \leq 18\)</span> 做一遍最短路。</p>
+<p>对于 <span class="math inline">\(K \leq 18\)</span> 的情况。显然对于每一层 ， 多走 <span class="math inline">\(1\)</span> 是不劣的。 因此直接枚举层数进行最短路即可。</p>
+<p>时间复杂度 : <span class="math inline">\(O(NK)\)</span></p>
+<p>[代码]</p>
+<pre><code class="language-cpp">
+#include &lt;bits/stdc++.h&gt;
+ 
+using namespace std;
+ 
+typedef long long LL;
+ 
+const int MN = 2e5 + 5;
+const int INF = 2e9;
+const int mod = 998244353;
+ 
+typedef pair &lt; int , int &gt; pii;
+#define mp make_pair
+ 
+int N , M , res;
+vector &lt; int &gt; E[2][MN];
+int dp[MN][19] , inq[MN][19] , dis[MN] , two[MN];
+queue &lt; pii &gt; q;
+ 
+inline void AddEdge(int u , int v , int type) {
+	E[type][u].push_back(v);
+	return;
+}
+inline void chkmin(int &amp;x , int y) {
+	x = min(x , y);
+}
+inline void sssp() {
+	for (int i = 1; i &lt;= N; ++i) 
+	for (int j = 0; j &lt;= 18; ++j)
+		dp[i][j] = INF;
+	dp[1][0] = 0;
+	q.push(mp(1 , 0));
+	while (!q.empty()) {
+		int u = q.front().first , k = q.front().second;
+		q.pop(); inq[u][k] = false;
+	 	for (auto v : E[k &amp; 1][u]) {
+	 		 if (dp[u][k] + 1 &lt; dp[v][k]) {
+	 		 	 dp[v][k] = dp[u][k] + 1;
+				 if (!inq[v][k]) {
+				 	 inq[v][k] = true;
+				 	 q.push(mp(v , k));
+				 } 
+			 } 
+		 }
+		 if (k &lt; 18 &amp;&amp; dp[u][k] + (1 &lt;&lt; k) &lt; dp[u][k + 1]) {
+		 	 dp[u][k + 1] = dp[u][k] + (1 &lt;&lt; k);
+		 	 if (!inq[u][k + 1]) {
+			  	 inq[u][k + 1] = true;
+				 q.push(mp(u , k + 1));
+			 }
+		 }
+	} 
+	for (int i = 0; i &lt;= 18; ++i) chkmin(res , dp[N][i]);
+}
+ 
+int main() {
+	
+	scanf("%d%d" , &amp;N , &amp;M);
+	for (int i = 1; i &lt;= M; ++i) {
+		int u , v; scanf("%d%d" , &amp;u , &amp;v);
+		AddEdge(u , v , 0) , AddEdge(v , u , 1);
+	}
+	res = INF; sssp();
+	if (res &lt; INF) {
+		printf("%d\n" , res);
+		return 0;
+	}
+	for (int i = 1; i &lt;= N; ++i) dis[i] = INF; 
+	two[0] = 1;
+	for (int i = 1; i &lt;= N; ++i) two[i] = 2ll * two[i - 1] % mod;
+	queue &lt; int &gt; q , qq;
+	q.push(1); dis[1] = 0; qq.push(1);
+	for (int k = 0; ; ++k) {
+		while (!q.empty()) {
+			int u = q.front(); q.pop();
+			if (u == N) {
+				printf("%d\n" , 1LL * ((dis[u] + two[k] - 1) % mod + mod) % mod);
+				return 0;
+			}
+			for (int v : E[k &amp; 1][u]) 
+				if (dis[u] + 1 &lt; dis[v]) {
+					dis[v] = dis[u] + 1;
+					q.push(v); qq.push(v);	
+				}
+		}	
+		while (!qq.empty()) {
+			q.push(qq.front());
+			qq.pop();
+		}
+	}
+	printf("%d\n" , dis[N]);
+	return 0;
+}</code></pre>
+
+
+
+{% endraw %}

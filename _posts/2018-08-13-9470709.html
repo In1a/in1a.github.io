@@ -1,0 +1,89 @@
+---
+layout: post
+title: '[NOIP 2015] 神奇的幻方'
+date: 2018-08-13 20:26:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9470709.html
+cnblogs_id: 9470709
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p>         <a href="http://uoj.ac/problem/145" target="_blank" rel="noopener nofollow"> http://uoj.ac/problem/145</a></p>
+<p>[算法]</p>
+<p>         按照题意模拟即可，时间复杂度O(N^2)</p>
+<p>[代码]</p>
+<p>         </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 50
+
+<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,j,n;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> a[MAXN][MAXN];
+pair</span>&lt;<span style="color: rgba(0, 0, 255, 1)">int</span>,<span style="color: rgba(0, 0, 255, 1)">int</span>&gt; pos[MAXN *<span style="color: rgba(0, 0, 0, 1)"> MAXN];
+
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> read(T &amp;<span style="color: rgba(0, 0, 0, 1)">x)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span> f = <span style="color: rgba(128, 0, 128, 1)">1</span>; x = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">char</span> c =<span style="color: rgba(0, 0, 0, 1)"> getchar();
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; !isdigit(c); c =<span style="color: rgba(0, 0, 0, 1)"> getchar())
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (c == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>) f = -<span style="color: rgba(0, 0, 0, 1)">f;
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; isdigit(c); c = getchar()) x = (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">3</span>) + (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>) + c - <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">;
+        x </span>*=<span style="color: rgba(0, 0, 0, 1)"> f;
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() 
+{
+        
+        read(n);
+        a[</span><span style="color: rgba(128, 0, 128, 1)">1</span>][n / <span style="color: rgba(128, 0, 128, 1)">2</span> + <span style="color: rgba(128, 0, 128, 1)">1</span>] = <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        pos[</span><span style="color: rgba(128, 0, 128, 1)">1</span>] = make_pair(<span style="color: rgba(128, 0, 128, 1)">1</span>,n / <span style="color: rgba(128, 0, 128, 1)">2</span> + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">2</span>; i &lt;= n * n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (pos[i - <span style="color: rgba(128, 0, 128, 1)">1</span>].first == <span style="color: rgba(128, 0, 128, 1)">1</span> &amp;&amp; pos[i - <span style="color: rgba(128, 0, 128, 1)">1</span>].second !=<span style="color: rgba(0, 0, 0, 1)"> n)
+                {
+                        a[n][pos[i </span>- <span style="color: rgba(128, 0, 128, 1)">1</span>].second + <span style="color: rgba(128, 0, 128, 1)">1</span>] =<span style="color: rgba(0, 0, 0, 1)"> i;
+                        pos[i] </span>= make_pair(n,pos[i - <span style="color: rgba(128, 0, 128, 1)">1</span>].second + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);    
+                }        
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (pos[i - <span style="color: rgba(128, 0, 128, 1)">1</span>].second == n &amp;&amp; pos[i - <span style="color: rgba(128, 0, 128, 1)">1</span>].first != <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        a[pos[i </span>- <span style="color: rgba(128, 0, 128, 1)">1</span>].first - <span style="color: rgba(128, 0, 128, 1)">1</span>][<span style="color: rgba(128, 0, 128, 1)">1</span>] =<span style="color: rgba(0, 0, 0, 1)"> i;
+                        pos[i] </span>= make_pair(pos[i - <span style="color: rgba(128, 0, 128, 1)">1</span>].first - <span style="color: rgba(128, 0, 128, 1)">1</span>,<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+                }
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (pos[i - <span style="color: rgba(128, 0, 128, 1)">1</span>].first == <span style="color: rgba(128, 0, 128, 1)">1</span> &amp;&amp; pos[i - <span style="color: rgba(128, 0, 128, 1)">1</span>].second ==<span style="color: rgba(0, 0, 0, 1)"> n)
+                {
+                        a[</span><span style="color: rgba(128, 0, 128, 1)">2</span>][pos[i - <span style="color: rgba(128, 0, 128, 1)">1</span>].second] =<span style="color: rgba(0, 0, 0, 1)"> i;
+                        pos[i] </span>= make_pair(<span style="color: rgba(128, 0, 128, 1)">2</span>,pos[i - <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">].second); 
+                } 
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (pos[i - <span style="color: rgba(128, 0, 128, 1)">1</span>].first != <span style="color: rgba(128, 0, 128, 1)">1</span> &amp;&amp; pos[i - <span style="color: rgba(128, 0, 128, 1)">1</span>].second !=<span style="color: rgba(0, 0, 0, 1)"> n)
+                {
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!a[pos[i - <span style="color: rgba(128, 0, 128, 1)">1</span>].first - <span style="color: rgba(128, 0, 128, 1)">1</span>][pos[i - <span style="color: rgba(128, 0, 128, 1)">1</span>].second + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">])
+                        {
+                                a[pos[i </span>- <span style="color: rgba(128, 0, 128, 1)">1</span>].first - <span style="color: rgba(128, 0, 128, 1)">1</span>][pos[i - <span style="color: rgba(128, 0, 128, 1)">1</span>].second + <span style="color: rgba(128, 0, 128, 1)">1</span>] =<span style="color: rgba(0, 0, 0, 1)"> i;
+                                pos[i] </span>= make_pair(pos[i - <span style="color: rgba(128, 0, 128, 1)">1</span>].first - <span style="color: rgba(128, 0, 128, 1)">1</span>,pos[i - <span style="color: rgba(128, 0, 128, 1)">1</span>].second + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+                        } </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)">
+                        {
+                                a[pos[i </span>- <span style="color: rgba(128, 0, 128, 1)">1</span>].first + <span style="color: rgba(128, 0, 128, 1)">1</span>][pos[i - <span style="color: rgba(128, 0, 128, 1)">1</span>].second] =<span style="color: rgba(0, 0, 0, 1)"> i;
+                                pos[i] </span>= make_pair(pos[i - <span style="color: rgba(128, 0, 128, 1)">1</span>].first + <span style="color: rgba(128, 0, 128, 1)">1</span>,pos[i - <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">].second);
+                        }
+                }
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= n; j++<span style="color: rgba(0, 0, 0, 1)">)
+                {
+                        printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d </span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,a[i][j]);
+                }
+                printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">);
+        }
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

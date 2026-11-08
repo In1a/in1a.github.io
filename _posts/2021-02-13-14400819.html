@@ -1,0 +1,424 @@
+---
+layout: post
+title: 'Codeforces Round 699 题解'
+date: 2021-02-13 19:02:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/14400819.html
+cnblogs_id: 14400819
+---
+{% raw %}
+
+<p>[比赛链接]</p>
+<p><a href="" rel="noopener nofollow">https://codeforces.com/contest/1481</a></p>
+<p>[题解]</p>
+<p><span class="math inline">\(A\)</span></p>
+<p>两维的坐标是独立的 ， 记录向上 ， 下 ， 左 ， 右共走的步数判断即可。</p>
+<p>时间复杂度 : <span class="math inline">\(O(N)\)</span></p>
+<p><span class="math inline">\(B\)</span></p>
+<p>注意到 <span class="math inline">\(max\{a_{i}\} \leq 100\)</span> , 因此最多只会操作 <span class="math inline">\(10000\)</span> 次。</p>
+<p>不妨直接模拟这个过程 ， 其必然会在 <span class="math inline">\(10000\)</span> 次后停止。</p>
+<p>时间复杂度 : <span class="math inline">\(O(N ^ 3)\)</span></p>
+<p><span class="math inline">\(C\)</span></p>
+<p>首先考虑第 <span class="math inline">\(M\)</span> 次涂色的位置不会被更改 (因为是最后一次涂色)。不妨首先固定一个 <span class="math inline">\(B_{i} = C_{M}\)</span> 的 <span class="math inline">\(i\)</span> (优先考虑 <span class="math inline">\(A_{i} \neq B_{i}\)</span>)。</p>
+<p>然后从前向后枚举每一次涂色 ， 每次仍然贪心地优先考虑 <span class="math inline">\(B_{i} = C_{current} , A_{i} \neq B_{i}\)</span> 的 <span class="math inline">\(i\)</span> ， 如果找不到则对 <span class="math inline">\(M\)</span> 次涂色的位置操作一次即可。</p>
+<p>时间复杂度 : <span class="math inline">\(O(N + M)\)</span></p>
+<p><span class="math inline">\(D\)</span></p>
+<p>首先 ， 如果存在点对 <span class="math inline">\((u , v)\)</span> ， 使得 <span class="math inline">\(val_{u , v} = val_{v , u}\)</span>。构造一条 <span class="math inline">\(u -&gt; v -&gt; u -&gt; v ...\)</span> 的路径即可。</p>
+<p>特判这种情况 ， 剩下的问题必然满足 <span class="math inline">\(val_{u , v} \neq val_{v , u}\)</span>。</p>
+<p>若 <span class="math inline">\(M\)</span> 是奇数 ， 可构造一条在两点间来回移动的路径。</p>
+<p>否则 ， 考虑三点 <span class="math inline">\(u , v , w\)</span> 使得 <span class="math inline">\(val_{u , v} = val_{v , w}\)</span>。</p>
+<p>若 <span class="math inline">\(\frac{M}{2}\)</span> 为奇数 ， 以环上的数字的顺序不断重复即可 (如下图)。</p>
+<p><img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202102/1424311-20210213181254553-568762933.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202102/1424311-20210213181254553-568762933.png"></p>
+<p><span class="math inline">\(\frac{M}{2}\)</span> 为偶数的情况类似。</p>
+<p><img alt="" loading="lazy" data-src="https://img2020.cnblogs.com/blog/1424311/202102/1424311-20210213181622582-580581784.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202102/1424311-20210213181622582-580581784.png"></p>
+<p>时间复杂度 : <span class="math inline">\(O(N ^ 2)\)</span></p>
+<p><span class="math inline">\(E\)</span></p>
+<p>首先对于每种颜色 <span class="math inline">\(c\)</span> 找到其最左出现的位置 <span class="math inline">\(l_{c}\)</span> , 最右 <span class="math inline">\(r_{c}\)</span> ， 以及出现的次数 <span class="math inline">\(f_{c}\)</span>。</p>
+<p>一个转化是问题等价于求最多保留的数的个数。</p>
+<p>考虑倒着动态规划 ， 记 <span class="math inline">\(dp_{i}\)</span> 表示后缀 <span class="math inline">\([i , n]\)</span> 最多保留的数的个数。</p>
+<p>首先 <span class="math inline">\(dp_{i}\)</span> 可以继承 <span class="math inline">\(dp_{i + 1}\)</span> 的信息 (表示操作当前的左端点)</p>
+<p>若 <span class="math inline">\(i = l_{c}\)</span> ， 显然可以保留颜色 <span class="math inline">\(c\)</span> , 此时 <span class="math inline">\(dp_{i} = dp_{r_{c_{i}} + 1} + f_{c}\)</span></p>
+<p>若 <span class="math inline">\(i \neq l_{c}\)</span> , 有 <span class="math inline">\(dp_{i} = cf_{c}\)</span> (<span class="math inline">\(cf_{c}\)</span> 表示 <span class="math inline">\(c\)</span> 在当前 <span class="math inline">\([i , n]\)</span> 中出现次数)。</p>
+<p>时间复杂度 : <span class="math inline">\(O(N)\)</span></p>
+<p><span class="math inline">\(F\)</span></p>
+<p>首先找出以 <span class="math inline">\(1\)</span> 为根的最长链 ， 将其长度记为 <span class="math inline">\(d\)</span>。</p>
+<p>因为会出现 <span class="math inline">\((d + 1)\)</span> 种不同长度的字符串 ，显然 , <span class="math inline">\(answer \geq d + 1\)</span>。</p>
+<p>为了使 <span class="math inline">\(answer = d + 1\)</span> ， 需要使所有长度为 <span class="math inline">\(i\)</span> 的字符串相等。考虑求出每个深度的节点出现的次数 <span class="math inline">\(a_{i}\)</span>。</p>
+<p>那么等价于找出 <span class="math inline">\(A\)</span> 的一个子集 ， 使其和为 <span class="math inline">\(X\)</span> , 将其全部涂上 "a"。</p>
+<p>注意到不同的 <span class="math inline">\(a_{i}\)</span> 至多有 <span class="math inline">\(O(\sqrt{N})\)</span> 种 ， 不妨记录出现次数为 <span class="math inline">\(i\)</span> 的深度个数 <span class="math inline">\(freq_{i}\)</span>。</p>
+<p>考虑动态规划 ， 令 <span class="math inline">\(dp_{i , j}\)</span> 表示后 <span class="math inline">\(i\)</span> 种出现次数 ， 总和为 <span class="math inline">\(j\)</span> 是否可行。</p>
+<p>一种朴素的转移方式是枚举 <span class="math inline">\(dp_{i + 1 , j - val_{i}} , dp_{i + 1 , j - 2 \cdot val_{i}} , ... dp_{i + 1 , j - freq_{i} \cdot val_{i}}\)</span>。</p>
+<p>进一步地 ， 注意到每次转移到的节点在模 <span class="math inline">\(val\)</span> 意义下同余 ， 可以方便地记录 <span class="math inline">\(last_{i}\)</span> 表示在模 <span class="math inline">\(val\)</span> 意义下余 <span class="math inline">\(i\)</span> 上次出现的位置。</p>
+<p>这样就可以做到 <span class="math inline">\(O(N\sqrt{N})\)</span> 了。</p>
+<p>否则答案一定等于 <span class="math inline">\((d + 2)\)</span> ， 下面通过构造的方式证明这一点。</p>
+<p>考虑枚举每一层节点。记当前在第 <span class="math inline">\(i\)</span> 层 ， 还剩下 <span class="math inline">\(m\)</span> 个字母可用 ， 其中有 <span class="math inline">\(y\)</span> 个为 "a"。</p>
+<p>若 <span class="math inline">\(a_{i} \leq max\{y , m - y\}\)</span> , 则直接给这层节点涂上一种颜色。</p>
+<p>否则 ， 这层的非叶节点必须涂上同一种颜色 ， 因为每个非叶节点子树中必然存在至少 <span class="math inline">\(1\)</span> 个节点 ， 非叶节点 <span class="math inline">\(l \geq \frac{m}{2}\)</span>。 又因为对于任意 <span class="math inline">\(y\)</span> , <span class="math inline">\(max\{y , m - y\} \geq \frac{m}{2}\)</span>。 因此我们可以做到这一点。</p>
+<p>这样就只剩下一种颜色了！ 我们成功构造出了 <span class="math inline">\(answer = d + 2\)</span> !</p>
+<p>时间复杂度 : <span class="math inline">\(O(N\sqrt{N})\)</span></p>
+<p>[代码]</p>
+<p><span class="math inline">\(A\)</span></p>
+<pre><code class="language-cpp">#include&lt;bits/stdc++.h&gt;
+
+using namespace std;
+
+typedef long long LL;
+
+#define rep(i , l , r) for (int i = (l); i &lt; (r); ++i)
+
+char s[1000005];
+
+int main() {
+	
+	 int T; cin &gt;&gt; T;
+	 while (T--) {
+	 	 int xx , yy; cin &gt;&gt; xx &gt;&gt; yy;
+	 	 string ss; cin &gt;&gt; ss;
+	 	 int u = 0 , d = 0 , l = 0 , r = 0;
+	 	 for (int i = 0; i &lt; ss.size(); ++i) {
+	 	 	 if (ss[i] == 'U') ++u;
+			 else if (ss[i] == 'R') ++r;
+			 else if (ss[i] == 'D') ++d;
+			 else ++l;  	
+		 }
+		 if (xx &gt; 0 &amp;&amp; r &gt;= xx) xx = 0;
+                 if (xx &lt; 0 &amp;&amp; l &gt;= -xx) xx = 0;
+                 if (yy &gt; 0 &amp;&amp; u &gt;= yy) yy = 0;
+                 if (yy &lt; 0 &amp;&amp; d &gt;= -yy) yy = 0;
+                 if (xx == 0 &amp;&amp; yy == 0) puts("YES");
+                 else puts("NO");
+	 }
+         return 0;
+}
+</code></pre>
+<p><span class="math inline">\(B\)</span></p>
+<pre><code class="language-cpp">#include&lt;bits/stdc++.h&gt;
+
+using namespace std;
+
+typedef long long LL;
+
+#define rep(i , l , r) for (int i = (l); i &lt; (r); ++i)
+
+const int MN = 5e5 + 5;
+
+int A[MN];
+
+int main() {
+	 
+	 int T; scanf("%d" , &amp;T);
+	 while (T--) {
+	 	 int N , K; scanf("%d%d" , &amp;N , &amp;K);
+	 	 for (int i = 1; i &lt;= N; ++i) scanf("%d" , &amp;A[i]);
+	 	 int ans = -1;
+	 	 for (int cur = 1; cur &lt;= K; ++cur) {
+			ans = -1;
+			for (int i = 1; i &lt; N; i++) if (A[i] &lt; A[i + 1]) { ans = i; ++A[i]; break;}
+			if (ans == -1) break;
+		}
+		printf("%d\n" , ans);
+	 }
+         return 0;
+}
+</code></pre>
+<p><span class="math inline">\(C\)</span></p>
+<pre><code class="language-cpp">#include&lt;bits/stdc++.h&gt;
+
+using namespace std;
+
+typedef long long LL;
+
+#define rep(i , l , r) for (int i = (l); i &lt; (r); ++i)
+
+const int MN = 1e6 + 5;
+
+int N , M , A[MN] , B[MN] , C[MN] , ans[MN];
+vector &lt; int &gt; g[MN];
+
+inline void solve() {
+	scanf("%d%d" , &amp;N , &amp;M);
+	for (int i = 1; i &lt;= N; ++i) g[i].clear();
+	for (int i = 0; i &lt; N; ++i) scanf("%d" , &amp;A[i]);
+	for (int i = 0; i &lt; N; ++i) {
+		scanf("%d" , &amp;B[i]);
+		if (B[i] != A[i])
+			g[B[i]].emplace_back(i);
+	}
+	for (int i = 0; i &lt; M; ++i)
+		scanf("%d" , &amp;C[i]);
+	int last = -1;
+	if ((int) g[C[M - 1]].size() &gt; 0) {
+		last = g[C[M - 1]].back();
+		g[C[M - 1]].pop_back();
+	} else {
+		for (int i = 0; i &lt; N; ++i) {
+			if (B[i] == C[M - 1]) {
+				last = i;
+				break;
+			}
+		}
+	}
+	if (last == -1) {
+		printf("NO\n");
+		return;
+	}
+	ans[M - 1] = last;
+	for (int i = 0; i &lt; M - 1; ++i) {
+		if (g[C[i]].size() == 0)
+			ans[i] = last;
+		else {
+			ans[i] = g[C[i]].back();
+			g[C[i]].pop_back();
+		}
+	}
+	for (int i = 1; i &lt;= N; ++i)
+		if ((int) g[i].size() &gt; 0) {
+			printf("NO\n");
+			return;
+		}
+	printf("YES\n");
+	for (int i = 0; i &lt; M; ++i) {	
+		if (i) putchar(' ');
+		printf("%d" , ans[i] + 1);
+	}
+	printf("\n");
+}
+int main() {
+	 
+	 int T; scanf("%d" , &amp;T);
+	 while (T--) solve();
+     return 0;
+}
+</code></pre>
+<p><span class="math inline">\(D\)</span></p>
+<pre><code class="language-cpp">#include&lt;bits/stdc++.h&gt;
+
+using namespace std;
+
+typedef long long LL;
+
+#define rep(i , l , r) for (int i = (l); i &lt; (r); ++i)
+
+const int MN = 1005;
+
+int N , M , has[MN][2];
+char grid[MN][MN];
+
+inline void solve() {
+	scanf("%d%d" , &amp;N , &amp;M);
+	for (int i = 0; i &lt;= N; ++i)
+		has[i][0] = has[i][1] = -1;
+	for (int i = 0; i &lt; N; ++i) {
+		scanf("%s" , grid[i]);
+		for (int j = 0; j &lt; N; ++j) {
+			if (i == j) continue;
+			has[i][grid[i][j] - 'a'] = j;
+		}
+	}
+	if (M &amp; 1) {
+		printf("YES\n");
+		for (int i = 0; i &lt;= M; ++i) {
+			if (i) putchar(' ');
+			printf("%d" , (i &amp; 1) + 1);
+		}
+		printf("\n");
+		return;
+	}
+	for (int i = 0; i &lt; N; ++i)
+		for (int j = i + 1; j &lt; N; ++j)
+			if (grid[i][j] == grid[j][i]) {
+				printf("YES\n");
+				for (int k = 0; k &lt;= M; ++k) {
+					if (k) putchar(' ');
+					printf("%d" , (k &amp; 1 ? i + 1 : j + 1));
+				}
+				puts("");
+				return;
+			}
+	for (int i = 0; i &lt; N; ++i) {
+		for (int j = 0; j &lt; N; ++j) {
+			if (i == j) continue;
+			if (has[j][grid[i][j] - 'a'] == -1) continue;
+			printf("YES\n");
+			int cur = has[j][grid[i][j] - 'a'];
+			if ((M / 2) &amp; 1) {
+				for (int k = 0; k &lt;= M; ++k) {
+					if (k) putchar(' ');
+					if (k % 4 == 0)
+						printf("%d" , i + 1);
+					else if (k % 4 == 2) 
+						printf("%d" , cur + 1);
+					else printf("%d" , j + 1);
+				}
+				printf("\n");
+				return;
+			}
+			printf("%d" , j + 1);
+			for (int k = 0; k &lt; M / 2; ++k)
+				if (k &amp; 1) printf(" %d" , j + 1);
+				else printf(" %d" , cur + 1);
+			for (int k = 0; k &lt; M / 2; ++k)
+				if (k &amp; 1) printf(" %d" , j + 1);
+				else printf(" %d" , i + 1);
+			printf("\n");
+			return;
+		}
+	}
+	printf("NO\n");
+}
+int main() {
+	 
+	 int T; scanf("%d" , &amp;T);
+	 while (T--) solve();
+         return 0;
+}
+</code></pre>
+<p><span class="math inline">\(E\)</span></p>
+<pre><code class="language-cpp">#include&lt;bits/stdc++.h&gt;
+
+using namespace std;
+
+typedef long long LL;
+
+#define rep(i , l , r) for (int i = (l); i &lt; (r); ++i)
+
+const int MN = 5e6 + 5;
+
+int N , A[MN] , l[MN] , r[MN] , f[MN] , cnt[MN];
+
+int main() {
+	
+	 scanf("%d" , &amp;N);
+	 for (int i = 1; i &lt;= N; ++i) {
+	 	 scanf("%d" , &amp;A[i]); 
+	 	 if (!l[A[i]]) l[A[i]] = i;
+		 r[A[i]] = i; 
+	 }
+	 for (int i = N; i &gt;= 1; --i) {
+	 	 ++cnt[A[i]];
+	 	 f[i] = f[i + 1];
+	 	 if (i == l[A[i]])
+	 	 	f[i] = max(f[i] , cnt[A[i]] + f[r[A[i]] + 1]);
+	 	 else
+	 	 	f[i] = max(f[i] , cnt[A[i]]);
+	 }
+	 printf("%d\n" , N - f[1]);
+         return 0;
+}
+</code></pre>
+<p><span class="math inline">\(F\)</span></p>
+<pre><code class="language-cpp">#include&lt;bits/stdc++.h&gt;
+
+using namespace std;
+
+typedef long long LL;
+
+#define rep(i , l , r) for (int i = (l); i &lt; (r); ++i)
+
+typedef pair &lt; int , int &gt; pii;
+
+#define mp make_pair
+#define F first
+#define S second
+
+const int MN = 1e5 + 5 , SQ = 500;
+
+int N , X , mx , sz[MN] , dp[SQ][MN] , f[MN];
+char c[MN];
+vector &lt; pii &gt; v , v2;
+vector &lt; int &gt; g[MN] , cur[MN];
+pair &lt; int , char &gt; a , b;
+
+inline void go(int i , int j) {
+	if (i == (int) v2.size())
+		return;
+	while (!dp[i + 1][j]) {
+		++f[v2[i].first];
+		j -= v2[i].first;
+	}
+	go(i + 1 , j);
+}
+inline void chkmin(int &amp;x , int y) {
+	x = min(x , y);
+}
+inline void chkmax(int &amp;x , int y) {
+	x = max(x , y);
+}
+inline bool cmp(int u , int v) {
+	return sz[u] &lt; sz[v];
+}
+inline int DFS(int u , int d) {
+	chkmax(mx , d);
+	cur[d].emplace_back(u); sz[u] = 1;
+	for (int v : g[u])
+		sz[u] += DFS(v , d + 1);
+	return sz[u];
+}
+
+int main() {
+	 
+	 scanf("%d%d" , &amp;N , &amp;X);
+	 a = mp(X , 'a'); b = mp(N - X , 'b');
+	 if (a &gt; b) swap(a , b);
+	 for (int i = 2; i &lt;= N; ++i) {
+	 	 int x; scanf("%d" , &amp;x);
+	 	 g[x].emplace_back(i);
+	 }
+	 DFS(1 , 0);
+	 for (int i = 0; i &lt;= mx; ++i)
+	 	v.emplace_back(mp((int) cur[i].size() , i));
+	 sort(v.begin() , v.end());
+	 for (int i = 0; i &lt; v.size(); ++i)
+	 	 if (i == 0 || v[i].F != v[i - 1].F) 
+	 		 v2.emplace_back(mp(v[i].F , 1));
+	 	 else
+		  	 ++v2.back().second;
+	 dp[(int)v2.size()][0] = true;
+	 for (int i = (int) v2.size() - 1; i &gt;= 0; --i) {
+	 	 int val = v2[i].first , frq = v2[i].second;
+	 	 vector &lt; int &gt; last (val , -1);
+	 	 for (int j = 0; j &lt;= X; ++j) {
+	 	 	 if (dp[i + 1][j] == true)
+			   	last[j % val] = j;
+			 if (last[j % val] == -1 || ((j - last[j % val]) / val) &gt; frq)
+			 	dp[i][j] = false;
+			 else 
+			 	dp[i][j] = true;	
+		 }
+	 }
+	 if (dp[0][X]) {
+	 	 go(0 , a.F);
+	 	 for (int i = 1; i &lt;= N; ++i) c[i - 1] = b.S;
+	 	 for (int i = 0; i &lt;= mx; ++i) {
+	 	 	 if (f[(int) cur[i].size()] == 0) continue;
+			 --f[(int) cur[i].size()];	 
+			 for (auto x : cur[i])
+			 	 c[x - 1] = a.S;
+		 } 
+		 printf("%d\n" , mx + 1); c[N] = '\0';
+		 puts(c);
+		 return 0;
+	 }
+	 printf("%d\n" , mx + 2);
+	 for (int i = 0; i &lt;= mx; ++i) {
+	 	 sort(cur[i].begin() , cur[i].end() , cmp);
+	 	 if (a.F &lt; b.F) swap(a , b);
+	 	 while (cur[i].size() &gt; 0 &amp;&amp; a.F &gt; 0) {
+	 		 c[cur[i].back() - 1] = a.S;
+			 cur[i].pop_back();
+			 --a.F;	
+		 }
+		 while (cur[i].size() &gt; 0 &amp;&amp; b.F &gt; 0) {
+		 	 c[cur[i].back() - 1] = b.S;
+		 	 cur[i].pop_back();
+		 	 --b.F;
+		 } 
+	 }
+	 c[N] = '\0'; 
+	 puts(c);
+         return 0; 
+}
+</code></pre>
+
+
+
+{% endraw %}

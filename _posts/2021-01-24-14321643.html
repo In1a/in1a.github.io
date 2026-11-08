@@ -1,0 +1,66 @@
+---
+layout: post
+title: '[CF961G] Partitions'
+date: 2021-01-24 17:46:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/14321643.html
+cnblogs_id: 14321643
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p><a href="" rel="noopener nofollow">https://codeforces.com/contest/961/problem/G</a></p>
+<p>[题解]</p>
+<p>首先每个物品是独立的 ， 考虑其贡献 ， 为 ：</p>
+<p><span class="math inline">\(i\begin{Bmatrix}k - 1\\n - i\end{Bmatrix}{n - 1 \choose i - 1}\)</span></p>
+<p>考虑暴力拆解斯特林数 ， 化简得贡献</p>
+<p><span class="math inline">\(\sum{\frac{(-1)^{j}}{(j!)(k - j - 1)!}} \cdot ((k - j) ^ {n - 1} + (n - 1)(k - j) ^ {n - 2})\)</span></p>
+<p>时间复杂度 : <span class="math inline">\(O(NlogN)\)</span> (瓶颈在快速幂)</p>
+<p>[代码]</p>
+<pre><code class="language-cpp">#include&lt;bits/stdc++.h&gt;
+
+using namespace std;
+
+#define rep(i , l , r) for (int i = (l); i &lt; (r); ++i)
+
+typedef long long LL;
+
+const int MN = 3e5 + 5 , mod = 1e9 + 7;
+
+int N , K , sum , ans , fac[MN] , ifac[MN];
+
+inline void inc(int &amp;x , int y) {
+		x = x + y &lt; mod ? x + y : x + y - mod;
+}
+inline void dec(int &amp;x , int y) {
+		x = x - y &gt;= 0 ? x - y : x - y + mod;
+}
+inline int qPow(int a , int b) {
+		if (b &lt; 0) return 1;
+		int c = 1;
+		for (; b; b &gt;&gt;= 1 , a = 1ll * a * a % mod) if (b &amp; 1) c = 1ll * c * a % mod;
+		return c;
+}
+
+int main() {
+		
+		scanf("%d%d" , &amp;N , &amp;K);
+		for (int i = 1; i &lt;= N; ++i) {
+				int x; scanf("%d" , &amp;x);
+				inc(sum , x);
+		}
+		fac[0] = 1;
+		for (int i = 1; i &lt;= N; ++i) fac[i] = 1ll * fac[i - 1] * i % mod;
+		ifac[N] = qPow(fac[N] , mod - 2);
+		for (int i = N - 1; i &gt;= 0; --i) ifac[i] = 1ll * ifac[i + 1] * (i + 1) % mod;
+		for (int j = 0; j &lt; K; ++j) {
+				int val = 1ll * ((j &amp; 1) ? mod - 1 : 1) * ifac[j] % mod * ifac[K - 1 - j] % mod;
+				inc(ans , 1ll * val * qPow(K - j , N - 2) % mod * (K - j + N - 1) % mod);
+		}
+		printf("%d\n" , 1ll * sum * ans % mod);
+	  return 0;
+}
+</code></pre>
+
+
+
+{% endraw %}

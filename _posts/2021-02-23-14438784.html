@@ -1,0 +1,109 @@
+---
+layout: post
+title: '[CF566E] Restoring Map'
+date: 2021-02-23 23:01:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/14438784.html
+cnblogs_id: 14438784
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p><a href="" rel="noopener nofollow">https://codeforces.com/contest/566/problem/E</a></p>
+<p>[题解]</p>
+<p>定义叶子节点为度数为 <span class="math inline">\(1\)</span> 的节点 ， 非叶节点为度数非 <span class="math inline">\(1\)</span> 的节点。</p>
+<p>首先考虑非叶节点数 <span class="math inline">\(&gt; 3\)</span> 的情况 ， 两个非叶节点之间右边当且仅当能找到两个集合使得其交集为 <span class="math inline">\(\{x , y\}\)</span>。</p>
+<p>于是可以通过 <span class="math inline">\(bitset\)</span> 优化枚举 ， 将这部分的复杂度做到 <span class="math inline">\(O(\frac{N ^ 3}{w})\)</span>。(具体实现时 ， 注意 <span class="math inline">\(Findfirst()\)</span> 函数和 <span class="math inline">\(FindNext()\)</span> 函数的使用)。</p>
+<p>现在我们通过这种方式找到了所有非叶节点。</p>
+<p>考虑如何找到叶子节点的父亲。</p>
+<p>显然 ， 对于每个叶子节点 ， 在所有包含它的集合中 ， 节点数最少的必然是它所代表的集合。</p>
+<p>不妨称连边集合为一个非叶节点与和它相连的非叶节点构成的集合。 因为一个叶子节点去掉与其相连的叶子节点等于其父亲的连边集合 ， 而连边集合互不相同 ， 故可以唯一确定。这里同样可以用 <span class="math inline">\(bitset\)</span> 优化。</p>
+<p>最后来考虑非叶节点数量少于三个的情况。</p>
+<p>如果不存在 ， <span class="math inline">\(N = 2\)</span></p>
+<p>如果只有一个 ， 那么是一个菊花图的形式。</p>
+<p>如果有两个非叶节点 ，这两个非叶节点的连边集合是一样的。此时叶子的集合只有两种，选其中一种里的叶子挂在一个非叶节点下，另一种里的叶子挂在另外一个非叶节点下即可。</p>
+<p>时间复杂度 : <span class="math inline">\(O(\frac{N ^ 2}{w})\)</span></p>
+<p>[代码]</p>
+<pre><code class="language-cpp">#include&lt;bits/stdc++.h&gt;
+ 
+using namespace std;
+ 
+typedef long long LL;
+ 
+#define rep(i , l , r) for (int i = (l); i &lt; (r); ++i)
+ 
+const int MN = 1e3 + 5;
+ 
+int N , v[MN] , w[MN] , cnt , x , y;
+bitset&lt; MN&gt; a[MN], b[MN], e[MN];
+ 
+int main() {
+	 
+	 scanf("%d" , &amp;N);
+	 if (N == 2) {
+	 	printf("1 2\n");
+	 	return 0;
+	 }
+	 bool ok = 1;
+	 for (int i = 1 , j , k; i &lt;= N; ++i) {
+	 	 scanf("%d" , &amp;k);
+	 	 if (k != N) ok = 0;
+	 	 while (k--) scanf("%d" , &amp;j) , a[i][j] = 1;
+	 }
+	 if (ok) {
+	 	for (int i = 1; i &lt; N; ++i)
+	 		printf("%d %d\n" , N , i);
+	 	return 0;
+	 }
+	 for (int i = 1; i &lt;= N; ++i)
+	 	for (int j = i + 1; j &lt;= N; ++j) {
+	 		bitset &lt; MN &gt; o = a[i] &amp; a[j];
+			if (o.count() != 2) continue;
+			int x = o._Find_first() , y = o._Find_next(x);
+			if (e[x][y]) continue;
+			printf("%d %d\n" , x , y); 
+			e[x][y] = e[y][x] = v[x] = v[y] = 1;	
+		}
+	 for (int i = 1; i &lt;= N; ++i) 
+	 	 if (!v[i]) {
+	 	 	 int s = N + 1 , o = 0;
+			 for (int j = 1; j &lt;= N; ++j) {
+			 	 if (!w[j] &amp;&amp; a[j][i]) {
+			 	 	 int c = a[j].count();
+					 if (c &lt; s) s = c , o = j;	
+				 }
+			 }	
+			 b[i] = a[o] , w[o] = 1;
+		 } else e[i][i] = 1 , ++cnt;
+	 if (cnt == 2) {
+	 	 for (int i = 1; i &lt;= N; ++i)
+	 	 	if (v[i]) x = i;
+	 	 for (int i = N; i &gt;= 1; --i)
+	 	 	if (v[i]) y = i;
+	 	 for (int i = 1; i &lt;= N; ++i) 
+	 	 	if ((int) a[i].count() != N) {
+	 	 		for (int j = 1; j &lt;= N; ++j) {
+	 	 			if (v[j]) continue;
+					if (a[i][j]) printf("%d %d\n" , x , j);
+					else printf("%d %d\n" , y , j);	
+				}	
+				break;
+			}
+		 return 0;
+	 }
+	 for (int i = 1; i &lt;= N; ++i)
+	 	if (!v[i]) {
+	 		for (int j = 1; j &lt;= N; ++j)
+	 			if (!v[j]) b[i][j] = 0;
+			for (int j = 1; j &lt;= N; ++j)
+				if (v[j] &amp;&amp; b[i] == e[j]) {
+					printf("%d %d\n" , i , j);
+					break;
+				}		
+		}
+     return 0;
+}
+</code></pre>
+
+
+
+{% endraw %}

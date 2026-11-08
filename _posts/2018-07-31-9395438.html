@@ -1,0 +1,92 @@
+---
+layout: post
+title: '[POI 2008] BLO'
+date: 2018-07-31 13:48:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9395438.html
+cnblogs_id: 9395438
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p>          <a href="https://www.lydsy.com/JudgeOnline/problem.php?id=1123" target="_blank" rel="noopener nofollow">https://www.lydsy.com/JudgeOnline/problem.php?id=1123</a></p>
+<p>[算法]</p>
+<p>         首先，如果一个点不是割点，那么，去掉该点后不连通的有序点对就为 : 2 * (n - 1)</p>
+<p>         否则，去掉这个点后，这个图就被分为了 ：</p>
+<p>         1. 这个点本身</p>
+<p>         2. 这个点在搜索树上的一些子树</p>
+<p>         3. 除1，2这两部分的节点</p>
+<p>         我们可以通过乘法原理算出答案，详见代码</p>
+<p>[代码]</p>
+<p>       </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 100010
+<span style="color: rgba(0, 0, 255, 1)">#define</span> MAXM 500010
+
+<span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> edge
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> to,nxt;
+} e[MAXM </span>&lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,n,m,x,y,timer,tot;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> size[MAXN],dfn[MAXN],low[MAXN],head[MAXN];
+</span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> ans[MAXN];
+</span><span style="color: rgba(0, 0, 255, 1)">bool</span><span style="color: rgba(0, 0, 0, 1)"> visited[MAXN],is_cut[MAXN];
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> addedge(<span style="color: rgba(0, 0, 255, 1)">int</span> u,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> v)
+{
+        tot</span>++<span style="color: rgba(0, 0, 0, 1)">;
+        e[tot] </span>=<span style="color: rgba(0, 0, 0, 1)"> (edge){v,head[u]};
+        head[u] </span>=<span style="color: rgba(0, 0, 0, 1)"> tot;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> tarjan(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> u)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,v,cnt,sum;
+        size[u] </span>= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        dfn[u] </span>= low[u] = ++<span style="color: rgba(0, 0, 0, 1)">timer;
+        visited[u] </span>= <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+        cnt </span>= sum = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = head[u]; i; i =<span style="color: rgba(0, 0, 0, 1)"> e[i].nxt)
+        {
+                v </span>=<span style="color: rgba(0, 0, 0, 1)"> e[i].to;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!<span style="color: rgba(0, 0, 0, 1)">visited[v])
+                {
+                        tarjan(v);
+                        size[u] </span>+=<span style="color: rgba(0, 0, 0, 1)"> size[v];
+                        low[u] </span>=<span style="color: rgba(0, 0, 0, 1)"> min(low[u],low[v]);
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (dfn[u] &lt;=<span style="color: rgba(0, 0, 0, 1)"> low[v])
+                        {
+                                sum </span>+=<span style="color: rgba(0, 0, 0, 1)"> size[v];
+                                cnt</span>++<span style="color: rgba(0, 0, 0, 1)">;
+                                ans[u] </span>+= 1ll * size[v] * (n -<span style="color: rgba(0, 0, 0, 1)"> size[v]);
+                                low[u] </span>=<span style="color: rgba(0, 0, 0, 1)"> min(low[u],low[v]);
+                                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (u != <span style="color: rgba(128, 0, 128, 1)">1</span> || cnt &gt; <span style="color: rgba(128, 0, 128, 1)">1</span>) is_cut[u] = <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;        
+                        }
+                } </span><span style="color: rgba(0, 0, 255, 1)">else</span> low[u] =<span style="color: rgba(0, 0, 0, 1)"> min(low[u],dfn[v]);
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!is_cut[u]) ans[u] = <span style="color: rgba(128, 0, 128, 1)">2</span> * (n - <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+        </span><span style="color: rgba(0, 0, 255, 1)">else</span> ans[u] += 1ll * (n - <span style="color: rgba(128, 0, 128, 1)">1</span>) + 1ll * (n - sum - <span style="color: rgba(128, 0, 128, 1)">1</span>) * (sum + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() 
+{
+        
+        scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;n,&amp;<span style="color: rgba(0, 0, 0, 1)">m);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= m; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;x,&amp;<span style="color: rgba(0, 0, 0, 1)">y);
+                addedge(x,y);
+                addedge(y,x);
+        }
+        tarjan(</span><span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++) printf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%lld\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,ans[i]);
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

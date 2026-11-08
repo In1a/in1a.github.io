@@ -1,0 +1,99 @@
+---
+layout: post
+title: '[ARC093E] Bichrome Spanning Tree'
+date: 2021-01-24 16:08:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/14321212.html
+cnblogs_id: 14321212
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p><a href="" rel="noopener nofollow">https://atcoder.jp/contests/arc093/tasks/arc093_c</a></p>
+<p>[题解]</p>
+<p>一个重要的观察是 ： 最多只会用一条不在忽略颜色求得的最小生成树上的边。</p>
+<p>首先不妨求出最小生成树 ， 并计算其权值 <span class="math inline">\(W\)</span> ， 令 <span class="math inline">\(\delta = X - W\)</span>。</p>
+<p>若 <span class="math inline">\(\delta &lt; 0\)</span> ， 则答案为 <span class="math inline">\(0\)</span>。</p>
+<p>否则不妨求出加入一条边后生成树权值比 <span class="math inline">\(W\)</span> 小 ， 等于 <span class="math inline">\(W\)</span> , 大于 <span class="math inline">\(W\)</span> 的边数 , 分别为 <span class="math inline">\(c0 , c1 , c2\)</span>。</p>
+<p>若 <span class="math inline">\(\delta = 0\)</span> , 说明要么原最小生成树就合法 ， 要么满足有一条可替换的边 ， 答案为 <span class="math inline">\((2 ^ {N - 1} - 2) \cdot 2 ^ {M - N + 1} + 2 \cdot (2 ^ {c1} - 1) \cdot 2 ^ {c2}\)</span>。</p>
+<p>若 <span class="math inline">\(\delta &gt; 0\)</span> , 说明最小生成树同色 ， 且能找到一条可替换的边 ， 答案为 <span class="math inline">\(2 \cdot 2 ^ {c2} \cdot (2 ^ {c1} - 1)\)</span>。</p>
+<p>时间复杂度 : <span class="math inline">\(O((N + M)logN)\)</span></p>
+<p>[代码]</p>
+<pre><code class="language-cpp">#include&lt;bits/stdc++.h&gt;
+
+using namespace std;
+
+#define rep(i , l , r) for (int i = (l); i &lt; (r); ++i)
+
+typedef long long LL;
+
+const int MN = 2e5 + 5 , MM = 4e5 + 5 , mod = 1e9 + 7;
+
+struct Edg {
+	  int to; LL w; int nxt;
+} E[MM &lt;&lt; 1];
+
+struct Edge {
+	  int u , v; LL w;
+} A[MM &lt;&lt; 1];
+
+int N , M , dest , fa[MN] , two[MM] , tot , head[MN] , use[MN];
+LL X , mx;
+
+inline void add(int u , int v , LL w) {
+	  E[++tot] = (Edg) {v , w , head[u]}; head[u] = tot;
+	  E[++tot] = (Edg) {u , w , head[v]}; head[v] = tot;
+}
+inline void get(int u , int lst , LL mv) {
+	  if (u == dest) { mx = mv; return; }
+	  for (int i = head[u]; i; i = E[i].nxt) {
+	  	  int v = E[i].to; if (v == lst) continue;
+	  	  get(v , u , max(mv , E[i].w));
+		}
+}
+inline LL query(int u , int v) {
+	  dest = v;
+	  get(u , 0 , 0);
+	  return mx;
+}
+inline int find(int x) {
+	  return fa[x] == x ? x : fa[x] = find(fa[x]);
+}
+inline bool cmp(Edge a , Edge b) {
+	  return a.w &lt; b.w;
+} 
+inline bool mg(int u , int v) {
+	  if (find(u) == find(v)) return false;
+	  fa[find(u)] = find(v); return true; 
+}
+
+int main() {
+		
+		scanf("%d%d%lld" , &amp;N , &amp;M , &amp;X);
+		two[0] = 1;
+		for (int i = 1; i &lt;= M; ++i) two[i] = 2ll * two[i - 1] % mod;
+		for (int i = 1; i &lt;= M; ++i) scanf("%d%d%lld" , &amp;A[i].u , &amp;A[i].v , &amp;A[i].w);
+		sort(A + 1 , A + 1 + M , cmp);
+		for (int i = 1; i &lt;= N; ++i) fa[i] = i;
+		LL ans = 0;
+		for (int i = 1; i &lt;= M; ++i) if (mg(A[i].u , A[i].v)) add(A[i].u , A[i].v , A[i].w) , ans += (LL) A[i].w , use[i] = 1;
+		int c0 = 0 , c1 = 0 , c2 = 0;
+		LL d = X - ans;
+		if (d &lt; 0) {
+			  puts("0");
+			  return 0;
+		}
+		for (int i = 1; i &lt;= M; ++i) if (!use[i]) {
+				int t = A[i].w - query(A[i].u , A[i].v);
+				if (t &gt; d) ++c2;
+				else if (t == d) ++c1;
+				else ++c0;
+		}
+		if (d == 0) printf("%d\n" , (1ll * (two[N - 1] - 2 + mod) % mod * two[M - N + 1] % mod + 2ll * (1ll * (two[c1] - 1) * two[c2] % mod + mod) % mod) % mod);
+		else printf("%d\n" , (2ll * two[c2] % mod * ((two[c1] - 1) % mod + mod) % mod) % mod); 
+	  return 0;
+}
+</code></pre>
+
+
+
+{% endraw %}

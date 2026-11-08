@@ -1,0 +1,203 @@
+---
+layout: post
+title: '【USACO】Optimal Milking'
+date: 2018-02-02 13:03:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9196444.html
+cnblogs_id: 9196444
+---
+{% raw %}
+
+<p><strong>题目链接 ：</strong></p>
+<p><strong>       【POJ】<a href="http://poj.org/problem?id=2112" rel="noopener nofollow">点击打开链接</a></strong></p>
+<p><strong>       【caioj】<a href="http://www.caioj.cn/problem.php?id=1119" rel="noopener nofollow">点击打开链接</a></strong></p>
+<p><strong>算法 ：</strong></p>
+<p><strong>1：跑一遍弗洛伊德，求出点与点之间的最短路径</strong></p>
+<p><strong>2：二分答案，二分”最大值最小“</strong></p>
+<p><strong>3.1：建边，将原点与每头奶牛连边，流量为1，记dist[i][j]为i到j的最短路径，若dist[i][j]&lt;=mid (K+1&lt;=i&lt;=K+C,1&lt;=j&lt;=K)，则将i与j连边，流量为M，将每台挤奶机与汇点连边，流量为1</strong></p>
+<p><strong>3.2 ： 跑网络流，这里笔者使用的是dinic算法</strong></p>
+<p><strong>3.3 ： 判断最大流S是否等于K，等于K，则往小搜，否则往大搜</strong></p>
+<p>代码 ：</p>
+<p> </p>
+<div class="cnblogs_code">
+<pre>#include &lt;algorithm&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;bitset&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cctype&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cerrno&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;clocale&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cmath&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;complex&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cstdio&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cstdlib&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cstring&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;ctime&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;deque&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;exception&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;fstream&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;functional&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;limits&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;list&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;map&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;iomanip&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;ios&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;iosfwd&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;iostream&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;istream&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;ostream&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;queue&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;<span style="color: rgba(0, 0, 255, 1)">set</span>&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;sstream&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;stdexcept&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;streambuf&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;<span style="color: rgba(0, 0, 255, 1)">string</span>&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;utility&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;vector&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cwchar&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;cwctype&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;stack&gt;<span style="color: rgba(0, 0, 0, 1)">
+#include </span>&lt;limits.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXK 30
+<span style="color: rgba(0, 0, 255, 1)">#define</span> MAXC 200
+<span style="color: rgba(0, 0, 255, 1)">#define</span> MAXM 15<span style="color: rgba(0, 0, 0, 1)">
+
+typedef </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> LL;
+
+LL i,j,low,high,mid,st,ed,K,C,M,tot,ans;
+LL h[MAXK</span>+MAXC+<span style="color: rgba(128, 0, 128, 1)">10</span>],dist[MAXK+MAXC+<span style="color: rgba(128, 0, 128, 1)">10</span>][MAXK+MAXC+<span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">],
+     U[MAXC</span>*<span style="color: rgba(128, 0, 128, 1)">100</span>+<span style="color: rgba(128, 0, 128, 1)">10</span>],V[MAXC*<span style="color: rgba(128, 0, 128, 1)">100</span>+<span style="color: rgba(128, 0, 128, 1)">10</span>],W[MAXC*<span style="color: rgba(128, 0, 128, 1)">100</span>+<span style="color: rgba(128, 0, 128, 1)">10</span>],Head[MAXC*<span style="color: rgba(128, 0, 128, 1)">100</span>+<span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">],
+     Next[MAXC</span>*<span style="color: rgba(128, 0, 128, 1)">100</span>+<span style="color: rgba(128, 0, 128, 1)">10</span>],other[MAXC*<span style="color: rgba(128, 0, 128, 1)">100</span>+<span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">];
+        
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> read(T &amp;<span style="color: rgba(0, 0, 0, 1)">x) {
+        LL f </span>= <span style="color: rgba(128, 0, 128, 1)">1</span>; x = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">char</span> c =<span style="color: rgba(0, 0, 0, 1)"> getchar(); 
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; !isdigit(c); c = getchar()) { <span style="color: rgba(0, 0, 255, 1)">if</span> (c==<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>) f = -<span style="color: rgba(0, 0, 0, 1)">f; }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; isdigit(c); c = getchar()) x=x*<span style="color: rgba(128, 0, 128, 1)">10</span>+c-<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">;
+        x</span>*=<span style="color: rgba(0, 0, 0, 1)">f;
+}
+
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> write(T x) {
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (x &lt; <span style="color: rgba(128, 0, 128, 1)">0</span>) { putchar(<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>); x = -<span style="color: rgba(0, 0, 0, 1)">x; }
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (x &gt; <span style="color: rgba(128, 0, 128, 1)">9</span>) write(x/<span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">);
+        putchar(x </span>% <span style="color: rgba(128, 0, 128, 1)">10</span> + <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">);    
+}
+
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> writeln(T x) {
+        write(x);
+        puts(</span><span style="color: rgba(128, 0, 0, 1)">""</span><span style="color: rgba(0, 0, 0, 1)">);    
+}
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> floyed() {
+        LL i,j,k;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (k = <span style="color: rgba(128, 0, 128, 1)">1</span>; k &lt;= K + C; k++<span style="color: rgba(0, 0, 0, 1)">) {
+              </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= K + C; i++<span style="color: rgba(0, 0, 0, 1)">) {
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (i == k) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= K + C; j++<span style="color: rgba(0, 0, 0, 1)">) {
+                                </span><span style="color: rgba(0, 0, 255, 1)">if</span> ((k == j) || (i == j)) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                                dist[i][j] </span>= min(dist[i][j],dist[i][k]+<span style="color: rgba(0, 0, 0, 1)">dist[k][j]);                            
+                        }    
+                }
+        }        
+}
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> add(LL a,LL b,LL c) {
+        </span>++<span style="color: rgba(0, 0, 0, 1)">tot;
+        U[tot] </span>= a; V[tot] = b; W[tot] =<span style="color: rgba(0, 0, 0, 1)"> c;
+        Next[tot] </span>= Head[a]; Head[a] =<span style="color: rgba(0, 0, 0, 1)"> tot; 
+        other[tot] </span>= ++<span style="color: rgba(0, 0, 0, 1)">tot;
+        U[tot] </span>= b; V[tot] = a; W[tot] = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        Next[tot] </span>= Head[b]; Head[b] =<span style="color: rgba(0, 0, 0, 1)"> tot;
+        other[tot] </span>= tot - <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;    
+}
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">bool</span><span style="color: rgba(0, 0, 0, 1)"> BFS() {
+        LL i,x,y;
+        queue</span>&lt;LL&gt;<span style="color: rgba(0, 0, 0, 1)"> q;
+        memset(h,</span><span style="color: rgba(128, 0, 128, 1)">0</span>,<span style="color: rgba(0, 0, 255, 1)">sizeof</span><span style="color: rgba(0, 0, 0, 1)">(h));
+        h[st] </span>= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">; q.push(st);
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (!<span style="color: rgba(0, 0, 0, 1)">q.empty()) {
+                x </span>=<span style="color: rgba(0, 0, 0, 1)"> q.front(); q.pop();
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = Head[x]; i; i =<span style="color: rgba(0, 0, 0, 1)"> Next[i]) {
+                        y </span>=<span style="color: rgba(0, 0, 0, 1)"> V[i];
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> ((W[i] &gt; <span style="color: rgba(128, 0, 128, 1)">0</span>) &amp;&amp; (!<span style="color: rgba(0, 0, 0, 1)">h[y])) {
+                                h[y] </span>= h[x] + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                                q.push(y);
+                        }
+                }
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (h[ed]) <span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">else</span> <span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(0, 0, 255, 1)">false</span><span style="color: rgba(0, 0, 0, 1)">;
+}
+
+inline LL maxflow(LL x,LL f) {
+        LL i,t,y,sum</span>=<span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (x == ed) <span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> f;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = Head[x]; i; i =<span style="color: rgba(0, 0, 0, 1)"> Next[i]) {
+                y </span>=<span style="color: rgba(0, 0, 0, 1)"> V[i];
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> ((W[i] &gt; <span style="color: rgba(128, 0, 128, 1)">0</span>) &amp;&amp; (h[y] == h[x] + <span style="color: rgba(128, 0, 128, 1)">1</span>) &amp;&amp; (sum &lt;<span style="color: rgba(0, 0, 0, 1)"> f)) {
+                        sum </span>+= (t = maxflow(y,min(W[i],f-<span style="color: rgba(0, 0, 0, 1)">sum)));
+                        W[i] </span>-= t; W[other[i]] +=<span style="color: rgba(0, 0, 0, 1)"> t;
+                }     
+        }    
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!sum) h[x] = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> sum;
+}
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">bool</span><span style="color: rgba(0, 0, 0, 1)"> check(LL ml) {
+        LL i,j,sum</span>=<span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        tot </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        memset(Head,</span><span style="color: rgba(128, 0, 128, 1)">0</span>,<span style="color: rgba(0, 0, 255, 1)">sizeof</span><span style="color: rgba(0, 0, 0, 1)">(Head));
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = K + <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= K + C; i++<span style="color: rgba(0, 0, 0, 1)">) {
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= K; j++<span style="color: rgba(0, 0, 0, 1)">) {
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (dist[i][j] &lt;=<span style="color: rgba(0, 0, 0, 1)"> ml)
+                                add(i,j,</span><span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+                }
+        }    
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = K + <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= K + C; i++) add(st,i,<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">); 
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= K; i++<span style="color: rgba(0, 0, 0, 1)">) add(i,ed,M);
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span><span style="color: rgba(0, 0, 0, 1)"> (BFS()) {
+                sum </span>+=<span style="color: rgba(0, 0, 0, 1)"> maxflow(st,C);
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> sum ==<span style="color: rgba(0, 0, 0, 1)"> C;
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() {
+        
+        read(K); read(C); read(M);
+        st </span>= K + C + <span style="color: rgba(128, 0, 128, 1)">1</span>; ed = st + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= K + C; i++<span style="color: rgba(0, 0, 0, 1)">) {
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= K + C; j++<span style="color: rgba(0, 0, 0, 1)">) {
+                        read(dist[i][j]);
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!dist[i][j]) dist[i][j] =<span style="color: rgba(0, 0, 0, 1)"> 2e9;
+                }    
+        }    
+        
+        floyed();
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = K + <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= K + C; i++<span style="color: rgba(0, 0, 0, 1)">) {
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= K; j++<span style="color: rgba(0, 0, 0, 1)">) {
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (dist[i][j] !=<span style="color: rgba(0, 0, 0, 1)"> 2e9)
+                                high </span>=<span style="color: rgba(0, 0, 0, 1)"> max(high,dist[i][j]);
+                }    
+        }    
+        
+        low </span>= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">; 
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span> (low &lt;=<span style="color: rgba(0, 0, 0, 1)"> high) {
+                mid </span>= (low + high) &gt;&gt; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span><span style="color: rgba(0, 0, 0, 1)"> (check(mid)) {
+                        high </span>= mid - <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+                        ans </span>=<span style="color: rgba(0, 0, 0, 1)"> mid;
+                }    </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)">
+                        low </span>= mid + <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        }
+        writeln(ans);
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

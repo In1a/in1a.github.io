@@ -1,0 +1,61 @@
+---
+layout: post
+title: 'Pollard''s Rho Algorithm 教程'
+date: 2022-03-25 22:38:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/16057049.html
+cnblogs_id: 16057049
+---
+{% raw %}
+
+<p>[前言]</p>
+<p>一般而言， 实现分解质因数有两种方式 :</p>
+<p>(1). 用筛法 <span class="math inline">\(O(N)\)</span> 预处理每个数的最小质因子 ，从而在 <span class="math inline">\(O(logN)\)</span> 的时间内完成单次分解。 此算法的空间复杂度是 <span class="math inline">\(O(N)\)</span> 的。</p>
+<p>(2). 枚举 <span class="math inline">\(2\)</span> 到 <span class="math inline">\(\sqrt{N}\)</span> 中每个数 ， 进行试除法。 此算法的时间复杂度为 <span class="math inline">\(O(\sqrt{N})\)</span> , 而空间复杂度为 <span class="math inline">\(O(1)\)</span>。</p>
+<p>可以看出这两种做法的时间复杂度开支都太大了。 而本文介绍的 Pollard's Rho Algorithm 可以在<br>
+<span class="math inline">\(O(N^{\frac{1}{4}}+\frac{N^{\frac{1}{4}}*\alpha(N)}{\beta}+\beta*\alpha(N))\)</span> (<span class="math inline">\(\alpha(N)\)</span> 表示求最大公约数的复杂度) 的时间内 ， 花费 <span class="math inline">\(O(1)\)</span> 空间完成找出给定数 <span class="math inline">\(N\)</span> 的一个非平凡因子 <span class="math inline">\(p\)</span>。</p>
+<p>[前置内容]</p>
+<p>在理解 Pollard's Rho Algorithm 的原理之前 ， 首先我们需要了解以下知识 :</p>
+<p>Miller-Rabin 素数测试 :</p>
+<p>如何判断一个数是质数？ 最朴素的方法是 : 枚举 <span class="math inline">\(2\)</span> 到 <span class="math inline">\(\sqrt{N}\)</span> 中每个数 ， 判断其是否是 <span class="math inline">\(N\)</span> 的约数。 但这样的时间复杂度达到了 <span class="math inline">\(O(\sqrt{N})\)</span>。 我们有更优的做法 :</p>
+<p>首先 ， 根据费马小定理 ， 若 <span class="math inline">\(p\)</span> 是质数 ， 那么对于 <span class="math inline">\(0 &lt; a &lt; p\)</span> , 有 <span class="math inline">\(a^{p-1}\equiv1\ (mod\ \ p)\)</span></p>
+<p>我们还知道若 <span class="math inline">\(p\)</span> 是质数 ， 且 <span class="math inline">\(x^2\equiv1\ (mod\ \ p)\)</span> ， 那么 <span class="math inline">\(x\equiv1\ (mod\ \ p)\)</span> 或 <span class="math inline">\(x\equiv p-1\ (mod\ \ p)\)</span> 中必有一式成立。这是因为 <span class="math inline">\(x^2\equiv1\ (mod\ \ p)\)</span> 可以推出 <span class="math inline">\((x-1)(x+1)\equiv0\ (mod\ \ p)\)</span>。</p>
+<p>那么我们就得到了一个判定方法 : 对于要判断的数 <span class="math inline">\(N\)</span> , 选取一底数 <span class="math inline">\(a\)</span> 满足 <span class="math inline">\(a &lt; N\)</span> , 判断引理 <span class="math inline">\(1\)</span> 或 <span class="math inline">\(2\)</span> 是否成立。 若不成立直接得到 <span class="math inline">\(N\)</span> 是合数 , 接着反复验证引理 <span class="math inline">\(2\)</span> 是否成立 (若指数 <span class="math inline">\(N\)</span> 是奇数，且 <span class="math inline">\(a^{N-1}\equiv1\ (mod\ \ N)\)</span> ， 就可以将 <span class="math inline">\(N\)</span> 变为 <span class="math inline">\(\frac{N-1}{2}\)</span>)。</p>
+<p>这样单次测试的错误率是 <span class="math inline">\(\frac{1}{4}\)</span> ，然而通过选取多个不同的底数 ， 可以将错误率降低至 <span class="math inline">\(\frac{1}{4 ^ {k}}\)</span>。</p>
+<p>具体而言 ， 对于 <span class="math inline">\(N &lt; 2^{64}\)</span> ， 选取前十二个质数作为底数即可达到 <span class="math inline">\(100\%\)</span> 的正确率。</p>
+<p>此算法将时间复杂度提高至最劣情况下 <span class="math inline">\(O(log^2N)\)</span> 。</p>
+<p>生日悖论 :</p>
+<p>我们知道， 在中国大多数高中 ， 每个班有 <span class="math inline">\(40\)</span> 到 <span class="math inline">\(50\)</span> 位同学。 你的班级是否有两个有缘人是同年同月同日生呢？ 这样的概率是很大的 ， 由下图就可以知晓。</p>
+<p><img alt="" loading="lazy" data-src="https://img2022.cnblogs.com/blog/1424311/202203/1424311-20220325204824560-424422032.png" class="lazyload" src="https://img2022.cnblogs.com/blog/1424311/202203/1424311-20220325204824560-424422032.png"></p>
+<p>(此图来源为 Wikipedia)</p>
+<p>事实上，我们可以用函数表示 <span class="math inline">\(N\)</span> 个人生日两两不同的概率 :</p>
+<p><img alt="" loading="lazy" data-src="https://img2022.cnblogs.com/blog/1424311/202203/1424311-20220325205143173-1183545180.png" class="lazyload" src="https://img2022.cnblogs.com/blog/1424311/202203/1424311-20220325205143173-1183545180.png"></p>
+<p>当 <span class="math inline">\(N = 23\)</span> 时 ， 存在两人生日相同的概率就达到了 <span class="math inline">\(50\%\)</span>。 这也对应了上图。</p>
+<p>弗洛伊德判环法 :</p>
+<p>我们来解决一个这样的问题 : 有一个伪随机数列 <span class="math inline">\(a\)</span> 和随机函数 <span class="math inline">\(f\)</span> , 其递推公式为 <span class="math inline">\(a_{i} = f_{a_{i - 1}}\)</span>。这个序列存在一个循环节 ， 请给出循环开始的第一个位置 <span class="math inline">\(\mu\)</span> 和环长 <span class="math inline">\(\phi\)</span>。</p>
+<p>解决这个问题最简单的方法是用平衡树 / 哈希表判断每个数是否在之前出现过了，这样的时间复杂度是 <span class="math inline">\(O((\mu + \phi)log(\mu + \phi))\)</span> 的。 并且花费了 <span class="math inline">\(O(\mu + \phi)\)</span> 的空间。而弗洛伊德的方法是 : 用两个指针，一个指针每次走一步，另一个每次走两步， 如果两个指针指向的数对应值相同 ， 那么就找到了一个或若干个循环 ， 在这个基础上可以轻松得到 <span class="math inline">\(\mu\)</span> 与 <span class="math inline">\(\phi\)</span> 的具体值。简而言之 ， 就是需要找到第一个 <span class="math inline">\(i\)</span> 满足 <span class="math inline">\(a_{i} = a_{2i}\)</span>。</p>
+<p>我们分析此做法的时间复杂度 : 对于任意 <span class="math inline">\(i\)</span> 满足 <span class="math inline">\(i \geq \mu\)</span> ，都有 <span class="math inline">\(a_{i} = a_{i + k\phi}\)</span>。 由 <span class="math inline">\(a_{i} = a_{2i}\)</span> 可以推得 <span class="math inline">\(i + k\phi = 2i\)</span> , <span class="math inline">\(i = k\phi\)</span>。 因此我们找到的 <span class="math inline">\(i\)</span> 事实上是第一个 <span class="math inline">\(k\)</span> 满足 <span class="math inline">\(k\phi \geq \mu\)</span>。</p>
+<p>因此此算法时间复杂度是 <span class="math inline">\(O(\phi + \mu)\)</span> 的。 并且空间复杂度只有 <span class="math inline">\(O(1)\)</span>。</p>
+<p>Richard P. Brent 教授对这个算法做了一些常数优化。 思路是 : 每次走 <span class="math inline">\(2\)</span> 的次幂步 ， 直到发现循环为止。 这个优化使我们可以直接找到 <span class="math inline">\(\phi\)</span> 的精确值。根据他本人的试验， 此做法将 Pollard's Rho Algorithm 的运行效率提高约 <span class="math inline">\(24\%\)</span>。</p>
+<p>[算法流程]</p>
+<p>我们已经了解了上述知识 ， 下面回归问题本身 ， 如何快速分解质因数？</p>
+<p>首先用 Miller-Rabin 素数测试判断 <span class="math inline">\(N\)</span> 是否是质数。</p>
+<p>然后 ， 一个简单思路是 ， 若我们能找到 <span class="math inline">\(N = pq\)</span> (<span class="math inline">\(p\)</span> 和 <span class="math inline">\(q\)</span> 是 <span class="math inline">\(N\)</span> 的非平凡因子) ， 便可以将 <span class="math inline">\(p\)</span> 和 <span class="math inline">\(q\)</span> 递归地继续分解下去。</p>
+<p>不妨构造伪随机数列 <span class="math inline">\(a_{i} = f_{a_{i - 1}} \ mod\  N\)</span> , 其中 <span class="math inline">\(f(x) = x ^ {2} + c\)</span> (<span class="math inline">\(c\)</span> 为一常数)。 而另一个数列 <span class="math inline">\(\{a_{n} mod\  p\}\)</span> 客观存在 ，由生日悖论我们可知 <span class="math inline">\(\{a_{n}\}\)</span> 的的循环节是 <span class="math inline">\(O(\sqrt{N})\)</span> 级别的 , 而 <span class="math inline">\(\{a_{n} mod\  p\}\)</span> 的循环节长度是 <span class="math inline">\(O(\sqrt{p})\)</span> 级别的。</p>
+<p>假设存在两个位置 <span class="math inline">\(i,j\)</span> 使得 <span class="math inline">\(a_{i} mod \ p = a_{j} mod \ p\)</span> 且 <span class="math inline">\(a_{i} \neq a_{j}\)</span> , 取 <span class="math inline">\(gcd(a_{i} - a_{j} , N)\)</span> ， 就得到 <span class="math inline">\(N\)</span> 的一个非平凡因子。</p>
+<p>因此我们要做的其实是找出 <span class="math inline">\(\{a_{n} mod \ p\}\)</span> 的循环节 ， 不妨使用弗洛伊德判环法 ，计算 <span class="math inline">\(gcd(x_i-x_{2i},N)\)</span>。</p>
+<p>若 <span class="math inline">\(gcd(x_i-x_{2i},N) = 1\)</span> , 那么将 <span class="math inline">\(i\)</span> 加一<br>
+若 <span class="math inline">\(gcd(x_i-x_{2i},N) = N\)</span> , 说明 <span class="math inline">\(i\)</span> 和 <span class="math inline">\(2i\)</span> 同时在两个数列的循环节上。 需要调整随机函数 <span class="math inline">\(f\)</span>。<br>
+否则直接返回 <span class="math inline">\(gcd(x_i-x_{2i},N)\)</span>。</p>
+<p>因此我们期望用 <span class="math inline">\(O(\sqrt{p})\)</span> 个 <span class="math inline">\(i\)</span> 分解出 <span class="math inline">\(N\)</span> 的一个非平凡因子。 Pollard's Rho Algorithm 算法分解一个因子的复杂度是 <span class="math inline">\(O(N^{\frac{1}{4}}*\alpha(N))\)</span> 的。</p>
+<p>事实上 , 可以继续优化</p>
+<p>我们拟定一个参数 <span class="math inline">\(\beta\)</span>，计算每 <span class="math inline">\(\beta\)</span> 个 <span class="math inline">\(x_i−x_{2i}\)</span> 的乘积对 <span class="math inline">\(N\)</span> 取模的结果 <span class="math inline">\(prod\)</span>。</p>
+<p>若 <span class="math inline">\(gcd(prod,N) = 1\)</span> ，则说明这 <span class="math inline">\(\beta\)</span> 个 <span class="math inline">\(x_{i}−x_{2i}\)</span> 与 <span class="math inline">\(N\)</span> 的 gcd 均为 1 。<br>
+若 <span class="math inline">\(gcd(prod,N) \neq 1\)</span> ，那么我们就找到了 <span class="math inline">\(N\)</span> 的一个非平凡因子 <span class="math inline">\(gcd(prod,N)\)</span><br>
+否则，即 <span class="math inline">\(gcd(prod,N) = N\)</span> ，我们不知道此时我们是否需要重新进行算法，需要回到 <span class="math inline">\(\beta\)</span> 次操作之前。</p>
+<p>故算法产生一次有效的分解的期望时间复杂度被优化至了 <span class="math inline">\(O(N^{\frac{1}{4}}+\frac{N^{\frac{1}{4}}*\alpha(N)}{\beta}+\beta*\alpha(N))\)</span> 。</p>
+<p>下面是 Pollard's Rho Algorithm 的一个演示图 ， 相信会有助于您更好地理解。 来源为 Wikipedia</p>
+<p><img alt="" loading="lazy" data-src="https://img2022.cnblogs.com/blog/1424311/202203/1424311-20220325223545295-208782440.gif" class="lazyload" src="https://img2022.cnblogs.com/blog/1424311/202203/1424311-20220325223545295-208782440.gif"></p>
+
+
+
+{% endraw %}

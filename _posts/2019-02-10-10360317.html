@@ -1,0 +1,89 @@
+---
+layout: post
+title: '[ZJOI2007] 仓库建设'
+date: 2019-02-10 21:30:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/10360317.html
+cnblogs_id: 10360317
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p>          <a href="https://www.lydsy.com/JudgeOnline/problem.php?id=1096" target="_blank" rel="noopener nofollow">https://www.lydsy.com/JudgeOnline/problem.php?id=1096</a></p>
+<p>[算法]</p>
+<p>       斜率优化</p>
+<p>       时间复杂度 : O(N)</p>
+<p>[代码]</p>
+<p>        </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> N 1000010<span style="color: rgba(0, 0, 0, 1)">
+typedef </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> ll;
+typedef </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">double</span><span style="color: rgba(0, 0, 0, 1)"> ld;
+typedef unsigned </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> ull;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> n , l , r;
+ll ans , totsum;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> q[N];
+ll a[N] , cst[N] , pref[N] , suf[N] , f[N] , dis[N] , X[N] , Y[N];
+
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> chkmin(T &amp;x , T y) { x =<span style="color: rgba(0, 0, 0, 1)"> min(x , y); }
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> chkmax(T &amp;x , T y) { x =<span style="color: rgba(0, 0, 0, 1)"> max(x , y); }
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> read(T &amp;<span style="color: rgba(0, 0, 0, 1)">x)
+{
+   T f </span>= <span style="color: rgba(128, 0, 128, 1)">1</span>; x = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+   </span><span style="color: rgba(0, 0, 255, 1)">char</span> c =<span style="color: rgba(0, 0, 0, 1)"> getchar();
+   </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; !isdigit(c); c = getchar()) <span style="color: rgba(0, 0, 255, 1)">if</span> (c == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>) f = -<span style="color: rgba(0, 0, 0, 1)">f;
+   </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; isdigit(c); c = getchar()) x = (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">3</span>) + (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>) + c - <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">;
+   x </span>*=<span style="color: rgba(0, 0, 0, 1)"> f;
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main()
+{
+    
+    read(n);
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+    {
+        read(dis[i]);
+        read(a[i]);
+        read(cst[i]);
+    }
+    totsum </span>=<span style="color: rgba(0, 0, 0, 1)"> cst[n];
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+    {
+        suf[i] </span>= dis[n] -<span style="color: rgba(0, 0, 0, 1)"> dis[i];
+        pref[i] </span>= pref[i - <span style="color: rgba(128, 0, 128, 1)">1</span>] +<span style="color: rgba(0, 0, 0, 1)"> a[i];
+        totsum </span>+= suf[i] *<span style="color: rgba(0, 0, 0, 1)"> a[i]; 
+    }
+    </span><span style="color: rgba(0, 128, 0, 1)">//</span><span style="color: rgba(0, 128, 0, 1)"> f0 = totsum
+    </span><span style="color: rgba(0, 128, 0, 1)">//</span><span style="color: rgba(0, 128, 0, 1)"> fi = min{ fj - (prefi - prefj) * sufi + csti }
+    </span><span style="color: rgba(0, 128, 0, 1)">//</span><span style="color: rgba(0, 128, 0, 1)"> fi = min{ fj - prefi * sufi + prefj * sufi + csti }
+    </span><span style="color: rgba(0, 128, 0, 1)">//</span><span style="color: rgba(0, 128, 0, 1)">    fj = Yj , prefj = Xj
+    </span><span style="color: rgba(0, 128, 0, 1)">//</span><span style="color: rgba(0, 128, 0, 1)"> Yj = fi + prefi * sufi - Xj * sufi - csti}
+    </span><span style="color: rgba(0, 128, 0, 1)">//</span><span style="color: rgba(0, 128, 0, 1)"> Yj = -sufi * Xj + fi + prefi * sufi - csti</span>
+<span style="color: rgba(0, 0, 0, 1)">    
+    X[</span><span style="color: rgba(128, 0, 128, 1)">0</span>] = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    f[</span><span style="color: rgba(128, 0, 128, 1)">0</span>] = Y[<span style="color: rgba(128, 0, 128, 1)">0</span>] =<span style="color: rgba(0, 0, 0, 1)"> totsum;
+    q[l </span>= r = <span style="color: rgba(128, 0, 128, 1)">1</span>] = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    ll ans </span>=<span style="color: rgba(0, 0, 0, 1)"> totsum;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+    {
+        </span><span style="color: rgba(0, 128, 0, 1)">//</span><span style="color: rgba(0, 128, 0, 1)"> (Yql+1 - Yql) / (Xql+1 - Xql) &lt;= k</span>
+        <span style="color: rgba(0, 0, 255, 1)">while</span> (l &lt; r &amp;&amp; Y[q[l + <span style="color: rgba(128, 0, 128, 1)">1</span>]] - Y[q[l]] &lt;= -suf[i] * (X[q[l + <span style="color: rgba(128, 0, 128, 1)">1</span>]] - X[q[l]])) ++<span style="color: rgba(0, 0, 0, 1)">l;
+        f[i] </span>= f[q[l]] - (pref[i] - pref[q[l]]) * suf[i] +<span style="color: rgba(0, 0, 0, 1)"> cst[i];
+        X[i] </span>=<span style="color: rgba(0, 0, 0, 1)"> pref[i];
+        Y[i] </span>=<span style="color: rgba(0, 0, 0, 1)"> f[i];
+        chkmin(ans , f[i]);
+        </span><span style="color: rgba(0, 128, 0, 1)">//</span><span style="color: rgba(0, 128, 0, 1)"> (Yi - Yqr) / (Xi - Xqr) &lt;= (Yqr - Yqr-1) / (Xqr - Xqr-1)</span>
+        <span style="color: rgba(0, 0, 255, 1)">while</span> (l &lt; r &amp;&amp; (Y[i] - Y[q[r]]) * (X[q[r]] - X[q[r - <span style="color: rgba(128, 0, 128, 1)">1</span>]]) &lt;= (Y[q[r]] - Y[q[r - <span style="color: rgba(128, 0, 128, 1)">1</span>]]) * (X[i] - X[q[r]])) --<span style="color: rgba(0, 0, 0, 1)">r;
+        q[</span>++r] =<span style="color: rgba(0, 0, 0, 1)"> i;
+    }
+    printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%lld\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)"> , ans);
+    
+    </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

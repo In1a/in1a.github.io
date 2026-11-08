@@ -1,0 +1,83 @@
+---
+layout: post
+title: '[CF585E] Present for Vitalik the Philatelist'
+date: 2021-01-24 16:54:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/14321389.html
+cnblogs_id: 14321389
+---
+{% raw %}
+
+<p>[题目链接]</p>
+<p><a href="" rel="noopener nofollow">https://codeforces.com/contest/585/problem/E</a></p>
+<p>[题解]</p>
+<p>令 <span class="math inline">\(s_{n}\)</span> 表示最大公约数恰好为 <span class="math inline">\(n\)</span> 的集合个数 ， <span class="math inline">\(f_{n}\)</span> 表示与 <span class="math inline">\(n\)</span> 互质的数个数。</p>
+<p>那么答案为 <span class="math inline">\(\sum{s_{i}f_{i}}\)</span>。</p>
+<p>考虑计算 <span class="math inline">\(f\)</span> , 令 <span class="math inline">\(c_{i}\)</span> 表示 <span class="math inline">\(i\)</span> 的出现次数。</p>
+<p>那么有 <span class="math inline">\(f_{n} = \sum_{i}{[gcd(i , n) = 1]c_{i}} = \sum_{i}{c_{i}}\sum_{d|i,d|n}{\mu(d)} = \sum_{d|n}{\mu(d)}\sum_{d|i}{c_{i}}\)</span>。</p>
+<p>不妨令 <span class="math inline">\(g_{k} = \sum_{k|i}{c_{i}} , g'_{k} = \mu(k)g(k)\)</span> , 那么 <span class="math inline">\(f_{n} = \sum_{d|n}{g'_{d}}\)</span>。</p>
+<p>再考虑求 <span class="math inline">\(s_{i}\)</span> ， 不妨令 <span class="math inline">\(s'_{i}\)</span> 为最大公约数为 <span class="math inline">\(i\)</span> 倍数的方案数 ， 显然 <span class="math inline">\(s'_{i} = 2 ^ {g_{i}} - 1\)</span>。</p>
+<p>又有 <span class="math inline">\(s'_{i} = \sum_{i|d}{s_{d}}\)</span>。</p>
+<p>这两个式子都是 <span class="math inline">\(a_{k} = \sum_{d|k}{b_{k}}\)</span> 或 <span class="math inline">\(a_{k} = \sum_{k|d}{b_{k}}\)</span> 的形式 ， 可以求狄利克雷前缀和 (第二个式子实质上是求逆)。</p>
+<p>时间复杂度 : <span class="math inline">\(O(NlogN)\)</span></p>
+<p>[代码]</p>
+<pre><code class="language-cpp">#include&lt;bits/stdc++.h&gt;
+
+using namespace std;
+
+#define rep(i , l , r) for (int i = (l); i &lt; (r); ++i)
+
+typedef long long LL;
+
+const int MN = 5e5 + 5 , MM = 1e7 + 5 , mod = 1e9 + 7;
+
+int n , lim , s[MM] , two[MN] , a[MN] , tot[MM] , g[MM] , pr[MM / 10] , cnt , mu[MM] , vis[MM];
+
+inline void inc(int &amp;x , int y) {
+	 x = x + y &lt; mod ? x + y : x + y - mod;
+}
+inline void dec(int &amp;x , int y) {
+	 x = x - y &gt;= 0 ? x - y : x - y + mod;
+}
+inline void prework(int n) {
+	 mu[1] = 1;
+	 for (int i = 2; i &lt;= n; ++i) {
+	 		if (!vis[i]) pr[++cnt] = i , mu[i] = -1;
+	 		for (int j = 1; j &lt;= cnt &amp;&amp; i * pr[j] &lt;= n; ++j) {
+	 				vis[i * pr[j]] = 1;
+					if (i % pr[j] == 0) {
+							mu[i * pr[j]] = 0;
+							break;
+					}	else mu[i * pr[j]] = -mu[i];
+			}  
+	 }
+}
+int main() {
+		
+		scanf("%d" , &amp;n); two[0] = 1;
+		for (int i = 1; i &lt;= 500000; ++i) two[i] = 2ll * two[i - 1] % mod;
+		for (int i = 1; i &lt;= n; ++i) {
+				scanf("%d" , &amp;a[i]);
+				++tot[a[i]];
+		}
+		lim = *max_element(a + 1 , a + 1 + n); prework(lim);
+		for (int i = 1; i &lt;= cnt; ++i)
+		for (int j = lim / pr[i]; j; --j)
+				tot[j] += tot[j * pr[i]];
+		for (int i = 1; i &lt;= lim; ++i) g[i] = (1ll * tot[i] * mu[i] % mod + mod) % mod;
+		for (int i = 1; i &lt;= cnt; ++i)
+		for (int j = 1; j * pr[i] &lt;= lim; ++j)
+				inc(g[j * pr[i]] , g[j]);
+		for (int i = 1; i &lt;= lim; ++i) s[i] = two[tot[i]] - 1;
+		for (int i = cnt; i; --i)
+		for (int j = 1; j * pr[i] &lt;= lim; ++j)
+				dec(s[j] , s[j * pr[i]]);
+		int ans = 0;
+		for (int i = lim; i &gt; 1; --i) inc(ans , 1ll * s[i] * g[i] % mod);
+		printf("%d\n" , ans);
+	  return 0;
+}
+</code></pre>
+
+
+
+{% endraw %}

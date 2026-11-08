@@ -1,0 +1,121 @@
+---
+layout: post
+title: '【NOIP16提高组】换教室'
+date: 2018-02-15 14:37:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9196423.html
+cnblogs_id: 9196423
+---
+{% raw %}
+
+<p> 【题目链接】</p>
+<p>          <a href="https://www.luogu.org/problemnew/show/P1850" rel="noopener nofollow">点击打开链接</a></p>
+<p> 【算法】</p>
+<p>          概率DP</p>
+<p>          先跑一遍floyed，求出每个教室之间的最短路径，存在数组dist[][]中，时间复杂度O(V^3)</p>
+<p>          设计状态，f[i][j][k]表示当前选到第i个教室，已经选了j个教室，当前这个教室选不选（0..1)</p>
+<p>          那么，状态转移方程是什么呢？</p>
+<p>          假设当前选到第i个教室，已经选了j个教室，那么，如果不选这个教室，则状态转移方程为</p>
+<p>         <em> <strong><span style="font-size: 18px">f[i][j][0] = max{f[i-1][j][0]+dist[c[i-1]][c[i]],f[i-1][j][1]+dist[c[i-1]][c[i]]*(1-k[i-1])+dist[d[i-1]][c[i]]*k[i-1]}</span></strong></em></p>
+<p> </p>
+<p><span style="font-size: 18px"><strong><em>      </em></strong></span><span style="font-size: 14px">如果选这个教室，则状态转移方程是</span></p>
+<p><span style="font-size: 18px"><strong><em>      f[i][j][1] = min{f[i-1][j-1][0]+dist[c[i-1]][d[i]]*k[i]+dist[c[i-1]][c[i]]*(1-k[i],f[i-1][j-1][1]+dist[d[i-1]][d[i]]*k[i-1]*k[i]+dist[c[i-1]][d[i]]*(1-k[i-1])*k[i]+dist[c[i-1]][c[i]]*(1-k[i-1])*(1-k[i])+dist[d[i-1]][c[i]]*k[i-1]*(1-k[i])}</em></strong></span><span style="font-size: 14px"><br></span></p>
+<p> </p>
+<p>      于是这道题便迎刃而解了！</p>
+<p>      【代码】</p>
+<p>   </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 2000
+<span style="color: rgba(0, 0, 255, 1)">#define</span> MAXV 300
+
+<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,j,k,n,m,v,e,a,b,w;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span> dist[MAXV+<span style="color: rgba(128, 0, 128, 1)">10</span>][MAXV+<span style="color: rgba(128, 0, 128, 1)">10</span>],c[MAXN+<span style="color: rgba(128, 0, 128, 1)">10</span>],d[MAXN+<span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">];
+</span><span style="color: rgba(0, 0, 255, 1)">double</span> P[MAXN+<span style="color: rgba(128, 0, 128, 1)">10</span>],dp[MAXN+<span style="color: rgba(128, 0, 128, 1)">10</span>][MAXN+<span style="color: rgba(128, 0, 128, 1)">10</span>][<span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">];
+</span><span style="color: rgba(0, 0, 255, 1)">double</span> ans =<span style="color: rgba(0, 0, 0, 1)"> 2e9;
+
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> read(T &amp;<span style="color: rgba(0, 0, 0, 1)">x) {
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> f=<span style="color: rgba(128, 0, 128, 1)">1</span>; x=<span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">char</span> c =<span style="color: rgba(0, 0, 0, 1)"> getchar(); 
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; !isdigit(c); c = getchar()) { <span style="color: rgba(0, 0, 255, 1)">if</span> (c == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>) f = -<span style="color: rgba(0, 0, 0, 1)">f; }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; isdigit(c); c = getchar()) x = x * <span style="color: rgba(128, 0, 128, 1)">10</span> + c - <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">;
+        x </span>*=<span style="color: rgba(0, 0, 0, 1)"> f;
+}
+
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> write(T x) {
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (x &lt; <span style="color: rgba(128, 0, 128, 1)">0</span>) { putchar(<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>); x = -<span style="color: rgba(0, 0, 0, 1)">x; }
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (x &gt; <span style="color: rgba(128, 0, 128, 1)">9</span>) write(x/<span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">);
+    putchar(x</span>%<span style="color: rgba(128, 0, 128, 1)">10</span>+<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">);    
+}
+
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> writeln(T x) {
+    write(x);
+    puts(</span><span style="color: rgba(128, 0, 0, 1)">""</span><span style="color: rgba(0, 0, 0, 1)">);    
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() {
+        
+        read(n); read(m); read(v); read(e);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= v; i++<span style="color: rgba(0, 0, 0, 1)">) {
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= v; j++<span style="color: rgba(0, 0, 0, 1)">) {
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (i !=<span style="color: rgba(0, 0, 0, 1)"> j)
+                                dist[i][j] </span>=<span style="color: rgba(0, 0, 0, 1)"> 2e9;
+                }
+        }
+         </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">) read(c[i]);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">) read(d[i]);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++) cin &gt;&gt;<span style="color: rgba(0, 0, 0, 1)"> P[i];
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= e; i++<span style="color: rgba(0, 0, 0, 1)">) {
+                read(a); read(b); read(w);
+                dist[a][b] </span>=<span style="color: rgba(0, 0, 0, 1)"> min(dist[a][b],w);
+                dist[b][a] </span>=<span style="color: rgba(0, 0, 0, 1)"> min(dist[b][a],w);    
+        }
+    
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (k = <span style="color: rgba(128, 0, 128, 1)">1</span>; k &lt;= v; k++<span style="color: rgba(0, 0, 0, 1)">) {
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= v; i++<span style="color: rgba(0, 0, 0, 1)">) {
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (i == k) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (dist[i][k] == 2e9) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= v; j++<span style="color: rgba(0, 0, 0, 1)">) {
+                                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (dist[k][j] == 2e9) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                                </span><span style="color: rgba(0, 0, 255, 1)">if</span> ((i == j) || (k == j)) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                                dist[i][j] </span>= min(dist[i][j],dist[i][k]+<span style="color: rgba(0, 0, 0, 1)">dist[k][j]);
+                        }
+                }
+        }    
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">) {
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">0</span>; j &lt;= m; j++<span style="color: rgba(0, 0, 0, 1)">) {
+                        dp[i][j][</span><span style="color: rgba(128, 0, 128, 1)">0</span>] = dp[i][j][<span style="color: rgba(128, 0, 128, 1)">1</span>] =<span style="color: rgba(0, 0, 0, 1)"> 2e9;
+                }    
+        }
+        
+        dp[</span><span style="color: rgba(128, 0, 128, 1)">1</span>][<span style="color: rgba(128, 0, 128, 1)">0</span>][<span style="color: rgba(128, 0, 128, 1)">0</span>] = <span style="color: rgba(128, 0, 128, 1)">0</span>; dp[<span style="color: rgba(128, 0, 128, 1)">1</span>][<span style="color: rgba(128, 0, 128, 1)">1</span>][<span style="color: rgba(128, 0, 128, 1)">1</span>] = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">2</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">) {
+                dp[i][</span><span style="color: rgba(128, 0, 128, 1)">0</span>][<span style="color: rgba(128, 0, 128, 1)">0</span>] = dp[i-<span style="color: rgba(128, 0, 128, 1)">1</span>][<span style="color: rgba(128, 0, 128, 1)">0</span>][<span style="color: rgba(128, 0, 128, 1)">0</span>] + dist[c[i-<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">]][c[i]];
+                </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= min(i,m); j++<span style="color: rgba(0, 0, 0, 1)">) {
+                        dp[i][j][</span><span style="color: rgba(128, 0, 128, 1)">0</span>] = min(dp[i-<span style="color: rgba(128, 0, 128, 1)">1</span>][j][<span style="color: rgba(128, 0, 128, 1)">0</span>]+dist[c[i-<span style="color: rgba(128, 0, 128, 1)">1</span>]][c[i]],dp[i-<span style="color: rgba(128, 0, 128, 1)">1</span>][j][<span style="color: rgba(128, 0, 128, 1)">1</span>]+dist[c[i-<span style="color: rgba(128, 0, 128, 1)">1</span>]][c[i]]*(<span style="color: rgba(128, 0, 128, 1)">1.0</span>-P[i-<span style="color: rgba(128, 0, 128, 1)">1</span>])+dist[d[i-<span style="color: rgba(128, 0, 128, 1)">1</span>]][c[i]]*P[i-<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">]);
+                        dp[i][j][</span><span style="color: rgba(128, 0, 128, 1)">1</span>] = min(dp[i-<span style="color: rgba(128, 0, 128, 1)">1</span>][j-<span style="color: rgba(128, 0, 128, 1)">1</span>][<span style="color: rgba(128, 0, 128, 1)">0</span>]+dist[c[i-<span style="color: rgba(128, 0, 128, 1)">1</span>]][d[i]]*P[i]*<span style="color: rgba(128, 0, 128, 1)">1.0</span>+dist[c[i-<span style="color: rgba(128, 0, 128, 1)">1</span>]][c[i]]*(<span style="color: rgba(128, 0, 128, 1)">1.0</span>-<span style="color: rgba(0, 0, 0, 1)">P[i]),
+                                                            dp[i</span>-<span style="color: rgba(128, 0, 128, 1)">1</span>][j-<span style="color: rgba(128, 0, 128, 1)">1</span>][<span style="color: rgba(128, 0, 128, 1)">1</span>]+<span style="color: rgba(0, 0, 0, 1)">
+                                                            dist[d[i</span>-<span style="color: rgba(128, 0, 128, 1)">1</span>]][d[i]]*P[i-<span style="color: rgba(128, 0, 128, 1)">1</span>]*P[i]*<span style="color: rgba(128, 0, 128, 1)">1.0</span>+<span style="color: rgba(0, 0, 0, 1)"> 
+                                                            dist[c[i</span>-<span style="color: rgba(128, 0, 128, 1)">1</span>]][d[i]]*(<span style="color: rgba(128, 0, 128, 1)">1.0</span>-P[i-<span style="color: rgba(128, 0, 128, 1)">1</span>])*P[i]+<span style="color: rgba(0, 0, 0, 1)"> 
+                                                            dist[c[i</span>-<span style="color: rgba(128, 0, 128, 1)">1</span>]][c[i]]*(<span style="color: rgba(128, 0, 128, 1)">1.0</span>-P[i-<span style="color: rgba(128, 0, 128, 1)">1</span>])*(<span style="color: rgba(128, 0, 128, 1)">1.0</span>-P[i])+<span style="color: rgba(0, 0, 0, 1)"> 
+                                                                dist[d[i</span>-<span style="color: rgba(128, 0, 128, 1)">1</span>]][c[i]]*P[i-<span style="color: rgba(128, 0, 128, 1)">1</span>]*(<span style="color: rgba(128, 0, 128, 1)">1</span>-P[i])*<span style="color: rgba(128, 0, 128, 1)">1.0</span><span style="color: rgba(0, 0, 0, 1)">); 
+                }    
+        }
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i &lt;= m; i++) ans = min(ans,min(dp[n][i][<span style="color: rgba(128, 0, 128, 1)">0</span>],dp[n][i][<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">]));
+        cout</span>&lt;&lt; <span style="color: rgba(0, 0, 255, 1)">fixed</span> &lt;&lt; setprecision(<span style="color: rgba(128, 0, 128, 1)">2</span>) &lt;&lt; ans &lt;&lt;<span style="color: rgba(0, 0, 0, 1)"> endl;
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}
+
+
+         
+
+            </span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

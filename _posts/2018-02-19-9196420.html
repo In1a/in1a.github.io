@@ -1,0 +1,109 @@
+---
+layout: post
+title: '【Educational Codeforces Round 38 (Rated for Div. 2)】  Problem A-D 题解'
+date: 2018-02-19 18:38:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9196420.html
+cnblogs_id: 9196420
+---
+{% raw %}
+
+<p>【比赛链接】</p>
+<p>           <a href="http://codeforces.com/contest/938" rel="noopener nofollow">点击打开链接</a></p>
+<p>【题解】</p>
+<p>Problem A Word Correction【字符串】</p>
+<p>不用多说了吧，字符串的基本操作</p>
+<p> </p>
+<p>Problem B  Run for your prize【贪心】</p>
+<p>我们可以将这个数轴一分为二，小于等于500000的由第一个人领，否则由第二个人领</p>
+<p> </p>
+<p>Problem C Constructing tests【贪心】【数学】</p>
+<p>首先我们发现 ： N^2 - (N / M)^2 = x （N/M向下取整）</p>
+<p>然后我们算出N的上下界，发现： sqrt(x+1)&lt;=N&lt;=sqrt(3/4*x)  (sqrt是开根号的意思）</p>
+<p>所以我们可以枚举N，算出M</p>
+<p> </p>
+<p>Problem D Buy a ticket【最短路】</p>
+<p>首先想到可以跑N遍最短路</p>
+<p>但是很显然，这样会超时，那么我们该如何优化呢？</p>
+<p>我们不妨先建一个原点，将原点与每个城市连边，权值为在这个城市开演唱会的价格ai，然后再将城市与城市之间连边，</p>
+<p>但是每条路径上的权值要乘2，因为是往返的费用</p>
+<p>我们发现，只要对这个图跑一遍最短路，就得出了答案。</p>
+<p>注意N最大10^5，SPFA不能过，要用dijkstra+堆优化</p>
+<p>代码 ： </p>
+<p>   </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+typedef </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> LL;
+</span><span style="color: rgba(0, 0, 255, 1)">const</span> LL MAXN = <span style="color: rgba(128, 0, 128, 1)">2</span> *<span style="color: rgba(0, 0, 0, 1)"> 1e5;
+
+LL i,N,M;
+LL dist[MAXN</span>+<span style="color: rgba(128, 0, 128, 1)">10</span>],a[MAXN+<span style="color: rgba(128, 0, 128, 1)">10</span>],b[MAXN+<span style="color: rgba(128, 0, 128, 1)">10</span>],c[MAXN+<span style="color: rgba(128, 0, 128, 1)">10</span>],w[MAXN+<span style="color: rgba(128, 0, 128, 1)">10</span>],vis[MAXN+<span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">];
+vector</span>&lt; pair&lt;LL,LL&gt; &gt; E[MAXN+<span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">];
+
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> read(T &amp;<span style="color: rgba(0, 0, 0, 1)">x) {
+    LL f </span>= <span style="color: rgba(128, 0, 128, 1)">1</span>; x = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">char</span> c =<span style="color: rgba(0, 0, 0, 1)"> getchar();
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; !isdigit(c); c = getchar()) { <span style="color: rgba(0, 0, 255, 1)">if</span> (c == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>) f = -<span style="color: rgba(0, 0, 0, 1)">f; }
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; isdigit(c); c = getchar()) x = x * <span style="color: rgba(128, 0, 128, 1)">10</span> + c - <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">;
+    x </span>*=<span style="color: rgba(0, 0, 0, 1)"> f;
+}
+
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> write(T x) {
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (x &lt; <span style="color: rgba(128, 0, 128, 1)">0</span>) { putchar(<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>); x = -<span style="color: rgba(0, 0, 0, 1)">x; }
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (x &gt; <span style="color: rgba(128, 0, 128, 1)">9</span>) write(x/<span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">);
+    putchar(x</span>%<span style="color: rgba(128, 0, 128, 1)">10</span>+<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">);
+}
+
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> writeln(T x) {
+    write(x);
+    puts(</span><span style="color: rgba(128, 0, 0, 1)">""</span><span style="color: rgba(0, 0, 0, 1)">);
+}
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> dijkstra(LL st) {
+    LL i,x,to,cost;
+    priority_queue</span>&lt; pair&lt;LL,LL&gt; &gt;<span style="color: rgba(0, 0, 0, 1)"> q;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= N; i++) dist[i] =<span style="color: rgba(0, 0, 0, 1)"> LONG_LONG_MAX;
+    q.push(make_pair(</span><span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">,st));
+    dist[st] </span>= <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    memset(vis,</span><span style="color: rgba(128, 0, 128, 1)">0</span>,<span style="color: rgba(0, 0, 255, 1)">sizeof</span><span style="color: rgba(0, 0, 0, 1)">(vis));
+    </span><span style="color: rgba(0, 0, 255, 1)">while</span> (!<span style="color: rgba(0, 0, 0, 1)">q.empty()) {
+        x </span>=<span style="color: rgba(0, 0, 0, 1)"> q.top().second; q.pop();
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (vis[x]) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+        vis[x] </span>= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">; 
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i &lt; E[x].size(); i++<span style="color: rgba(0, 0, 0, 1)">) {
+            to </span>=<span style="color: rgba(0, 0, 0, 1)"> E[x][i].first;
+            cost </span>=<span style="color: rgba(0, 0, 0, 1)"> E[x][i].second;
+            </span><span style="color: rgba(0, 0, 255, 1)">if</span> (dist[x] + cost &lt;<span style="color: rgba(0, 0, 0, 1)"> dist[to]) {
+                dist[to] </span>= dist[x] +<span style="color: rgba(0, 0, 0, 1)"> cost;
+                q.push(make_pair(</span>-<span style="color: rgba(0, 0, 0, 1)">dist[to],to));
+            }
+        }
+    }    
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() {
+    
+    read(N); read(M);
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= M; i++<span style="color: rgba(0, 0, 0, 1)">) {
+        read(a[i]); read(b[i]); read(w[i]);
+        E[a[i]].push_back(make_pair(b[i],w[i]</span>*<span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">));
+        E[b[i]].push_back(make_pair(a[i],w[i]</span>*<span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">));
+    }
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= N; i++<span style="color: rgba(0, 0, 0, 1)">) {
+        read(c[i]);
+        E[N</span>+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">].push_back(make_pair(i,c[i]));
+    }
+    dijkstra(N</span>+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= N; i++<span style="color: rgba(0, 0, 0, 1)">) {
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (i == <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">) write(dist[i]);
+        </span><span style="color: rgba(0, 0, 255, 1)">else</span> { putchar(<span style="color: rgba(128, 0, 0, 1)">'</span> <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">); write(dist[i]); }
+    }
+    puts(</span><span style="color: rgba(128, 0, 0, 1)">""</span><span style="color: rgba(0, 0, 0, 1)">);
+    
+    </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

@@ -1,0 +1,327 @@
+---
+layout: post
+title: '6月16日省中集训题解'
+date: 2018-06-17 18:07:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9196276.html
+cnblogs_id: 9196276
+---
+{% raw %}
+
+<p><strong>Problem A Pailindrome</strong></p>
+<p><strong>【题意】</strong></p>
+<p><strong> </strong>           求在k进制下n位回文数的和，答案对1000001取模，结果用十进制输出</p>
+<p>            n &lt;= 10^18</p>
+<p>            k &lt;= 10^6</p>
+<p>            对于20%的数据，n &lt;= 16,k &lt;= 20</p>
+<p>            对于50%的数据，n &lt;= 10^4,k &lt;= 10^3</p>
+<p>            对于100%的数据,n &lt;= 10^18,k &lt;= 10^6</p>
+<p>【题解】</p>
+<p>          <strong>满分算法： </strong></p>
+<p><strong>                   解法1 ：</strong></p>
+<p>                   我们知道对于一个k进制下的n位回文数S(假设n为偶数），一定有 ： S1 = Sn, S2 = Sn-1, .. Sn/2 = Sn/2+1</p>
+<p>                   那么，我们只要知道前n/2位数，就能够构造出一个k进制下的n位回文数</p>
+<p>                   假设我们知道前n/2位数，那么其对应的回文数在10进制下的值为 :</p>
+<p>                   S1k^(n-1) + S2k^(n-2) + ... +  S(n/2)k^(n/2) + S(n/2)k^(n/2-1) + S(n/2-1)k^(n/2-2) + ... + S1</p>
+<p>                   = S1(k^(n-1) + 1) + S2(k^(n-2) + k) + ... + S(n/2)(k^(n/2-1) + k^(n/2-2))</p>
+<p>                   考虑第一项对答案的"贡献" :</p>
+<p>                   当S1在1..k-1范围内时才会对答案产生"贡献"，而S2..S(n/2)，每个数都有0..k-1这k种取值，因此，它对答案</p>
+<p>                   的贡献为 : (1 + 2 + 3 + ... + (k - 1) ) * k^(n/2-1) * (k^(n-1) + 1)</p>
+<p>                                   = k(k-1)/2k^(n/2-1)(k^(n-1)+1) = (k - 1)k^(n/2)/2(k^(n-1)+1)</p>
+<p>                   考虑第2,3,4...n/2项对答案的贡献 ：</p>
+<p>                   S1有(k-1)中取值，其它的数有k种取值，</p>
+<p>                   所以，它对答案的贡献为 ：</p>
+<p>                   （k-1)^2k^(n/2-1)/2(k ^ (n - 1) + k^0 + k^(n-2) + k + ... + k^(n/2-1) + k^(n/2-2))</p>
+<p>                     = (k-1)^2k^(n/2-1)/2(k^0 + k + k^2 + ... + k^(n-2) - k^(n/2))</p>
+<p>                   n为奇数时同理</p>
+<p>                   那么，贡献相加就是最后的答案，注意要用快速幂辅助运算</p>
+<p>                   k^0 + k + .. + k^(n-2)是一个等比数列，可以用二分法求 :</p>
+<p>                   设f(n) = S + S^2 + .. S^n</p>
+<p>                   那么，当n = 1时，f(n) = S</p>
+<p>                             当n为奇数时, f(n) = f(n-1) + S^n</p>
+<p>                             当n为偶数时,f(n) = f(n/2) + S^(n/2)f(n/2)</p>
+<p>                   <strong>解法2 ：</strong></p>
+<p><strong>                   </strong>在k进制下的n位回文数共有 : (k - 1)k^((n+1)/2)个</p>
+<p>                   根据这个结论，对第一位，第二位，...第(n+1)/2位讨论，即可，笔者不再赘述</p>
+<p>【代码】</p>
+<p>          </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span> P = <span style="color: rgba(128, 0, 128, 1)">1000001</span><span style="color: rgba(0, 0, 0, 1)">;
+
+</span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> s,n,k,ans1,ans2,ans3,ans;
+
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> read(T &amp;<span style="color: rgba(0, 0, 0, 1)">x)
+{
+    </span><span style="color: rgba(0, 0, 255, 1)">int</span> f = <span style="color: rgba(128, 0, 128, 1)">1</span>; x = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">char</span> c =<span style="color: rgba(0, 0, 0, 1)"> getchar();
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; !isdigit(c); c = getchar()) { <span style="color: rgba(0, 0, 255, 1)">if</span> (c == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>) f = -<span style="color: rgba(0, 0, 0, 1)">f; }
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; isdigit(c); c = getchar()) x = (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">3</span>) + (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>) + c - <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">;
+    x </span>*=<span style="color: rgba(0, 0, 0, 1)"> f;
+}
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> write(T x)
+{
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (x &lt; <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">)
+    {
+        putchar(</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">);
+        x </span>= -<span style="color: rgba(0, 0, 0, 1)">x;
+    }
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (x &gt; <span style="color: rgba(128, 0, 128, 1)">9</span>) write(x/<span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">);
+    putchar(x</span>%<span style="color: rgba(128, 0, 128, 1)">10</span>+<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">);
+}
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> writeln(T x)
+{
+    write(x);
+    puts(</span><span style="color: rgba(128, 0, 0, 1)">""</span><span style="color: rgba(0, 0, 0, 1)">);
+}
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span> power(<span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span> a,<span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> n)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span> ans = <span style="color: rgba(128, 0, 128, 1)">1</span>,b =<span style="color: rgba(0, 0, 0, 1)"> a;
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span><span style="color: rgba(0, 0, 0, 1)"> (n)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (n &amp; <span style="color: rgba(128, 0, 128, 1)">1</span>) ans = (ans * b) %<span style="color: rgba(0, 0, 0, 1)"> P;
+                b </span>= (b * b) %<span style="color: rgba(0, 0, 0, 1)"> P;
+                n </span>&gt;&gt;= <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;    
+        }    
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> ans;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span> calc(<span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> n)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> tmp;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (n == <span style="color: rgba(128, 0, 128, 1)">1</span>) <span style="color: rgba(0, 0, 255, 1)">return</span> k %<span style="color: rgba(0, 0, 0, 1)"> P;
+        </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)">
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (n % <span style="color: rgba(128, 0, 128, 1)">2</span> == <span style="color: rgba(128, 0, 128, 1)">1</span>) <span style="color: rgba(0, 0, 255, 1)">return</span> (calc(n-<span style="color: rgba(128, 0, 128, 1)">1</span>) + power(k,n)) %<span style="color: rgba(0, 0, 0, 1)"> P;
+                </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)"> 
+                {
+                        tmp </span>= calc(n/<span style="color: rgba(128, 0, 128, 1)">2</span><span style="color: rgba(0, 0, 0, 1)">);
+                        </span><span style="color: rgba(0, 0, 255, 1)">return</span> (tmp + (power(k,n/<span style="color: rgba(128, 0, 128, 1)">2</span>) * tmp) % P) %<span style="color: rgba(0, 0, 0, 1)"> P;
+                }
+        }
+}
+ 
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() 
+{
+        
+        freopen(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">palindrome.in</span><span style="color: rgba(128, 0, 0, 1)">"</span>,<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">r</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,stdin);
+        freopen(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">palindrome.out</span><span style="color: rgba(128, 0, 0, 1)">"</span>,<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">w</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,stdout);
+        
+        read(k); read(n);
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (n &amp; <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">)
+        {
+                s </span>= k * (k - <span style="color: rgba(128, 0, 128, 1)">1</span>) / <span style="color: rgba(128, 0, 128, 1)">2</span> %<span style="color: rgba(0, 0, 0, 1)"> P;
+                ans1 </span>= ((s * power(k,n/<span style="color: rgba(128, 0, 128, 1)">2</span>)) % P * (power(k,n-<span style="color: rgba(128, 0, 128, 1)">1</span>) + <span style="color: rgba(128, 0, 128, 1)">1</span>) % P) %<span style="color: rgba(0, 0, 0, 1)"> P;
+                ans2 </span>= ((s * power(k,n/<span style="color: rgba(128, 0, 128, 1)">2</span>-<span style="color: rgba(128, 0, 128, 1)">1</span>) * (k - <span style="color: rgba(128, 0, 128, 1)">1</span>) % P) % P * ((calc(n-<span style="color: rgba(128, 0, 128, 1)">2</span>) - power(k,n/<span style="color: rgba(128, 0, 128, 1)">2</span>) + P) % P)) %<span style="color: rgba(0, 0, 0, 1)"> P ;    
+                ans3 </span>= ((s * (k - <span style="color: rgba(128, 0, 128, 1)">1</span>) % P) * power(k,n-<span style="color: rgba(128, 0, 128, 1)">2</span>)) %<span style="color: rgba(0, 0, 0, 1)"> P;
+                ans </span>= (((ans1 + ans2) % P) + ans3) %<span style="color: rgba(0, 0, 0, 1)"> P; 
+        } </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)">
+        {
+                s </span>= k * (k - <span style="color: rgba(128, 0, 128, 1)">1</span>) / <span style="color: rgba(128, 0, 128, 1)">2</span> %<span style="color: rgba(0, 0, 0, 1)"> P;
+                ans1 </span>= s * power(k,n/<span style="color: rgba(128, 0, 128, 1)">2</span>-<span style="color: rgba(128, 0, 128, 1)">1</span>) % P * (power(k,n-<span style="color: rgba(128, 0, 128, 1)">1</span>) + <span style="color: rgba(128, 0, 128, 1)">1</span>) %<span style="color: rgba(0, 0, 0, 1)"> P;
+                ans2 </span>= (s * (k - <span style="color: rgba(128, 0, 128, 1)">1</span>) % P * power(k,n/<span style="color: rgba(128, 0, 128, 1)">2</span>-<span style="color: rgba(128, 0, 128, 1)">2</span>)) % P * calc(n-<span style="color: rgba(128, 0, 128, 1)">2</span>) %<span style="color: rgba(0, 0, 0, 1)"> P;
+                ans </span>= (ans1 + ans2) %<span style="color: rgba(0, 0, 0, 1)"> P;    
+        }
+        writeln(ans);
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    
+}</span></pre>
+</div>
+<p> </p>
+<p>　　</p>
+<p><strong>Problem B wave</strong></p>
+<p><strong>            【题意】</strong></p>
+<p><strong>              </strong>       给定序列a</p>
+<p>                     求有多少个子序列满足 ：</p>
+<p>                     Ai != Aj</p>
+<p>                     i &lt; j &lt; k且Ai &lt; Aj,Ak &lt; Aj或Ai &gt; Aj,Ak &gt; Aj</p>
+<p><strong>            【题解】</strong></p>
+<p><strong>                     满分算法 ：</strong></p>
+<p><strong>                     </strong>先将序列离散化</p>
+<p>                     对于第一种序列，我们用Cnt[i]表示i出现了多少次，那么，第i个位置对答案的“贡献”为 : i - Cnt[A[i]]</p>
+<p>                     对于第二种序列，我们枚举j，根据乘法原理，j这个位置对答案的“贡献”为 ：</p>
+<p>                     左边小于Aj数的个数 * 右边小于Aj数的个数 + 左边大于Aj数的个数 * 右边大于Aj数的个数</p>
+<p>                     可以用树状数组优化</p>
+<p>              【代码】</p>
+<p>                        此题常数卡得很紧，写程序时注意 ：</p>
+<p>                        <strong>1. 能写在一个循环里的不要分到多个循环里写</strong></p>
+<p><strong>                        2. long long自带4倍常数，能用int的不要用long long </strong></p>
+<p><strong>                        3. 比较大小cmp函数，用三目运算比if语句快</strong></p>
+<p><strong>                        </strong></p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">int</span> P = 1e9 + <span style="color: rgba(128, 0, 128, 1)">7</span><span style="color: rgba(0, 0, 0, 1)">;
+</span><span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">int</span> MAXN = 1e6 + <span style="color: rgba(128, 0, 128, 1)">5</span><span style="color: rgba(0, 0, 0, 1)">;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,n,len;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> tmp[MAXN],a[MAXN],rk[MAXN],s[MAXN];
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> la[MAXN],lb[MAXN],ra[MAXN],rb[MAXN];
+</span><span style="color: rgba(0, 0, 255, 1)">long</span> <span style="color: rgba(0, 0, 255, 1)">long</span><span style="color: rgba(0, 0, 0, 1)"> ans;
+
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> read(T &amp;<span style="color: rgba(0, 0, 0, 1)">x)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> f = <span style="color: rgba(128, 0, 128, 1)">1</span>; x = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">char</span> c =<span style="color: rgba(0, 0, 0, 1)"> getchar();
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; !isdigit(c); c = getchar()) { <span style="color: rgba(0, 0, 255, 1)">if</span> (c == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>) f = -<span style="color: rgba(0, 0, 0, 1)">f; }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; isdigit(c); c = getchar()) x = (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">3</span>) + (x &lt;&lt; <span style="color: rgba(128, 0, 128, 1)">1</span>) + c - <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">;
+        x </span>*=<span style="color: rgba(0, 0, 0, 1)"> f; 
+}
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> write(T x)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (x &lt; <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">)
+        {
+            putchar(</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">);
+            x </span>= -<span style="color: rgba(0, 0, 0, 1)">x;    
+        }    
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (x &gt; <span style="color: rgba(128, 0, 128, 1)">9</span>) write(x/<span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">);
+        putchar(x</span>%<span style="color: rgba(128, 0, 128, 1)">10</span>+<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">);
+}
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> writeln(T x)
+{
+        write(x);
+        puts(</span><span style="color: rgba(128, 0, 0, 1)">""</span><span style="color: rgba(0, 0, 0, 1)">);
+}
+</span><span style="color: rgba(0, 0, 255, 1)">class</span><span style="color: rgba(0, 0, 0, 1)"> BinaryIndexedTree
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">private</span><span style="color: rgba(0, 0, 0, 1)"> :
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> c[MAXN];
+        </span><span style="color: rgba(0, 0, 255, 1)">public</span><span style="color: rgba(0, 0, 0, 1)"> :
+            inline </span><span style="color: rgba(0, 0, 255, 1)">int</span> lowbit(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x)
+            {
+                    </span><span style="color: rgba(0, 0, 255, 1)">return</span> x &amp; (-<span style="color: rgba(0, 0, 0, 1)">x);
+            }
+            inline </span><span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> clear()
+            {
+                    memset(c,</span><span style="color: rgba(128, 0, 128, 1)">0</span>,<span style="color: rgba(0, 0, 255, 1)">sizeof</span><span style="color: rgba(0, 0, 0, 1)">(c));
+            }
+            inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> modify(<span style="color: rgba(0, 0, 255, 1)">int</span> pos,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> val)
+            {
+                    </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i;
+                    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = pos; i &lt;= n; i += lowbit(i)) c[i] = (c[i] + val) %<span style="color: rgba(0, 0, 0, 1)"> P;
+            }    
+            inline </span><span style="color: rgba(0, 0, 255, 1)">int</span> query(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x)
+            {
+                    </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i;
+                  </span><span style="color: rgba(0, 0, 255, 1)">int</span> ans = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+                    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = x; i; i -= lowbit(i)) ans = (ans + c[i]) %<span style="color: rgba(0, 0, 0, 1)"> P;
+                    </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> ans;
+            }
+            inline </span><span style="color: rgba(0, 0, 255, 1)">int</span> query(<span style="color: rgba(0, 0, 255, 1)">int</span> l,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> r)
+            {
+                    </span><span style="color: rgba(0, 0, 255, 1)">return</span> (query(r) - query(l-<span style="color: rgba(128, 0, 128, 1)">1</span>) + P) %<span style="color: rgba(0, 0, 0, 1)"> P;
+            }
+} BIT;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main()
+{
+    
+        freopen(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">wave.in</span><span style="color: rgba(128, 0, 0, 1)">"</span>,<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">r</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,stdin);
+        freopen(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">wave.out</span><span style="color: rgba(128, 0, 0, 1)">"</span>,<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">w</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,stdout);
+        
+        read(n);
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">) 
+        {
+                read(a[i]);
+                tmp[i] </span>=<span style="color: rgba(0, 0, 0, 1)"> a[i];
+        }
+        sort(tmp</span>+<span style="color: rgba(128, 0, 128, 1)">1</span>,tmp+n+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+        len </span>= unique(tmp+<span style="color: rgba(128, 0, 128, 1)">1</span>,tmp+n+<span style="color: rgba(128, 0, 128, 1)">1</span>) - tmp - <span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++) rk[i] = lower_bound(tmp+<span style="color: rgba(128, 0, 128, 1)">1</span>,tmp+len+<span style="color: rgba(128, 0, 128, 1)">1</span>,a[i]) -<span style="color: rgba(0, 0, 0, 1)"> tmp;
+        BIT.clear();
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                s[rk[i]]</span>++<span style="color: rgba(0, 0, 0, 1)">;
+                ans </span>= (ans + i - s[rk[i]] + P) %<span style="color: rgba(0, 0, 0, 1)"> P;
+                la[i] </span>= BIT.query(rk[i]-<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+                lb[i] </span>= BIT.query(rk[i]+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">,len);
+                BIT.modify(rk[i],</span><span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);    
+        }
+        BIT.clear();
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = n; i &gt;= <span style="color: rgba(128, 0, 128, 1)">1</span>; i--<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                ra[i] </span>= BIT.query(rk[i]-<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+                BIT.modify(rk[i],</span><span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+                rb[i] </span>= BIT.query(rk[i]+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">,len);
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++) ans = (ans + 1ll * la[i] * ra[i] + 1ll * lb[i] * rb[i]) %<span style="color: rgba(0, 0, 0, 1)"> P;
+        writeln(ans);
+    
+    </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+}</span></pre>
+</div>
+<p> </p>
+<p><strong>Problem C String</strong></p>
+<p><strong>【题意】</strong></p>
+<p><strong>           </strong><span style="font-family: SimSun">给出一个长度为N的字符串S，只包含A、C、G、U四种大写字母。A可以和U配对，C可以和G配对。定义一个长度        x（1&lt;=x&lt;=N）可以作为S的界，当且仅当S[1..x]能和S[N-x+1..N]每一位都成功配对。求S所有界中的最小值和最大值。</span></p>
+<p><strong>【题解】</strong></p>
+<p><strong>          </strong>暴力判断x是否S的“界”，即可</p>
+<p><strong>【代码】</strong></p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">int</span> MAXN = 1e5 + <span style="color: rgba(128, 0, 128, 1)">5</span><span style="color: rgba(0, 0, 0, 1)">;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,n,ansa,ansb;
+</span><span style="color: rgba(0, 0, 255, 1)">char</span><span style="color: rgba(0, 0, 0, 1)"> s[MAXN];
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">bool</span> match(<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> x)
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= x; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (s[i] == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">A</span><span style="color: rgba(128, 0, 0, 1)">'</span> &amp;&amp; s[n-x+i] == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">U</span><span style="color: rgba(128, 0, 0, 1)">'</span>) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (s[i] == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">U</span><span style="color: rgba(128, 0, 0, 1)">'</span> &amp;&amp; s[n-x+i] == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">A</span><span style="color: rgba(128, 0, 0, 1)">'</span>) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (s[i] == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">C</span><span style="color: rgba(128, 0, 0, 1)">'</span> &amp;&amp; s[n-x+i] == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">G</span><span style="color: rgba(128, 0, 0, 1)">'</span>) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (s[i] == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">G</span><span style="color: rgba(128, 0, 0, 1)">'</span> &amp;&amp; s[n-x+i] == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">C</span><span style="color: rgba(128, 0, 0, 1)">'</span>) <span style="color: rgba(0, 0, 255, 1)">continue</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(0, 0, 255, 1)">false</span><span style="color: rgba(0, 0, 0, 1)">;
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> solvea()
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+            </span><span style="color: rgba(0, 0, 255, 1)">if</span><span style="color: rgba(0, 0, 0, 1)"> (match(i))
+            {
+                    ansa </span>=<span style="color: rgba(0, 0, 0, 1)"> i;
+                    </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)">;
+            }
+        }
+}
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> solveb()
+{
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = n; i &gt;= <span style="color: rgba(128, 0, 128, 1)">1</span>; i--<span style="color: rgba(0, 0, 0, 1)">)
+        {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span><span style="color: rgba(0, 0, 0, 1)"> (match(i))
+                {
+                        ansb </span>=<span style="color: rgba(0, 0, 0, 1)"> i;
+                        </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)">;
+                }
+        }
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main(){
+    
+    freopen(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">string.in</span><span style="color: rgba(128, 0, 0, 1)">"</span>,<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">r</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,stdin);
+    freopen(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">string.out</span><span style="color: rgba(128, 0, 0, 1)">"</span>,<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">w</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,stdout);
+    
+    scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%s</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;n,s+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">);
+    solvea();
+    solveb();
+    printf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d %d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,ansa,ansb);
+    
+    </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+}</span></pre>
+</div>
+<p> </p>
+<p> </p>
+<p>          </p>
+<p>           </p>
+<p> </p>
+
+
+{% endraw %}

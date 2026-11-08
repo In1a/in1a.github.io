@@ -1,0 +1,79 @@
+---
+layout: post
+title: '【HDU 1599】 Find the mincost route'
+date: 2018-05-09 19:31:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9196345.html
+cnblogs_id: 9196345
+---
+{% raw %}
+
+<p>【题目链接】</p>
+<p>          <a href="http://acm.hdu.edu.cn/showproblem.php?pid=1599" rel="noopener nofollow">点击打开链接</a></p>
+<p>【算法】</p>
+<p>         弗洛伊德求最小环模板</p>
+<p>         我们知道，在一个环上，一定有一个有且仅有一个编号最大的点，设这个点为k，起点为i，终点为j，那么</p>
+<p>         mincost = dist[i][j] + cost[j][k] + cost[k][i] (dist[i][j]为i到j的最短路）</p>
+<p>         所以只需枚举i，j，k，在计算最短路的同时，计算最小环，即可</p>
+<p>【代码】</p>
+<p>         </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 110
+<span style="color: rgba(0, 0, 255, 1)">const</span> <span style="color: rgba(0, 0, 255, 1)">int</span> INF =<span style="color: rgba(0, 0, 0, 1)"> 1e8;
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,j,n,m,a,b,c;
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> g[MAXN][MAXN],mp[MAXN][MAXN];
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> floyd()
+{
+    </span><span style="color: rgba(0, 0, 255, 1)">int</span> i,j,k,ans =<span style="color: rgba(0, 0, 0, 1)"> INF;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (k = <span style="color: rgba(128, 0, 128, 1)">1</span>; k &lt;= n; k++<span style="color: rgba(0, 0, 0, 1)">)
+    {
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt; k; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+            </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = i + <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt; k; j++<span style="color: rgba(0, 0, 0, 1)">)
+            {
+                ans </span>= min(ans,g[i][j]+mp[j][k]+<span style="color: rgba(0, 0, 0, 1)">mp[k][i]); 
+            }    
+        } 
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+            </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= n; j++<span style="color: rgba(0, 0, 0, 1)">)
+            {
+                g[i][j] </span>= min(g[i][j],g[i][k]+<span style="color: rgba(0, 0, 0, 1)">g[k][j]);
+            } 
+        }
+    }    
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (ans == INF) puts(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">It's impossible.</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">);
+    </span><span style="color: rgba(0, 0, 255, 1)">else</span> printf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d\n</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(0, 0, 0, 1)">,ans); 
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main()
+{
+    
+    </span><span style="color: rgba(0, 0, 255, 1)">while</span> (scanf(<span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;n,&amp;m) !=<span style="color: rgba(0, 0, 0, 1)"> EOF)
+    {
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i &lt;= n; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+            </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">0</span>; j &lt;= n; j++<span style="color: rgba(0, 0, 0, 1)">)
+            {
+                g[i][j] </span>= mp[i][j] =<span style="color: rgba(0, 0, 0, 1)"> INF;
+            }
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= m; i++<span style="color: rgba(0, 0, 0, 1)">)
+        {
+            scanf(</span><span style="color: rgba(128, 0, 0, 1)">"</span><span style="color: rgba(128, 0, 0, 1)">%d%d%d</span><span style="color: rgba(128, 0, 0, 1)">"</span>,&amp;a,&amp;b,&amp;<span style="color: rgba(0, 0, 0, 1)">c);
+            g[a][b] </span>= mp[a][b] =<span style="color: rgba(0, 0, 0, 1)"> min(g[a][b],c);
+            g[b][a] </span>= mp[b][a] =<span style="color: rgba(0, 0, 0, 1)"> min(g[b][a],c);
+        } 
+        floyd();
+    }
+    
+    </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}

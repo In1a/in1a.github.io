@@ -1,0 +1,127 @@
+---
+layout: post
+title: '【扬中集训DAY5T1】 交换矩阵'
+date: 2018-02-14 16:12:00 +0800
+source_url: https://www.cnblogs.com/evenbao/p/9196426.html
+cnblogs_id: 9196426
+---
+{% raw %}
+
+<p>【题目链接】</p>
+<p>          <a href="http://oj.jzxx.net/problem.php?id=3107" rel="noopener nofollow">点击打开链接</a></p>
+<p>【算法】</p>
+<p>         链表，对于每个点，存它的上，下，左，右分别是谁</p>
+<p>【代码】</p>
+<p>          </p>
+<div class="cnblogs_code">
+<pre>#include&lt;bits/stdc++.h&gt;
+<span style="color: rgba(0, 0, 255, 1)">using</span> <span style="color: rgba(0, 0, 255, 1)">namespace</span><span style="color: rgba(0, 0, 0, 1)"> std;
+</span><span style="color: rgba(0, 0, 255, 1)">#define</span> MAXN 1000
+
+<span style="color: rgba(0, 0, 255, 1)">struct</span><span style="color: rgba(0, 0, 0, 1)"> node {
+    </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> val;
+    node </span>*l,*r,*u,*<span style="color: rgba(0, 0, 0, 1)">d; 
+} mat[MAXN</span>+<span style="color: rgba(128, 0, 128, 1)">10</span>][MAXN+<span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">];
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i,j,x,N,M,Q,A,B,C,D,H,W;
+node </span>*<span style="color: rgba(0, 0, 0, 1)">pos;
+
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span> read(T &amp;<span style="color: rgba(0, 0, 0, 1)">x) {
+    </span><span style="color: rgba(0, 0, 255, 1)">int</span> f = <span style="color: rgba(128, 0, 128, 1)">1</span>; x = <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">char</span> c =<span style="color: rgba(0, 0, 0, 1)"> getchar();
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; !isdigit(c); c = getchar()) { <span style="color: rgba(0, 0, 255, 1)">if</span> (c == <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span>) f = -<span style="color: rgba(0, 0, 0, 1)">f; }
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (; isdigit(c); c = getchar()) x = x * <span style="color: rgba(128, 0, 128, 1)">10</span> + c - <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">;
+    x </span>*=<span style="color: rgba(0, 0, 0, 1)"> f;
+}
+
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> write(T x) {
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (x &lt; <span style="color: rgba(128, 0, 128, 1)">0</span>) { x = -x; putchar(<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">-</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">); }
+    </span><span style="color: rgba(0, 0, 255, 1)">if</span> (x &gt; <span style="color: rgba(128, 0, 128, 1)">9</span>) write(x/<span style="color: rgba(128, 0, 128, 1)">10</span><span style="color: rgba(0, 0, 0, 1)">);
+    putchar(x</span>%<span style="color: rgba(128, 0, 128, 1)">10</span>+<span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(128, 0, 0, 1)">0</span><span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">);    
+}
+
+template </span>&lt;typename T&gt; inline <span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> writeln(T x) {
+    write(x);
+    puts(</span><span style="color: rgba(128, 0, 0, 1)">""</span><span style="color: rgba(0, 0, 0, 1)">);    
+}
+
+inline </span><span style="color: rgba(0, 0, 255, 1)">void</span> modify(<span style="color: rgba(0, 0, 255, 1)">int</span> X1,<span style="color: rgba(0, 0, 255, 1)">int</span> Y1,<span style="color: rgba(0, 0, 255, 1)">int</span> X2,<span style="color: rgba(0, 0, 255, 1)">int</span> Y2,<span style="color: rgba(0, 0, 255, 1)">int</span> W,<span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> H) {
+    </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> i;
+    node </span>*pos1,*pos2,*tmp1,*<span style="color: rgba(0, 0, 0, 1)">tmp2;
+    pos1 </span>= &amp;mat[X1][<span style="color: rgba(128, 0, 128, 1)">0</span>]; pos2 = &amp;mat[X2][<span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">];
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= Y1; i++) pos1 = pos1 -&gt;<span style="color: rgba(0, 0, 0, 1)"> r;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= Y2; i++) pos2 = pos2 -&gt;<span style="color: rgba(0, 0, 0, 1)"> r;
+    tmp1 </span>= pos1; tmp2 =<span style="color: rgba(0, 0, 0, 1)"> pos2;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= W; i++<span style="color: rgba(0, 0, 0, 1)">) {
+        tmp1 </span>-&gt; l -&gt; r =<span style="color: rgba(0, 0, 0, 1)"> tmp2;
+        tmp2 </span>-&gt; l -&gt; r =<span style="color: rgba(0, 0, 0, 1)"> tmp1;
+        swap(tmp1</span>-&gt;l,tmp2-&gt;<span style="color: rgba(0, 0, 0, 1)">l);
+        tmp1 </span>= tmp1 -&gt; d; tmp2 = tmp2 -&gt;<span style="color: rgba(0, 0, 0, 1)"> d;
+    }
+    tmp1 </span>= pos1; tmp2 =<span style="color: rgba(0, 0, 0, 1)"> pos2;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt; H; i++) tmp1 = tmp1 -&gt;<span style="color: rgba(0, 0, 0, 1)"> r;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt; H; i++) tmp2 = tmp2 -&gt;<span style="color: rgba(0, 0, 0, 1)"> r;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= W; i++<span style="color: rgba(0, 0, 0, 1)">) {
+        tmp1 </span>-&gt; r -&gt; l =<span style="color: rgba(0, 0, 0, 1)"> tmp2;
+        tmp2 </span>-&gt; r -&gt; l =<span style="color: rgba(0, 0, 0, 1)"> tmp1;
+        swap(tmp1</span>-&gt;r,tmp2-&gt;<span style="color: rgba(0, 0, 0, 1)">r);
+        tmp1 </span>= tmp1 -&gt; d; tmp2 = tmp2 -&gt;<span style="color: rgba(0, 0, 0, 1)"> d;
+    }
+    tmp1 </span>= pos1; tmp2 =<span style="color: rgba(0, 0, 0, 1)"> pos2;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= H; i++<span style="color: rgba(0, 0, 0, 1)">) {
+        tmp1 </span>-&gt; u -&gt; d =<span style="color: rgba(0, 0, 0, 1)"> tmp2;
+        tmp2 </span>-&gt; u -&gt; d =<span style="color: rgba(0, 0, 0, 1)"> tmp1;
+        swap(tmp1</span>-&gt;u,tmp2-&gt;<span style="color: rgba(0, 0, 0, 1)">u);
+        tmp1 </span>= tmp1 -&gt; r; tmp2 = tmp2 -&gt;<span style="color: rgba(0, 0, 0, 1)"> r;
+    }
+    tmp1 </span>= pos1; tmp2 =<span style="color: rgba(0, 0, 0, 1)"> pos2;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt; W; i++) tmp1 = tmp1 -&gt;<span style="color: rgba(0, 0, 0, 1)"> d;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt; W; i++) tmp2 = tmp2 -&gt;<span style="color: rgba(0, 0, 0, 1)"> d;
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= H; i++<span style="color: rgba(0, 0, 0, 1)">) {
+        tmp1 </span>-&gt; d -&gt; u =<span style="color: rgba(0, 0, 0, 1)"> tmp2;
+        tmp2 </span>-&gt; d -&gt; u =<span style="color: rgba(0, 0, 0, 1)"> tmp1;
+        swap(tmp1</span>-&gt;d,tmp2-&gt;<span style="color: rgba(0, 0, 0, 1)">d);
+        tmp1 </span>= tmp1 -&gt; r; tmp2 = tmp2 -&gt;<span style="color: rgba(0, 0, 0, 1)"> r;
+    }
+}
+
+</span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> main() {
+    
+    read(N); read(M); read(Q);
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">0</span>; i &lt;= <span style="color: rgba(128, 0, 128, 1)">1005</span>; i++<span style="color: rgba(0, 0, 0, 1)">) {
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">0</span>; j &lt;= <span style="color: rgba(128, 0, 128, 1)">1005</span>; j++<span style="color: rgba(0, 0, 0, 1)">) {
+            mat[i][j].r </span>= &amp;mat[i][j+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+            mat[i][j].d </span>= &amp;mat[i+<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">][j];
+            mat[i][j].l </span>= &amp;mat[i][j-<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">];
+            mat[i][j].u </span>= &amp;mat[i-<span style="color: rgba(128, 0, 128, 1)">1</span><span style="color: rgba(0, 0, 0, 1)">][j];
+        }
+    }
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= N; i++<span style="color: rgba(0, 0, 0, 1)">) {
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= M; j++<span style="color: rgba(0, 0, 0, 1)">) {
+            read(x);
+            mat[i][j].val </span>=<span style="color: rgba(0, 0, 0, 1)"> x;
+          } 
+    } 
+    
+    </span><span style="color: rgba(0, 0, 255, 1)">while</span> (Q--<span style="color: rgba(0, 0, 0, 1)">) {
+        read(A); read(B); read(C); read(D); read(H); read(W);
+        modify(A,B,C,D,H,W); 
+    }
+    
+    </span><span style="color: rgba(0, 0, 255, 1)">for</span> (i = <span style="color: rgba(128, 0, 128, 1)">1</span>; i &lt;= N; i++<span style="color: rgba(0, 0, 0, 1)">) {
+        pos </span>= mat[i][<span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">].r;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (j = <span style="color: rgba(128, 0, 128, 1)">1</span>; j &lt;= M; j++<span style="color: rgba(0, 0, 0, 1)">) {
+            write(pos</span>-&gt;<span style="color: rgba(0, 0, 0, 1)">val);
+            </span><span style="color: rgba(0, 0, 255, 1)">if</span> (j != M) putchar(<span style="color: rgba(128, 0, 0, 1)">'</span> <span style="color: rgba(128, 0, 0, 1)">'</span><span style="color: rgba(0, 0, 0, 1)">);
+            pos </span>= pos -&gt;<span style="color: rgba(0, 0, 0, 1)"> r;
+        }    
+        puts(</span><span style="color: rgba(128, 0, 0, 1)">""</span><span style="color: rgba(0, 0, 0, 1)">);
+    }
+    
+    </span><span style="color: rgba(0, 0, 255, 1)">return</span> <span style="color: rgba(128, 0, 128, 1)">0</span><span style="color: rgba(0, 0, 0, 1)">;
+}</span></pre>
+</div>
+<p> </p>
+
+
+{% endraw %}
