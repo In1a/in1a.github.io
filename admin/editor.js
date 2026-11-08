@@ -101,7 +101,7 @@
       const button = document.createElement('button');
       button.type = 'button'; button.className = 'post-entry';
       if (current?.path === p.path) button.classList.add('active');
-      const strong = document.createElement('strong'); strong.textContent = p.title;
+      const strong = document.createElement('strong'); strong.textContent = `${p.pinned ? '📌 ' : ''}${p.locked ? '🔒 ' : ''}${p.title}`;
       const small = document.createElement('small');
       small.textContent = [p.date, (p.categories || []).join(' / ')].filter(Boolean).join(' · ') || baseName(p.path);
       button.append(strong, small);
@@ -130,6 +130,18 @@
     try { const parsed = JSON.parse(value); if (Array.isArray(parsed)) return parsed; } catch (_) { /* old YAML format */ }
     return value.replace(/^\[|\]$/g, '').split(',').map(c => c.trim().replace(/^['"]|['"]$/g, '')).filter(Boolean);
   }
+  function removeFront(front, key) {
+    return front.split('\n').filter(line => !line.startsWith(key + ':')).join('\n');
+  }
+  const toHex = bytes => [...new Uint8Array(bytes)].map(b => b.toString(16).padStart(2, '0')).join('');
+  async function passwordDigest(password, salt) {
+    const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveBits']);
+    const bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', salt, iterations: 120000, hash: 'SHA-256' }, key, 256);
+    return toHex(bits);
+  }
+  function updatePasswordVisibility() {
+    $('password-options').hidden = !$('password-enabled').checked;
+  }
   function setFront(front, key, value) {
     const line = `${key}: ${value}`;
     const re = new RegExp(`^${key}:.*$`, 'm');
@@ -142,6 +154,11 @@
     $('editor-heading').textContent = '写新文章'; $('editor-mode').textContent = '新文章';
     $('title').value = ''; $('slug').value = ''; $('date').value = today();
     $('categories').value = ''; $('body').value = '';
+    $('pinned').checked = false;
+    $('password-enabled').checked = false;
+    $('article-password').value = '';
+    $('article-password').placeholder = '输入文章密码';
+    updatePasswordVisibility();
     $('slug').disabled = false; $('date').disabled = false;
     $('save-draft').disabled = false; $('delete').hidden = true; $('publish').textContent = '发布文章';
     $('format-hint').textContent = '使用 Markdown 编写正文。可以先保存草稿，稍后再发布。';
@@ -162,6 +179,11 @@
       $('slug').value = baseName(path).replace(/^\d{4}-\d{2}-\d{2}-/, '').replace(/\.(md|html)$/, '');
       $('date').value = String(frontValue(parts.front, 'date')).slice(0, 10) || today();
       $('categories').value = frontCategories(parts.front).join(', ');
+      $('pinned').checked = frontValue(parts.front, 'pinned') === 'true';
+      $('password-enabled').checked = !!frontValue(parts.front, 'password_hash');
+      $('article-password').value = '';
+      $('article-password').placeholder = $('password-enabled').checked ? '留空保持当前密码；输入以更改' : '输入文章密码';
+      updatePasswordVisibility();
       $('body').value = importedHtml ? window.legacyHtmlToMarkdown(parts.body) : parts.body;
       $('slug').disabled = true;
       $('date').disabled = !current.draft;
@@ -177,7 +199,7 @@
     finally { busyState(false); if (current && !current.draft) $('save-draft').disabled = true; }
   }
 
-  function buildDocument() {
+  async function buildDocument() {
     const title = $('title').value.trim();
     if (!title) throw new Error('请填写文章标题');
     const slug = $('slug').value.trim().toLowerCase();
@@ -191,6 +213,20 @@
     front = setFront(front, 'title', JSON.stringify(title));
     if (!current || current.draft) front = setFront(front, 'date', `${date} 00:00:00 +0000`);
     front = setFront(front, 'categories', JSON.stringify(categories()));
+    front = setFront(front, 'pinned', $('pinned').checked ? 'true' : 'false');
+    if ($('password-enabled').checked) {
+      const password = $('article-password').value;
+      if (password) {
+        if (password.length < 4) throw new Error('文章密码至少需要 4 个字符');
+        const salt = crypto.getRandomValues(new Uint8Array(16));
+        front = setFront(front, 'password_salt', JSON.stringify(toHex(salt)));
+        front = setFront(front, 'password_hash', JSON.stringify(await passwordDigest(password, salt)));
+      } else if (!frontValue(front, 'password_hash') || !frontValue(front, 'password_salt')) {
+        throw new Error('请先设置文章密码');
+      }
+    } else {
+      front = removeFront(removeFront(front, 'password_hash'), 'password_salt');
+    }
     return { title, slug, date, text: `---\n${front.trim()}\n---\n${body}\n` };
   }
 
@@ -237,7 +273,7 @@
   async function save(publish) {
     if (busy || !token) return;
     let post;
-    try { post = buildDocument(); } catch (error) { return setStatus(error.message, true); }
+    try { post = await buildDocument(); } catch (error) { return setStatus(error.message, true); }
     if (!publish && current && !current.draft) return setStatus('已发表文章请使用“保存并更新文章”。', true);
     if (publish && current?.converted && !confirm('即将把这篇旧 HTML 文章改为 Markdown，并替换原文件。请确认已检查代码块、图片和复杂排版。原始版本可从 GitHub 历史恢复。是否继续？')) return;
     const path = publish
@@ -266,8 +302,8 @@
       $('save-draft').disabled = publish;
       const list = publish ? entries : draftEntries;
       const entry = list.find(p => p.path === path);
-      if (entry) Object.assign(entry, { title: post.title, date: post.date, categories: categories() });
-      else list.unshift({ path, title: post.title, date: post.date, categories: categories() });
+      if (entry) Object.assign(entry, { title: post.title, date: post.date, categories: categories(), pinned: $('pinned').checked, locked: $('password-enabled').checked });
+      else list.unshift({ path, title: post.title, date: post.date, categories: categories(), pinned: $('pinned').checked, locked: $('password-enabled').checked });
       if (publish && oldPath?.startsWith('_drafts/') && !warning) draftEntries = draftEntries.filter(p => p.path !== oldPath);
       if (publish && oldPath?.endsWith('.html') && !warning) entries = entries.filter(p => p.path !== oldPath);
       selectedTab = publish ? 'published' : 'drafts';
@@ -291,6 +327,7 @@
     finally { busyState(false); }
   }
 
+  $('password-enabled').addEventListener('change', updatePasswordVisibility);
   $('connect').addEventListener('click', connect);
   $('token').addEventListener('keydown', event => { if (event.key === 'Enter') connect(); });
   $('disconnect').addEventListener('click', () => { token = ''; current = null; $('workspace').hidden = true; $('auth-panel').hidden = false; $('token').value = ''; });
