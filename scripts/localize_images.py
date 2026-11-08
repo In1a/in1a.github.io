@@ -18,12 +18,17 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 POSTS = ROOT / '_posts'
 IMAGES = ROOT / 'assets' / 'images'
-PATTERN = re.compile(r'<img\b[^>]*?\bsrc\s*=\s*(["\'])(.*?)\1', re.I | re.S)
+# Match the real `src` attribute, not `data-src` (which also contains "src").
+PATTERN = re.compile(r'<img\b[^>]*?(?<![\w:-])src\s*=\s*(["\'])(.*?)\1', re.I | re.S)
 EXTENSIONS = {'image/jpeg': '.jpg', 'image/png': '.png', 'image/gif': '.gif',
               'image/webp': '.webp', 'image/svg+xml': '.svg', 'image/bmp': '.bmp'}
 
 
 def download(url):
+    prefix = hashlib.sha256(url.encode()).hexdigest()[:24]
+    cached = list(IMAGES.glob(prefix + '.*'))
+    if cached:
+        return url, '/assets/images/' + cached[0].name, None
     for attempt in range(4):
         try:
             req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})

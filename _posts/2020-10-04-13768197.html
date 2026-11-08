@@ -18,7 +18,7 @@ cnblogs_id: 13768197
 <p>枚举右端点 <span class="math inline">\(c\)</span> ， 单调栈 + 线段树维护即可。</p>
 <p>时间复杂度 : <span class="math inline">\(O(NlogN)\)</span></p>
 <p><span class="math inline">\(CF1172F\)</span></p>
-<p><img alt="" loading="lazy" data-src="/assets/images/d85f304d17b00bc0f535d2dd.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202010/1424311-20201004192031007-807817686.png"></p>
+<p><img alt="" loading="lazy" data-src="/assets/images/d85f304d17b00bc0f535d2dd.png" class="lazyload" src="/assets/images/d85f304d17b00bc0f535d2dd.png"></p>
 <p>观察 <span class="math inline">\(sum\)</span> 函数 ， 发现其输出必然是输入值减去了若干个 <span class="math inline">\(p\)</span>。</p>
 <p>考虑一个 <span class="math inline">\(O(N \sqrt{NlogN})\)</span> 的做法 ， 首先将序列分块 ， 定义函数 <span class="math inline">\(F(i , x)\)</span> 表示权值为 <span class="math inline">\(x\)</span> ， 输入到第 <span class="math inline">\(i\)</span> 个块中 ， 最后的输</p>
 <p>出值是多少 ， 这个函数可以在 <span class="math inline">\(O(B ^ 2)\)</span> 的时间内预处理出。 回答询问只需在块内查询即可。</p>
@@ -214,7 +214,7 @@ cnblogs_id: 13768197
 <p>时间复杂度 ：<span class="math inline">\(O(N \alpha(N))\)</span></p>
 <p><span class="math inline">\(B\)</span></p>
 <p>考虑容斥原理 ， 两个矩形相交的条件为 ：</p>
-<p><img alt="" loading="lazy" data-src="/assets/images/4d0e47019a1429f26f89656c.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202010/1424311-20201022175536326-308190619.png"></p>
+<p><img alt="" loading="lazy" data-src="/assets/images/4d0e47019a1429f26f89656c.png" class="lazyload" src="/assets/images/4d0e47019a1429f26f89656c.png"></p>
 <p>发现这些贡献是二维偏序。 考虑整体二分 ， 每次用树状数组求二维偏序即可。</p>
 <p>时间复杂度 ： <span class="math inline">\(O((N + M)log^2N)\)</span></p>
 <p><span class="math inline">\(2019\)</span> 正睿十连测第四测</p>
@@ -233,9 +233,9 @@ cnblogs_id: 13768197
 <p>根据抽屉原理 ， 离一个点距离最近的点距离为 <span class="math inline">\(1\)</span> , 最远为 <span class="math inline">\(2N - 1\)</span> ， 因此当 <span class="math inline">\(M \geq 2N - 1\)</span> 时 ， 每个点都能找到。 直接输出即可。</p>
 <p>否则考虑两个点对哪些区域产生贡献 ：</p>
 <p><span class="math inline">\(1\)</span>). <span class="math inline">\((x1 , y1)\)</span> 和 <span class="math inline">\((x2 , y2)\)</span> 构成对角线 ， 有三块区域(用蓝色标出)</p>
-<p><img alt="" loading="lazy" data-src="/assets/images/6ea4766ea5c7ed79eded0628.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202010/1424311-20201023104034127-674008603.png"></p>
+<p><img alt="" loading="lazy" data-src="/assets/images/6ea4766ea5c7ed79eded0628.png" class="lazyload" src="/assets/images/6ea4766ea5c7ed79eded0628.png"></p>
 <p><span class="math inline">\(2\)</span>). <span class="math inline">\((x1 , y1)\)</span> 和 <span class="math inline">\((x2 , y2)\)</span> 不构成对角线 ,  同样有三块区域(用蓝色标出)</p>
-<p><img alt="" loading="lazy" data-src="/assets/images/205e6d3a84f92038523bc585.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202010/1424311-20201023103823643-872476840.png"></p>
+<p><img alt="" loading="lazy" data-src="/assets/images/205e6d3a84f92038523bc585.png" class="lazyload" src="/assets/images/205e6d3a84f92038523bc585.png"></p>
 <p>维护三个差分数组即可。</p>
 <p>时间复杂度 : <span class="math inline">\(O(N ^ 2 + M ^ 2)\)</span></p>
 <p><span class="math inline">\(2019\)</span> 江苏省队集训 第五天</p>
@@ -310,7 +310,7 @@ cnblogs_id: 13768197
 <p><span class="math inline">\(CF1435E\)</span></p>
 <p>首先当 <span class="math inline">\(a &gt; bc\)</span> 时显然答案为 <span class="math inline">\(-1\)</span>。</p>
 <p>一个重要的事实是 ： 只用考虑第一个 <span class="math inline">\(a\)</span> 未被耗尽及其之前的区域。 这是因为如果过期了那么还不如从后面一段开始更优。</p>
-<p><img alt="" loading="lazy" data-src="/assets/images/d55bae1710b8491e5b47c3cd.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202010/1424311-20201026151331806-838100561.png"></p>
+<p><img alt="" loading="lazy" data-src="/assets/images/d55bae1710b8491e5b47c3cd.png" class="lazyload" src="/assets/images/d55bae1710b8491e5b47c3cd.png"></p>
 <p>如图 ， 记 <span class="math inline">\(k = \frac{a}{bd}\)</span> , 那么答案为 <span class="math inline">\(a(k + 1) - \frac{k(k + 1)}{2}bd\)</span>。</p>
 <p>时间复杂度 : <span class="math inline">\(O(1)\)</span></p>
 <p><span class="math inline">\(CF1436F\)</span></p>
@@ -334,7 +334,7 @@ cnblogs_id: 13768197
 <p><span class="math inline">\(CF1419E\)</span></p>
 <p>如果只有三个因子， 那么需要额外的一个数。</p>
 <p>否则将 <span class="math inline">\(N\)</span> 质因数分解 ， 并构造如下 ：</p>
-<p><img alt="" loading="lazy" data-src="/assets/images/f36f596faaca5aa81459a0d7.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202010/1424311-20201031111728640-191751886.png"></p>
+<p><img alt="" loading="lazy" data-src="/assets/images/f36f596faaca5aa81459a0d7.png" class="lazyload" src="/assets/images/f36f596faaca5aa81459a0d7.png"></p>
 <p>时间复杂度 : <span class="math inline">\(O(\sqrt{N})\)</span></p>
 <p><span class="math inline">\(CF1419F\)</span></p>
 <p>首先二分答案。</p>
@@ -366,9 +366,9 @@ cnblogs_id: 13768197
 <p>首先图中任意一个环的异或和可以通过若干个简单环异或得到。</p>
 <p>注意到本质不同的线性基个数并不多 ， 共有 <span class="math inline">\(374\)</span> 种。 因此可以将其压成最简形式 ， 并建立有限状态自动机。</p>
 <p>注意线性基要这样写 ：</p>
-<p><img alt="" loading="lazy" data-src="/assets/images/301c99d2f4a7f60fbf56718d.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202011/1424311-20201107110611745-627264485.png"></p>
+<p><img alt="" loading="lazy" data-src="/assets/images/301c99d2f4a7f60fbf56718d.png" class="lazyload" src="/assets/images/301c99d2f4a7f60fbf56718d.png"></p>
 <p>注意到这张图割掉 <span class="math inline">\(1\)</span> 条边后形成的联通块只有两种可能 ： 一种是没有三元环 ， 还有一种是有且仅有 <span class="math inline">\(1\)</span> 个 (如图)。</p>
-<p><img alt="" loading="lazy" data-src="/assets/images/33458e0478ac8f7b9ece6730.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202011/1424311-20201107110335131-664770675.png"></p>
+<p><img alt="" loading="lazy" data-src="/assets/images/33458e0478ac8f7b9ece6730.png" class="lazyload" src="/assets/images/33458e0478ac8f7b9ece6730.png"></p>
 <p>那么不妨令 <span class="math inline">\(dp_{i , j}\)</span> 表示考虑了前 <span class="math inline">\(i\)</span> 个联通块 ，当前在 <span class="math inline">\(j\)</span> 的方案数。</p>
 <p>转移比较简单 ， 不赘述了。</p>
 <p>时间复杂度 : <span class="math inline">\(O(374N)\)</span></p>

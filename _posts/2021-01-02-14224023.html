@@ -43,13 +43,13 @@ cnblogs_id: 14224023
 <p>     <span class="math inline">\(SG\)</span> 函数非 <span class="math inline">\(0\)</span> 的位置为必胜点。</p>
 <p><span style="font-size: 20px">例题</span> ：</p>
 <p><span class="math inline">\(P3185\)</span></p>
-<p><img alt="" loading="lazy" data-src="/assets/images/60f0440d33aafdf67f8ba9da.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210102191608500-1120627243.png"></p>
+<p><img alt="" loading="lazy" data-src="/assets/images/60f0440d33aafdf67f8ba9da.png" class="lazyload" src="/assets/images/60f0440d33aafdf67f8ba9da.png"></p>
 <p>     来自湖南 <span class="math inline">\(2007\)</span> 省选。</p>
 <p>     题解 ：</p>
 <p>     不难发现每件物品其实是独立的 ， 因此暴力求解每颗石子的 <span class="math inline">\(SG\)</span> 值 ， 异或起来即可。</p>
 <p>     时间复杂度 : <span class="math inline">\(O(N ^ 3)\)</span>。</p>
 <p><span class="math inline">\(CF1149E\)</span></p>
-<p><img alt="" loading="lazy" data-src="/assets/images/cc6526f079496013e84219d8.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210102192613117-1231628681.png"></p>
+<p><img alt="" loading="lazy" data-src="/assets/images/cc6526f079496013e84219d8.png" class="lazyload" src="/assets/images/cc6526f079496013e84219d8.png"></p>
 <p>题解 ：</p>
 <p>     注意到原图是一张 <span class="math inline">\(DAG\)</span> , 那么不妨直接将没有出度的点的 <span class="math inline">\(SG\)</span> 值设为 <span class="math inline">\(0\)</span> , 求解每个节点的 <span class="math inline">\(SG\)</span> 函数值。</p>
 <p>     定义数组 <span class="math inline">\(s\)</span> , 其中 <span class="math inline">\(s_{i}\)</span> 表示 <span class="math inline">\(SG\)</span> 值为 <span class="math inline">\(i\)</span> 的点的权值异或和。</p>
@@ -60,15 +60,15 @@ cnblogs_id: 14224023
 <p>     到一个 <span class="math inline">\(a_{j} \oplus s_{i} &lt; a_{j}\)</span>。 将其修改 ， 接着枚举其转移边 （因为是最大的 ， 所以每种权值都能被枚举到） ， 修改每个转移边的 <span class="math inline">\(a\)</span> 值 ， 这样就到达了一个 <span class="math inline">\(N - Position\)</span> 。</p>
 <p>     时间复杂度 : <span class="math inline">\(O(N + M)\)</span></p>
 <p><span class="math inline">\(CF1037G\)</span></p>
-<p><img alt="" loading="lazy" data-src="/assets/images/64450928aa7e5d0679502971.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210102193425713-753991608.png"></p>
+<p><img alt="" loading="lazy" data-src="/assets/images/64450928aa7e5d0679502971.png" class="lazyload" src="/assets/images/64450928aa7e5d0679502971.png"></p>
 <p>题解 :</p>
 <p>     预处理每个后缀 ， 前缀 ， 每种字母相邻间隔的 <span class="math inline">\(SG\)</span> 值。</p>
 <p>     这样就可以方便地算出任意一段区间的 <span class="math inline">\(SG\)</span> 函数值。</p>
 <p>     附一段代码 ：</p>
-<p><img alt="" loading="lazy" data-src="/assets/images/461e4bc93b3fdf27f519fe6a.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210102193710193-1855349849.png"></p>
+<p><img alt="" loading="lazy" data-src="/assets/images/461e4bc93b3fdf27f519fe6a.png" class="lazyload" src="/assets/images/461e4bc93b3fdf27f519fe6a.png"></p>
 <p>     时间复杂度 : <span class="math inline">\(O(N * ALPHA)\)</span></p>
 <p><span class="math inline">\(CF1091H\)</span></p>
-<p><img alt="" loading="lazy" data-src="/assets/images/1274bbdfe993793e9cd3dc69.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210102194047679-18676855.png"></p>
+<p><img alt="" loading="lazy" data-src="/assets/images/1274bbdfe993793e9cd3dc69.png" class="lazyload" src="/assets/images/1274bbdfe993793e9cd3dc69.png"></p>
 <p>题解 ：</p>
 <p>     首先这不是 <span class="math inline">\(ICG\)</span>。因为双方的决策不一样 ， 因此无法直接用 <span class="math inline">\(SG\)</span> 函数做。</p>
 <p>     不妨考虑转化 ， 由于关心的仅仅是相邻两数之差 ， 因此可以用二元组 <span class="math inline">\((a , b)\)</span> 表示状态。</p>
@@ -78,7 +78,7 @@ cnblogs_id: 14224023
 <p>     观察到 <span class="math inline">\(2 * 10 ^ 5\)</span> 以内的 <span class="math inline">\(SG\)</span> 值不超过 <span class="math inline">\(100\)</span> ,  因此不妨对于每种 <span class="math inline">\(SG\)</span> 值维护一个 <span class="math inline">\(bitset\)</span> , 表示能否转移到某个位置。</p>
 <p>     这样做的时间复杂度是 <span class="math inline">\(O(\frac{N ^ 2}{w})\)</span> 的。</p>
 <p><span class="math inline">\(LOJ3114\)</span></p>
-<p><img alt="" loading="lazy" data-src="/assets/images/58ef550d32f1e4178c406600.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210102204407454-1249931022.png"></p>
+<p><img alt="" loading="lazy" data-src="/assets/images/58ef550d32f1e4178c406600.png" class="lazyload" src="/assets/images/58ef550d32f1e4178c406600.png"></p>
 <p>题解 ：</p>
 <p>     来自山东 <span class="math inline">\(2019\)</span> 省选。</p>
 <p>     不妨将空位看成石子 ， 将 “金币” 看成隔板 ， 那么移动一件物品相当于将移动了某堆中的若干石子到前面一堆石子中。</p>
@@ -89,7 +89,7 @@ cnblogs_id: 14224023
 <p>     具体实现时需要用到一些组合数学的知识 ， 不赘述了。</p>
 <p>     时间复杂度 : <span class="math inline">\(O(NMlogN)\)</span></p>
 <p><span class="math inline">\(AGC016F\)</span></p>
-<p><img alt="" loading="lazy" data-src="/assets/images/f22823f14743cbdaad47f1d4.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210102210953585-224856832.png"></p>
+<p><img alt="" loading="lazy" data-src="/assets/images/f22823f14743cbdaad47f1d4.png" class="lazyload" src="/assets/images/f22823f14743cbdaad47f1d4.png"></p>
 <p>题解 ：</p>
 <p>     首先补集转化 ， 计算两个点的 <span class="math inline">\(SG\)</span> 值不同的方案数。</p>
 <p>     枚举边集不太可做 ， 考虑枚举点集。</p>
@@ -98,7 +98,7 @@ cnblogs_id: 14224023
 <p>     转移可以分 <span class="math inline">\(4\)</span> 类讨论。不赘述了。</p>
 <p>     时间复杂度 : <span class="math inline">\(O(3 ^ N * N ^ 2)\)</span></p>
 <p><span class="math inline">\(AGC043C\)</span></p>
-<p><img alt="" loading="lazy" data-src="/assets/images/12b96d2a949f29cc15d77d7d.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210102211734370-1888092687.png"></p>
+<p><img alt="" loading="lazy" data-src="/assets/images/12b96d2a949f29cc15d77d7d.png" class="lazyload" src="/assets/images/12b96d2a949f29cc15d77d7d.png"></p>
 <p>题解 ：</p>
 <p>     一个节点的价值的底数 <span class="math inline">\(10 ^ {18}\)</span> 可以看做 <span class="math inline">\(+\infty\)</span>。 也就是说 ， 贪心策略就是优先选取权值较大的点。</p>
 <p>     那么就有一个 <span class="math inline">\(O(N ^ 3)\)</span> 的做法了 ， 从大到小枚举 <span class="math inline">\(S\)</span> , 依次选点。</p>
@@ -110,7 +110,7 @@ cnblogs_id: 14224023
 <p>     因此要求的就是 <span class="math inline">\(\sum_{i}\sum_{j}\sum_{k}{[i \oplus j \oplus k = 0]10 ^ {18(i + j + k)}}\)</span>。</p>
 <p>     可以用 <span class="math inline">\(FWT\)</span> 进行异或卷积 ， 也可以通过观察得到 <span class="math inline">\(SG\)</span> 函数值不超过 <span class="math inline">\(500\)</span> , 暴力枚举计算答案。</p>
 <p>     时间复杂度 : <span class="math inline">\(O(N + M)\)</span></p>
-<p><img alt="" loading="lazy" data-src="/assets/images/3b60d95c55c1212dfe8e06be.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210108230024581-539074836.png"></p>
+<p><img alt="" loading="lazy" data-src="/assets/images/3b60d95c55c1212dfe8e06be.png" class="lazyload" src="/assets/images/3b60d95c55c1212dfe8e06be.png"></p>
 <p>题解 ：</p>
 <p>     首先不妨将棋盘黑白染色。</p>
 <p>     一个结论是 : 后手必胜当且仅当存在最大匹配不包括当前节点。</p>
@@ -119,10 +119,10 @@ cnblogs_id: 14224023
 <p>     把 <span class="math inline">\(u\)</span> 去掉 ， 看原图是否能增广 ， 若能 ， 说明找到了新的最大匹配。 否则不能。</p>
 <p>     时间复杂度 ： <span class="math inline">\(O(N ^ 4)\)</span></p>
 <p><span class="math inline">\(CF1451F\)</span></p>
-<p><img alt="" loading="lazy" data-src="/assets/images/55a24748084becdecfe983e3.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210108233719891-47236257.png"></p>
+<p><img alt="" loading="lazy" data-src="/assets/images/55a24748084becdecfe983e3.png" class="lazyload" src="/assets/images/55a24748084becdecfe983e3.png"></p>
 <p>题解 ：</p>
 <p>     如图 ，<br>
-<img alt="" loading="lazy" data-src="/assets/images/109785efd1d5a4858ef6649f.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202101/1424311-20210108233858545-749408066.png"></p>
+<img alt="" loading="lazy" data-src="/assets/images/109785efd1d5a4858ef6649f.png" class="lazyload" src="/assets/images/109785efd1d5a4858ef6649f.png"></p>
 <p>     若干条对角线将棋盘分割为若干个类似于 <span class="math inline">\(Nim\)</span> 的游戏和。 具体做法类似于 <span class="math inline">\(CF1149E\)</span>。 时间复杂度 : <span class="math inline">\(O(NM)\)</span></p>
 
 

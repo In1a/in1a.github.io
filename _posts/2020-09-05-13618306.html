@@ -268,7 +268,7 @@ cnblogs_id: 13618306
 2). <span class="math inline">\(inc_{j} + pref_{j} \geq b_{i} + p_{i}\)</span><br>
 3). <span class="math inline">\(pref_{j} - inc_{j} \leq b_{i} - p_{i}\)</span><br>
 考虑这三个条件的含义 ， 将 <span class="math inline">\(inc\)</span> 值作为横轴 ， <span class="math inline">\(pref\)</span> 值作为纵轴 ， 发现 <span class="math inline">\(i\)</span> 能够造成的贡献的点恰好为平面上的一个等腰三角形。如图（来自陈栉旷) :<br>
-<img alt="" loading="lazy" data-src="/assets/images/f93aa244f6a26747f8e8fd41.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202009/1424311-20200918223241750-1387738477.png"><br>
+<img alt="" loading="lazy" data-src="/assets/images/f93aa244f6a26747f8e8fd41.png" class="lazyload" src="/assets/images/f93aa244f6a26747f8e8fd41.png"><br>
 考虑扫描线并进行差分 ， 在扫描到 <span class="math inline">\(b_{i}\)</span> 时加入这个三角形 ， 在扫描到 <span class="math inline">\(s_{i} + 1\)</span> 时去除这个三角形所造成的影响。<br>
 除此以外 ， 还需要支持查询某个点在多少个三角形内。<br>
 于是考虑第 <span class="math inline">\(i\)</span> 个三角形造成的影响 ， 可以看成<br>
@@ -317,7 +317,7 @@ cnblogs_id: 13618306
 <p><span class="math inline">\(LOJ2743\)</span><br>
 一个经典问题 ， 来自于<span class="math inline">\(2016\)</span>年日本信息学竞赛(<span class="math inline">\(JOI\)</span>)夏令营。<br>
 考虑将 <span class="math inline">\(A\)</span> 从小到大排序 ， 依次加入这个序列。<br>
-<img alt="" loading="lazy" data-src="/assets/images/a7d60766d461491ec4bb0c17.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202009/1424311-20200919202340759-906495695.png"><br>
+<img alt="" loading="lazy" data-src="/assets/images/a7d60766d461491ec4bb0c17.png" class="lazyload" src="/assets/images/a7d60766d461491ec4bb0c17.png"><br>
 如图 ， 在 <span class="math inline">\(A_{i}\)</span> 不断增大的过程中 ， 维护直线 <span class="math inline">\(y = A_{i}\)</span> 下方的长度和。<br>
 于是定义 <span class="math inline">\(DP\)</span> 状态 <span class="math inline">\(f_{i , j , k , h}\)</span> , 表示插入了 <span class="math inline">\(i\)</span> 个数 ， 分成了 <span class="math inline">\(j\)</span> 个联通块 ， 当前的总和为 <span class="math inline">\(k\)</span> , 选出了 <span class="math inline">\(h\)</span> 个边界的方案数。<br>
 这样定义状态的好处是 ， 只需保证两段之间有空位或是否在边界即可 ， 而并不关心其实际位置。<br>

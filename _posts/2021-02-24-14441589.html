@@ -12,7 +12,7 @@ cnblogs_id: 14441589
 <p>[题解]</p>
 <p>首先有一个显然的观察 : 若 <span class="math inline">\((u , v)\)</span> 合法 ， 那么 <span class="math inline">\((v , u)\)</span> 同样合法。</p>
 <p>考虑一种简单情况 :</p>
-<p><img alt="" loading="lazy" data-src="/assets/images/aeb2347adc5b731568550c76.png" class="lazyload" src="https://img2020.cnblogs.com/blog/1424311/202102/1424311-20210224151131135-867213372.png"></p>
+<p><img alt="" loading="lazy" data-src="/assets/images/aeb2347adc5b731568550c76.png" class="lazyload" src="/assets/images/aeb2347adc5b731568550c76.png"></p>
 <p>如图 ， <span class="math inline">\(a , c\)</span> 是一条合法路径。 那么不妨将 <span class="math inline">\(a , c\)</span> 合并 ， 用并查集维护 ， 再放入一个队列中与其它点合并即可。</p>
 <p>时间复杂度 : <span class="math inline">\(O(NlogN)\)</span></p>
 <p>[代码]</p>

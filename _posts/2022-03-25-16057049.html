@@ -25,10 +25,10 @@ cnblogs_id: 16057049
 <p>此算法将时间复杂度提高至最劣情况下 <span class="math inline">\(O(log^2N)\)</span> 。</p>
 <p>生日悖论 :</p>
 <p>我们知道， 在中国大多数高中 ， 每个班有 <span class="math inline">\(40\)</span> 到 <span class="math inline">\(50\)</span> 位同学。 你的班级是否有两个有缘人是同年同月同日生呢？ 这样的概率是很大的 ， 由下图就可以知晓。</p>
-<p><img alt="" loading="lazy" data-src="/assets/images/428995edfff886b5e3d41931.png" class="lazyload" src="https://img2022.cnblogs.com/blog/1424311/202203/1424311-20220325204824560-424422032.png"></p>
+<p><img alt="" loading="lazy" data-src="/assets/images/428995edfff886b5e3d41931.png" class="lazyload" src="/assets/images/428995edfff886b5e3d41931.png"></p>
 <p>(此图来源为 Wikipedia)</p>
 <p>事实上，我们可以用函数表示 <span class="math inline">\(N\)</span> 个人生日两两不同的概率 :</p>
-<p><img alt="" loading="lazy" data-src="/assets/images/17feb93aeb17bcc2da054428.png" class="lazyload" src="https://img2022.cnblogs.com/blog/1424311/202203/1424311-20220325205143173-1183545180.png"></p>
+<p><img alt="" loading="lazy" data-src="/assets/images/17feb93aeb17bcc2da054428.png" class="lazyload" src="/assets/images/17feb93aeb17bcc2da054428.png"></p>
 <p>当 <span class="math inline">\(N = 23\)</span> 时 ， 存在两人生日相同的概率就达到了 <span class="math inline">\(50\%\)</span>。 这也对应了上图。</p>
 <p>弗洛伊德判环法 :</p>
 <p>我们来解决一个这样的问题 : 有一个伪随机数列 <span class="math inline">\(a\)</span> 和随机函数 <span class="math inline">\(f\)</span> , 其递推公式为 <span class="math inline">\(a_{i} = f_{a_{i - 1}}\)</span>。这个序列存在一个循环节 ， 请给出循环开始的第一个位置 <span class="math inline">\(\mu\)</span> 和环长 <span class="math inline">\(\phi\)</span>。</p>
@@ -54,7 +54,7 @@ cnblogs_id: 16057049
 否则，即 <span class="math inline">\(gcd(prod,N) = N\)</span> ，我们不知道此时我们是否需要重新进行算法，需要回到 <span class="math inline">\(\beta\)</span> 次操作之前。</p>
 <p>故算法产生一次有效的分解的期望时间复杂度被优化至了 <span class="math inline">\(O(N^{\frac{1}{4}}+\frac{N^{\frac{1}{4}}*\alpha(N)}{\beta}+\beta*\alpha(N))\)</span> 。</p>
 <p>下面是 Pollard's Rho Algorithm 的一个演示图 ， 相信会有助于您更好地理解。 来源为 Wikipedia</p>
-<p><img alt="" loading="lazy" data-src="/assets/images/96604ed9c2ec803b54b8b78f.gif" class="lazyload" src="https://img2022.cnblogs.com/blog/1424311/202203/1424311-20220325223545295-208782440.gif"></p>
+<p><img alt="" loading="lazy" data-src="/assets/images/96604ed9c2ec803b54b8b78f.gif" class="lazyload" src="/assets/images/96604ed9c2ec803b54b8b78f.gif"></p>
 
 
 
