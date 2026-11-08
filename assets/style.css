@@ -9,3 +9,8 @@
 #post-password-error{min-height:22px;font-size:13px;color:#ad3a3a}.password-gate small{font-size:11px;color:#83919b}
 .post-body[hidden]{display:none}.password-gate[hidden]{display:none}
 @media(max-width:550px){.gate-input{flex-direction:column}.password-gate{padding:30px 16px}}
+
+/* Quiet photographic header replacing the old text introduction. */
+.hero-wallpaper{height:310px;margin:32px 0 0;border-radius:14px;background:#23473f url('/assets/hero-wallpaper.jpg') center 52%/cover no-repeat;box-shadow:0 10px 35px rgba(24,44,51,.09)}
+@media(max-width:600px){.hero-wallpaper{height:205px;margin:20px 0 0;border-radius:10px;background-position:52% center}}
+@media(prefers-reduced-motion:no-preference){.hero-wallpaper{transition:filter .2s ease}.hero-wallpaper:hover{filter:saturate(1.08)}}
