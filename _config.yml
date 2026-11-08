@@ -1,0 +1,19 @@
+title: Evenbao's Blog
+description: 算法、竞赛与计算机科学笔记
+author: evenbao
+lang: zh-CN
+timezone: Asia/Shanghai
+url: "https://evenbao333.github.io"
+baseurl: ""
+permalink: /posts/:title/
+markdown: kramdown
+kramdown:
+  input: GFM
+  math_engine: mathjax
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
+exclude:
+  - scripts
+  - README.md
+  - Gemfile.lock
