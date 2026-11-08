@@ -1,0 +1,30 @@
+locale: zh_Hans
+site_url: https://evenbao333.github.io
+display_url: https://evenbao333.github.io
+backend:
+  name: turbo-github
+  turbo_site_id: REPLACE_WITH_YOUR_DECAP_TURBO_SITE_ID
+  branch: main
+media_folder: assets/uploads
+public_folder: /assets/uploads
+collections:
+  - name: blog
+    label: 博文
+    label_singular: 博文
+    folder: _posts
+    create: true
+    extension: md
+    format: frontmatter
+    slug: '{{year}}-{{month}}-{{day}}-{{slug}}'
+    editor:
+      preview: false
+    fields:
+      - { label: 页面布局, name: layout, widget: hidden, default: post }
+      - { label: 标题, name: title, widget: string }
+      - { label: 日期, name: date, widget: datetime }
+      - label: 分类
+        name: categories
+        widget: list
+        required: false
+        field: { label: 分类名称, name: category, widget: string }
+      - { label: 正文, name: body, widget: markdown }
