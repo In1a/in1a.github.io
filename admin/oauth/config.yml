@@ -28,3 +28,25 @@ collections:
         required: false
         field: { label: 分类名称, name: category, widget: string }
       - { label: 正文, name: body, widget: markdown }
+  - name: archive
+    label: 历史文章（HTML）
+    label_singular: 历史文章
+    description: 从博客园迁移的 740 篇文章。正文为原始 HTML，请谨慎修改；建议只调整标题和分类。
+    folder: _posts
+    create: false
+    extension: html
+    format: frontmatter
+    editor:
+      preview: false
+    fields:
+      - { label: 页面布局, name: layout, widget: hidden, default: post }
+      - { label: 标题, name: title, widget: string }
+      - { label: 日期, name: date, widget: datetime }
+      - label: 分类
+        name: categories
+        widget: list
+        required: false
+        field: { label: 分类名称, name: category, widget: string }
+      - { label: 原文链接, name: source_url, widget: string, required: false }
+      - { label: 博客园文章 ID, name: cnblogs_id, widget: number, required: false }
+      - { label: 正文 HTML（保留原始标记）, name: body, widget: text }
