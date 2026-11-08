@@ -8,6 +8,7 @@
   let entries = [];
   let draftEntries = [];
   let current = null;
+  let legacyOriginal = '';
   let selectedTab = 'published';
   let busy = false;
 
@@ -137,6 +138,7 @@
 
   function newPost() {
     current = null;
+    legacyOriginal = '';
     $('editor-heading').textContent = '写新文章'; $('editor-mode').textContent = '新文章';
     $('title').value = ''; $('slug').value = ''; $('date').value = today();
     $('categories').value = ''; $('body').value = '';
@@ -153,19 +155,21 @@
       const data = await api('/contents/' + path.split('/').map(encodeURIComponent).join('/'));
       const parts = frontMatter(base64utf8(data.content));
       const title = frontValue(parts.front, 'title') || baseName(path).replace(/\.md$|\.html$/, '');
-      current = { path, sha: data.sha, front: parts.front, draft: path.startsWith('_drafts/') };
+      const importedHtml = path.endsWith('.html');
+      legacyOriginal = importedHtml ? parts.body : '';
+      current = { path, sha: data.sha, front: parts.front, draft: path.startsWith('_drafts/'), converted: importedHtml };
       $('title').value = title;
       $('slug').value = baseName(path).replace(/^\d{4}-\d{2}-\d{2}-/, '').replace(/\.(md|html)$/, '');
       $('date').value = String(frontValue(parts.front, 'date')).slice(0, 10) || today();
       $('categories').value = frontCategories(parts.front).join(', ');
-      $('body').value = parts.body;
+      $('body').value = importedHtml ? window.legacyHtmlToMarkdown(parts.body) : parts.body;
       $('slug').disabled = true;
       $('date').disabled = !current.draft;
       $('editor-heading').textContent = title;
       $('editor-mode').textContent = current.draft ? '草稿' : '已发表';
       $('delete').hidden = false;
       $('publish').textContent = current.draft ? '发表草稿' : '保存并更新文章';
-      $('format-hint').textContent = path.endsWith('.html') ? '此篇为迁移的 HTML 文章。保留原有 HTML 和 {% raw %} 标记，以免影响旧文章排版。' : '正文使用 Markdown 格式。';
+      $('format-hint').textContent = importedHtml ? '已将迁移文章转换为可编辑的 Markdown 预览。保存时会生成 .md 文件并移除旧 .html 文件；转换可能改变复杂排版，请先核对代码、表格和图片。GitHub 历史保留原文。' : '正文使用 Markdown 格式。';
       $('save-draft').disabled = !current.draft;
       setStatus('文章已载入，可以修改标题、正文和分类。');
       renderList();
@@ -222,9 +226,7 @@
       });
       const textarea = $('body');
       const label = file.name.replace(/\.[^.]+$/, '').replace(/[\[\]<>]/g, '');
-      const snippet = current?.path.endsWith('.html')
-        ? `\n<img src="/${name}" alt="${label.replace(/"/g, '')}">\n`
-        : `\n![${label}](/${name})\n`;
+      const snippet = `\n![${label}](/${name})\n`;
       textarea.setRangeText(snippet, textarea.selectionStart, textarea.selectionEnd, 'end');
       $('image-file').value = '';
       setStatus('图片已上传并插入正文。请继续保存草稿或发布文章。');
@@ -237,19 +239,26 @@
     let post;
     try { post = buildDocument(); } catch (error) { return setStatus(error.message, true); }
     if (!publish && current && !current.draft) return setStatus('已发表文章请使用“保存并更新文章”。', true);
+    if (publish && current?.converted && !confirm('即将把这篇旧 HTML 文章改为 Markdown，并替换原文件。请确认已检查代码块、图片和复杂排版。原始版本可从 GitHub 历史恢复。是否继续？')) return;
     const path = publish
-      ? (current && !current.draft ? current.path : `_posts/${post.date}-${post.slug}.md`)
+      ? (current && !current.draft ? (current.converted ? current.path.replace(/\.html$/, '.md') : current.path) : `_posts/${post.date}-${post.slug}.md`)
       : (current?.draft ? current.path : `_drafts/${post.slug}.md`);
     busyState(true); setStatus('正在提交到 GitHub…');
     try {
       const oldPath = current?.path;
       const result = await putFile(path, post.text, current?.path === path ? current.sha : null, `${publish ? 'Publish' : 'Save draft'}: ${post.title}`);
       let warning = '';
+      if (publish && current?.converted) {
+        try { await deleteFile(current.path, current.sha, `Replace legacy HTML post with Markdown: ${post.title}`); }
+        catch (error) { warning = `Markdown 已保存，但旧 HTML 文件未删除；可能出现重复文章。请先处理旧文件：${error.message}`; }
+      }
       if (publish && current?.draft) {
         try { await deleteFile(current.path, current.sha, `Remove published draft: ${post.title}`); }
         catch (error) { warning = `文章已发表，但旧草稿未删除：${error.message}`; }
       }
-      current = { path, sha: result.content.sha, front: frontMatter(post.text).front, draft: !publish };
+      current = { path, sha: result.content.sha, front: frontMatter(post.text).front, draft: !publish, converted: false };
+      legacyOriginal = '';
+      $('format-hint').textContent = '正文使用 Markdown 格式。';
       $('editor-mode').textContent = publish ? '已发表' : '草稿';
       $('slug').disabled = true; $('date').disabled = publish;
       $('publish').textContent = publish ? '保存并更新文章' : '发表草稿';
@@ -260,6 +269,7 @@
       if (entry) Object.assign(entry, { title: post.title, date: post.date, categories: categories() });
       else list.unshift({ path, title: post.title, date: post.date, categories: categories() });
       if (publish && oldPath?.startsWith('_drafts/') && !warning) draftEntries = draftEntries.filter(p => p.path !== oldPath);
+      if (publish && oldPath?.endsWith('.html') && !warning) entries = entries.filter(p => p.path !== oldPath);
       selectedTab = publish ? 'published' : 'drafts';
       renderList();
       setStatus(warning || (publish ? '已提交发布！GitHub Pages 通常需要稍等片刻才会显示新文章。' : '草稿已保存到 GitHub（尚未公开发表）。'), !!warning);
