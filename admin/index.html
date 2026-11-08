@@ -34,6 +34,15 @@ permalink: /admin/
         <label for="title">标题</label><input id="title" placeholder="文章标题" maxlength="180">
         <div class="two"><div><label for="slug">链接名称（英文字母、数字、短横线）</label><input id="slug" placeholder="my-first-post"></div><div><label for="date">发表日期</label><input id="date" type="date"></div></div>
         <label for="categories">分类（多个用逗号分隔）</label><input id="categories" list="category-options" placeholder="例如：阅读, 生活"><datalist id="category-options"><option value="算法"><option value="技术"><option value="阅读"><option value="生活"><option value="随笔"><option value="项目"></datalist>
+        <div class="post-options">
+          <label class="check-option"><input id="pinned" type="checkbox"><span>📌 置顶文章 <small>在博客首页优先显示</small></span></label>
+          <label class="check-option"><input id="password-enabled" type="checkbox"><span>🔒 设置文章密码 <small>访问文章时要求输入密码</small></span></label>
+        </div>
+        <div id="password-options" class="password-options" hidden>
+          <label for="article-password">文章密码</label>
+          <input id="article-password" type="password" autocomplete="new-password" placeholder="输入新的文章密码（留空则保留原密码）">
+          <p class="hint" id="password-help">密码会转换为带随机盐的校验值；GitHub Pages 文章源代码仍公开，请勿存放敏感信息。</p>
+        </div>
         <div class="markdown-title"><label for="body">正文</label><span>编辑器：Markdown</span></div>
         <div class="markdown-shell">
           <div class="markdown-toolbar">
