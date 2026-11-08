@@ -26,3 +26,10 @@
 .editor-expanded .columns{grid-template-columns:1fr}
 .editor-expanded .sidebar{display:none}
 @media(max-width:700px){.markdown-toolbar{align-items:stretch}.markdown-actions{width:100%;border-top:1px solid #eef0f3}.markdown-shell textarea,.markdown-preview{min-height:400px;padding:14px;font-size:14px}}
+
+.post-options{display:flex;gap:14px;flex-wrap:wrap;margin-top:18px;padding:13px 0;border-top:1px solid #edf1f3;border-bottom:1px solid #edf1f3}
+.post-options .check-option{display:flex;align-items:flex-start;gap:9px;cursor:pointer;flex:1;min-width:190px;margin:0;padding:9px 11px;background:#f7f9fa;border:1px solid #ebf0f2;border-radius:8px;color:#24313b;font-size:14px}
+.post-options input[type=checkbox]{width:17px;height:17px;min-width:17px;margin-top:3px;accent-color:#197f75}
+.post-options small{display:block;color:#718091;font-size:11px;font-weight:400;margin-top:2px}
+.password-options{background:#f8fbfa;border:1px solid #e0eeeb;border-radius:9px;padding:13px 16px;margin-top:13px}
+.password-options[hidden]{display:none}.password-options label{margin:0 0 8px}
