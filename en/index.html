@@ -1,0 +1,12 @@
+---
+layout: default
+title: Posts
+lang: en
+permalink: /en/
+translation_url: /
+description: Personal notes on computer science, books, life, and everything in between.
+---
+<section class="intro"><div class="eyebrow">A PERSONAL NOTEBOOK</div><h1>Moments, thoughts, <em>and everything in between.</em></h1><p>Notes on computer science, books, everyday life, and whatever else catches my attention.</p></section>
+<section class="archive"><div class="archive-head"><h2>All posts <small>{{ site.posts.size }}</small></h2><input id="search" type="search" placeholder="Search titles or categories…" aria-label="Search posts"></div>
+<div id="posts">{% for post in site.posts %}<a class="post-row" href="{{ post.url | relative_url }}" data-query="{{ post.title | downcase | escape }} {{ post.categories | join: ' ' | downcase | escape }}"><div class="post-title">{{ post.title | escape }}</div><div class="post-date">{{ post.date | date: '%Y.%m.%d' }}</div></a>{% endfor %}</div><p id="empty" hidden>No posts match your search.</p></section>
+<script>const field=document.getElementById('search'),rows=[...document.querySelectorAll('.post-row')],empty=document.getElementById('empty');field.addEventListener('input',()=>{let q=field.value.trim().toLocaleLowerCase(),n=0;for(let row of rows){let show=row.dataset.query.includes(q);row.hidden=!show;if(show)n++}empty.hidden=n!==0});</script>

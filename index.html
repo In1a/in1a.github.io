@@ -1,8 +1,9 @@
 ---
 layout: default
 title: 文章
+translation_url: /en/
 ---
-<section class="intro"><div class="eyebrow">COMPUTER SCIENCE / ALGORITHMS</div><h1>思考，记录，<em>继续探索。</em></h1><p>编程竞赛、算法题解以及计算机科学学习笔记。</p></section>
+<section class="intro"><div class="eyebrow">A PERSONAL NOTEBOOK</div><h1>写下所见，<em>留下所想。</em></h1><p>关于计算机科学、阅读、生活，以及途中遇到的其他有趣事物。</p></section>
 <section class="archive"><div class="archive-head"><h2>全部文章 <small>{{ site.posts.size }}</small></h2><input id="search" type="search" placeholder="搜索标题或分类…" aria-label="搜索文章"></div>
 <div id="posts">{% for post in site.posts %}<a class="post-row" href="{{ post.url | relative_url }}" data-query="{{ post.title | downcase | escape }} {{ post.categories | join: ' ' | downcase | escape }}"><div class="post-title">{{ post.title | escape }}</div><div class="post-date">{{ post.date | date: '%Y.%m.%d' }}</div></a>{% endfor %}</div><p id="empty" hidden>没有找到匹配的文章。</p></section>
 <script>const field=document.getElementById('search'),rows=[...document.querySelectorAll('.post-row')],empty=document.getElementById('empty');field.addEventListener('input',()=>{let q=field.value.trim().toLocaleLowerCase(),n=0;for(let row of rows){let show=row.dataset.query.includes(q);row.hidden=!show;if(show)n++}empty.hidden=n!==0});</script>
