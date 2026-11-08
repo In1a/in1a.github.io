@@ -5,6 +5,17 @@ layout: default
   <a class="back" href="{{ '/' | relative_url }}">← 返回文章列表</a>
   <h1>{{ page.title | escape }}</h1>
   <div class="meta"><time datetime="{{ page.date | date_to_xmlschema }}">{{ page.date | date: '%Y 年 %m 月 %d 日' }}</time>{% if page.categories.size > 0 %} · {{ page.categories | join: ' / ' }}{% endif %}</div>
-  <div class="post-body">{{ content }}</div>
+  {% if page.password_hash and page.password_salt %}
+  <section id="post-password-gate" class="password-gate" data-hash="{{ page.password_hash | escape }}" data-salt="{{ page.password_salt | escape }}">
+    <div class="gate-icon">🔒</div>
+    <h2>这篇文章需要密码</h2>
+    <p>请输入作者设置的文章密码后继续阅读。</p>
+    <form id="post-password-form"><label for="post-password">文章密码</label><div class="gate-input"><input id="post-password" type="password" autocomplete="off" required placeholder="输入密码"><button type="submit">解锁文章</button></div></form>
+    <p id="post-password-error" role="status" aria-live="polite"></p>
+    <small>提示：这是 GitHub Pages 的简单页面锁，源代码仍可能被访问，请勿用于敏感内容。</small>
+  </section>
+  {% endif %}
+  <div class="post-body" id="protected-post-body" {% if page.password_hash and page.password_salt %}hidden{% endif %}>{{ content }}</div>
+  {% if page.password_hash and page.password_salt %}<script defer src="{{ '/assets/post-lock.js' | relative_url }}"></script>{% endif %}
   {% if page.source_url %}<p class="source">原文：<a href="{{ page.source_url }}" target="_blank" rel="noopener">博客园原始文章 ↗</a></p>{% endif %}
 </article>
